@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Meshwork
+GenericName=Meshwork
+Comment=Distributed secure private p2p network.
+Exec=meshwork
+TryExec=meshwork
+Icon=meshwork.png
+StartupNotify=true
+Terminal=false
+Type=Application
+MimeType=
+Categories=Application;Network;P2P;

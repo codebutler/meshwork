@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+# SharpDevelop 3.0.0.2970
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileFind.Meshwork.GtkClient", "src\FileFind.Meshwork.GtkClient\FileFind.Meshwork.GtkClient.csproj", "{3365276B-1897-48BF-AE17-13519F98888B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileFind.Meshwork", "src\FileFind.Meshwork\FileFind.Meshwork.csproj", "{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3365276B-1897-48BF-AE17-13519F98888B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3365276B-1897-48BF-AE17-13519F98888B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3365276B-1897-48BF-AE17-13519F98888B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3365276B-1897-48BF-AE17-13519F98888B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{997752C2-E78D-4B64-97D2-C02C5D3ACA56}.Debug|Any CPU.ActiveCfg = Debug
+		{997752C2-E78D-4B64-97D2-C02C5D3ACA56}.Debug|Any CPU.Build.0 = Debug
+		{997752C2-E78D-4B64-97D2-C02C5D3ACA56}.Release|Any CPU.ActiveCfg = Debug
+		{997752C2-E78D-4B64-97D2-C02C5D3ACA56}.Release|Any CPU.Build.0 = Debug
+		{56F2591C-6047-4099-A551-843AA7D74D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56F2591C-6047-4099-A551-843AA7D74D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56F2591C-6047-4099-A551-843AA7D74D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56F2591C-6047-4099-A551-843AA7D74D17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FD7277E-6F97-4762-8C0A-325FC5E9317A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FD7277E-6F97-4762-8C0A-325FC5E9317A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FD7277E-6F97-4762-8C0A-325FC5E9317A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FD7277E-6F97-4762-8C0A-325FC5E9317A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C0B14B1-8CA2-4AA6-9F0B-A08611C3C8AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C0B14B1-8CA2-4AA6-9F0B-A08611C3C8AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C0B14B1-8CA2-4AA6-9F0B-A08611C3C8AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C0B14B1-8CA2-4AA6-9F0B-A08611C3C8AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,64 @@
+About
+-----
+
+Meshwork allows you to create a private virtual network of friends that you
+can use to chat, share files, and more without worrying about compromising
+your privacy.
+
+Meshwork was created by Eric Butler.
+
+Meshwork is currently an abandoned project. Some things work, some things don't.
+If you're interested in the project, please contact me (eric@extremeboredom.net).
+I'd be happy to chat about it.
+
+Build Dependencies
+------------------
+
+ - Automake 1.9
+ - gmcs
+ - avahi-sharp
+ - dbus-sharp
+ - Mono.Cairo
+ - glib-gettextize
+ - GTK# 2.x
+
+Ubuntu users can install everything in one command...
+
+Dapper 6.06:
+
+	sudo apt-get install automake1.9 mono-gmcs libavahi-cil \ 
+	  libdbus-1-cil libglib2.0-dev gtk-sharp2 intltool \
+	  libgdiplus
+
+Edgy 6.10:
+
+	sudo apt-get install automake1.9 mono-gmcs libavahi1.0-cil \ 
+	  libdbus-1-cil libmono-cairo2.0-cil libglib2.0-dev gtk-sharp2 \
+	  intltool libgdiplus
+
+Instructions
+------------
+
+First install all build dependencies as explained above.
+
+If you are building from a git repository:
+
+	./autogen.sh
+
+Otherwise if you are building from a release tarball:
+
+	./configure
+
+Next run:
+
+	make
+	sudo make install
+
+Then just type 'meshwork' to start it.
+
+If you would rather not install Meshwork, you can run it out
+of the source tree:
+
+	make run
+
+Have fun.

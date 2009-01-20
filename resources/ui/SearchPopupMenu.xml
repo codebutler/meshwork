@@ -1,0 +1,6 @@
+<ui>
+	<popup name="SidebarSearchPopupMenu">
+		<menuitem action="SidebarSearchAgain" />
+		<menuitem action="SidebarRemoveSearch" />
+	</popup>
+</ui>

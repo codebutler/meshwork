@@ -1,0 +1,199 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <AssemblyName>FileFind.Meshwork</AssemblyName>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FileFind.Meshwork</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\build\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>Full</DebugType>
+    <OutputType>Library</OutputType>
+    <AssemblyName>FileFind.Meshwork</AssemblyName>
+    <RootNamespace>FileFind.Meshwork</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <DefineConstants>TRACE</DefineConstants>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <OutputType>Library</OutputType>
+    <AssemblyName>FileFind.Meshwork</AssemblyName>
+    <RootNamespace>FileFind.Meshwork</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\contrib\DiffieHellman.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data">
+      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data.Sqlite">
+      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data.SqliteClient">
+      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Data.SqliteClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.GetOptions">
+      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.GetOptions.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Posix">
+      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Posix.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
+    </Reference>
+    <Reference Include="System.Web.Services">
+      <Name>System.Web.Services</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <Reference Include="Mono.Data.SqliteClient" />
+    <Reference Include="Mono.Posix" />
+    <Reference Include="MonoTorrent, Version=0.3.0.0, Culture=neutral">
+      <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AckMethod.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="AutoconnectManager.cs" />
+    <Compile Include="ConnectionState.cs" />
+    <Compile Include="ConnectionType.cs" />
+    <Compile Include="DebugInfo.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="FileFind.Meshwork.Collections\MessageIdCollection.cs" />
+    <Compile Include="FileFind.Meshwork.Collections\NodeConnectionCollection.cs" />
+    <Compile Include="FileFind\Common.cs" />
+    <Compile Include="FileFind\IPv6Util.cs" />
+    <Compile Include="FileFind\Serialization.cs" />
+    <Compile Include="FileFind\StringWriterWithEncoding.cs" />
+    <Compile Include="IAvatarManager.cs" />
+    <Compile Include="IMeshworkPlugin.cs" />
+    <Compile Include="INodeConnection.cs" />
+    <Compile Include="IPlatform.cs" />
+    <Compile Include="ISettings.cs" />
+    <Compile Include="LocalNodeConnection.cs" />
+    <Compile Include="LogManager.cs" />
+    <Compile Include="Memo.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="MessageBuilder.cs" />
+    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="Network.cs" />
+    <Compile Include="Node.cs" />
+    <Compile Include="OSX.cs" />
+    <Compile Include="PublicKey.cs" />
+    <Compile Include="RemoteNodeConnection.cs" />
+    <Compile Include="ShareBuilder.cs" />
+    <Compile Include="TextCatalog.cs" />
+    <Compile Include="TrustedNodeInfo.cs" />
+    <Compile Include="Encryption.cs" />
+    <Compile Include="EndianBitConverter.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="NearbyNode.cs" />
+    <Compile Include="NetworkInfo.cs" />
+    <Compile Include="Validator.cs" />
+    <Compile Include="KeyFunctions.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\Directory.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\FileSystemProvider.cs" />
+    <Compile Include="FileFind.Meshwork.Protocol\MemoInfo.cs" />
+    <Compile Include="FileFind.Meshwork.Protocol\MessageContentClasses.cs" />
+    <Compile Include="NetworkState.cs" />
+    <Compile Include="Object.cs" />
+    <Compile Include="PluginInfo.cs" />
+    <Compile Include="ShareHasher.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer.BitTorrent\BitTorrentFileTransfer.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer.BitTorrent\BitTorrentFileTransferPeer.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer.BitTorrent\BitTorrentFileTransferProvider.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer.BitTorrent\MeshworkPeerConnection.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer.BitTorrent\MeshworkPeerConnectionListener.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\FileTransferBase.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\FileTransferDirection.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\FileTransferManager.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\FileTransferPeerBase.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\FileTransferPeerStatus.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\FileTransferStatus.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\IFileTransfer.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\IFileTransferPeer.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer\IFileTransferProvider.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\IDirectoryItem.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\File.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\IMeshworkOperation.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\ITransport.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\ITransportListener.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\TcpTransport.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\TcpListener.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\TransportBase.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\TransportManager.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\TransportState.cs" />
+    <Compile Include="ChatRoom.cs" />
+    <Compile Include="Core.cs" />
+    <Compile Include="FileFind.Meshwork.FileTransfer.BitTorrent\MeshworkTrackerClient.cs" />
+    <Compile Include="FileFind.Meshwork.Destination\DestinationManager.cs" />
+    <Compile Include="FileFind.Meshwork.Destination\IDestination.cs" />
+    <Compile Include="FileFind.Meshwork.Destination\IPDestination.cs" />
+    <Compile Include="FileFind.Meshwork.Destination\TCPDestination.cs" />
+    <Compile Include="DataConverter.cs" />
+    <Compile Include="Linux.cs" />
+    <Compile Include="Windows.cs" />
+    <Compile Include="FileFind.Meshwork.Search\FileSearch.cs" />
+    <Compile Include="FileFind.Meshwork.Search\FileSearchFilter.cs" />
+    <Compile Include="FileFind.Meshwork.Search\FileSearchGroup.cs" />
+    <Compile Include="FileFind.Meshwork.Search\FileSearchManager.cs" />
+    <Compile Include="FileFind.Meshwork.Search\ISearchResult.cs" />
+    <Compile Include="FileFind.Meshwork.Search\SearchResult.cs" />
+    <Compile Include="FileFind\ReadOnlyDictionary.cs" />
+    <Compile Include="FileFind\SerializableDictionary.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\ITransportEncryptor.cs" />
+    <Compile Include="FileFind.Meshwork.Transport\AESTransportEncryptor.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\PathUtil.cs" />
+    <Compile Include="SettingsBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FileFind.Meshwork.Filesystem" />
+    <Folder Include="FileFind.Meshwork.Protocol" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+</Project>

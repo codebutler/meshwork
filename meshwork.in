@@ -1,0 +1,3 @@
+#!/bin/sh
+
+@MONO@ --debug @prefix@/lib/meshwork/FileFind.Meshwork.GtkClient.exe $MONO_EXTRA_ARGS "$@"

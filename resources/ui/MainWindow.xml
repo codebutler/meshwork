@@ -1,0 +1,53 @@
+<ui>
+	<menubar name="OSXAppMenu">
+		<menu action="NetworkMenu" name="NetworkMenu">
+			<menuitem action="About" />
+			<separator />
+			<menuitem action="Preferences" />
+		
+			<menuitem action="Connect" /> 
+			<separator />
+			<menuitem action="PostMemo" />
+			<menuitem action="JoinChat" />
+			<menuitem action="Quit" />
+		</menu>
+		<menu name="ViewMenu" action="ViewMenu">
+			<menuitem action="ToggleMainToolbar" />
+			<menuitem action="ToggleMainUsers" />
+			<menuitem action="ToggleMainStatusbar" />
+		</menu>
+		<menu name="HelpMenu" action="HelpMenu">
+		</menu>
+	</menubar>
+
+	<menubar name="MainWindowMenuBar">
+		<menu action="MeshworkMenu" name="MeshworkMenu">
+			<menuitem action="Connect" /> 
+			<separator />
+			<menuitem action="PostMemo" />
+			<menuitem action="JoinChat" />
+			<separator />
+			<menuitem action="Quit" />
+		</menu>
+		<menu name="EditMenu" action="EditMenu">
+			<menuitem action="Preferences" />
+		</menu>
+		<menu name="ViewMenu" action="ViewMenu">
+			<menuitem action="ToggleMainToolbar" />
+			<menuitem action="ToggleMainUsers" />
+			<menuitem action="ToggleMainStatusbar" />
+		</menu>
+		<menu name="HelpMenu" action="HelpMenu">
+			<menuitem action="About" />
+		</menu>
+	</menubar>
+
+	<toolbar name="MainWindowToolbar">
+		<toolitem action="Connect" />
+		<separator />
+		<toolitem action="PostMemo" />
+		<toolitem action="JoinChat" />
+		<separator />
+		<toolitem action="Preferences" />
+	</toolbar>
+</ui>

@@ -1,0 +1,12 @@
+<ui>
+	<popup name="TrayPopupMenu">
+		<placeholder name="ViewToggleItems">
+			<menuitem action="ToggleMainWindow" />
+		</placeholder>
+		<separator />
+		<menuitem action="Connect" />
+		<menuitem action="Preferences" />
+		<separator />
+		<menuitem action="Quit" />
+	</popup>
+</ui>
