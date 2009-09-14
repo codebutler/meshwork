@@ -43,7 +43,7 @@ namespace FileFind.Meshwork
 	public delegate void ChatMessageEventHandler (ChatRoom room, Node messageFromNode, string messageText);
 	public delegate void ReceivedDirListingEventHandler (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directoryListing);
 	public delegate void ReceivedSearchResultEventHandler (Network network, SearchResultInfoEventArgs args);
-	public delegate void ReceivedNonCriticalErrorEventHandler (string errorFromNodeId, MeshworkException ex);
+	public delegate void ReceivedNonCriticalErrorEventHandler (Network network, Node from, MeshworkException error);
 	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkException ex);
 	public delegate void DebugWriteEventHandler (DebugInfo debugInfo);
 	public delegate void AvatarEventHandler (Network network, Node node, byte[] avatarData);
@@ -1386,7 +1386,7 @@ namespace FileFind.Meshwork
 		internal void RaiseReceivedNonCriticalError (Node from, MeshworkException exception)
 		{
 			if (ReceivedNonCriticalError != null)
-				ReceivedNonCriticalError(from.NodeID, exception);
+				ReceivedNonCriticalError(this, from, exception);
 		}
 
 		protected virtual void OnMemoDeleted (Memo memo)

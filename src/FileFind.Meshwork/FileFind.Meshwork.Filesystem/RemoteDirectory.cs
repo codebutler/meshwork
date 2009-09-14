@@ -15,11 +15,21 @@ namespace FileFind.Meshwork.Filesystem
 	{
 		IDirectory m_Parent;
 		Node m_Node;
+		
+		string m_Name;
 
-		public RemoteDirectory (IDirectory parent, Node node)
+		RemoteDirectory[] m_SubDirectories;
+		RemoteFile[]      m_Files;
+
+		RemoteDirectoryState m_State;
+
+		public RemoteDirectory (IDirectory parent, string name, Node node)
 		{
 			m_Parent = parent;
+			m_Name = name;
 			m_Node = node;
+
+			UpdateFromCache();
 		}
 
 		public Node Node {
@@ -30,37 +40,37 @@ namespace FileFind.Meshwork.Filesystem
 			get { return m_Node.Network; }
 		}
 
-		public bool Requested {
-			get { return false; }
+		public RemoteDirectoryState State {
+			get { return m_State; }
 		}
 
 		public override IDirectory[] Directories {
 			get {
-				return new IDirectory[0];
+				return m_SubDirectories;
 			}
 		}
 
 		public override int DirectoryCount {
 			get {
-				return 0;
+				return m_SubDirectories.Length;
 			}
 		}
 
 		public override int FileCount {
 			get {
-				return 0;
+				return m_Files.Length;
 			}
 		}
 
 		public override IFile[] Files {
 			get {
-				return new IFile[0];
+				return m_Files;
 			}
 		}
 
 		public override string Name {
 			get {
-				return null;
+				return m_Name;
 			}
 		}
 		
@@ -69,5 +79,27 @@ namespace FileFind.Meshwork.Filesystem
 				return m_Parent;
 			}
 		}
+
+		public void Update()
+		{
+			m_State = RemoteDirectoryState.ContentsRequested;
+			m_Node.Network.RequestDirectoryListing(m_Node, base.FullPath);
+		}
+
+		internal void UpdateFromCache()
+		{
+			// FIXME: Check for cache
+
+			m_SubDirectories = new RemoteDirectory[0];
+			m_Files = new RemoteFile[0];
+			m_State = RemoteDirectoryState.ContentsUnrequested;
+		}
+	}
+
+	public enum RemoteDirectoryState
+	{
+		ContentsUnrequested,
+		ContentsRequested,
+		ContentsReceived
 	}
 }
