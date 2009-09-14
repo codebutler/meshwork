@@ -20,9 +20,21 @@ FILES = \
 	FileFind.Meshwork.Protocol/MemoInfo.cs                                  \
 	FileFind.Meshwork.Filesystem/FileSystemProvider.cs                      \
 	FileFind.Meshwork.Filesystem/IDirectoryItem.cs			        \
-	FileFind.Meshwork.Filesystem/Directory.cs			        \
-	FileFind.Meshwork.Filesystem/File.cs		  	                \
-	FileFind.Meshwork.Filesystem/PathUtil.cs		  	        \
+	FileFind.Meshwork.Filesystem/AbstractFile.cs				\
+	FileFind.Meshwork.Filesystem/NetworkDirectory.cs			\
+	FileFind.Meshwork.Filesystem/IFile.cs					\
+	FileFind.Meshwork.Filesystem/ILocalDirectoryItem.cs			\
+	FileFind.Meshwork.Filesystem/RemoteFile.cs				\
+	FileFind.Meshwork.Filesystem/RemoteDirectory.cs				\
+	FileFind.Meshwork.Filesystem/IRemoteDirectoryItem.cs			\
+	FileFind.Meshwork.Filesystem/NodeDirectory.cs				\
+	FileFind.Meshwork.Filesystem/AbstractDirectory.cs			\
+	FileFind.Meshwork.Filesystem/LocalDirectory.cs				\
+	FileFind.Meshwork.Filesystem/MyDirectory.cs				\
+	FileFind.Meshwork.Filesystem/LocalFile.cs				\
+	FileFind.Meshwork.Filesystem/IDirectory.cs				\
+	FileFind.Meshwork.Filesystem/PathUtil.cs				\
+	FileFind.Meshwork.Filesystem/RootDirectory.cs				\
 	FileFind.Meshwork.FileTransfer/FileTransferManager.cs   	        \
 	FileFind.Meshwork.FileTransfer/FileTransferDirection.cs   	        \
 	FileFind.Meshwork.FileTransfer/FileTransferBase.cs   		        \
