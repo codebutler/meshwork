@@ -256,7 +256,10 @@ namespace FileFind.Meshwork.Filesystem
 		public Directory CreateSubdirectory (string name, Node node)
 		{
 			if (node == null) {
-				return Directory.CreateDirectory(fs, this, name, Path.Combine(this.LocalPath, name));
+				if (this != Core.FileSystem.RootDirectory)
+					return Directory.CreateDirectory(fs, this, name, Path.Combine(this.LocalPath, name));
+				else
+					return Directory.CreateDirectory(fs, this, name, String.Empty);
 			} else {
 				return Directory.CreateDirectory(fs, this, name, node);
 			}

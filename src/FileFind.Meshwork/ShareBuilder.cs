@@ -58,7 +58,7 @@ namespace FileFind.Meshwork
 				StartedIndexing (this, EventArgs.Empty);
 			}
 
-			Directory rootDirectory = Core.FileSystem.RootDirectory.GetSubdirectory(Core.MyNodeID);
+			Directory myDirectory = Core.FileSystem.RootDirectory.GetSubdirectory(Core.MyNodeID);
 
 			// XXX: Figure out what top-level directories
 			// are in the database, that are no longer in
@@ -71,7 +71,7 @@ namespace FileFind.Meshwork
 				IO.DirectoryInfo info = new IO.DirectoryInfo(directoryName);
 
 				if (IO.Directory.Exists(directoryName)) {
-					ProcessDirectory(rootDirectory, info);
+					ProcessDirectory(myDirectory, info);
 				} else {
 					// XXX: Inform the user somehow
 					// that this is missing. Don't

@@ -31,7 +31,7 @@ namespace FileFind.Meshwork.Filesystem
 
 	public class FileSystemProvider
 	{
-		const string SCHEMA_VERSION = "7";
+		const string SCHEMA_VERSION = "8";
 
 		string connectionString;
 		long yourTotalBytes = -1;
@@ -500,7 +500,7 @@ namespace FileFind.Meshwork.Filesystem
 						string path = reader.GetString(1);
 						string type = reader.GetString(2);
 						if (type == "D") {
-							if (!System.IO.Directory.Exists(path)) {
+							if (!String.IsNullOrEmpty(path) && !System.IO.Directory.Exists(path)) {
 								idsToDelete.Add(id);
 							}
 						} else if (type == "F") {
