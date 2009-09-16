@@ -20,6 +20,9 @@ namespace FileFind.Meshwork.Filesystem
 		FileType m_Type;
 		long m_Size;
 
+		int m_PieceLength = 0;
+		string[] m_Pieces;
+		
 		internal RemoteFile (RemoteDirectory parent, SharedFileListing listing)
 		{
 			m_Parent = parent;
@@ -28,6 +31,8 @@ namespace FileFind.Meshwork.Filesystem
 			m_InfoHash = listing.InfoHash;
 			m_Type = listing.Type;
 			m_Size = listing.Size;
+			
+			m_Pieces = new string[0];
 		}
 
 		public override string InfoHash {
@@ -68,7 +73,7 @@ namespace FileFind.Meshwork.Filesystem
 
 		public override int PieceLength {
 			get {
-				throw new System.NotImplementedException();
+				return m_PieceLength;
 			}
 			internal set {
 				throw new System.NotImplementedException();
@@ -77,7 +82,7 @@ namespace FileFind.Meshwork.Filesystem
 
 		public override string[] Pieces {
 			get {
-				throw new System.NotImplementedException();
+				return m_Pieces;
 			}
 			internal set {
 				throw new System.NotImplementedException();
