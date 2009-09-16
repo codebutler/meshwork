@@ -116,6 +116,17 @@ namespace FileFind.Meshwork.Destination
 				if (IsExternal) {
 					return base.IsOpenExternally;
 				} else {
+
+					// Make sure we don't also have this address.
+					foreach (IDestination destination in Core.DestinationManager.Destinations) {
+						if (destination is IPv4Destination && !destination.IsExternal) {
+							IPAddress myAddress = ((IPv4Destination)destination).IPAddress;
+							if (myAddress.Equals(base.IPAddress)) {
+								return false;
+							}
+						}
+					}
+					
 					// If this is an IPv4 address, we can connect only
 					// if one of our external Destinations matches another one
 					// of their (external) Destinations. This means that we both
@@ -123,6 +134,7 @@ namespace FileFind.Meshwork.Destination
 					// same NAT router). Under certain situations, a NAT'd
 					// network may have multiple public IP Addresses. We do not
 					// currently support this case.
+					// Multiple interfaces with private addresses are not currently well supported either.
 					
 					foreach (IDestination destination in Core.DestinationManager.Destinations) {
 						if (destination is IPv4Destination && destination.IsExternal) {
