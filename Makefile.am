@@ -1,4 +1,4 @@
-SUBDIRS = contrib po resources src
+SUBDIRS = contrib po resources src plugins
 bin_SCRIPTS = meshwork
 
 desktopdir = $(datadir)/applications

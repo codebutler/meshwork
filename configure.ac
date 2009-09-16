@@ -76,6 +76,8 @@ src/FileFind.Meshwork.GtkClient/Defines.cs
 contrib/Makefile
 resources/Makefile
 po/Makefile.in
+plugins/Makefile
+plugins/Debug/Makefile
 ])
 
 echo "

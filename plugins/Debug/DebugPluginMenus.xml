@@ -1,0 +1,8 @@
+<ui>
+	<menubar name="MainWindowMenuBar">
+		<menu name="HelpMenu" action="HelpMenu">
+			<separator />
+			<menuitem action="ShowDebugWindow" />
+		</menu>
+	</menubar>
+</ui>
