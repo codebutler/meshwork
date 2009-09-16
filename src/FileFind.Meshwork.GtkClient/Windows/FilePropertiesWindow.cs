@@ -30,6 +30,8 @@ namespace FileFind.Meshwork.GtkClient
 		public FilePropertiesWindow (IFile file) : base("FilePropertiesWindow")
 		{
 			this.file = file;
+			
+			fetchPiecesButton.Clicked += fetchPiecesButton_Clicked;
 
 			fileNameLabel.Text = file.Name;
 			fileTypeLabel.Text = file.Type;
@@ -57,7 +59,7 @@ namespace FileFind.Meshwork.GtkClient
 					piecesListStore.AppendValues("Hashing, please wait...");
 					fetchPiecesButton.Sensitive = false;
 				} else {
-					// Use can click fetch button.
+					// User can click fetch button.
 				}
 			}
 
@@ -85,6 +87,12 @@ namespace FileFind.Meshwork.GtkClient
 		private void closeButton_Clicked (object sender, EventArgs args)
 		{
 			base.Close();
+		}
+		
+		private void fetchPiecesButton_Clicked (object sender, EventArgs args)
+		{
+			RemoteFile remoteFile = (RemoteFile)file;
+			remoteFile.Network.RequestFileDetails(remoteFile);
 		}
 	}
 }
