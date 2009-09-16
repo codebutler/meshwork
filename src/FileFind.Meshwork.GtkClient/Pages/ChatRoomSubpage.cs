@@ -99,7 +99,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void UserListIconFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
-			Node node = (Node)model.GetValue (iter, 0);
+			//Node node = (Node)model.GetValue (iter, 0);
 
 			//XXX: Fix avatars here
 			/*Gdk.Pixbuf avatar = Gui.AvatarManager.GetSmallAvatar (node);

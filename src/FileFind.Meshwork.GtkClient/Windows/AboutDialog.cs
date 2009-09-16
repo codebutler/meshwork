@@ -17,22 +17,23 @@ namespace FileFind.Meshwork.GtkClient
 {
 	public class AboutDialog : GladeDialog
 	{
-		public AboutDialog (Window parent) : base (parent, "AboutDialog")
+		public AboutDialog (Window parent) : base(parent, "AboutDialog")
 		{
-			AssemblyDescriptionAttribute desc;
+			//AssemblyDescriptionAttribute desc;
 			AssemblyTitleAttribute title;
 			AssemblyVersionAttribute version;
 
-			Assembly aAssembly = Assembly.GetExecutingAssembly();
+			Assembly aAssembly = Assembly.GetExecutingAssembly ();
 
-			desc = (AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(aAssembly, typeof (AssemblyDescriptionAttribute));
-			title = (AssemblyTitleAttribute)AssemblyTitleAttribute.GetCustomAttribute(aAssembly, typeof (AssemblyTitleAttribute));
-			version = (AssemblyVersionAttribute)AssemblyVersionAttribute.GetCustomAttribute(aAssembly, typeof (AssemblyVersionAttribute));
+			//desc = (AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute (aAssembly, typeof(AssemblyDescriptionAttribute));
+			title = (AssemblyTitleAttribute)AssemblyTitleAttribute.GetCustomAttribute (aAssembly, typeof(AssemblyTitleAttribute));
+			version = (AssemblyVersionAttribute)AssemblyVersionAttribute.GetCustomAttribute (aAssembly, typeof(AssemblyVersionAttribute));
 		 
+			
 	 		Gtk.AboutDialog dialog = (Gtk.AboutDialog)Dialog;
-			dialog.Name = title.Title;
-			//dialog.Version = version.Version;
-			dialog.Comments = "Official Meshwork client for Linux";
+			dialog.ProgramName = title.Title;
+			dialog.Version = version.Version;
+			dialog.Comments = "The Official Meshwork Client";
 		}
 	}
 }

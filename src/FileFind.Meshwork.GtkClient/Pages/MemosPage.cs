@@ -150,9 +150,10 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void MemoAttachmentFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
-			object item = (object) model.GetValue (iter, 0);
+			object item = (object)model.GetValue (iter, 0);
 			if (item is Memo) {
-				Memo memo = (Memo)item;
+				// FIXME:
+				// Memo memo = (Memo)item;
 				//if (something) {
 					//(cell as CellRendererPixbuf).Pixbuf = Gui.LoadIcon (16, "mail-attachment");
 				//} else {

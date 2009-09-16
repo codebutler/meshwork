@@ -49,11 +49,10 @@ namespace FileFind.Meshwork.Transport
 		
 		public void SetKey  (byte[] keyBytes, byte[] ivBytes)
 		{
-			this.algorithm = algorithm;
 			this.keyBytes = keyBytes;
 			this.ivBytes = ivBytes;
 			
-			algorithm = new RijndaelManaged();
+			this.algorithm = new RijndaelManaged();
 		}		
 		
 		public byte[] Encrypt (byte[] buffer)

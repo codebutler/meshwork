@@ -34,7 +34,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		public void Activate ()
+		public new void Activate ()
 		{
 			searchEntry_Activated(this, EventArgs.Empty);
 		}

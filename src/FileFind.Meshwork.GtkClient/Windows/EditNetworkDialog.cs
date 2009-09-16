@@ -50,7 +50,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			TreeIter iter;
 			if (trustedNodesList.Selection.GetSelected (out iter) == true) {
-				TrustedNodeInfo node = (TrustedNodeInfo) trustedNodesListStore.GetValue (iter, 0);
+			//	TrustedNodeInfo node = (TrustedNodeInfo) trustedNodesListStore.GetValue (iter, 0);
 				trustedNodesListStore.Remove (ref iter);
 			}
 		}

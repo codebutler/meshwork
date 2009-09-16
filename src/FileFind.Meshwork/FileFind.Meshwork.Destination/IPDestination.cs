@@ -64,7 +64,7 @@ namespace FileFind.Meshwork.Destination
 						// one of our Destinations is also IPv6 and has the
 						// same network prefix (excluding link-local).
 						if (destination is IPv6Destination && destination.IsExternal) {
-							IPv6Destination ipv6Destination = (IPv6Destination)destination;
+							//IPv6Destination ipv6Destination = (IPv6Destination)destination;
 							if (this.NetworkPrefix == ((IPv6Destination)destination).NetworkPrefix) {
 								return true;
 							}

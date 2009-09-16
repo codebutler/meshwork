@@ -22,7 +22,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public TrayIcon ()
 		{
-			Pixbuf pixbuf = new Pixbuf (null, "FileFind.Meshwork.GtkClient.tray_icon.png");
+			Pixbuf pixbuf = new Pixbuf(null, "FileFind.Meshwork.GtkClient.tray_icon.png");
 			statusIcon = new StatusIcon(pixbuf);
 			statusIcon.Visible = true;
 			

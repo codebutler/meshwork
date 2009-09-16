@@ -172,7 +172,7 @@ namespace FileFind.Meshwork.GtkClient
 				string address = (ipCombo.Child as Gtk.Entry).Text;
 				IPAddress ip = IPAddress.Any;
 
-				if (!IPAddress.TryParse(address, out ip)) {
+				if (!IPAddress.TryParse (address, out ip)) {
 				
 					// XXX: Support IPv6 w/ port syntax: "[address]:port"
 					
@@ -182,10 +182,10 @@ namespace FileFind.Meshwork.GtkClient
 						Console.WriteLine (port + " " + address);
 					}
 					
-					if (!IPAddress.TryParse(address, out ip)) {
+					if (!IPAddress.TryParse (address, out ip)) {
 						try {
-							ip = System.Net.Dns.Resolve(address).AddressList[0];
-						} catch (Exception ex) {
+							ip = System.Net.Dns.GetHostAddresses(address)[0];
+						} catch (Exception) {
 							Gui.ShowMessageDialog ("Unable to resolve hostname.", Dialog);
 							return;
 						}

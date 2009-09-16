@@ -545,44 +545,44 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void on_okButton_clicked (object o, EventArgs args)
 		{
-			dialog.Respond ((int)Gtk.ResponseType.None);
+			dialog.Respond((int)Gtk.ResponseType.None);
 
 			ArrayList badOptions = new ArrayList();
- 		
+			
 			if (nicknameEntry.Text == String.Empty)
 				badOptions.Add("Nickname");
 
-			if (Directory.Exists (completedDownloadsChooser.CurrentFolder) == false) 
-				badOptions.Add ("Completed dowmnloads directory");
+			if (Directory.Exists(completedDownloadsChooser.CurrentFolder) == false)
+				badOptions.Add("Completed dowmnloads directory");
 
-			if (Directory.Exists (downloadsChooser.CurrentFolder) == false) 
-				badOptions.Add ("Incomplete dowmnloads directory");
+			if (Directory.Exists(downloadsChooser.CurrentFolder) == false)
+				badOptions.Add("Incomplete dowmnloads directory");
 
 
- 			if (Common.IsValidIP (externalIPv4AddressEntry.Text) == false) {
+ 			if (Common.IsValidIP(externalIPv4AddressEntry.Text) == false) {
 				badOptions.Add("External IP Address");
 			}
 
 			if (networksListStore.IterNChildren() == 0) {
-				badOptions.Add ("Please define at least one network");
+				badOptions.Add("Please define at least one network");
 			}
 
 			if (badOptions.Count > 0) {
-				BadOptionsDialog badOptionsWindow = new BadOptionsDialog (dialog, badOptions);
-				badOptionsWindow.Show ();
+				BadOptionsDialog badOptionsWindow = new BadOptionsDialog(dialog, badOptions);
+				badOptionsWindow.Show();
 				return;
-			} 
- 		 		
+			}
+			
 			settings.NickName = nicknameEntry.Text;
 			settings.RealName = nameEntry.Text;
 			settings.Email = emailEntry.Text;
 
-			settings.Networks.Clear ();
+			settings.Networks.Clear();
 			foreach (object[] row in networksListStore) {
 				settings.Networks.Add((NetworkInfo)row[0]);
 			}
 
-			settings.SharedDirectories.Clear ();
+			settings.SharedDirectories.Clear();
 
 			TreeIter iter;
 			sharedFoldersListStore.GetIterFirst(out iter);
@@ -594,7 +594,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			settings.CompletedDownloadDir = completedDownloadsChooser.CurrentFolder;
 			settings.IncompleteDownloadDir = downloadsChooser.CurrentFolder;
-						
+			
 			settings.SavedDestinationInfos.Clear();
 
 			TCPIPv4Destination destination = new TCPIPv4Destination(IPAddress.Parse(externalIPv4AddressEntry.Text), (uint)nodePortSpinButton.Value, nodePortOpenCheckButton.Active);
@@ -621,31 +621,32 @@ namespace FileFind.Meshwork.GtkClient
 			settings.StartInTray = startInTrayCheckButton.Active;
 			settings.AutoConnectCount = autoConnectCountSpinButton.ValueAsInt;
 
-			string avatarDirectory = Path.Combine (Settings.ConfigurationDirectory, "avatars");
+			string avatarDirectory = Path.Combine(Settings.ConfigurationDirectory, "avatars");
 
-			if (Directory.Exists (avatarDirectory) == false)
-				Directory.CreateDirectory (avatarDirectory);
+			if (Directory.Exists(avatarDirectory) == false)
+				Directory.CreateDirectory(avatarDirectory);
 
-			string myAvatarFile = Path.Combine (avatarDirectory, String.Format ("{0}.png", nodeid)); 
+			string myAvatarFile = Path.Combine(avatarDirectory, String.Format("{0}.png", nodeid));
 
 			//if (avatarImage.Pixbuf != null)
 			if (avatarImage.Sensitive == true)
-				avatarImage.Pixbuf.Save (myAvatarFile, "png");
+				avatarImage.Pixbuf.Save(myAvatarFile, "png");
 			else
-				if (File.Exists (myAvatarFile))
-					File.Delete (myAvatarFile);
+				if (File.Exists(myAvatarFile))
+				File.Delete(myAvatarFile);
 			
-			settings.Plugins.Clear ();
+			settings.Plugins.Clear();
 			foreach (object[] row in pluginsListStore) {
 				PluginInfo info = (PluginInfo)row[0];
-				settings.Plugins.Add (info.FilePath);
+				settings.Plugins.Add(info.FilePath);
 			}
 
+			
 			settings.FirstRun = false;
-			settings.SaveSettings ();
-			foreach (Network network in Core.Networks) {
-				Core.AvatarManager.UpdateMyAvatar ();
-			}
+			settings.SaveSettings();
+			
+			if (Core.AvatarManager != null)
+				Core.AvatarManager.UpdateMyAvatar();
 
 			// Advanced -> File Transfer
 			settings.EnableGlobalDownloadSpeedLimit = limitDownSpeedCheckButton.Active;

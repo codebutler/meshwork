@@ -89,7 +89,6 @@ namespace FileFind.Meshwork.Search
 								return (result.Name.ToLower().IndexOf(this.Text.ToLower()) == -1);
 							case FileSearchFilterComparison.Regexp:
 								return true;
-								break;
 						}
 						break;
 					case FileSearchFilterField.Size:
@@ -104,7 +103,6 @@ namespace FileFind.Meshwork.Search
 							default:
 								throw new Exception("Invalid filter.");
 						}
-						break;
 				}
 			} else {
 				// We don't care about this filter

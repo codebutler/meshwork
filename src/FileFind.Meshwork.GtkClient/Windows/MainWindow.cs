@@ -237,7 +237,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void sidebar_ItemAdded (MainSidebar sidebar, ISidebarItem newItem)
 		{
 			if (newItem.PageWidget != null) {
-				int pageNum = pageNotebook.AppendPage(newItem.PageWidget, null);
+				/* int pageNum = */ pageNotebook.AppendPage(newItem.PageWidget, null);
 				newItem.PageWidget.Show();
 			}
 		}

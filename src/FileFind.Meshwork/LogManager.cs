@@ -109,12 +109,12 @@ namespace FileFind.Meshwork
 				}
 				LogEventArgs eventArgs = new LogEventArgs(text, ex);
 				if (NewLogItem != null) {
-					NewLogItem (eventArgs);
+					NewLogItem(eventArgs);
 				} else {
 					lock (queuedLogItems) {
 						queuedLogItems.Enqueue(eventArgs);
 					}
-					Console.Error.WriteLine("WARNING: no event handler for new log item!\n\n" + text);
+					Console.Error.WriteLine(text);
 				}
 			}
 		}

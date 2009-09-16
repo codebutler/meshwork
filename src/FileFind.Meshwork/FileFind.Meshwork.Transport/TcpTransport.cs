@@ -122,6 +122,7 @@ namespace FileFind.Meshwork.Transport
 						return (EndPoint)socket.RemoteEndPoint;
 					} catch (SocketException ex) {
 						Console.Error.WriteLine("Failed to get remote end point. I am pretty sure this is a bug in mono!");
+						Console.Error.WriteLine(ex);
 						return new IPEndPoint(address, port);
 					}
 				} else {
@@ -133,7 +134,7 @@ namespace FileFind.Meshwork.Transport
 		public override string ToString () 
 		{
 			if (socket != null) {
-				return String.Format("Local: {0}   Remote: {1}", socket.LocalEndPoint, socket.RemoteEndPoint);
+				//return String.Format("Local: {0}   Remote: {1}", socket.LocalEndPoint, socket.RemoteEndPoint);
 				if (Incoming == true) {
 					return String.Format("TCP/INCOMING/{0}:{1}", (socket.RemoteEndPoint as IPEndPoint).Address, port);
 				} else {
