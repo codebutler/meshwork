@@ -8,6 +8,7 @@
 //
 
 using System;
+using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork.Filesystem
 {
@@ -84,6 +85,26 @@ namespace FileFind.Meshwork.Filesystem
 		{
 			m_State = RemoteDirectoryState.ContentsRequested;
 			m_Node.Network.RequestDirectoryListing(this);
+		}
+
+		// FIXME: Get rid of this once cache works
+		internal void UpdateFromInfo (SharedDirectoryInfo info)
+		{
+			var newDirectories = new RemoteDirectory[info.Directories.Length];
+			for (int x = 0; x < info.Directories.Length; x++)
+			{
+				newDirectories[x] = new RemoteDirectory(this, info.Directories[x], m_Node);
+			}
+			m_SubDirectories = newDirectories;
+
+			var newFiles = new RemoteFile[info.Files.Length];
+			for (int x = 0; x < info.Files.Length; x++)
+			{
+				newFiles[x] = new RemoteFile(this, info.Files[x]);
+			}
+			m_Files = newFiles;
+
+			m_State = RemoteDirectoryState.ContentsReceived;
 		}
 
 		internal void UpdateFromCache()

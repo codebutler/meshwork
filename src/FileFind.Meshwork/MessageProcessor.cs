@@ -497,7 +497,7 @@ namespace FileFind.Meshwork
 				
 				if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
 					if (Core.FileSystem.GetDirectory(directoryPath) != null) {
-						network.SendRespondDirListing(messageFrom, directoryPath);
+						network.SendRoutedMessage(network.MessageBuilder.CreateRespondDirListingMessage(messageFrom, directoryPath));
 					} else {
 						network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundException(requestedPath)));
 					}
@@ -512,24 +512,14 @@ namespace FileFind.Meshwork
 		
 		internal void ProcessRespondDirListingMessage (Node messageFrom, SharedDirectoryInfo info)
 		{
-			/* FIXME: Rewrite using xml cache
-			 * 
-			string fullPath = PathUtil.Join(network.Directory.FullPath, info.FullPath);
-
-			Directory directory = Directory.GetDirectory(Core.FileSystem, fullPath);
-			if (directory == null) {
-				directory = Directory.CreateDirectory(Core.FileSystem, fullPath, messageFrom);
+			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
+			RemoteDirectory directory = Core.FileSystem.GetDirectory(fullPath) as RemoteDirectory;
+			if (directory != null) {
+				directory.UpdateFromInfo(info);
+				network.RaiseReceivedDirListing(messageFrom, directory);
+			} else {
+				Console.WriteLine("Unwanted directory listing from " + messageFrom.ToString() + " for " + info.FullPath);
 			}
-			
-			directory.ClearDirectories();
-			directory.ClearFiles();
-
-			directory.BulkAddFiles(info.Files, messageFrom);
-			directory.BulkAddSubdirectories(info.Directories, messageFrom);
-			directory.Requested = true;
-			
-			network.RaiseReceivedDirListing (messageFrom, directory);
-			*/
 		}
 
 		internal void ProcessAckMessage (Node messageFrom, string hash)

@@ -351,7 +351,8 @@ namespace FileFind.Meshwork
 		{
 			LocalDirectory directory = (LocalDirectory)Core.FileSystem.GetDirectory(dirPath);
 			SharedDirectoryInfo info = new SharedDirectoryInfo ();
-			info.FullPath = dirPath;
+			// FIXME: Ugly: Remove '/local' from begining of path
+			info.FullPath = "/" + String.Join("/", dirPath.Split('/').Slice(2));
 			
 			List<SharedFileListing> files = new List<SharedFileListing>();
 			foreach (IFile file in directory.Files) {

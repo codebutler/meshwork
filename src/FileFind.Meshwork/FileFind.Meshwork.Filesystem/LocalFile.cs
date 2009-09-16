@@ -50,10 +50,6 @@ namespace FileFind.Meshwork.Filesystem
 			get { return fileName; }
 		}
 
-		public override string FullPath {
-			get { return PathUtil.Join(Parent.FullPath, Name); }
-		}
-
 		public int ParentId {
 			get { return parentId; }
 		}

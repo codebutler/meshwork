@@ -46,7 +46,7 @@
     </Reference>
     <Reference Include="Mono.Posix" />
     <Reference Include="Mono.GetOptions" />
-    <Reference Include="Mono.Cairo" />
+    <Reference Include="Mono.Cairo, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="FileFind.Stun, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -225,4 +225,9 @@
     <Compile Include="Windows\InviteToChatDialog.cs" />
     <Compile Include="Windows\StartupProblemsDialog.cs" />
   </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties InternalTargetFrameworkVersion="3.5" />
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

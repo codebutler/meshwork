@@ -204,11 +204,8 @@ namespace FileFind.Meshwork.GtkClient
 				//if (errorPath == navigatingTo)
 				{
 					Gui.ShowErrorDialog("Directory not found");
-					
-					navigating = false;
-					filesList.Parent.Visible = true;
-					waitingBoxAlignment.Visible = false;
-					// FIXME: Remove timeout
+
+					StopNavigating();
 
 					// FIXME: Maybe something should reset the state on the directory object
 				}
@@ -442,7 +439,6 @@ namespace FileFind.Meshwork.GtkClient
 						
 						filesListStore.Clear();
 
-
 						foreach (IDirectory currentSubDirectory in directory.Directories) 
 						{
 							filesListStore.AppendValues(currentSubDirectory);
@@ -462,6 +458,13 @@ namespace FileFind.Meshwork.GtkClient
 							filesList.ScrollToCell(treePath, null, true, 0.5f, 0);
 							filesList.Selection.Changed += filesList_Selection_Changed;
 						}
+
+						StopNavigating();
+
+						filesList.QueueDraw();
+						filesList.GrabFocus();
+
+						navigationBar.SetLocation(currentPath);
 					}
 				} 
 				else 
@@ -638,6 +641,14 @@ namespace FileFind.Meshwork.GtkClient
 			} else {
 				throw new Exception("Downloading directories is not currently supported.");
 			}
+		}
+
+		private void StopNavigating()
+		{
+			navigating = false;
+			filesList.Parent.Visible = true;
+			waitingBoxAlignment.Visible = false;
+			// FIXME: Remove timeout
 		}
 	}
 }

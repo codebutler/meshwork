@@ -28,8 +28,8 @@ namespace FileFind.Meshwork.Filesystem
 			internal set;
 		}
 		
-		public abstract string FullPath {
-			get;
+		public virtual string FullPath {
+			get { return PathUtil.Join(Parent.FullPath, Name); }
 		}
 		
 		public abstract long Size {

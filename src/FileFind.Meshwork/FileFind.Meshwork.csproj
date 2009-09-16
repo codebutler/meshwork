@@ -69,6 +69,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
     </Reference>
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AckMethod.cs" />
@@ -177,6 +178,12 @@
     <Compile Include="FileFind.Meshwork.Filesystem\ILocalDirectoryItem.cs" />
     <Compile Include="FileFind.Meshwork.Filesystem\IRemoteDirectoryItem.cs" />
     <Compile Include="FileFind.Meshwork.Filesystem\NodeDirectory.cs" />
+    <Compile Include="FileFind\Extensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties InternalTargetFrameworkVersion="3.5" />
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

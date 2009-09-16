@@ -544,11 +544,6 @@ namespace FileFind.Meshwork
 
 		}
 
-		internal void SendRespondDirListing (Node node, string path)
-		{
-			this.SendRoutedMessage(this.MessageBuilder.CreateRespondDirListingMessage(node, path));
-		}
-
 		/*
 		public Message SendFile (Node SendTo, string FilePath, long FileSize)
 		{

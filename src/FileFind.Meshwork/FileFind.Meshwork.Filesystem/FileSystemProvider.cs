@@ -96,16 +96,16 @@ namespace FileFind.Meshwork.Filesystem
 		{
 			if (!path.StartsWith("/")) path = "/" + path;		
 			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
-			Console.WriteLine("GET: " + path);
 			IDirectory directory = Core.FileSystem.RootDirectory;
 			if (path.Length > 0) {
 				string[] pathParts = path.Substring(1).Split('/');
 				foreach (string dirName in pathParts)
 				{
 					directory = directory.GetSubdirectory(dirName);
+					if (directory == null)
+						return null;
 				}
 			}
-			Console.WriteLine("RETURN " + directory);
 			return directory;
 		}
 		
