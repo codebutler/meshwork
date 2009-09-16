@@ -41,7 +41,7 @@ namespace FileFind.Meshwork
 	public delegate void ConnectionUpDownEventHandler (INodeConnection c);
 	public delegate void ReceivedChatInviteEventHandler (Network network, Node inviteFrom, ChatRoom room, ChatInviteInfo invitation);
 	public delegate void ChatMessageEventHandler (ChatRoom room, Node messageFromNode, string messageText);
-	public delegate void ReceivedDirListingEventHandler (Network network, Node node, FileFind.Meshwork.Filesystem.Directory directoryListing);
+	public delegate void ReceivedDirListingEventHandler (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directoryListing);
 	public delegate void ReceivedSearchResultEventHandler (Network network, SearchResultInfoEventArgs args);
 	public delegate void ReceivedNonCriticalErrorEventHandler (string errorFromNodeId, MeshworkException ex);
 	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkException ex);
@@ -65,7 +65,7 @@ namespace FileFind.Meshwork
 		string networkName;
 		string networkId;
 		Node localNode;
-		Directory directory;
+		NetworkDirectory directory;
 		AutoResetEvent reset = new AutoResetEvent (false);
 		MessageIdCollection processedMessages = new MessageIdCollection();
 		MessageIdCollection routedMessages = new MessageIdCollection();
@@ -171,18 +171,20 @@ namespace FileFind.Meshwork
 		private Network (string networkName)
 		{
 			if (networkName == null) {
-				throw new ArgumentException ("networkName cannot be null");
+				throw new ArgumentException("networkName cannot be null");
 			}
 			this.networkName = networkName;
 			this.networkId = Common.SHA512Str(networkName);
 
-			localNode = Core.CreateLocalNode (this);
+			localNode = Core.CreateLocalNode(this);
 			AddNode(localNode);
-		
+			
 			connections = new NodeConnectionCollection(this);
-			MessageBuilder = new MessageBuilder (this);
-			processor = new MessageProcessor (this);
-			autoConnect = new AutoconnectManager (this, Core.Settings.AutoConnectCount);
+			MessageBuilder = new MessageBuilder(this);
+			processor = new MessageProcessor(this);
+			autoConnect = new AutoconnectManager(this, Core.Settings.AutoConnectCount);
+			
+			directory = new NetworkDirectory(this);
 		}
 
 		public string NetworkName {
@@ -197,6 +199,12 @@ namespace FileFind.Meshwork
 			}
 		}
 
+		public NetworkDirectory Directory {
+			get {
+				return directory;
+			}
+		}
+		
 		internal AutoResetEvent Reset {
 			get {
 				return reset;
@@ -234,6 +242,7 @@ namespace FileFind.Meshwork
 			}
 		}
 
+		/*
 		public Directory Directory {
 			get {
 				if (directory == null) {
@@ -242,6 +251,7 @@ namespace FileFind.Meshwork
 				return directory;
 			}
 		}
+		*/
 
 		public IDictionary<string, TrustedNodeInfo> TrustedNodes {
 			get {
@@ -625,7 +635,8 @@ namespace FileFind.Meshwork
 			} else {
 				throw new Exception("Node " + Message.To + " does not exist on the network!");
 			}
-			throw new Exception("Message was not sent for some reason :( " + Message.Type);
+			
+			//throw new Exception("Message was not sent for some reason :( " + Message.Type);
 		}
 
 		public void SendBroadcast(Message message)
@@ -797,7 +808,7 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		internal void SendFileDetails (Node to, File file)
+		internal void SendFileDetails (Node to, IFile file)
 		{
 			Message m = MessageBuilder.CreateFileDetailsMessage(to, file);
 			this.SendRoutedMessage(m);
@@ -844,13 +855,14 @@ namespace FileFind.Meshwork
 			SendRoutedMessage(m);
 		}
 
-		public void DownloadDirectory (Directory directory)
+		public void DownloadDirectory (IDirectory directory)
 		{
 			throw new NotImplementedException ();
 		}
 		
 		public IFileTransfer DownloadFile (Node node, SharedFileListing listing)
 		{
+			/*
 			string    dir       = PathUtil.Join("/", PathUtil.Join(this.NetworkID, PathUtil.GetDirectoryName(listing.FullPath)));
 			Directory directory = Directory.CreateDirectory(Core.FileSystem, dir, node);
 			File      file      = null;
@@ -860,18 +872,18 @@ namespace FileFind.Meshwork
 			}
 
 			return DownloadFile(node, file);
+			*/
+			// FIXME:
+			throw new NotImplementedException();
 		}
 
-		public IFileTransfer DownloadFile (Node node, File file)
+		public IFileTransfer DownloadFile (Node node, RemoteFile file)
 		{
 			if (node == null) {
 				throw new ArgumentNullException("node");
 			}
 			if (file == null) {
 				throw new ArgumentNullException("file");
-			}
-			if (file.NodeID == Core.MyNodeID) {
-				throw new ArgumentException("cannot download your own files!");
 			}
 
 			IFileTransfer transfer = Core.FileTransferManager.StartTransfer(this, node, file);
@@ -1295,11 +1307,6 @@ namespace FileFind.Meshwork
 					}
 				}
 
-				Directory nodeDirectory = this.Directory.GetSubdirectory(n.NodeID);
-				if (nodeDirectory != null) {
-					nodeDirectory.Delete();
-				}
-
 				Cleanup();
 			}
 			if (CleanupFinished != null) {
@@ -1395,7 +1402,7 @@ namespace FileFind.Meshwork
 				NonCriticalError (this, exception);
 		}
 		
-	       internal void RaiseReceivedDirListing (Node node, Directory directory)
+	       internal void RaiseReceivedDirListing (Node node, RemoteDirectory directory)
 	       {
 		       if (ReceivedDirListing != null)
 			       ReceivedDirListing (this, node, directory);

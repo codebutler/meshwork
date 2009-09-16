@@ -5,7 +5,7 @@ namespace FileFind.Meshwork.FileTransfer
 {
 	internal interface IFileTransferProvider
 	{
-		IFileTransfer CreateFileTransfer(File file);
+		IFileTransfer CreateFileTransfer(IFile file);
 
 		int GlobalUploadSpeedLimit {
 			get;

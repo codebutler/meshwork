@@ -12,7 +12,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 {
 	public class MeshworkTracker : MonoTorrent.Client.Tracker.Tracker
 	{
-		IFileTransfer transfer;
+		//IFileTransfer transfer;
 		
 		public MeshworkTracker(Uri announceUrl)
 		{

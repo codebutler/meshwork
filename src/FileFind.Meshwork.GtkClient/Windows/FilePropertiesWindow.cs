@@ -22,22 +22,22 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] TreeView piecesTreeView;
 		[Widget] Button   fetchPiecesButton;
 
-		File file;
+		IFile file;
 
 		ListStore sourcesListStore;
 		ListStore piecesListStore;
 
-		public FilePropertiesWindow (File file) : base ("FilePropertiesWindow")
+		public FilePropertiesWindow (IFile file) : base("FilePropertiesWindow")
 		{
 			this.file = file;
 
-			fileNameLabel.Text     = file.Name;
-			fileTypeLabel.Text     = file.Type;
+			fileNameLabel.Text = file.Name;
+			fileTypeLabel.Text = file.Type;
 			fileFullPathLabel.Text = file.FullPath;
-			infoHashLabel.Text     = file.InfoHash;
+			infoHashLabel.Text = file.InfoHash;
 			
 			//XXX:
-			ownerLabel.Text        = file.NodeID;
+			ownerLabel.Text = (file is RemoteFile) ? (file as RemoteFile).Node.NodeID : "You";
 
 			sourcesListStore = new ListStore(typeof(Node));
 			sourcesTreeView.AppendColumn("NickName", new CellRendererText(), new TreeCellDataFunc(NodeNicknameFunc));
@@ -51,7 +51,7 @@ namespace FileFind.Meshwork.GtkClient
 				}
 				fetchPiecesButton.Sensitive = false;
 			} else {
-				if (file.NodeID == Core.MyNodeID) {
+				if (file is LocalFile) {
 					// Must be waiting for hashing to complete.
 					// XXX: Hook into ShareHasher's finished event and automatically update UI.
 					piecesListStore.AppendValues("Hashing, please wait...");

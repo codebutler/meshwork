@@ -32,7 +32,7 @@ namespace FileFind.Meshwork
 
 		}
 
-		internal IAsyncResult BeginHashFile (File file, AsyncCallback callback, object state)
+		internal IAsyncResult BeginHashFile (LocalFile file, AsyncCallback callback, object state)
 		{
 			if (file.LocalPath == null || file.LocalPath == String.Empty) {
 				throw new ArgumentException("Can only hash files with a local path", "file");
@@ -47,13 +47,13 @@ namespace FileFind.Meshwork
 			((HashCaller)((AsyncResult)asyncResult).AsyncDelegate).EndInvoke(asyncResult);
 		}
 
-		internal void HashFilesEventually (List<File> files)
+		internal void HashFilesEventually (List<LocalFile> files)
 		{
 			if (files.Count == 0) {
 				return;
 			}
 
-			foreach (File file in files) {
+			foreach (LocalFile file in files) {
 				if (file.LocalPath == null || file.LocalPath == String.Empty) {
 					throw new ArgumentException("Can only hash files with a local path", "file");
 				}
@@ -181,9 +181,9 @@ namespace FileFind.Meshwork
 
 		private class ShareHasherTask
 		{
-			public File File;
+			public LocalFile File;
 
-			public ShareHasherTask(File file)
+			public ShareHasherTask(LocalFile file)
 			{
 				this.File = file;
 			}

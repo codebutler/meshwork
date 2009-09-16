@@ -88,17 +88,12 @@ namespace FileFind.Meshwork
 
 			fileSystem = new FileSystemProvider();
 
-			shareBuilder = new ShareBuilder(fileSystem);
+			shareBuilder = new ShareBuilder();
 			shareBuilder.FinishedIndexing += ShareBuilder_FinishedIndexing;
 
-			shareWatcher = new ShareWatcher(fileSystem);
+			shareWatcher = new ShareWatcher();
 
 			shareHasher = new ShareHasher();
-
-			if (!fileSystem.RootDirectory.HasSubdirectory(nodeID)) {
-				Directory myDir = fileSystem.RootDirectory.CreateSubdirectory(nodeID);
-				myDir.Requested = true;
-			}
 
 			transportManager = new TransportManager ();
 
@@ -171,9 +166,9 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		public static Directory MyDirectory {
+		public static MyDirectory MyDirectory {
 			get {
-				return fileSystem.RootDirectory.GetSubdirectory(nodeID);
+				return FileSystem.RootDirectory.MyDirectory;
 			}
 		}
 
@@ -359,11 +354,13 @@ namespace FileFind.Meshwork
 
 			networks.Add(network);
 
+			/*
 			if (!fileSystem.RootDirectory.HasSubdirectory(network.NetworkID)) {
 				Directory directory = fileSystem.RootDirectory.CreateSubdirectory(network.NetworkID);
 				directory.Requested = true;
 			}
-
+			*/
+			
 			if (NetworkAdded != null) {
 				NetworkAdded (network);
 			}

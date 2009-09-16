@@ -28,11 +28,11 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		double hashingPercent = 0;
 		bool isCanceled = false;
 		bool startCalled = false;
-		string transferId;
+		//string transferId;
 		int maxUploadSpeed = 0;
 		int maxDownloadSpeed = 0;
 		
-		public BitTorrentFileTransfer(File file)
+		public BitTorrentFileTransfer(IFile file)
 		{
 			this.file = file;
 			base.id = Common.MD5(new Random().Next().ToString());
@@ -41,7 +41,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		public override FileTransferDirection Direction {
 			get {
 				//return manager != null && manager.Complete ? FileTransferDirection.Upload : FileTransferDirection.Download;
-				return file.NodeID == Core.MyNodeID ? FileTransferDirection.Upload : FileTransferDirection.Download;
+				return (file is LocalFile) ? FileTransferDirection.Upload : FileTransferDirection.Download;
 			}
 		}
 
@@ -64,7 +64,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 					}
 
 					if (file.Pieces.Length == 0) {
-						if (file.NodeID != Core.MyNodeID) {
+						if (!(file is LocalFile)) {
 							return FileTransferStatus.WaitingForInfo;
 						} else {
 							return FileTransferStatus.Hashing;
@@ -174,10 +174,10 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			file.Reload();
 
 			// UPLOAD: Do we need to hash the file?
-			if (file.NodeID == Core.MyNodeID) {
+			if (file is LocalFile) {
 				if (file.Pieces.Length == 0) {
 					// Yep!
-					Core.ShareHasher.BeginHashFile(file, HashCallback, this);
+					Core.ShareHasher.BeginHashFile((LocalFile)file, HashCallback, this);
 				} else {
 					// Nope, we're good! Just start!
 					DetailsReceived();
@@ -191,7 +191,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				// XXX: If we already have the file pieces, we still need to send this message,
 				// but the response (FileDetails) doesn't need to include pieces.
 				foreach (BitTorrentFileTransferPeer peer in this.peers) {
-					if (peer.Node.NodeID == file.NodeID) {
+					if (peer.Node.NodeID != Core.MyNodeID) {
 						peer.Network.SendRoutedMessage(peer.Network.MessageBuilder.CreateRequestFileMessage(peer.Node, this));
 					}
 				}
@@ -273,7 +273,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 
 			manager.Start();
 
-			if (file.NodeID == Core.MyNodeID) {
+			if (file is LocalFile) {
 				foreach (BitTorrentFileTransferPeer peer in this.peers) {
 					peer.Network.SendFileDetails(peer.Node, file);
 				}
@@ -421,7 +421,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			}
 		}
 
-		private static BEncodedDictionary GetTorrentData (File file)
+		private static BEncodedDictionary GetTorrentData (IFile file)
 		{
 			BEncodedDictionary infoDict = new BEncodedDictionary();
 			infoDict[new BEncodedString("piece length")] = new BEncodedNumber(file.PieceLength);
@@ -441,7 +441,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			return dict;
 		}
 
-		private static Torrent CreateTorrent (File file)
+		private static Torrent CreateTorrent (IFile file)
 		{
 			return Torrent.Load(GetTorrentData(file));
 		}
@@ -543,7 +543,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 					// XXX: Only have the requesting end connect for now,
 					// so we dont end up with redundant conncetions in each direction.
 					// We need a solution for this that can handle reverse connections.
-					if (file.NodeID != Core.MyNodeID) {
+					if (!(File is LocalFile)) {
 						Console.WriteLine("Torrent is ready! connecting to peers!");
 						lock (this.peers) {
 							foreach (IFileTransferPeer p in this.peers) {

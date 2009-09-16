@@ -42,45 +42,5 @@ namespace FileFind.Meshwork.Filesystem
 
 			return (path1 == path2);
 		}
-
-		public static DirectoryType GetDirectoryType (string path)
-		{
-			if (path.StartsWith("/") == false) {
-				throw new Exception("Invalid path: " + path);
-			}
-
-			if (path.EndsWith("/") == false) {
-				path = path + "/";
-			}
-			
-			string[] pathParts = path.Substring(0, path.Length - 1).Split('/');
-			
-			if (pathParts.Length == 1) {
-				return DirectoryType.Root;
-			} else if (pathParts.Length == 2) {
-				if (pathParts[1] == Core.MyNodeID) {
-					// This is me!
-					return DirectoryType.Node;
-				} else {
-					return DirectoryType.Network;
-				}
-			} else if (pathParts.Length == 3) {
-				if (pathParts[pathParts.Length - 2] == Core.MyNodeID) {
-					// Directory in root of our share
-					return DirectoryType.Normal;
-				} else {
-					return DirectoryType.Node;
-				}
-			} else {
-				return DirectoryType.Normal;
-			}
-		}
-	}
-
-	public enum DirectoryType {
-		Root,
-		Node,
-		Network,
-		Normal
 	}
 }

@@ -57,7 +57,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			}
 		}
 
-		public IFileTransfer CreateFileTransfer(File file)
+		public IFileTransfer CreateFileTransfer(IFile file)
 		{
 			BitTorrentFileTransfer transfer = new BitTorrentFileTransfer(file);
 			return transfer;
@@ -81,9 +81,9 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			}
 		}
 
-		internal TorrentManager CreateTorrentManager(Torrent torrent, File file)
+		internal TorrentManager CreateTorrentManager(Torrent torrent, IFile file)
 		{
-			string localPath = file.Node == null ? System.IO.Path.GetDirectoryName(file.LocalPath) : engine.Settings.SavePath;
+			string localPath = (file is LocalFile) ? System.IO.Path.GetDirectoryName(((LocalFile)file).LocalPath) : engine.Settings.SavePath;
 			Console.WriteLine("Local path: {0}", localPath);
 			TorrentManager manager = new TorrentManager(torrent,
 			                             localPath,

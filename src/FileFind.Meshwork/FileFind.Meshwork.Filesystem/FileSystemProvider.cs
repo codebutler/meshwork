@@ -31,12 +31,11 @@ namespace FileFind.Meshwork.Filesystem
 
 	public class FileSystemProvider
 	{
-		const string SCHEMA_VERSION = "8";
+		const string SCHEMA_VERSION = "9";
 
 		string connectionString;
 		long yourTotalBytes = -1;
 		long yourTotalFiles = -1;
-		Directory rootDirectory;
 
 		List<IDbConnection> connections = new List<IDbConnection>();
 		List<IDbConnection> workingConnections = new List<IDbConnection>();
@@ -68,7 +67,7 @@ namespace FileFind.Meshwork.Filesystem
 						}
 					}
 
-				} catch (Exception ex) { //XXX: Only catch SQLite errors like this!
+				} catch (Exception) { //XXX: Only catch SQLite errors like this!
 					// Something is probably wrong with the
 					// schema, lets start over.
 					create = true;
@@ -85,22 +84,37 @@ namespace FileFind.Meshwork.Filesystem
 						connections.RemoveAt(0);
 					}
 				}
-
-				// Create the root directory
-				Directory.CreateDirectory(this, null, "/");
+				
+				RootDirectory.MyDirectory.InvalidateCache();
 
 				// Force a scan.
 				Core.Settings.LastShareScan = DateTime.MinValue;
-			} else {
-				UseConnection(delegate (IDbConnection connection) {
-					IDbCommand command = connection.CreateCommand();
-					command.CommandText = "DELETE FROM directoryitems WHERE (node_id ISNULL OR node_id <> @my_node_id) AND parent_id IS NOT NULL";
-					AddParameter(command, "@my_node_id", Core.MyNodeID);
-					command.ExecuteNonQuery();
-				});
 			}
 		}
 
+		public IDirectory GetDirectory (string path)
+		{
+			if (!path.StartsWith("/")) path = "/" + path;		
+			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
+			Console.WriteLine("GET: " + path);
+			IDirectory directory = Core.FileSystem.RootDirectory;
+			if (path.Length > 0) {
+				string[] pathParts = path.Substring(1).Split('/');
+				foreach (string dirName in pathParts)
+				{
+					directory = directory.GetSubdirectory(dirName);
+				}
+			}
+			Console.WriteLine("RETURN " + directory);
+			return directory;
+		}
+		
+		public IFile GetFile (string path)
+		{
+			// FIXME: !!!
+			throw new NotImplementedException();
+		}
+		
 		internal T UseConnection<T> (DbMethod<T> method)
 		{
 			return UseConnection(method, false);
@@ -166,15 +180,12 @@ namespace FileFind.Meshwork.Filesystem
 			return (IDbConnection)connection;
 		}
 		
-		public Directory RootDirectory {
+		public RootDirectory RootDirectory {
 			get {
-				if (rootDirectory == null) {
-					rootDirectory = Directory.GetDirectory(this, "/");
-				}
-				return rootDirectory;
+				return RootDirectory.Instance;
 			}
 		}
-
+		
 		public long TotalDirectories {
 			get {
 				return UseConnection<long>(delegate (IDbConnection connection) {
@@ -216,10 +227,9 @@ namespace FileFind.Meshwork.Filesystem
 					return yourTotalFiles;
 				} else {
 					return UseConnection<long>(delegate (IDbConnection connection) {
-						string query = "SELECT count(*) FROM directoryitems WHERE type='F' AND node_id = @node_id";
+						string query = "SELECT count(*) FROM directoryitems WHERE type='F'";
 						IDbCommand command = connection.CreateCommand();
 						command.CommandText = query;
-						AddParameter(command, "@node_id", Core.MyNodeID);
 						object result = command.ExecuteScalar();
 						yourTotalFiles = (result == null) ? 0 : (long)result;
 						return yourTotalFiles;
@@ -234,10 +244,9 @@ namespace FileFind.Meshwork.Filesystem
 					return yourTotalBytes;
 				} else {
 					return UseConnection<long>(delegate (IDbConnection connection) {
-						string query = "SELECT sum(length) FROM directoryitems WHERE type='F' AND node_id = @node_id";
+						string query = "SELECT sum(length) FROM directoryitems WHERE type='F'";
 						IDbCommand command = connection.CreateCommand();
 						command.CommandText = query;
-						AddParameter(command, "@node_id", Core.MyNodeID);
 						object result = command.ExecuteScalar();
 						yourTotalBytes = (result == null) ? 0 : (long)result;
 						return yourTotalBytes;
@@ -264,42 +273,34 @@ namespace FileFind.Meshwork.Filesystem
 
 			UseConnection(delegate (IDbConnection connection) {
 				// First, find all matching directories.
-				sql = @"SELECT * FROM directoryitems WHERE type = 'D' AND node_id = @node_id AND name LIKE @name ESCAPE '\'";
+				sql = @"SELECT * FROM directoryitems WHERE type = 'D' AND name LIKE @name ESCAPE '\'";
 				command = connection.CreateCommand();
 				command.CommandText = sql;
-				AddParameter(command, "@node_id", Core.MyNodeID);
 				AddParameter(command, "@name", "%" + query + "%");
 				ds = ExecuteDataSet(command);
+				
+				List<string> directoryIds = new List<string>();
 				
 				directories = new Dictionary<int, SharedDirListing>();
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
 					DataRow row = ds.Tables[0].Rows[x];
-					SharedDirListing dir = new SharedDirListing(Directory.FromDataRow(this, row));
-					directories.Add(dir.Id, dir);
-				}
-
-				// Why doesn't Dictionary have a .Join() ?!?!
-				StringBuilder directoryIds = new StringBuilder();
-				foreach (SharedDirListing dir in directories.Values) {
-					if (directoryIds.Length > 0) { 
-						directoryIds.Append(",");
-					}
-					directoryIds.Append(dir.Id.ToString());
+					LocalDirectory localDir = LocalDirectory.FromDataRow(row);
+					directories.Add(localDir.Id, new SharedDirListing(localDir));
+					directoryIds.Add(localDir.Id.ToString());
 				}
 
 				// Next, find all files within matching directories.
-				//sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND node_id = @node_id AND info_hash IS NOT NULL AND parent_id IN (@ids)";
-				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND node_id = @node_id AND info_hash IS NOT NULL AND parent_id IN (" + directoryIds.ToString() + ")";
+				string directoryIdsStr = String.Join(",", directoryIds.ToArray());
+				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND info_hash IS NOT NULL AND parent_id IN (" + directoryIdsStr + ")";
 				command = connection.CreateCommand();
 				command.CommandText = sql;
-				AddParameter(command, "@node_id", Core.MyNodeID);
 				//AddParameter(command, "@ids", directoryIds.ToString());
 
 				ds = ExecuteDataSet(command);
 				
 				directoryFiles = new Dictionary<int, List<SharedFileListing>>();
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
-					File file = new File(this, ds.Tables[0].Rows[x]);
+					LocalFile file = LocalFile.FromDataRow(ds.Tables[0].Rows[x]);
 					if (!directoryFiles.ContainsKey(file.ParentId)) {
 						directoryFiles[file.ParentId] = new List<SharedFileListing>();
 					}
@@ -332,10 +333,9 @@ namespace FileFind.Meshwork.Filesystem
 
 				// Now find all other files.
 				// XXX: Why doesn't ESCAPE work?!
-				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND node_id = @node_id AND info_hash IS NOT NULL AND name LIKE @name AND parent_id NOT IN (" + directoryIds.ToString() + ")";// ESCAPE '\'";
+				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND info_hash IS NOT NULL AND name LIKE @name AND parent_id NOT IN (" + directoryIds.ToString() + ")";// ESCAPE '\'";
 				command = connection.CreateCommand();
 				command.CommandText = sql;
-				AddParameter(command, "@node_id", Core.MyNodeID);
 				//AddParameter(command, "@ids", directoryIds.ToString());
 				AddParameter(command, "@name", "%" + query + "%");
 
@@ -343,7 +343,7 @@ namespace FileFind.Meshwork.Filesystem
 				
 				result.Files = new SharedFileListing[ds.Tables[0].Rows.Count];
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
-					result.Files[x] = new SharedFileListing(new File(this, ds.Tables[0].Rows[x]));
+					result.Files[x] = new SharedFileListing(LocalFile.FromDataRow(ds.Tables[0].Rows[x]));
 				}
 			});
 
@@ -387,11 +387,9 @@ namespace FileFind.Meshwork.Filesystem
 					CREATE TABLE directoryitems (id           INTEGER PRIMARY KEY AUTOINCREMENT,
 								     type         TEXT(1),
 								     name         TEXT NOT NULL,
-								     full_path    TEXT NOT NULL,
 								     parent_id    INTEGER,
 								     length       INTEGER,
 								     piece_length INTEGER,
-								     node_id      TEXT,
 								     local_path   TEXT,
 								     info_hash    TEXT,
 								     sha1         TEXT,
@@ -427,14 +425,6 @@ namespace FileFind.Meshwork.Filesystem
 						DELETE FROM filepieces WHERE file_id = old.id;
 					END;
 					";
-					command.ExecuteNonQuery();
-
-					command = connection.CreateCommand();
-					command.CommandText = "CREATE INDEX directoryitems_full_path ON directoryitems (full_path);";
-					command.ExecuteNonQuery();
-
-					command = connection.CreateCommand();
-					command.CommandText = "CREATE INDEX directoryitems_node_id ON directoryitems (node_id);";
 					command.ExecuteNonQuery();
 
 					command = connection.CreateCommand();

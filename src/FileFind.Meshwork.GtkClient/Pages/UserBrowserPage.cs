@@ -12,6 +12,7 @@ using Gtk;
 using Glade;
 using GLib;
 using System.Collections;
+using System.Collections.Generic;
 using FileFind.Meshwork;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.GtkClient;
@@ -24,7 +25,7 @@ namespace FileFind.Meshwork.GtkClient
 		TreeView filesList;
 
 		string currentPath;
-		Directory currentDirectory;
+		IDirectory currentDirectory;
 		TreePath selectedFolderListPath = null;
 		
 		bool navigating = false;
@@ -39,7 +40,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		ListStore filesListStore;
 
-		Hashtable selectedRows = new Hashtable ();
+		Dictionary<string, string> selectedRows = new Dictionary<string, string>();
 
 		Alignment waitingBoxAlignment;
 		Label waitLabel;
@@ -178,7 +179,7 @@ namespace FileFind.Meshwork.GtkClient
 			network.ReceivedDirListing += (ReceivedDirListingEventHandler)DispatchService.GuiDispatch(new ReceivedDirListingEventHandler(network_ReceivedDirListing));
 		}
 
-		private void network_ReceivedDirListing (Network network, Node node, FileFind.Meshwork.Filesystem.Directory directory)
+		private void network_ReceivedDirListing (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directory)
 		{
 			if (navigating == true) {
 				if (PathUtil.AreEqual(navigatingTo, directory.FullPath)) {
@@ -193,11 +194,10 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			IDirectoryItem item = (IDirectoryItem) model.GetValue (iter, 0);
 
-			if (item is Directory) {
-				DirectoryType directoryType = PathUtil.GetDirectoryType((item as Directory).FullPath);
-				if (directoryType == DirectoryType.Network) {
+			if (item is IDirectory) {
+				if (item is NetworkDirectory) {
 					(cell as CellRendererPixbuf).Pixbuf = networkIcon;
-				} else if (directoryType == DirectoryType.Node) {
+				} else if (item is NodeDirectory || item is MyDirectory) {
 					(cell as CellRendererPixbuf).Pixbuf = personIcon;
 				} else {
 					(cell as CellRendererPixbuf).Pixbuf = stockDirectoryPixbuf;
@@ -217,23 +217,20 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void FileNameTextFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
-			IDirectoryItem item = (IDirectoryItem) model.GetValue (iter, 0);
+			IDirectoryItem item = (IDirectoryItem)model.GetValue (iter, 0);
 			
-			if (item is Directory) {
-				DirectoryType directoryType = PathUtil.GetDirectoryType((item as Directory).FullPath);
-				if (directoryType == DirectoryType.Node) {
-					if (item.Name == Core.MyNodeID) {
-						(cell as CellRendererText).Text = "My Shared Files";
+			if (item is IDirectory) {
+				if (item is MyDirectory) {
+					(cell as CellRendererText).Text = "My Shared Files";
+				} else if (item is NodeDirectory) {
+					Node node = ((NodeDirectory)item).Node;
+					if (node != null) {
+						(cell as CellRendererText).Text = node.NickName;
 					} else {
-						Node node = item.Node;
-						if (node != null) {
-							(cell as CellRendererText).Text = node.NickName;
-						} else {
-							(cell as CellRendererText).Text = "<error>";
-						}
+						(cell as CellRendererText).Text = "<error>";
 					}
-				} else if (directoryType == DirectoryType.Network) {
-					Network network = Core.GetNetwork(item.Name);
+				} else if (item is NetworkDirectory) {
+					Network network = ((NetworkDirectory)item).Network;
 					if (network != null) {
 						(cell as CellRendererText).Text = network.NetworkName;
 					} else {
@@ -250,17 +247,16 @@ namespace FileFind.Meshwork.GtkClient
 		private void FileSizeFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			IDirectoryItem item = (IDirectoryItem) model.GetValue (iter, 0);
-			//if (item is Directory & item.Parent.Parent == Core.FileSystem.RootDirectory)
+			//if (item is IDirectory & item.Parent.Parent == Core.FileSystem.RootDirectory)
 			//	(cell as CellRendererText).Text = network.Nodes [item.Name].GetAmountSharedString ();
 			//else
-			if (item is Directory) {
-				if (((Directory)item).Requested == true) {
-					(cell as CellRendererText).Text = String.Format("{0} items",
-					                                                item.Size.ToString());
+			if (item is IDirectory) {
+				if (item is LocalDirectory || (item is RemoteDirectory && ((RemoteDirectory)item).Requested == true)) {
+					(cell as CellRendererText).Text = String.Format("{0} items", item.Size.ToString());
 				} else {
 					(cell as CellRendererText).Text = String.Empty;
 				}
-			} else if (item is File) {
+			} else if (item is IFile) {
 				(cell as CellRendererText).Text = FileFind.Common.FormatBytes(item.Size);
 			}
 		}
@@ -274,8 +270,8 @@ namespace FileFind.Meshwork.GtkClient
 		private void FileInfoHashFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			IDirectoryItem item = (IDirectoryItem) model.GetValue (iter, 0);
-			if (item is File) {
-				(cell as CellRendererText).Text = ((File)item).InfoHash;
+			if (item is IFile) {
+				(cell as CellRendererText).Text = ((IFile)item).InfoHash;
 			} else {
 				(cell as CellRendererText).Text = String.Empty;
 			}
@@ -307,19 +303,17 @@ namespace FileFind.Meshwork.GtkClient
 			Refresh ();
 		}
 		
-		
 		private void filesList_Selection_Changed (object o, EventArgs args)
-		{	
-			if (filesList.Selection.GetSelectedRows ().Length > 0) {
-				TreePath path = filesList.Selection.GetSelectedRows () [0];
+		{
+			if (filesList.Selection.GetSelectedRows().Length > 0) {
+				TreePath path = filesList.Selection.GetSelectedRows()[0];
 	
-				if (selectedRows [currentPath] == null) 
-					selectedRows.Add (currentPath, path.ToString ());
+				if (!selectedRows.ContainsKey(currentPath))
+					selectedRows.Add(currentPath, path.ToString());
 				else
-					selectedRows [currentPath] = path.ToString ();
+					selectedRows[currentPath] = path.ToString();
 			}
 		}
-
 		
 		private void on_filesList_row_activated (object o, RowActivatedArgs e) 
 		{
@@ -329,7 +323,7 @@ namespace FileFind.Meshwork.GtkClient
 				
 					IDirectoryItem thisItem = (IDirectoryItem)filesListStore.GetValue (iter, 0);
 					
-					if (thisItem is Directory) { 
+					if (thisItem is IDirectory) { 
 						/*
 						if (selectedRows [currentPath] == null) 
 							selectedRows.Add (currentPath, e.Path.ToString ());
@@ -362,7 +356,7 @@ namespace FileFind.Meshwork.GtkClient
 			IDirectoryItem item = GetSelectedItem();
 
 			if (args.Event.Button == 3) {
-				if (item is File) {
+				if (item is IFile) {
 					filePopupMenu.ShowAll();
 					filePopupMenu.Popup();
 				}
@@ -390,15 +384,53 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public void NavigateTo (string path)
 		{
-			if (String.IsNullOrEmpty(path)) {
-				throw new ArgumentNullException ("path");
+			if (String.IsNullOrEmpty (path)) 
+			{
+				throw new ArgumentNullException("path");
 			}
 
-			try {
+			try {				
+				IDirectory directory = Core.FileSystem.GetDirectory(path);
+				if (directory != null)
+				{
+					currentDirectory = directory;
+					currentPath = directory.FullPath;
+					
+					navigationBar.SetLocation(currentPath);
+					
+					filesListStore.Clear();
+					
+					foreach (IDirectory currentSubDirectory in directory.Directories) 
+					{
+						filesListStore.AppendValues(currentSubDirectory);
+					}
+					
+					foreach (IFile currentFile in directory.Files)
+					{
+						filesListStore.AppendValues(currentFile);
+					}
+					
+					if (selectedRows.ContainsKey(path)) 
+					{
+						filesList.Selection.Changed -= filesList_Selection_Changed;
+						
+						TreePath treePath = new TreePath(selectedRows[path].ToString());
+						filesList.Selection.SelectPath(treePath);
+						filesList.ScrollToCell(treePath, null, true, 0.5f, 0);
+						filesList.Selection.Changed += filesList_Selection_Changed;
+					}
+				} 
+				else 
+				{
+					Gui.ShowErrorDialog("Directory not found");
+				}
+				
+				
+				/*
 				if (path.EndsWith("/") == false) path += "/";
 
 				Console.WriteLine("WHAT IS PATH? " + path);
-				Directory theDirectory = Directory.GetDirectory(Core.FileSystem, path);
+				IDirectory theDirectory = Core.FileSystem.GetDirectory(path);
 			
 				if (theDirectory != null) {
 				
@@ -406,11 +438,11 @@ namespace FileFind.Meshwork.GtkClient
 					filesListStore.Clear();
 				
 					if (theDirectory == Core.FileSystem.RootDirectory) {
-						foreach (Directory currentSubDirectory in theDirectory.Directories) {    
+						foreach (IDirectory currentSubDirectory in theDirectory.Directories) {    
 							filesListStore.AppendValues (currentSubDirectory);
 						}
 					} else if (theDirectory.Parent == Core.FileSystem.RootDirectory) {
-						foreach (Directory currentSubDirectory in theDirectory.Directories) {    
+						foreach (IDirectory currentSubDirectory in theDirectory.Directories) {    
 							filesListStore.AppendValues (currentSubDirectory);
 						}
 					} else {
@@ -418,7 +450,7 @@ namespace FileFind.Meshwork.GtkClient
 						Node node = theDirectory.Node;
 					
 						if (node != null && theDirectory.Requested == false) {
-							Directory newDir = Directory.CreateDirectory(Core.FileSystem, path, node);
+							IDirectory newDir = IDirectory.CreateDirectory(Core.FileSystem, path, node);
 							network.RequestDirectoryListing(node, path);
 							newDir.Requested = true;
 							navigatingTo = path;
@@ -434,11 +466,11 @@ namespace FileFind.Meshwork.GtkClient
 							return;
 							
 						} else {
-							foreach (Directory currentSubDirectory in theDirectory.Directories) {
+							foreach (IDirectory currentSubDirectory in theDirectory.Directories) {
 								filesListStore.AppendValues (currentSubDirectory);
 							}
 
-							foreach (File currentFile in theDirectory.Files) {
+							foreach (IFile currentFile in theDirectory.Files) {
 								filesListStore.AppendValues (currentFile);
 							}
 
@@ -473,15 +505,17 @@ namespace FileFind.Meshwork.GtkClient
 
 					navigationBar.SetLocation (currentPath);
 					
+					
 				} else {
 					throw new Exception("The specified directory does not exist");
 				}
+				
+					*/
 
 			} catch (Exception ex) {
 				LogManager.Current.WriteToLog(ex.ToString());
 				Gui.ShowErrorDialog(ex.Message);
 			}
-			//txtAddress.Text = currentPath;
 		}
 		
 		private bool PulseProgressBar ()
@@ -498,7 +532,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (network.FileSystem.RootDirectory == currentDirectory)
 				selectedFolderListPath = folderTreeStore.GetPath(iter);		
 			
-			foreach (Directory directory in network.FileSystem.RootDirectory.Directories) {
+			foreach (IDirectory directory in network.FileSystem.RootDirectory.Directories) {
 				AddDirectoryToTree(iter, directory);
 			}		
 			
@@ -510,7 +544,7 @@ namespace FileFind.Meshwork.GtkClient
 			*/
 		}	
 
-	/*	private void AddDirectoryToTree(TreeIter parent, Directory directory) {
+	/*	private void AddDirectoryToTree(TreeIter parent, IDirectory directory) {
 			TreeIter iter;
 			if (directory.Parent == network.FileSystem.RootDirectory) {
 				iter = folderTreeStore.AppendValues(parent, new object[] {personIcon, network.Nodes[directory.Name].ToString(),directory.FullPath()});
@@ -518,7 +552,7 @@ namespace FileFind.Meshwork.GtkClient
 				iter = folderTreeStore.AppendValues(parent, new object[] {stockDirectoryPixbuf, directory.Name,directory.FullPath()});
 			}
 
-			foreach (Directory subDirectory in directory.Directories) {			
+			foreach (IDirectory subDirectory in directory.Directories) {			
 				AddDirectoryToTree(iter, subDirectory);	
 			}
 			
@@ -541,22 +575,22 @@ namespace FileFind.Meshwork.GtkClient
 		private void filePropertiesMenuItem_Activated (object sender, EventArgs args)
 		{
 			IDirectoryItem item = GetSelectedItem();
-			if (item is File) {
-				FilePropertiesWindow win = new FilePropertiesWindow((File)item);
+			if (item is IFile) {
+				FilePropertiesWindow win = new FilePropertiesWindow((IFile)item);
 				win.Show();
 			}
 		}
 
-		private void DownloadItem(IDirectoryItem item)
+		private void DownloadItem (IDirectoryItem item)
 		{
-			Node node = item.Node;
-			if (node == null) {
-				throw new Exception("You cannot download files from yourself.");
+			if (item is ILocalDirectoryItem) {
+				throw new Exception ("You cannot download files from yourself.");
 			}
 
-			if (item is File) { 
-				Network network = item.Network;
-				network.DownloadFile(node, (File)item);
+			if (item is RemoteFile) {
+				RemoteFile remoteFile = (RemoteFile)item;
+				Network network = remoteFile.Network;
+				network.DownloadFile(remoteFile.Node, remoteFile);
 			} else {
 				throw new Exception("Downloading directories is not currently supported.");
 			}

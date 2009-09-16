@@ -31,11 +31,8 @@ namespace FileFind.Meshwork
 		Thread changedFilesThread;
 		Dictionary<string, ChangedFileInfo> changedFiles = new Dictionary<string, ChangedFileInfo>();
 
-		MFS.FileSystemProvider fs;
-
-		public ShareWatcher (MFS.FileSystemProvider fs)
+		public ShareWatcher ()
 		{
-			this.fs = fs;
 			changedFilesThread = new Thread(ChangedFileWatcher);
 		}
 
@@ -132,10 +129,10 @@ namespace FileFind.Meshwork
 				if (item == null && info != null) {
 					// New Directory!
 
-					MFS.Directory parentDirectory = GetParentDirectory(info);
+					MFS.LocalDirectory parentDirectory = GetParentDirectory(info);
 					if (parentDirectory != null) {
 						Console.WriteLine("NEW DIR !! " + path);
-						parentDirectory.CreateSubdirectory(info.Name);
+						parentDirectory.CreateSubDirectory(info.Name, info.FullName);
 					} else {
 						// No parent directory, this happens because
 						// we can get events out of order.
@@ -153,7 +150,7 @@ namespace FileFind.Meshwork
 
 			if (item == null) {
 				// New File!
-				MFS.Directory parentDirectory = GetParentDirectory(info);
+				MFS.LocalDirectory parentDirectory = GetParentDirectory(info);
 
 				Console.WriteLine("NEW FILE!! IN " + parentDirectory.FullPath);
 			} else {
@@ -165,7 +162,7 @@ namespace FileFind.Meshwork
 		private void watcher_Deleted (object sender, FileSystemEventArgs args)
 		{
 			try {
-				MFS.IDirectoryItem item = GetFromLocalPath(args.FullPath);
+				MFS.ILocalDirectoryItem item = GetFromLocalPath(args.FullPath);
 				if (item != null) {
 					item.Delete();
 				}
@@ -181,20 +178,20 @@ namespace FileFind.Meshwork
 		}
 
 		// XXX: Move this elsewhere.
-		private MFS.IDirectoryItem GetFromLocalPath (string localPath)
+		private MFS.ILocalDirectoryItem GetFromLocalPath (string localPath)
 		{
 			Console.WriteLine("GET FROM LOCAL !!! " + localPath);
-			return fs.UseConnection<MFS.IDirectoryItem>(delegate (IDbConnection connection) {
+			return Core.FileSystem.UseConnection<MFS.ILocalDirectoryItem>(delegate (IDbConnection connection) {
 				IDbCommand cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT * FROM directoryitems WHERE local_path = @local_path";
-				fs.AddParameter(cmd, "@local_path", localPath);
-				DataSet ds = fs.ExecuteDataSet(cmd);
+				Core.FileSystem.AddParameter(cmd, "@local_path", localPath);
+				DataSet ds = Core.FileSystem.ExecuteDataSet(cmd);
 				if (ds.Tables[0].Rows.Count > 0) {
 					string type = ds.Tables[0].Rows[0]["type"].ToString();
 					if (type == "F") {
-						return (MFS.IDirectoryItem) new MFS.File(fs, ds.Tables[0].Rows[0]);
+						return MFS.LocalFile.FromDataRow(ds.Tables[0].Rows[0]);
 					} else {
-						return (MFS.IDirectoryItem) MFS.Directory.FromDataRow(fs, ds.Tables[0].Rows[0]);
+						return MFS.LocalDirectory.FromDataRow(ds.Tables[0].Rows[0]);
 					}
 				} else {
 					return null;
@@ -229,7 +226,7 @@ namespace FileFind.Meshwork
 		}
 
 		// XXX: Move this too!
-		private MFS.Directory GetParentDirectory (FileSystemInfo info)
+		private MFS.LocalDirectory GetParentDirectory (FileSystemInfo info)
 		{
 			DirectoryInfo directoryInfo = (info is FileInfo) ? ((FileInfo)info).Directory : (DirectoryInfo)info;
 
@@ -238,7 +235,7 @@ namespace FileFind.Meshwork
 			if (Core.Settings.SharedDirectories.Contains(directoryInfo.FullName)) {
 				return Core.MyDirectory;
 			} else {
-				return (MFS.Directory)GetFromLocalPath(directoryInfo.Parent.FullName);
+				return (MFS.LocalDirectory)GetFromLocalPath(directoryInfo.Parent.FullName);
 			}
 		}
 	}

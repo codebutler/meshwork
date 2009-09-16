@@ -181,12 +181,14 @@ namespace FileFind.Meshwork
 
 			Core.Settings.SyncTrustedNodesAndSave();
 
-			Directory userDirectory = network.Directory.GetSubdirectory(currentNode.NodeID);
+			/*
+			IDirectory userDirectory = network.Directory.GetSubdirectory(currentNode.NodeID);
 			if (userDirectory != null) {
 				userDirectory.Delete();
 			}
 
 			network.Directory.CreateSubdirectory(currentNode.NodeID, currentNode);
+			*/
 			
 			network.RaiseUpdateNodeInfo(oldNick, currentNode);
 
@@ -242,11 +244,11 @@ namespace FileFind.Meshwork
 		{
 			string filePath = info.FullPath;
 			// Remove network part from path.
-			// XXX: This is nasty
+			// FIXME: This is nasty
 			filePath = filePath.Substring(filePath.Split('/')[1].Length + 1);
 
-			File file = File.GetFile(Core.FileSystem, filePath);
-			if (file != null && file.NodeID == Core.MyNodeID) {
+			LocalFile file = (LocalFile)Core.FileSystem.GetFile(filePath);
+			if (file != null) {
 				Core.FileTransferManager.StartTransfer(network, messageFrom, file);
 			} else {
 				Console.WriteLine("Invalid file request from: {0}", messageFrom);
@@ -348,6 +350,9 @@ namespace FileFind.Meshwork
 
 		internal void ProcessFileDetailsMessage (Node messageFrom, SharedFileDetails info)
 		{
+			// FIXME: Rewrite this to use xml torrent cache
+			
+			/*
 			string filePath = PathUtil.Join("/", PathUtil.Join(network.NetworkID, PathUtil.Join(info.DirPath, info.Name)));
 
 			File file = File.GetFile(Core.FileSystem, filePath);
@@ -365,6 +370,7 @@ namespace FileFind.Meshwork
 			file.PieceLength = info.PieceLength;
 			file.Pieces = info.Pieces;
 			file.Save();
+			
 
 			// If we have a file transfer that was waiting for
 			// piece data, start it up!
@@ -372,6 +378,8 @@ namespace FileFind.Meshwork
 			if (transfer != null && transfer.Status == FileTransferStatus.WaitingForInfo) {
 				((IFileTransferInternal)transfer).DetailsReceived();
 			}
+			
+			*/
 		}
 
 		internal void ProcessConnectionDownMessage (Node messageFrom, ConnectionInfo info)
@@ -484,9 +492,14 @@ namespace FileFind.Meshwork
 
 		internal void ProcessRequestDirListingMessage (Node messageFrom, string directoryPath)
 		{
-			directoryPath = directoryPath.Substring (network.Directory.FullPath.Length); // HACK ewwwwewwwewew
+			// Drop first path part (network name)
+			// HACK ewwwwewwwewew
+			directoryPath = directoryPath.Substring(directoryPath.IndexOf("/", 1));
+			
+			// FIXME: Verify path is for a local file?? Replace with /local ??			
+			
 			if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
-				if (Directory.GetDirectory(Core.FileSystem, directoryPath) != null) {
+				if (Core.FileSystem.GetDirectory(directoryPath) != null) {
 					network.SendRespondDirListing (messageFrom, directoryPath);
 				} else {
 					network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundException(directoryPath)));
@@ -499,6 +512,8 @@ namespace FileFind.Meshwork
 		
 		internal void ProcessRespondDirListingMessage (Node messageFrom, SharedDirectoryInfo info)
 		{
+			/* FIXME: Rewrite using xml cache
+			 * 
 			string fullPath = PathUtil.Join(network.Directory.FullPath, info.FullPath);
 
 			Directory directory = Directory.GetDirectory(Core.FileSystem, fullPath);
@@ -514,6 +529,7 @@ namespace FileFind.Meshwork
 			directory.Requested = true;
 			
 			network.RaiseReceivedDirListing (messageFrom, directory);
+			*/
 		}
 
 		internal void ProcessAckMessage (Node messageFrom, string hash)

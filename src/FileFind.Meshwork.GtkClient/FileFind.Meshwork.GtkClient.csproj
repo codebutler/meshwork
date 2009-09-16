@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{3365276B-1897-48BF-AE17-13519F98888B}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -6,10 +7,13 @@
     <RootNamespace>FileFind.Meshwork.GtkClient</RootNamespace>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <OutputType>Exe</OutputType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <AssemblyName>FileFind.Meshwork.GtkClient</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputType>WinExe</OutputType>
-    <AssemblyName>FileFind.Meshwork.GtkClient</AssemblyName>
     <OutputPath>..\..\build\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -17,20 +21,17 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <WarningLevel>4</WarningLevel>
     <RootNamespace>FileFind.Meshwork.GtkClient</RootNamespace>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputType>Exe</OutputType>
-    <AssemblyName>FileFind.Meshwork.GtkClient</AssemblyName>
     <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>false</DebugSymbols>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <DefineConstants>
-    </DefineConstants>
     <WarningLevel>4</WarningLevel>
     <RootNamespace>FileFind.Meshwork.GtkClient</RootNamespace>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <RegisterForComInterop>False</RegisterForComInterop>
@@ -40,86 +41,98 @@
     <FileAlignment>4096</FileAlignment>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="atk-sharp" />
-    <Reference Include="gtk-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="gdk-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="glib-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="glade-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="ige-mac-integration-sharp">
+    <Reference Include="ige-mac-integration-sharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\contrib\ige-mac-integration-sharp.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Posix">
-      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Posix.dll</HintPath>
-    </Reference>
-    <Reference Include="pango-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="Mono.Posix" />
     <Reference Include="Mono.GetOptions" />
     <Reference Include="Mono.Cairo" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
-    <Reference Include="FileFind.Stun, Version=0.0.0.0, Culture=neutral">
-      <HintPath>..\..\contrib\FileFind.Stun.dll</HintPath>
+    <Reference Include="FileFind.Stun, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\contrib\FileFind.Stun.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Services" />
     <Reference Include="System" />
-    <Reference Include="glib-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\Current\lib\mono\gtk-sharp-2.0\glib-sharp.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="pango-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\Current\lib\mono\gtk-sharp-2.0\pango-sharp.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="glade-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\Current\lib\mono\gtk-sharp-2.0\glade-sharp.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="gdk-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\Current\lib\mono\gtk-sharp-2.0\gdk-sharp.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="gtk-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\1.2.6\lib\mono\gtk-sharp-2.0\gtk-sharp.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="gtkspell-sharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=1d20cd83d42ab28e">
-      <HintPath>..\..\contrib\gtkspell-sharp.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\contrib\gtkspell-sharp.dll</HintPath>
     </Reference>
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\FileFind.Meshwork\FileFind.Meshwork.csproj">
       <Project>{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}</Project>
       <Name>FileFind.Meshwork</Name>
     </ProjectReference>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\system-search_24.png">
-      <Link>system-search_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\remove_24.png">
-      <Link>remove_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\find_16.png">
-      <Link>find_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-new_16.png">
-      <Link>gtk-new_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-new_24.png">
-      <Link>gtk-new_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-preferences_16.png">
-      <Link>gtk-preferences_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-preferences_24.png">
-      <Link>gtk-preferences_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-home_16.png">
-      <Link>gtk-home_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-home_24.png">
-      <Link>gtk-home_24.png</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\system-search_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\remove_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\find_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-new_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-new_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-preferences_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-preferences_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-home_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-home_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\arrow_up.png" />
+    <EmbeddedResource Include="..\..\resources\images\avatar_generic.png" />
+    <EmbeddedResource Include="..\..\resources\images\firewall-small.png" />
+    <EmbeddedResource Include="..\..\resources\images\meshwork.png" />
+    <EmbeddedResource Include="..\..\resources\images\network1.png" />
+    <EmbeddedResource Include="..\..\resources\images\tray_icon.png" />
+    <EmbeddedResource Include="..\..\resources\images\zoom.png" />
+    <EmbeddedResource Include="..\..\resources\ui\TrayPopupMenu.xml" />
+    <EmbeddedResource Include="..\..\resources\ui\MainWindow.xml" />
+    <EmbeddedResource Include="..\..\resources\glade\meshwork.glade" />
+    <EmbeddedResource Include="..\..\resources\images\arrow_down.png" />
+    <EmbeddedResource Include="..\..\resources\ui\SearchPopupMenu.xml" />
+    <EmbeddedResource Include="..\..\resources\images\install_header.bmp" />
+    <EmbeddedResource Include="..\..\resources\images\install_side.bmp" />
+    <EmbeddedResource Include="..\..\resources\images\star1_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\add_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\application-x-executable_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\audio-x-generic_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\computer_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\connect_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\connect_established_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\down_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\down_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\find_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\folder_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\image-x-generic_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\left_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\left_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\locked_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\mail_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\right_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\right_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock-close_12.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_new-text_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_person_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_person_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_refresh_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_refresh_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\system-search_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\text-x-generic_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\unknown_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\up_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\up_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\x-office-document_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\attachment-col_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\info_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\add_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\remove_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\video-x-generic_16.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TrayIcon.cs" />
@@ -168,7 +181,6 @@
     <Compile Include="Windows\winBadOptions.cs" />
     <Compile Include="Windows\winDownloadPublicKey.cs" />
     <Compile Include="Windows\winEditTrustedNode.cs" />
-    <Compile Include="Windows\winInviteUser.cs" />
     <Compile Include="Windows\winJoinChat.cs" />
     <Compile Include="Windows\winSplash.cs" />
     <Compile Include="Windows\winViewMemo.cs" />
@@ -210,166 +222,7 @@
     <Compile Include="Widgets\SearchEntry.cs" />
     <Compile Include="Windows\FilePropertiesWindow.cs" />
     <Compile Include="Windows\UserInfoDialog.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="..\..\resources\images\arrow_up.png">
-      <Link>arrow_up.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\avatar_generic.png">
-      <Link>avatar_generic.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\firewall-small.png">
-      <Link>firewall-small.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\meshwork.png">
-      <Link>meshwork.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\network1.png">
-      <Link>network1.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\tray_icon.png">
-      <Link>tray_icon.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\zoom.png">
-      <Link>zoom.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\ui\TrayPopupMenu.xml">
-      <Link>TrayPopupMenu.xml</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\ui\MainWindow.xml">
-      <Link>MainWindow.xml</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\glade\meshwork.glade">
-      <Link>meshwork.glade</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\arrow_down.png">
-      <Link>arrow_down.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\ui\SearchPopupMenu.xml">
-      <Link>SearchPopupMenu.xml</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\install_header.bmp">
-      <Link>install_header.bmp</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\install_side.bmp">
-      <Link>install_side.bmp</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\star1_16.png">
-      <Link>star1_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\add_24.png">
-      <Link>add_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\application-x-executable_16.png">
-      <Link>application-x-executable_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\audio-x-generic_16.png">
-      <Link>audio-x-generic_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\computer_24.png">
-      <Link>computer_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\connect_24.png">
-      <Link>connect_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\connect_established_16.png">
-      <Link>connect_established_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\down_16.png">
-      <Link>down_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\down_22.png">
-      <Link>down_22.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\find_24.png">
-      <Link>find_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\folder_16.png">
-      <Link>folder_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\image-x-generic_16.png">
-      <Link>image-x-generic_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_16.png">
-      <Link>internet-group-chat_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_24.png">
-      <Link>internet-group-chat_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\left_16.png">
-      <Link>left_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\left_22.png">
-      <Link>left_22.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\locked_16.png">
-      <Link>locked_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\mail_16.png">
-      <Link>mail_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\right_16.png">
-      <Link>right_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\right_22.png">
-      <Link>right_22.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock-close_12.png">
-      <Link>stock-close_12.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_16.png">
-      <Link>stock_internet_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_24.png">
-      <Link>stock_internet_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_new-text_24.png">
-      <Link>stock_new-text_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_person_16.png">
-      <Link>stock_person_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_person_24.png">
-      <Link>stock_person_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_refresh_16.png">
-      <Link>stock_refresh_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_refresh_24.png">
-      <Link>stock_refresh_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\system-search_16.png">
-      <Link>system-search_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\text-x-generic_16.png">
-      <Link>text-x-generic_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\unknown_16.png">
-      <Link>unknown_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\up_16.png">
-      <Link>up_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\up_22.png">
-      <Link>up_22.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\x-office-document_16.png">
-      <Link>x-office-document_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\attachment-col_16.png">
-      <Link>attachment-col_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\info_24.png">
-      <Link>info_24.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\add_16.png">
-      <Link>add_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\remove_16.png">
-      <Link>remove_16.png</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\video-x-generic_16.png">
-      <Link>video-x-generic_16.png</Link>
-    </EmbeddedResource>
+    <Compile Include="Windows\InviteToChatDialog.cs" />
+    <Compile Include="Windows\StartupProblemsDialog.cs" />
   </ItemGroup>
 </Project>

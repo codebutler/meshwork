@@ -119,7 +119,7 @@ namespace FileFind.Meshwork.Protocol
 		public int PieceLength;
 		public string[] Pieces;
 
-		public SharedFileDetails(File file)
+		public SharedFileDetails(IFile file)
 		{
 			this.Name = file.Name;
 			this.Size = file.Size;
@@ -200,7 +200,7 @@ namespace FileFind.Meshwork.Protocol
 			this.type = type;
 		}
 
-		public SharedFileListing(File file)
+		public SharedFileListing(IFile file)
 		{
 			if (file.InfoHash == null) {
 				throw new ArgumentException("File must have InfoHash");
@@ -217,7 +217,6 @@ namespace FileFind.Meshwork.Protocol
 	[Serializable]
 	public class SharedDirListing : ISharedListing
 	{
-		int id;
 		string name;
 		string fullPath;
 		SharedFileListing[] files;
@@ -227,27 +226,16 @@ namespace FileFind.Meshwork.Protocol
 
 		}
 
-		public SharedDirListing (Directory dir)
+		public SharedDirListing (IDirectory dir)
 		{
-			this.id = dir.Id;
 			this.name = dir.Name;
 			this.fullPath = dir.FullPath;
 		}
 
-		public SharedDirListing (int id, string name, string fullPath)
+		public SharedDirListing (string name, string fullPath)
 		{
-			this.id = id;
 			this.name = name;
 			this.fullPath = fullPath;
-		}
-
-		public int Id {
-			get {
-				return id;
-			}
-			set {
-				id = value;
-			}
 		}
 
 		public string Name {

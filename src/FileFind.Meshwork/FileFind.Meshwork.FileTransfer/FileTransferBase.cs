@@ -16,7 +16,7 @@ namespace FileFind.Meshwork.FileTransfer
 {
 	public abstract class FileTransferBase : IFileTransfer, IFileTransferInternal
 	{
-		protected File file;
+		protected IFile file;
 		protected string id;
 		protected string statusDetail;
 		protected List<IFileTransferPeer> peers = new List<IFileTransferPeer>();
@@ -58,7 +58,7 @@ namespace FileFind.Meshwork.FileTransfer
 			}
 		}
 	
-		public File File {
+		public IFile File {
 			get {
 				return file;
 			}

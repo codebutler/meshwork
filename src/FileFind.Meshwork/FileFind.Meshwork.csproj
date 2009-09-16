@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
@@ -21,79 +22,52 @@
     <OutputPath>..\..\build\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
-    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
-    <NoStdLib>false</NoStdLib>
     <Optimize>false</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
     <OutputType>Library</OutputType>
-    <AssemblyName>FileFind.Meshwork</AssemblyName>
     <RootNamespace>FileFind.Meshwork</RootNamespace>
+    <NoWarn>3021</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
-    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <DefineConstants>TRACE</DefineConstants>
-    <DebugSymbols>false</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
-    <NoStdLib>false</NoStdLib>
     <Optimize>true</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
     <OutputType>Library</OutputType>
-    <AssemblyName>FileFind.Meshwork</AssemblyName>
     <RootNamespace>FileFind.Meshwork</RootNamespace>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral">
+    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\contrib\DiffieHellman.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Data">
-      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Data.Sqlite">
-      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Data.Sqlite.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Data.SqliteClient">
-      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Data.SqliteClient.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.GetOptions">
-      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.GetOptions.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Posix">
-      <HintPath>..\..\..\..\..\..\Program Files\Mono-1.9\lib\mono\2.0\Mono.Posix.dll</HintPath>
-    </Reference>
-    <Reference Include="System">
-      <Name>System</Name>
-    </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
-    </Reference>
-    <Reference Include="System.Web">
-      <Name>System.Web</Name>
-    </Reference>
-    <Reference Include="System.Web.Services">
-      <Name>System.Web.Services</Name>
-    </Reference>
-    <Reference Include="System.Xml">
-      <Name>System.XML</Name>
-    </Reference>
+    <Reference Include="Mono.Data" />
+    <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="Mono.Data.SqliteClient" />
+    <Reference Include="Mono.GetOptions" />
+    <Reference Include="Mono.Posix" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
     <Reference Include="Mono.Data.SqliteClient" />
     <Reference Include="Mono.Posix" />
-    <Reference Include="MonoTorrent, Version=0.3.0.0, Culture=neutral">
-      <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
+    <Reference Include="MonoTorrent, Version=0.3.0.0, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -136,7 +110,6 @@
     <Compile Include="NetworkInfo.cs" />
     <Compile Include="Validator.cs" />
     <Compile Include="KeyFunctions.cs" />
-    <Compile Include="FileFind.Meshwork.Filesystem\Directory.cs" />
     <Compile Include="FileFind.Meshwork.Filesystem\FileSystemProvider.cs" />
     <Compile Include="FileFind.Meshwork.Protocol\MemoInfo.cs" />
     <Compile Include="FileFind.Meshwork.Protocol\MessageContentClasses.cs" />
@@ -159,7 +132,6 @@
     <Compile Include="FileFind.Meshwork.FileTransfer\IFileTransferPeer.cs" />
     <Compile Include="FileFind.Meshwork.FileTransfer\IFileTransferProvider.cs" />
     <Compile Include="FileFind.Meshwork.Filesystem\IDirectoryItem.cs" />
-    <Compile Include="FileFind.Meshwork.Filesystem\File.cs" />
     <Compile Include="FileFind.Meshwork.Transport\IMeshworkOperation.cs" />
     <Compile Include="FileFind.Meshwork.Transport\ITransport.cs" />
     <Compile Include="FileFind.Meshwork.Transport\ITransportListener.cs" />
@@ -190,10 +162,21 @@
     <Compile Include="FileFind.Meshwork.Transport\AESTransportEncryptor.cs" />
     <Compile Include="FileFind.Meshwork.Filesystem\PathUtil.cs" />
     <Compile Include="SettingsBase.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\RemoteFile.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\RemoteDirectory.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\IFile.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\IDirectory.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\AbstractFile.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\AbstractDirectory.cs" />
+    <Compile Include="ShareWatcher.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\LocalDirectory.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\LocalFile.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\RootDirectory.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\NetworkDirectory.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\MyDirectory.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\ILocalDirectoryItem.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\IRemoteDirectoryItem.cs" />
+    <Compile Include="FileFind.Meshwork.Filesystem\NodeDirectory.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="FileFind.Meshwork.Filesystem" />
-    <Folder Include="FileFind.Meshwork.Protocol" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -14,10 +14,6 @@ namespace FileFind.Meshwork.Filesystem
 {
 	public interface IDirectoryItem
 	{
-		int Id {
-			get;
-		}
-
 		string Name {
 			get; 
 		}
@@ -30,21 +26,11 @@ namespace FileFind.Meshwork.Filesystem
 			get; 
 		}
 
-		void Delete ();
-
-		Directory Parent {
+		IDirectory Parent {
 			get;
 		}
 
 		string FullPath {
-			get;
-		}
-
-		Network Network {
-			get;
-		}
-
-		Node Node {
 			get;
 		}
 	}

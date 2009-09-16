@@ -93,8 +93,8 @@ namespace FileFind.Meshwork.GtkClient
 					/* Need to add new button */
 					Image image = null;
 					string text = pathParts[x];
-
-					if (x > 0 && pathParts[1] == Core.MyNodeID) {
+					
+					if (x > 0 && pathParts[1] == "local") {
 						if (x == 1) {
 							image = new Image(personIcon);
 							text = "My Shared Files";
@@ -102,7 +102,7 @@ namespace FileFind.Meshwork.GtkClient
 					} else {
 						if (x == 0) {
 							image = new Image(homeIcon);
-							text = "My Networks";
+							text = "Home";
 						} else if (x == 1) {
 							image = new Image(networkIcon);
 							Network network = Core.GetNetwork(pathParts[x]);

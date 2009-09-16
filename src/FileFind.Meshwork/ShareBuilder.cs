@@ -20,7 +20,6 @@ namespace FileFind.Meshwork
 {
 	public class ShareBuilder
 	{
-		FileSystemProvider fs;
 		Thread thread = null;
 
 		public event EventHandler StartedIndexing;
@@ -28,12 +27,10 @@ namespace FileFind.Meshwork
 		public event EventHandler StoppedIndexing;
 		public event ErrorEventHandler ErrorIndexing;
 
-		List<File> filesToHash = new List<File>();
+		List<LocalFile> filesToHash = new List<LocalFile>();
 
-		internal ShareBuilder (FileSystemProvider fs)
+		internal ShareBuilder ()
 		{
-			this.fs = fs;
-
 		}
 
 		public bool Going {
@@ -58,7 +55,7 @@ namespace FileFind.Meshwork
 				StartedIndexing (this, EventArgs.Empty);
 			}
 
-			Directory myDirectory = Core.FileSystem.RootDirectory.GetSubdirectory(Core.MyNodeID);
+			LocalDirectory myDirectory = Core.FileSystem.RootDirectory.MyDirectory;
 
 			// XXX: Figure out what top-level directories
 			// are in the database, that are no longer in
@@ -109,7 +106,7 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		private void ProcessDirectory (Directory parentDirectory, IO.DirectoryInfo directoryInfo)
+		private void ProcessDirectory (LocalDirectory parentDirectory, IO.DirectoryInfo directoryInfo)
 		{
 			if (parentDirectory == null) {
 				throw new ArgumentNullException("parentDirectory");
@@ -120,21 +117,19 @@ namespace FileFind.Meshwork
 
 			try {
 				if (directoryInfo.Name.StartsWith(".") == false) {
-					Directory directory = parentDirectory.GetSubdirectory(directoryInfo.Name);
+					LocalDirectory directory = (LocalDirectory)parentDirectory.GetSubdirectory(directoryInfo.Name);
 
 					if (directory == null) {
-						directory = Directory.CreateDirectory(fs, parentDirectory,
-										      directoryInfo.Name, 
-										      directoryInfo.FullName);
+						directory = parentDirectory.CreateSubDirectory(directoryInfo.Name, directoryInfo.FullName);
 					}
 
 					foreach (IO.FileInfo fileInfo in directoryInfo.GetFiles()) {
 						if (fileInfo.Name.StartsWith(".") == false) {
-							File file = null;
+							LocalFile file = null;
 							if (!directory.HasFile(fileInfo.Name)) {
 								file = directory.CreateFile(fileInfo);
 							} else {
-								file = directory.GetFile(fileInfo.Name);
+								file = (LocalFile)directory.GetFile(fileInfo.Name);
 								// XXX: Update file info
 							}
 							if (file.InfoHash == null || file.InfoHash == String.Empty) {

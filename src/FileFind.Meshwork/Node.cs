@@ -53,8 +53,10 @@ namespace FileFind.Meshwork
 		string sessionKeyDataHash = String.Empty;
 		Network network;
 		private string nodeID;
+		
+		NodeDirectory directory;
 
-		public Node(Network network, string nodeID)
+		public Node (Network network, string nodeID)
 		{
 			if (network == null) {
 				throw new ArgumentNullException("network");
@@ -67,8 +69,12 @@ namespace FileFind.Meshwork
 			this.nodeID = nodeID;
 			this.network = network;
 
-			alg = new RijndaelManaged ();
+			alg = new RijndaelManaged();
 			diffieHellman = new DiffieHellmanManaged();
+			
+			if (nodeID != Core.MyNodeID) {
+				directory = new NodeDirectory(this);
+			}
 		}
 
 		public string NickName {
@@ -141,12 +147,18 @@ namespace FileFind.Meshwork
 				} else {
 					return sharedBytes;
 				}
-			} 
+			}
 			internal set {
 				if (nodeID == Core.MyNodeID) {
 					throw new InvalidOperationException();
 				}
 				sharedBytes = value;
+			}
+		}
+		
+		public NodeDirectory Directory {
+			get {
+				return directory;
 			}
 		}
 

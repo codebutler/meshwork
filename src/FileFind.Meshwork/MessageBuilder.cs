@@ -349,20 +349,20 @@ namespace FileFind.Meshwork
 
 		public Message CreateRespondDirListingMessage (Node messageTo, string dirPath)
 		{
-			Directory directory = Directory.GetDirectory (Core.FileSystem, dirPath);
+			LocalDirectory directory = (LocalDirectory)Core.FileSystem.GetDirectory(dirPath);
 			SharedDirectoryInfo info = new SharedDirectoryInfo ();
 			info.FullPath = dirPath;
 			
 			List<SharedFileListing> files = new List<SharedFileListing>();
-			foreach (File file in directory.Files) {
-				SharedFileListing fileInfo = new SharedFileListing (file);
+			foreach (IFile file in directory.Files) {
+				SharedFileListing fileInfo = new SharedFileListing(file);
 				files.Add(fileInfo);
 			}
 			info.Files = files.ToArray();
 
 			string[] directories = new string[directory.Directories.Length];
 			for (int x = 0; x < directory.Directories.Length; x++) {
-				Directory subDirectory = directory.Directories[x];
+				IDirectory subDirectory = directory.Directories[x];
 				directories[x] = subDirectory.Name;
 			}
 			info.Directories = directories;
@@ -408,7 +408,7 @@ namespace FileFind.Meshwork
 			return p;
 		}
 
-		public Message CreateFileDetailsMessage (Node sendTo, File file)
+		public Message CreateFileDetailsMessage (Node sendTo, IFile file)
 		{
 			Message message = new Message(network, MessageType.FileDetails);
 			message.To = sendTo.NodeID;
@@ -431,7 +431,7 @@ namespace FileFind.Meshwork
 			*/
 		}
 
-		public Message CreateSendFileMessage(Node SendTo, File theFile)
+		public Message CreateSendFileMessage(Node SendTo, IFile theFile)
 		{
 			return CreateSendFileMessage(SendTo, theFile.FullPath, theFile.Size);
 		}

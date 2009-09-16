@@ -37,7 +37,7 @@ namespace FileFind.Meshwork.FileTransfer
 
 		// Starts a new file transfer, or adds a new peer if one
 		// already exists.
-		internal IFileTransfer StartTransfer(Network network, Node node, File file)
+		internal IFileTransfer StartTransfer(Network network, Node node, IFile file)
 		{
 			if (node.NodeID == Core.MyNodeID) {
 				throw new ArgumentException("You cannot start a file transfer with yourself.");
@@ -45,7 +45,7 @@ namespace FileFind.Meshwork.FileTransfer
 			
 			// Don't download files if it already exists in the completed downloads directory.
 			// If the remote file is different, but has the same filename, it'll globber your copy.
-			if (file.NodeID != Core.MyNodeID) {
+			if (!(file is LocalFile)) {
 				if (IO.File.Exists(IO.Path.Combine(Core.Settings.CompletedDownloadDir, file.Name))) {
 					throw new Exception("A file by that name already exists in your download directory.");
 				}
@@ -104,7 +104,7 @@ namespace FileFind.Meshwork.FileTransfer
 			});
 		}
 
-		internal IFileTransfer GetTransfer(File file)
+		internal IFileTransfer GetTransfer(IFile file)
 		{
 			return transfers.Find (delegate (IFileTransfer t) { return t.File.Equals(file); });
 		}

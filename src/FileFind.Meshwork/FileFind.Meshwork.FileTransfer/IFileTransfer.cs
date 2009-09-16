@@ -66,7 +66,7 @@ namespace FileFind.Meshwork.FileTransfer
 		/// <summary>
 		/// The file being transfered.
 		/// </summary>
-		File File {
+		IFile File {
 			get;
 		}
 
@@ -153,6 +153,7 @@ namespace FileFind.Meshwork.FileTransfer
 
 		internal FileTransferOperation (ITransport transport, IFileTransfer transfer, IFileTransferPeer peer)
 		{
+			this.transport = transport;
 			this.transfer = transfer;
 			this.peer = peer;
 		}
