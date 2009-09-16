@@ -844,17 +844,15 @@ namespace FileFind.Meshwork
 			SendRoutedMessage(m);
 		}
 		
-		public void RequestDirectoryListing (Node node, string path)
+		public void RequestDirectoryListing (RemoteDirectory directory)
 		{
-			RequestDirectoryListing (node, path, false);
-		}
-		
-		public void RequestDirectoryListing (Node node, string path, bool recursive)
-		{
-			Message m = MessageBuilder.CreateRequestDirectoryMessage(node, path, recursive);
+			// FIXME: This is not pretty
+			string path = "/" + String.Join("/", directory.FullPath.Split('/').Slice(3));
+
+			Message m = MessageBuilder.CreateRequestDirectoryMessage(directory.Node, path);
 			SendRoutedMessage(m);
 		}
-
+		
 		public void DownloadDirectory (IDirectory directory)
 		{
 			throw new NotImplementedException ();

@@ -490,24 +490,24 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		internal void ProcessRequestDirListingMessage (Node messageFrom, string directoryPath)
+		internal void ProcessRequestDirListingMessage (Node messageFrom, string requestedPath)
 		{
-			// Drop first path part (network name)
-			// HACK ewwwwewwwewew
-			directoryPath = directoryPath.Substring(directoryPath.IndexOf("/", 1));
-			
-			// FIXME: Verify path is for a local file?? Replace with /local ??			
-			
-			if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
-				if (Core.FileSystem.GetDirectory(directoryPath) != null) {
-					network.SendRespondDirListing (messageFrom, directoryPath);
+			try {
+				string directoryPath = PathUtil.Join(Core.MyDirectory.FullPath, requestedPath);
+				
+				if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
+					if (Core.FileSystem.GetDirectory(directoryPath) != null) {
+						network.SendRespondDirListing(messageFrom, directoryPath);
+					} else {
+						network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundException(requestedPath)));
+					}
 				} else {
-					network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundException(directoryPath)));
+					network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new MeshworkException("You are not authorized to browse my files.")));
 				}
-			} else {
-				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new MeshworkException("You are not authorized to browse my files.")));
+			} catch (Exception ex) {
+				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundException(requestedPath)));
+				throw ex;
 			}
-
 		}
 		
 		internal void ProcessRespondDirListingMessage (Node messageFrom, SharedDirectoryInfo info)

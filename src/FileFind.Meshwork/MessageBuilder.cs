@@ -339,7 +339,7 @@ namespace FileFind.Meshwork
 			return p;
 		}
 
-		public Message CreateRequestDirectoryMessage (Node messageTo, string requestedDirPath, bool recursive)
+		public Message CreateRequestDirectoryMessage (Node messageTo, string requestedDirPath)
 		{
 			Message p = new Message(network, MessageType.RequestDirListing);
 			p.To = messageTo.NodeID;

@@ -83,7 +83,7 @@ namespace FileFind.Meshwork.Filesystem
 		public void Update()
 		{
 			m_State = RemoteDirectoryState.ContentsRequested;
-			m_Node.Network.RequestDirectoryListing(m_Node, base.FullPath);
+			m_Node.Network.RequestDirectoryListing(this);
 		}
 
 		internal void UpdateFromCache()

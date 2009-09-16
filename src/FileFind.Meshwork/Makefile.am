@@ -10,6 +10,7 @@ FILES = \
 	FileFind/Serialization.cs                                               \
 	FileFind/IPv6Util.cs                                                    \
 	FileFind/Common.cs                                                      \
+	FileFind/Extensions.cs                                                  \
 	FileFind/ReadOnlyDictionary.cs                                          \
 	FileFind/SerializableDictionary.cs                                      \
 	FileFind.Meshwork.Destination/IDestination.cs                           \
