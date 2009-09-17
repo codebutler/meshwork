@@ -60,10 +60,10 @@ namespace FileFind.Meshwork.GtkClient
 			networksComboBox.PackStart (networkNameCell, false);
 			networksComboBox.SetCellDataFunc (networkNameCell, new CellLayoutDataFunc (NetworkTextFunc));
 			networksComboBox.Model = networksListStore;
-			networksComboBox.Active = 0;
 			networksComboBox.Changed += delegate {
 				PopulateAddressCombo();
 			};
+			networksComboBox.Active = Math.Min(networksListStore.IterNChildren(), 1);
 
 			userImage = Gui.LoadIcon (16, "stock_person");
 			notImage = Gui.LoadIcon (16, "stock_not");

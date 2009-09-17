@@ -23,7 +23,7 @@ namespace FileFind.Meshwork.GtkClient
 		ISidebarItem selectedItem;
 
 		ListStore topItemsStore;
-		TreeStore searchItemsModel;
+		ListStore searchItemsModel;
 		ListStore bottomItemsStore;
 
 		TreeView topItemsTree;
@@ -57,7 +57,7 @@ namespace FileFind.Meshwork.GtkClient
 			
 			// SEARCH ITEMS
 			
-			searchItemsModel = new TreeStore(typeof(ISidebarItem));
+			searchItemsModel = new ListStore(typeof(ISidebarItem));
 			
 			ScrolledWindow scrolledWindow = new ScrolledWindow();
 			scrolledWindow.VscrollbarPolicy = PolicyType.Never;
@@ -105,9 +105,11 @@ namespace FileFind.Meshwork.GtkClient
 			AppendItem(topItemsStore, new UserBrowserItem());
 			AppendItem(topItemsStore, new NewSearchItem());
 
+			/*
 			AppendItem(searchItemsModel, WhatsNewSearchItem.Instance);
 			AppendItem(searchItemsModel, WhatsPopularSearchItem.Instance);
 			AppendItem(searchItemsModel, new SeparatorItem());
+			*/
 
 			AppendItem(bottomItemsStore, new ChatsItem());
 			AppendItem(bottomItemsStore, new MemosItem());
