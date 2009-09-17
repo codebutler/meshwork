@@ -133,15 +133,20 @@ namespace FileFind.Meshwork.Destination
 					}
 					
 					// Only connect to local IPs that fall under a matching subnet.
+					bool foundMatchingSubnet = false;
 					foreach (IDestination destination in Core.DestinationManager.Destinations) {
 						if (destination is IPv4Destination && !destination.IsExternal) {
 							IPAddress myAddress = ((IPv4Destination)destination).IPAddress;
 							var subnet = FindInterfaceWithIP(myAddress).SubnetMask;
-							if (!myAddress.IsInSameSubnet(base.IPAddress, subnet)) {
-								return false;
+							if (myAddress.IsInSameSubnet(base.IPAddress, subnet)) {
+								foundMatchingSubnet = true;
+								break;
 							}
 						}
 					}
+					
+					if (!foundMatchingSubnet)
+						return false;
 					
 					// If this is an IPv4 address, we can connect only
 					// if one of our external Destinations matches another one
