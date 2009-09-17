@@ -297,7 +297,7 @@ namespace FileFind.Meshwork.Filesystem
 
 				// Next, find all files within matching directories.
 				string directoryIdsStr = String.Join(",", directoryIds.ToArray());
-				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND info_hash IS NOT NULL AND parent_id IN (" + directoryIdsStr + ")";
+				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND parent_id IN (" + directoryIdsStr + ")";
 				command = connection.CreateCommand();
 				command.CommandText = sql;
 				//AddParameter(command, "@ids", directoryIds.ToString());
@@ -339,7 +339,7 @@ namespace FileFind.Meshwork.Filesystem
 
 				// Now find all other files.
 				// XXX: Why doesn't ESCAPE work?!
-				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND info_hash IS NOT NULL AND name LIKE @name AND parent_id NOT IN (" + directoryIds.ToString() + ")";// ESCAPE '\'";
+				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND name LIKE @name AND parent_id NOT IN (" + directoryIdsStr + ")";// ESCAPE '\'";
 				command = connection.CreateCommand();
 				command.CommandText = sql;
 				//AddParameter(command, "@ids", directoryIds.ToString());

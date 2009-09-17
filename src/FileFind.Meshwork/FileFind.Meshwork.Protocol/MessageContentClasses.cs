@@ -209,7 +209,7 @@ namespace FileFind.Meshwork.Protocol
 			}
 
 			this.name = file.Name;
-			this.fullPath = file.FullPath;
+			this.fullPath =  "/" + String.Join("/", file.FullPath.Split('/').Slice(2));
 			this.size = file.Size;
 			this.infoHash = file.InfoHash;
 			this.type = FileType.Other; // XXX: <<-
