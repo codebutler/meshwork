@@ -179,6 +179,24 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			network.ReceivedDirListing += (ReceivedDirListingEventHandler)DispatchService.GuiDispatch(new ReceivedDirListingEventHandler(network_ReceivedDirListing));
 			network.ReceivedNonCriticalError += (ReceivedNonCriticalErrorEventHandler)DispatchService.GuiDispatch(new ReceivedNonCriticalErrorEventHandler(network_ReceivedNonCriticalError));
+			
+			network.UserOnline += network_UserOnlineOffline;
+			network.UserOffline += network_UserOnlineOffline;
+			
+			if (currentDirectory == Core.FileSystem.RootDirectory) {
+				Application.Invoke(delegate {
+					Refresh();
+				});
+			}
+		}
+		
+		private void network_UserOnlineOffline (Network network, Node node)
+		{
+			if (currentDirectory is NetworkDirectory && ((NetworkDirectory)currentDirectory).Network == network) {
+				Application.Invoke(delegate {
+					Refresh();
+				});
+			}			
 		}
 
 		private void network_ReceivedDirListing (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directory)
