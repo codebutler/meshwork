@@ -38,7 +38,7 @@ namespace FileFind.Meshwork.Filesystem
 		public override string InfoHash {
 			get { return m_InfoHash; }
 			internal set {
-				throw new NotImplementedException();
+				m_InfoHash = value;
 			}
 		}
 
@@ -76,7 +76,7 @@ namespace FileFind.Meshwork.Filesystem
 				return m_PieceLength;
 			}
 			internal set {
-				throw new System.NotImplementedException();
+				m_PieceLength = value;
 			}
 		}
 
@@ -85,8 +85,17 @@ namespace FileFind.Meshwork.Filesystem
 				return m_Pieces;
 			}
 			internal set {
-				throw new System.NotImplementedException();
+				m_Pieces = value;
 			}
+		}
+		
+		public void UpdateWithInfo (SharedFileDetails details)
+		{
+			m_PieceLength = details.PieceLength;
+			m_Pieces = details.Pieces;	
+			m_InfoHash = details.InfoHash;
+			
+			// FIXME: Update cache!!
 		}
 	}
 }

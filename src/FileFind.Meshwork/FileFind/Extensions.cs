@@ -4,18 +4,25 @@ namespace FileFind
 {
 	public static class Extensions
 	{
-		public static T[] Slice<T>(this T[] source, int start)
+		public static T[] Slice<T> (this T[] source, int start)
 		{
-			return Slice(source, start, source.Length - start);
+			return Slice (source, start, -1);
 		}
 
-		public static T[] Slice<T>(this T[] source, int start, int count)
+		public static T[] Slice<T> (this T[] source, int start, int count)
 		{
-			if (count > (source.Length - start))
-				throw new ArgumentException("count is too big");
+			if (start < 0)
+				start = source.Length + start;
+			
+			if (count > source.Length + start)
+				count = source.Length - start;
+			
+			if (count < 0)
+				count = source.Length - Math.Abs (count) - start + 1;
+			
 			T[] result = new T[count];
 			for (int x = 0; x < count; x++)
-				result[x] = source[x + start];
+				result[x] = source[start + x];
 			return result;
 		}
 	}

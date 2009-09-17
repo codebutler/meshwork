@@ -32,5 +32,6 @@ namespace FileFind.Meshwork.Filesystem
 		}
 			
 		IDirectory GetSubdirectory (string name);
+		IFile GetFile (string name);
 	}
 }

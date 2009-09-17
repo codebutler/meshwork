@@ -111,8 +111,14 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public IFile GetFile (string path)
 		{
-			// FIXME: !!!
-			throw new NotImplementedException();
+			string directoryPath = String.Join("/", path.Split('/').Slice(0, -2));
+			string fileName = path.Split('/').Slice(-1, -1)[0];
+			IDirectory directory = GetDirectory(directoryPath);
+			if (directory != null) {
+				return directory.GetFile(fileName);
+			} else {
+				return null;
+			}
 		}
 		
 		internal T UseConnection<T> (DbMethod<T> method)

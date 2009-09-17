@@ -348,29 +348,25 @@ namespace FileFind.Meshwork
 		}
 		*/
 
+		internal void ProcessRequestFileDetails (Node messageFrom, string path)
+		{
+			string directoryPath = PathUtil.Join(Core.MyDirectory.FullPath, path);
+			LocalFile file = (LocalFile)Core.FileSystem.GetFile(directoryPath);
+			if (file != null)
+				network.SendFileDetails(messageFrom, file);
+			else
+				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new FileNotFoundException()));
+		}
+		
 		internal void ProcessFileDetailsMessage (Node messageFrom, SharedFileDetails info)
 		{
-			// FIXME: Rewrite this to use xml torrent cache
+			string filePath = PathUtil.Join(messageFrom.Directory.FullPath, PathUtil.Join(info.DirPath, info.Name));
 			
-			/*
-			string filePath = PathUtil.Join("/", PathUtil.Join(network.NetworkID, PathUtil.Join(info.DirPath, info.Name)));
-
-			File file = File.GetFile(Core.FileSystem, filePath);
-			if (file == null) {
-				Console.WriteLine("Hmm, no file... " + filePath);
-
-				Directory directory = Directory.GetDirectory(Core.FileSystem, info.DirPath);
-				if (directory == null) {
-					directory = Directory.CreateDirectory(Core.FileSystem, info.DirPath, messageFrom);
-				}
-				file = directory.CreateFile(info, messageFrom);
-			}
-
-			file.InfoHash = info.InfoHash;
-			file.PieceLength = info.PieceLength;
-			file.Pieces = info.Pieces;
-			file.Save();
+			RemoteFile file = (RemoteFile)Core.FileSystem.GetFile(filePath);
+			if (file != null)
+				file.UpdateWithInfo(info);
 			
+			// FIXME: Update cache!
 
 			// If we have a file transfer that was waiting for
 			// piece data, start it up!
@@ -379,7 +375,7 @@ namespace FileFind.Meshwork
 				((IFileTransferInternal)transfer).DetailsReceived();
 			}
 			
-			*/
+			network.RaiseReceivedFileDetails(file);
 		}
 
 		internal void ProcessConnectionDownMessage (Node messageFrom, ConnectionInfo info)

@@ -58,8 +58,16 @@ namespace FileFind.Meshwork.GtkClient
 					// XXX: Hook into ShareHasher's finished event and automatically update UI.
 					piecesListStore.AppendValues("Hashing, please wait...");
 					fetchPiecesButton.Sensitive = false;
-				} else {
+				} else if (file is RemoteFile) {
 					// User can click fetch button.
+					((RemoteFile)file).Network.ReceivedFileDetails += delegate {
+						Application.Invoke(delegate {
+							piecesListStore.Clear();
+							foreach (string piece in file.Pieces) {
+								piecesListStore.AppendValues(piece);
+							}
+						});
+					};					
 				}
 			}
 

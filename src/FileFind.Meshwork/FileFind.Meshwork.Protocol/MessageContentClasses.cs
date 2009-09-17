@@ -121,11 +121,13 @@ namespace FileFind.Meshwork.Protocol
 
 		public SharedFileDetails(IFile file)
 		{
+			if (file == null)
+				throw new ArgumentNullException("file");
+			
 			this.Name = file.Name;
 			this.Size = file.Size;
 			this.InfoHash = file.InfoHash;
-
-			this.DirPath = file.Parent.FullPath;
+			this.DirPath = "/" + String.Join("/", file.Parent.FullPath.Split('/').Slice(2));
 			this.PieceLength = file.PieceLength;
 			this.Pieces = file.Pieces;
 		}

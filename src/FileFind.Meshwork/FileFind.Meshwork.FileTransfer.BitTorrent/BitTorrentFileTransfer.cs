@@ -275,7 +275,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 
 			if (file is LocalFile) {
 				foreach (BitTorrentFileTransferPeer peer in this.peers) {
-					peer.Network.SendFileDetails(peer.Node, file);
+					peer.Network.SendFileDetails(peer.Node, (LocalFile)file);
 				}
 			}
 		}
@@ -334,7 +334,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			peers.Add(peer);
 			
 			if ((manager != null) && Direction == FileTransferDirection.Upload && file.Pieces.Length > 0) {
-				peer.Network.SendFileDetails(node, file);
+				peer.Network.SendFileDetails(node, (LocalFile)file);
 			}
 
 			if (manager == null || manager.State == TorrentState.Stopped) {

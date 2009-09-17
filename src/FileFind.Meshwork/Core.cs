@@ -53,7 +53,7 @@ namespace FileFind.Meshwork
 		public static event NetworkEventHandler NetworkAdded;
 		public static event NetworkEventHandler NetworkRemoved;
 		
-		public static readonly int ProtocolVersion = 242;
+		public static readonly int ProtocolVersion = 243;
 
 		static Core ()
 		{

@@ -47,6 +47,7 @@ namespace FileFind.Meshwork
 	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkException ex);
 	public delegate void DebugWriteEventHandler (DebugInfo debugInfo);
 	public delegate void AvatarEventHandler (Network network, Node node, byte[] avatarData);
+	public delegate void RemoteFileEventHandler (Network network, RemoteFile remoteFile);
 	//public delegate void FileOfferedEventHandler (Network network, FileOfferedEventArgs args);
 
 	public class Network : FileFind.Meshwork.Object
@@ -112,6 +113,7 @@ namespace FileFind.Meshwork
 		public event ReceivedNonCriticalErrorEventHandler ReceivedNonCriticalError;
 		public event ReceivedCriticalErrorEventHandler ReceivedCriticalError;
 		public event AvatarEventHandler ReceivedAvatar;
+		public event RemoteFileEventHandler ReceivedFileDetails;
 
 		// Internal Events
 		internal event ReceivedSearchResultEventHandler ReceivedSearchResult;
@@ -583,7 +585,11 @@ namespace FileFind.Meshwork
 		public void SendRoutedMessage(Message Message)
 		{
 			if (nodes.ContainsKey(Message.To)) {
-				if (UnencryptedMessageTypes.IndexOf(Message.Type) == -1 && InsecureMessageTypes.IndexOf(Message.Type) == -1 && LocalOnlyMessageTypes.IndexOf(Message.Type) == -1 && Nodes[Message.To].FinishedKeyExchange == false) {
+				if (UnencryptedMessageTypes.IndexOf(Message.Type) == -1 && 
+				    InsecureMessageTypes.IndexOf(Message.Type) == -1 &&
+				    LocalOnlyMessageTypes.IndexOf(Message.Type) == -1 && 
+				    Nodes[Message.To].FinishedKeyExchange == false) 
+				{
 					throw new KeyNotAvaliableException(Nodes[Message.To], Message.Type);
 				}
 
@@ -598,6 +604,10 @@ namespace FileFind.Meshwork
 					throw new Exception("you cannot send messages to yourself!");
 				}
 
+				if (Message.To == BroadcastNodeID) {
+					throw new Exception("Invalid To");
+				}
+				
 				// Send LocalOnly message types regardless of ConnectionState
 				if (LocalOnlyMessageTypes.IndexOf(Message.Type) > -1) {
 
@@ -803,7 +813,7 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		internal void SendFileDetails (Node to, IFile file)
+		internal void SendFileDetails (Node to, LocalFile file)
 		{
 			Message m = MessageBuilder.CreateFileDetailsMessage(to, file);
 			this.SendRoutedMessage(m);
@@ -848,9 +858,14 @@ namespace FileFind.Meshwork
 			SendRoutedMessage(m);
 		}
 		
-		public void DownloadDirectory (IDirectory directory)
+		public void RequestFileDetails (RemoteFile file)
 		{
-			throw new NotImplementedException ();
+			string path = "/" + String.Join("/", file.FullPath.Split('/').Slice(3));
+
+			var message = new Message(file.Network, MessageType.RequestFileDetails);
+			message.To = file.Node.NodeID;
+			message.Content = path;
+			SendRoutedMessage(message);
 		}
 		
 		public IFileTransfer DownloadFile (Node node, SharedFileListing listing)
@@ -1199,6 +1214,9 @@ namespace FileFind.Meshwork
 				//		AppendNetworkState ( content as NetworkState );
 				//		//processor.ProcessNetworkStateMessage (
 				//		break;
+					case MessageType.RequestFileDetails:
+						processor.ProcessRequestFileDetails(messageFrom, (string)content);					
+						break;
 					case MessageType.FileDetails:
 						processor.ProcessFileDetailsMessage (messageFrom, (SharedFileDetails)content);
 						break;
@@ -1400,6 +1418,12 @@ namespace FileFind.Meshwork
 		       if (ReceivedDirListing != null)
 			       ReceivedDirListing (this, node, directory);
 	       }
+		
+		internal void RaiseReceivedFileDetails (RemoteFile file)
+		{
+			if (ReceivedFileDetails != null)
+				ReceivedFileDetails(this, file);
+		}
 
 	       internal void RaiseUserOnline (Node node)
 	       {
