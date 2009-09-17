@@ -165,7 +165,6 @@ BUILD_RESOURCES = $(foreach res,$(RESOURCES), $(addprefix -resource:,$(res)),Fil
 REFERENCES = \
 	-r:$(top_builddir)/build/FileFind.Meshwork.dll \
 	-r:$(top_builddir)/build/gtkspell-sharp.dll \
-	-r:$(top_builddir)/build/FileFind.Stun.dll \
 	-r:$(top_builddir)/build/ige-mac-integration-sharp.dll \
 	-r:System.Drawing \
 	-r:Mono.GetOptions \

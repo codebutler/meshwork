@@ -40,7 +40,7 @@ namespace FileFind.Meshwork
 		bool                  enableGlobalUploadSpeedLimit   = false;
 		bool                  enableGlobalDownloadSpeedLimit = false;
 
-		public static readonly string DefaultStunServer = "stun.filefind.net";
+		public static readonly string DefaultStunServer = "stun.ekiga.net";
 		
 		public abstract string ClientName {
 			get;

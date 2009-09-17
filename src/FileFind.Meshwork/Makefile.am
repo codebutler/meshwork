@@ -14,6 +14,15 @@ FILES = \
 	FileFind/IPAddressExtensions.cs                                         \
 	FileFind/ReadOnlyDictionary.cs                                          \
 	FileFind/SerializableDictionary.cs                                      \
+	FileFind.Stun/ChangeRequestAttribute.cs                                 \
+	FileFind.Stun/SourceAddressAttribute.cs                                 \
+	FileFind.Stun/MessageType.cs                                            \
+	FileFind.Stun/Utility.cs                                                \
+	FileFind.Stun/MessageAttribute.cs                                       \
+	FileFind.Stun/StunClient.cs                                             \
+	FileFind.Stun/AddressAttributeBase.cs                                   \
+	FileFind.Stun/MessageHeader.cs                                          \
+	FileFind.Stun/MappedAddressAttribute.cs                                 \
 	FileFind.Meshwork.Destination/IDestination.cs                           \
 	FileFind.Meshwork.Destination/DestinationManager.cs                     \
 	FileFind.Meshwork.Destination/IPDestination.cs                          \

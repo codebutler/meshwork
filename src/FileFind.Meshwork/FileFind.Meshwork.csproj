@@ -179,6 +179,16 @@
     <Compile Include="FileFind.Meshwork.Filesystem\IRemoteDirectoryItem.cs" />
     <Compile Include="FileFind.Meshwork.Filesystem\NodeDirectory.cs" />
     <Compile Include="FileFind\Extensions.cs" />
+    <Compile Include="FileFind\IPAddressExtensions.cs" />
+    <Compile Include="FileFind.Stun\AddressAttributeBase.cs" />
+    <Compile Include="FileFind.Stun\ChangeRequestAttribute.cs" />
+    <Compile Include="FileFind.Stun\MappedAddressAttribute.cs" />
+    <Compile Include="FileFind.Stun\MessageAttribute.cs" />
+    <Compile Include="FileFind.Stun\MessageHeader.cs" />
+    <Compile Include="FileFind.Stun\MessageType.cs" />
+    <Compile Include="FileFind.Stun\SourceAddressAttribute.cs" />
+    <Compile Include="FileFind.Stun\StunClient.cs" />
+    <Compile Include="FileFind.Stun\Utility.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -186,4 +196,7 @@
       <Properties InternalTargetFrameworkVersion="3.5" />
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="FileFind.Stun\" />
+  </ItemGroup>
 </Project>

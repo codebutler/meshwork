@@ -49,10 +49,6 @@
     <Reference Include="Mono.Cairo, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
-    <Reference Include="FileFind.Stun, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\contrib\FileFind.Stun.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.Services" />
     <Reference Include="System" />
     <Reference Include="gtkspell-sharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=1d20cd83d42ab28e">
