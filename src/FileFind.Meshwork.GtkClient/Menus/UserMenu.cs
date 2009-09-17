@@ -116,13 +116,13 @@ namespace FileFind.Meshwork.GtkClient
 			dialog.Run ();
 		}
 
-		public void on_mnuUsersBrowseFiles_activate(object o, EventArgs e)
+		public void on_mnuUsersBrowseFiles_activate (object o, EventArgs e)
 		{
 			Gui.MainWindow.SelectedPage = UserBrowserPage.Instance;
 			if (Core.IsLocalNode(selectedNode)) {
-				UserBrowserPage.Instance.NavigateTo("/" + selectedNode.NodeID + "/");
+				UserBrowserPage.Instance.NavigateTo(Core.FileSystem.RootDirectory.MyDirectory.FullPath);
 			} else {
-				UserBrowserPage.Instance.NavigateTo("/" + network.NetworkID + "/" + selectedNode.NodeID + "/");
+				UserBrowserPage.Instance.NavigateTo(selectedNode.Directory.FullPath);
 			}
 		}
 
