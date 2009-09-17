@@ -53,7 +53,8 @@ namespace FileFind.Meshwork
 			
 			IPAddress[] addrs = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName());
 			for (int x = 0; x < addrs.Length; x++) {
-				result.Add(new InterfaceAddress(x, "Interface" + x, addrs[x]));
+				// FIXME: This will crash. Need to use System.Management API to get subnet mask.				
+				result.Add(new InterfaceAddress(x, "Interface" + x, addrs[x], null));
 			}
 			
 			return result.ToArray();

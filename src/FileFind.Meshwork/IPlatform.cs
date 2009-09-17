@@ -37,6 +37,7 @@ namespace FileFind.Meshwork
 		int       prefixLength;
 		string    name;
 		IPAddress address;
+		IPAddress subnetMask;
 
 		public InterfaceAddress (int interfaceIndex, string name, IPAddress address, int prefixLength)
 		{
@@ -47,19 +48,24 @@ namespace FileFind.Meshwork
 			this.prefixLength = prefixLength;
 
 			this.interfaceIndex = interfaceIndex;
-			this.name           = name;
-			this.address        = address;
+			this.name = name;
+			this.address = address;
 		}
 
-		public InterfaceAddress (int interfaceIndex, string name, IPAddress address)
+		public InterfaceAddress (int interfaceIndex, string name, IPAddress address, IPAddress subnetMask)
 		{
 			if (address.AddressFamily != AddressFamily.InterNetwork) {
 				throw new ArgumentException("address", "Must be IPv4");
 			}
 
+			
+			if (subnetMask == null)
+				throw new ArgumentNullException("subnetMask");
+			
 			this.interfaceIndex = interfaceIndex;
-			this.name           = name;
-			this.address        = address;
+			this.name = name;
+			this.address = address;
+			this.subnetMask = subnetMask;
 		}
 		
 		public string Name {
@@ -74,6 +80,15 @@ namespace FileFind.Meshwork
 			}
 		}
 
+		public IPAddress SubnetMask {
+			get {
+				if (address.AddressFamily == AddressFamily.InterNetwork)
+					return subnetMask;
+				else
+					throw new Exception("Subnet mask not supported for this type of address");
+			}
+		}
+		
 		public int InterfaceIndex {
 			get {
 				return interfaceIndex;

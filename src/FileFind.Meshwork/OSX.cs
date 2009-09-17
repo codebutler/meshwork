@@ -77,8 +77,10 @@ namespace FileFind.Meshwork
 							InterfaceAddress info = new InterfaceAddress(index, name, address, prefixLength);
 							result.Add(info);
 						} else if (sockaddr.sin_family == AF_INET) {
+							sockaddr_in netmaskaddr = (sockaddr_in)Marshal.PtrToStructure(addr.ifa_netmask, typeof(sockaddr_in));
+							IPAddress netmask = new IPAddress(netmaskaddr.in_addr);
 							IPAddress address = new IPAddress(sockaddr.in_addr);
-							InterfaceAddress info = new InterfaceAddress(index, name, address);
+							InterfaceAddress info = new InterfaceAddress(index, name, address, netmask);
 							result.Add(info);
 						}
 					}

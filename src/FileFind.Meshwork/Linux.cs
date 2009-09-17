@@ -108,7 +108,7 @@ namespace FileFind.Meshwork
 
 			try {
 				IntPtr next = ifap;
-					
+				
 				while (next != IntPtr.Zero) {
 					ifaddrs addr = (ifaddrs) Marshal.PtrToStructure(next, typeof(ifaddrs));
 					
@@ -125,8 +125,10 @@ namespace FileFind.Meshwork
 							InterfaceAddress info = new InterfaceAddress(index, name, address, GetPrefixLength(name, address));
 							result.Add(info);
 						} else if (sockaddr.sin_family == AF_INET) {
+							sockaddr_in netmaskaddr = (sockaddr_in)Marshal.PtrToStructure(addr.ifa_netmask, typeof(sockaddr_in));
+							IPAddress netmask = new IPAddress(netmaskaddr.sin_addr);
 							IPAddress address = new IPAddress(sockaddr.sin_addr);
-							InterfaceAddress info = new InterfaceAddress(index, name, address);
+							InterfaceAddress info = new InterfaceAddress(index, name, address, netmask);
 							result.Add(info);
 						}
 					}

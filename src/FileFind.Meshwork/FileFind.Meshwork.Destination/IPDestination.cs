@@ -10,6 +10,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using FileFind.Meshwork;
 using FileFind.Meshwork.Transport;
 
 namespace FileFind.Meshwork.Destination
@@ -87,12 +88,16 @@ namespace FileFind.Meshwork.Destination
 			}
 		}
 
-		public override DestinationInfo CreateDestinationInfo()
+		public override DestinationInfo CreateDestinationInfo ()
 		{
 			DestinationInfo info = new DestinationInfo();
 			info.IsOpenExternally = this.IsOpenExternally;
 			info.TypeName = this.GetType().ToString();
-			info.Data = new string[] { ip.ToString(), prefixLength.ToString(), port.ToString() };
+			info.Data = new string[] {
+				ip.ToString(),
+				prefixLength.ToString(),
+				port.ToString()
+			};
 			return info;
 		}
 	}
@@ -117,11 +122,22 @@ namespace FileFind.Meshwork.Destination
 					return base.IsOpenExternally;
 				} else {
 
-					// Make sure we don't also have this address.
+					// Make sure we don't also have this (local) address.
 					foreach (IDestination destination in Core.DestinationManager.Destinations) {
 						if (destination is IPv4Destination && !destination.IsExternal) {
 							IPAddress myAddress = ((IPv4Destination)destination).IPAddress;
 							if (myAddress.Equals(base.IPAddress)) {
+								return false;
+							}
+						}
+					}
+					
+					// Only connect to local IPs that fall under a matching subnet.
+					foreach (IDestination destination in Core.DestinationManager.Destinations) {
+						if (destination is IPv4Destination && !destination.IsExternal) {
+							IPAddress myAddress = ((IPv4Destination)destination).IPAddress;
+							var subnet = FindInterfaceWithIP(myAddress).SubnetMask;
+							if (!myAddress.IsInSameSubnet(base.IPAddress, subnet)) {
 								return false;
 							}
 						}
@@ -147,9 +163,21 @@ namespace FileFind.Meshwork.Destination
 						}
 					}
 
+					
+					
 					return false;
 				}
 			}
+		}
+	
+		private InterfaceAddress FindInterfaceWithIP (IPAddress ip)
+		{
+			InterfaceAddress[] addresses = Core.OS.GetInterfaceAddresses();
+			foreach (InterfaceAddress address in addresses) {
+				if (address.Address.Equals(ip))
+					return address;
+			}
+			throw new Exception("No interface found with address " + ip.ToString());
 		}
 		
 		public override DestinationInfo CreateDestinationInfo()
