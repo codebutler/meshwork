@@ -1019,11 +1019,13 @@ namespace FileFind.Meshwork
 		// XXX: Refactor this entire method!
 		internal void ProcessMessage (object state)
 		{
+			Message message = null;
+			LocalNodeConnection connection;
 			try {
 				MessageInfo info = (MessageInfo)state;
 
-				LocalNodeConnection connection = info.Connection;
-				Message             message    = info.Message;
+				connection = info.Connection;
+				message = info.Message;
 
 				if (Connections.Contains(connection) == false || connection.ConnectionState == ConnectionState.Disconnected) {
 					LogManager.Current.WriteToLog("(Network.ProcessMessage) Ignored message from disconnected connection.");
@@ -1248,7 +1250,9 @@ namespace FileFind.Meshwork
 	//			}
 			} catch (Exception ex) {
 				// XXX: Better error handling!
-				Console.Error.WriteLine(ex);
+				string messageType = (message != null) ? message.Type.ToString() : "(Unknown)";
+				string messageFrom = (message != null) ? message.From : "(Unknown)";
+				LogManager.Current.WriteToLog("Error processing message of type {0} from {1}", ex, messageType, messageFrom);
 			}
 		}
 
