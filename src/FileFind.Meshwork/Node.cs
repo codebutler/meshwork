@@ -296,7 +296,7 @@ namespace FileFind.Meshwork
 		{
 			if (this.FinishedKeyExchange == false) {
 
-				// The logic elsewhere is to call this method unles RemoteHasKey == true.
+				// The logic elsewhere is to call this method unless RemoteHasKey == true.
 				// That needs to be cleaned up, because this is pointless.
 				if (sentKeyExchange == true) {
 					//LogManager.Current.WriteToLog("CreateNewSessionKey() AGAIN for " + this.ToString() + "\n" + Environment.StackTrace);
@@ -304,7 +304,7 @@ namespace FileFind.Meshwork
 				}
 
 				try {
-					LogManager.Current.WriteToLog("Creating secure communication channel to {0}...", this.ToString());
+					LoggingService.LogInfo("Creating secure communication channel to {0}...", this.ToString());
 
 					sentKeyExchange = true;
 
@@ -316,12 +316,12 @@ namespace FileFind.Meshwork
 					network.AckMethods.Add(m.MessageID, c);
 					network.SendRoutedMessage(m);
 				} catch (Exception ex) {
-					LogManager.Current.WriteToLog("Failed to create key exchange! Hopefully we will retry...");
+					LoggingService.LogError("Failed to create key exchange! Hopefully we will retry...");
 					sentKeyExchange = false;
 					throw ex;
 				}
 			} else {
-				LogManager.Current.WriteToLog("Why are we trying to CreateNewSessionKey for {0} when FinishedKeyExchange=True?", this.ToString());
+				LoggingService.LogWarning("Why are we trying to CreateNewSessionKey for {0} when FinishedKeyExchange=True?", this.ToString());
 			}
 		}
 

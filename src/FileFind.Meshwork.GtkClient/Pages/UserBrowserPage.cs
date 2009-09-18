@@ -205,7 +205,7 @@ namespace FileFind.Meshwork.GtkClient
 				if (PathUtil.AreEqual(navigatingTo, directory.FullPath)) {
 					NavigateTo(directory.FullPath);
 				} else {
-					LogManager.Current.WriteToLog("Ignored mismatched dir listing. Got: {0}, Expected: {1}", directory.FullPath, navigatingTo);
+					LoggingService.LogWarning("Ignored mismatched dir listing. Got: {0}, Expected: {1}", directory.FullPath, navigatingTo);
 				}
 			}
 		}
@@ -333,7 +333,7 @@ namespace FileFind.Meshwork.GtkClient
 					Gui.ShowMessageDialog ("Nothing selected");
 				}
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog(ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog(ex.Message);
 			}
 		}
@@ -377,7 +377,7 @@ namespace FileFind.Meshwork.GtkClient
 					}	
 				}
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog(ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog(ex.Message);
 			}
 		}
@@ -489,96 +489,8 @@ namespace FileFind.Meshwork.GtkClient
 				{
 					Gui.ShowErrorDialog("Directory not found");
 				}
-				
-				
-				/*
-				if (path.EndsWith("/") == false) path += "/";
-
-				Console.WriteLine("WHAT IS PATH? " + path);
-				IDirectory theDirectory = Core.FileSystem.GetDirectory(path);
-			
-				if (theDirectory != null) {
-				
-					navigating = true;
-					filesListStore.Clear();
-				
-					if (theDirectory == Core.FileSystem.RootDirectory) {
-						foreach (IDirectory currentSubDirectory in theDirectory.Directories) {    
-							filesListStore.AppendValues (currentSubDirectory);
-						}
-					} else if (theDirectory.Parent == Core.FileSystem.RootDirectory) {
-						foreach (IDirectory currentSubDirectory in theDirectory.Directories) {    
-							filesListStore.AppendValues (currentSubDirectory);
-						}
-					} else {
-						Network network = theDirectory.Network;
-						Node node = theDirectory.Node;
-					
-						if (node != null && theDirectory.Requested == false) {
-							IDirectory newDir = IDirectory.CreateDirectory(Core.FileSystem, path, node);
-							network.RequestDirectoryListing(node, path);
-							newDir.Requested = true;
-							navigatingTo = path;
-				
-							if (selectedRows.ContainsKey (navigatingTo))
-								selectedRows.Remove (navigatingTo);
-
-							waitLabel.Text = String.Format("Waiting for directory contents from {0}...", node.ToString());
-							filesList.Parent.Visible = false;
-							waitingBoxAlignment.ShowAll();
-							GLib.Timeout.Add (50, new GLib.TimeoutHandler (PulseProgressBar));
-							
-							return;
-							
-						} else {
-							foreach (IDirectory currentSubDirectory in theDirectory.Directories) {
-								filesListStore.AppendValues (currentSubDirectory);
-							}
-
-							foreach (IFile currentFile in theDirectory.Files) {
-								filesListStore.AppendValues (currentFile);
-							}
-
-							if (selectedRows.ContainsKey (path)) {
-								filesList.Selection.Changed -= filesList_Selection_Changed;
-
-								TreePath treePath = new TreePath (selectedRows[path].ToString ());
-								filesList.Selection.SelectPath (treePath);
-								filesList.ScrollToCell (treePath, null, true, 0.5f, 0);
-								filesList.Selection.Changed += filesList_Selection_Changed;
-							}
-						}
-					}
-				
-					currentDirectory = theDirectory;
-					currentPath = theDirectory.FullPath;
-
-					if (!PathUtil.AreEqual(currentPath, path)) {
-						throw new Exception ("These paths should be the same:\n" + path + "\n\n" + currentPath);
-					}
-			
-					//btnHome.Sensitive = (currentDirectory != network.FileSystem.RootDirectory);
-			
-					navigating = false;
-					RebuildFolderTree();
-					
-					filesList.Parent.Visible = true;
-					waitingBoxAlignment.Visible = false;
-					
-					filesList.QueueDraw ();
-					filesList.GrabFocus ();
-
-					navigationBar.SetLocation (currentPath);
-					
-					
-				} else {
-					throw new Exception("The specified directory does not exist");
-				}
-				
-					*/
-
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog(ex.ToString());
+				LoggingService.LogError(ex.ToString());
 				Gui.ShowErrorDialog(ex.Message);
 			}
 		}

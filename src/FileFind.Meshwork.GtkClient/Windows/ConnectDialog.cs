@@ -179,7 +179,7 @@ namespace FileFind.Meshwork.GtkClient
 					if (address.IndexOf (":") > -1) {
 						port = Convert.ToInt32 (address.Substring (address.LastIndexOf (":") + 1));
 						address = address.Substring (0, address.LastIndexOf (":"));
-						Console.WriteLine (port + " " + address);
+						LoggingService.LogDebug(port + " " + address);
 					}
 					
 					if (!IPAddress.TryParse (address, out ip)) {
@@ -209,7 +209,7 @@ namespace FileFind.Meshwork.GtkClient
 					}
 				}
 				catch (Exception ex) {
-					Console.WriteLine(ex);
+					LoggingService.LogError(ex);
 					Gui.ShowMessageDialog (ex.ToString(), Dialog);
 					return;
 				}

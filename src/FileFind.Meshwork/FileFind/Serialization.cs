@@ -68,7 +68,6 @@ namespace FileFind.Serialization
 		public static byte[] Serialize (object obj)
 		{
 			int rawsize = Marshal.SizeOf (obj);
-			Console.WriteLine ("RAW SERIALIZE: " + obj.GetType().ToString() + " " + rawsize);
 			byte[] rawdata = new byte[rawsize];
 			GCHandle handle = GCHandle.Alloc (rawdata, GCHandleType.Pinned);
 			IntPtr buffer = handle.AddrOfPinnedObject();
@@ -79,7 +78,6 @@ namespace FileFind.Serialization
 
 		public static object Deserialize (byte[] rawdata, Type type)
 		{
-			Console.WriteLine ("RAW DESERIALIZE: " + type);
 			int rawsize = Marshal.SizeOf (type);
 			if (rawsize > rawdata.Length) {
 				throw new Exception ("Something went wrong here.");
@@ -88,7 +86,6 @@ namespace FileFind.Serialization
 			IntPtr buffer = handle.AddrOfPinnedObject();
 			object retobj = Marshal.PtrToStructure (buffer, type);
 			handle.Free ();
-			Console.WriteLine ("RAW DESERIALIZEDDDD: " + retobj.GetType().ToString());
 			return retobj;
 		}
 	}

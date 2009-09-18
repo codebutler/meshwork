@@ -79,7 +79,7 @@ namespace FileFind.Meshwork
 					mutex.Set();
 				}
 			} catch (Exception ex) {
-				Console.Error.WriteLine(ex);
+				LoggingService.LogError(ex);
 			}
 		}	
 		
@@ -115,7 +115,7 @@ namespace FileFind.Meshwork
 					}
 				}
 			} catch (Exception ex) {
-				Console.Error.WriteLine(ex);
+				LoggingService.LogError(ex);
 			}
 		}
 
@@ -131,12 +131,12 @@ namespace FileFind.Meshwork
 
 					MFS.LocalDirectory parentDirectory = GetParentDirectory(info);
 					if (parentDirectory != null) {
-						Console.WriteLine("NEW DIR !! " + path);
+						LoggingService.LogDebug("NEW DIR !! " + path);
 						parentDirectory.CreateSubDirectory(info.Name, info.FullName);
 					} else {
 						// No parent directory, this happens because
 						// we can get events out of order.
-						Console.WriteLine("NEW DIR NO PARENT !! " + path);
+						LoggingService.LogDebug("NEW DIR NO PARENT !! " + path);
 						CreateDirectoryForLocalPath(path);
 					}
 				}
@@ -152,10 +152,10 @@ namespace FileFind.Meshwork
 				// New File!
 				MFS.LocalDirectory parentDirectory = GetParentDirectory(info);
 
-				Console.WriteLine("NEW FILE!! IN " + parentDirectory.FullPath);
+				LoggingService.LogDebug("NEW FILE!! IN " + parentDirectory.FullPath);
 			} else {
 				// Updated File!
-				Console.WriteLine("NOTE: Changed file detected, however handling this is not currently supported. Path: {0}", item.FullPath);
+				LoggingService.LogWarning("NOTE: Changed file detected, however handling this is not currently supported. Path: {0}", item.FullPath);
 			}
 		}
 
@@ -167,7 +167,7 @@ namespace FileFind.Meshwork
 					item.Delete();
 				}
 			} catch (Exception ex) {
-				Console.Error.WriteLine(ex);
+				LoggingService.LogError(ex);
 			}
 		}
 
@@ -180,7 +180,7 @@ namespace FileFind.Meshwork
 		// XXX: Move this elsewhere.
 		private MFS.ILocalDirectoryItem GetFromLocalPath (string localPath)
 		{
-			Console.WriteLine("GET FROM LOCAL !!! " + localPath);
+			LoggingService.LogDebug("GET FROM LOCAL !!! " + localPath);
 			return Core.FileSystem.UseConnection<MFS.ILocalDirectoryItem>(delegate (IDbConnection connection) {
 				IDbCommand cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT * FROM directoryitems WHERE local_path = @local_path";
@@ -230,7 +230,7 @@ namespace FileFind.Meshwork
 		{
 			DirectoryInfo directoryInfo = (info is FileInfo) ? ((FileInfo)info).Directory : (DirectoryInfo)info;
 
-			Console.WriteLine("GET PARENT DIRECTORY " + directoryInfo.FullName);
+			LoggingService.LogDebug("GET PARENT DIRECTORY " + directoryInfo.FullName);
 
 			if (Core.Settings.SharedDirectories.Contains(directoryInfo.FullName)) {
 				return Core.MyDirectory;

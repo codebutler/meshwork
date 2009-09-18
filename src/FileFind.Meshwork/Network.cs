@@ -108,8 +108,6 @@ namespace FileFind.Meshwork
 		public event PrivateMessageEventHandler PrivateMessage;
 		public event ReceivedKeyEventHandler ReceivedKey;
 		public event ReceivedDirListingEventHandler ReceivedDirListing;
-		public event ErrorEventHandler NonCriticalError;
-		public event ErrorEventHandler CriticalError;
 		public event ReceivedNonCriticalErrorEventHandler ReceivedNonCriticalError;
 		public event ReceivedCriticalErrorEventHandler ReceivedCriticalError;
 		public event AvatarEventHandler ReceivedAvatar;
@@ -844,7 +842,7 @@ namespace FileFind.Meshwork
 
 		public void RequestPublicKey(Node node)
 		{
-			LogManager.Current.WriteToLog ("Requesting public key from: " + node.ToString());
+			LoggingService.LogInfo("Requesting public key from {0}.", node);
 			Message m = MessageBuilder.CreateRequestKeyMessage(node);
 			SendRoutedMessage(m);
 		}
@@ -922,17 +920,15 @@ namespace FileFind.Meshwork
 				if (n.FinishedKeyExchange == false & n.RemoteHasKey == false) {
 					n.RemoteHasKey = true;
 
-					LogManager.Current.WriteToLog (n.ToString() + " got our secure channel key!");
+					LoggingService.LogDebug("{0} received our session key request!", n);
 
 					if (n.LocalHasKey == true) {
-						LogManager.Current.WriteToLog ("Secure communication channel to " + n.ToString() + " now avaliable.");
-						//RequestInfo(messageFrom);
+						LoggingService.LogInfo("Secure communication channel to {0} is now available", n);
 						SendInfoToTrustedNode(n);
-						//RequestInfo(n);
 					}
 				}
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 			}
 		}
 
@@ -962,8 +958,8 @@ namespace FileFind.Meshwork
 							if (!realRoom.Users.ContainsKey(currentNode.NodeID)) {
 								if (currentNode.NodeID == Core.MyNodeID) {
 									// err.. but.. i'm not in here!!
-									LogManager.Current.WriteToLog ("Someone thought I was in " + realRoom.Name + " but i'm not!!");
-									this.LeaveChat (realRoom);
+									LoggingService.LogWarning("Someone thought I was in {0} but I'm not!!", realRoom.Name);
+									this.LeaveChat(realRoom);
 
 								} else {
 									realRoom.AddUser(currentNode);
@@ -971,7 +967,7 @@ namespace FileFind.Meshwork
 								}
 							}
 						} else {
-							LogManager.Current.WriteToLog("TRIED TO ADD NON-EXISTANT NODE TO CHATROOM " + currentRoom.Name + " " + nodeId);
+							LoggingService.LogWarning("TRIED TO ADD NON-EXISTANT NODE {0} TO CHATROOM {1}", nodeId, currentRoom.Name);
 						}
 					}
 				}
@@ -1028,7 +1024,7 @@ namespace FileFind.Meshwork
 				message = info.Message;
 
 				if (Connections.Contains(connection) == false || connection.ConnectionState == ConnectionState.Disconnected) {
-					LogManager.Current.WriteToLog("(Network.ProcessMessage) Ignored message from disconnected connection.");
+					LoggingService.LogWarning("Network.ProcessMessage: Ignored message from disconnected connection.");
 					return;
 				}
 
@@ -1056,8 +1052,7 @@ namespace FileFind.Meshwork
 						// This shouldnt have happened, ever.
 						throw new Exception ("Attempt to process our own message. Type: " + message.Type.ToString()); 
 					} else {
-						// This happens...
-						//LogManager.Current.WriteToLog ("Ignored attempt to process our own message. Type: " + message.Type.ToString()); 
+						// It's normal to receive our own messages again. Routing ain't so smart.
 						return;
 					}
 				}
@@ -1232,7 +1227,7 @@ namespace FileFind.Meshwork
 						// Do nothing here.
 						break;
 					default:
-						LogManager.Current.WriteToLog ("Received unhandled Message type: " + message.Type.ToString() + " - " + content.ToString().ToString());
+						LoggingService.LogWarning("Received unhandled Message type: {0}, content: {1}", message.Type, content);
 						break;
 				}
 				
@@ -1252,7 +1247,7 @@ namespace FileFind.Meshwork
 				// XXX: Better error handling!
 				string messageType = (message != null) ? message.Type.ToString() : "(Unknown)";
 				string messageFrom = (message != null) ? message.From : "(Unknown)";
-				LogManager.Current.WriteToLog("Error processing message of type {0} from {1}", ex, messageType, messageFrom);
+				LoggingService.LogError("Network.ProcessMessage: Error processing message of type {0} from {1}: {2}", messageType, messageFrom, ex.ToString());
 			}
 		}
 
@@ -1377,14 +1372,12 @@ namespace FileFind.Meshwork
 							DestNode.NickName = connection.DestNodeNickname;
 						}
 					} else {
-						LogManager.Current.WriteToLog  ("Someone told me about an invalid connection - both sides are the same?! Thats no good!! " + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
+						LoggingService.LogWarning("Someone told me about an invalid connection - both sides are the same?! Thats no good!! " + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
 					}
 				} else {
 					if (Connections.FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
-						LogManager.Current.WriteToLog ("THAT CONNECTION DOESNT EXIST!!!" + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
+						LoggingService.LogWarning("THAT CONNECTION DOESNT EXIST!!!" + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
 						this.SendBroadcast(this.MessageBuilder.CreateConnectionDownMessage(connection.SourceNodeID, connection.DestNodeID), this.LocalNode);
-//					} else {
-//						LogManager.Current.WriteToLog ("Someone told me about my own connection, hope that's OK: " + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
 					}
 				}
 			}
@@ -1411,17 +1404,11 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		internal void RaiseNonCriticalError (Exception exception)
+		internal void RaiseReceivedDirListing (Node node, RemoteDirectory directory)
 		{
-			if (NonCriticalError != null) 
-				NonCriticalError (this, exception);
-		}
-		
-	       internal void RaiseReceivedDirListing (Node node, RemoteDirectory directory)
-	       {
-		       if (ReceivedDirListing != null)
-			       ReceivedDirListing (this, node, directory);
-	       }
+			if (ReceivedDirListing != null)
+				ReceivedDirListing(this, node, directory);
+	    }
 		
 		internal void RaiseReceivedFileDetails (RemoteFile file)
 		{

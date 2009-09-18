@@ -10,25 +10,27 @@
 using System;
 using Gtk;
 using FileFind.Meshwork.Transport;
+using FileFind.Meshwork.Logging;
 
 namespace FileFind.Meshwork.GtkClient
 {
-	public class StatusLogPage : VBox, IPage
+	public class StatusLogPage : VBox, IPage, ILogger
 	{
-		TextView debugTextView;
-
-		public event EventHandler UrgencyHintChanged;
-
-		static StatusLogPage instance;
+		TextView m_TextView;
+		
+		static StatusLogPage s_Instance;
+		
 		public static StatusLogPage Instance {
 			get {
-				if (instance == null) {
-					instance = new StatusLogPage();
+				if (s_Instance == null) {
+					s_Instance = new StatusLogPage();
 				}
-				return instance;
+				return s_Instance;
 			}
 		}
 
+		public event EventHandler UrgencyHintChanged;
+		
 		public bool UrgencyHint {
 			get {
 				return false;
@@ -37,51 +39,67 @@ namespace FileFind.Meshwork.GtkClient
 
 		private StatusLogPage ()
 		{
-			debugTextView = new TextView();
-			debugTextView.Editable = false;
+			m_TextView = new TextView();
+			m_TextView.Editable = false;
 
 			ScrolledWindow swindow = new ScrolledWindow();
-			swindow.Add(debugTextView);
+			swindow.Add(m_TextView);
 
 			this.PackStart(swindow, true, true, 0);
 			swindow.ShowAll();
 
-			LogManager.Current.NewLogItem +=
-				(LogManager.NewLogItemEventHandler)DispatchService.GuiDispatch(
-					new LogManager.NewLogItemEventHandler (OnNewLogItem)
-				);
+			var tag = new TextTag("Error");
+			tag.Foreground = "darkred";
+			m_TextView.Buffer.TagTable.Add(tag);
 			
-			foreach (LogEventArgs args in LogManager.Current.GetQueuedLogItems()) {
-				OnNewLogItem(args);
-			}
+			tag = new TextTag("Fatal");
+			tag.Foreground = "darkred";
+			m_TextView.Buffer.TagTable.Add(tag);
+			
+			tag = new TextTag("warn");
+			tag.Foreground = "orange";
+			m_TextView.Buffer.TagTable.Add(tag);
+			
+			tag = new TextTag("Info");
+			tag.Foreground = "darkgreen";
+			m_TextView.Buffer.TagTable.Add(tag);
+
+			tag = new TextTag("Debug");
+			tag.Foreground = "darkblue";
+			m_TextView.Buffer.TagTable.Add(tag);
+			
+			m_TextView.Buffer.CreateMark("end", m_TextView.Buffer.EndIter, false);
+			
+			LoggingService.AddLogger(this);
+		}
+		
+		#region ILogger	implementation
+		
+		void ILogger.Log (LogLevel level, string message)
+		{
+			Gtk.Application.Invoke (delegate {
+				WriteMessage (level, message);
+			});
+		}
+		
+		string ILogger.Name {
+			get { return "StatusLogPage"; }
 		}
 
-		private void OnNewLogItem (LogEventArgs args)
-		{
-			if (args.Exception == null) {
-				WriteStatus (args.Text);
-			} else {
-				WriteStatus ("{0}: {1}", args.Text, args.Exception.ToString());
-			}
+		EnabledLoggingLevel ILogger.EnabledLevel {
+			get { return EnabledLoggingLevel.All; } // FIXME: This should be configurable
 		}
-
-		private void WriteStatus (string text, params object[] args)
-		{
-			if (args != null && args.Length > 0) {
-				text = String.Format(text, args);
-			}
-
-			Console.WriteLine (text);
-
-			try {
-				string str = String.Format("[{0}] {1}", DateTime.Now.ToShortTimeString(), text);
-				debugTextView.Buffer.Text += Environment.NewLine + str;
-				TextMark EndMark = debugTextView.Buffer.CreateMark ("end", debugTextView.Buffer.EndIter, false);
-				debugTextView.ScrollToMark (EndMark, 0.4, true, 0.0, 1.0);
-				debugTextView.Buffer.DeleteMark (EndMark);
-			} catch (Exception ex) {
-				Console.WriteLine ("[!!] IT FUCKED UP: " + ex.ToString());
-			}
+		
+		#endregion
+		
+		private void WriteMessage (LogLevel level, string message)
+		{			
+			message = String.Format("{0} [{1}]: {2}\n", level.ToString(), DateTime.Now.ToString("u"), message);
+			TextIter endIter = m_TextView.Buffer.EndIter;
+			m_TextView.Buffer.InsertWithTagsByName(ref endIter, message, new string[] { level.ToString() });
+			var endMark = m_TextView.Buffer.GetMark("end");
+			if (endMark != null);
+				m_TextView.ScrollToMark(endMark, 0, true, 0, 1);
 		}
 	}
 }

@@ -77,6 +77,12 @@ FILES = \
 	FileFind.Meshwork.Search/FileSearchGroup.cs                            \
 	FileFind.Meshwork.Search/SearchResult.cs                               \
 	FileFind.Meshwork.Search/ISearchResult.cs                              \
+	FileFind.Meshwork.Logging/ConsoleCrayon.cs                             \
+	FileFind.Meshwork.Logging/LogLevel.cs                                  \
+	FileFind.Meshwork.Logging/FileLogger.cs                                \
+	FileFind.Meshwork.Logging/ILogger.cs                                   \
+	FileFind.Meshwork.Logging/ConsoleLogger.cs                             \
+	LoggingService.cs                                                      \
 	AutoconnectManager.cs                                                  \
 	AckMethod.cs                                                           \
 	AssemblyInfo.cs                                                        \
@@ -99,7 +105,6 @@ FILES = \
 	SettingsBase.cs							       \
 	ISettings.cs							       \
 	LocalNodeConnection.cs                                                 \
-	LogManager.cs                                                          \
 	MessageBuilder.cs                                                      \
 	Message.cs                                                             \
 	MessageProcessor.cs                                                    \

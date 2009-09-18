@@ -221,10 +221,10 @@ namespace FileFind.Meshwork.GtkClient
 		static void HandlerError (GenericMessageContainer msg)
 		{
 			if (msg.CallerStack != null) {
-				LogManager.Current.WriteToLog ("{0} {1}\nCaller stack:{2}", errormsg, msg.Exception.ToString (), msg.CallerStack);
+				LoggingService.LogError ("{0} {1}\nCaller stack:{2}", errormsg, msg.Exception.ToString (), msg.CallerStack);
 			}
 			else
-				LogManager.Current.WriteToLog ("{0} {1}\nCaller stack not available. Define the environment variable MONODEVELOP_DISPATCH_DEBUG to enable caller stack capture.", errormsg, msg.Exception.ToString ());
+				LoggingService.LogError ("{0} {1}\nCaller stack not available. Define the environment variable MONODEVELOP_DISPATCH_DEBUG to enable caller stack capture.", errormsg, msg.Exception.ToString ());
 		}
 	}
 

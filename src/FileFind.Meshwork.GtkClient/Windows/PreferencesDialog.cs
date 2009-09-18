@@ -239,7 +239,7 @@ namespace FileFind.Meshwork.GtkClient
 					PluginInfo info = new PluginInfo (fileName);
 					pluginsListStore.AppendValues (info);
 				} catch (Exception ex) {
-					Console.Error.WriteLine (ex);
+					LoggingService.LogError(ex);
 				}
 			}
 
@@ -374,7 +374,7 @@ namespace FileFind.Meshwork.GtkClient
 			foreach (string path in paths) {
 				string cleanPath = path.Trim ();
 				if (cleanPath != "") {
-					Console.WriteLine (cleanPath);
+					LoggingService.LogDebug(cleanPath);
 
 					Uri uri = new Uri (cleanPath);
 	
@@ -768,8 +768,7 @@ namespace FileFind.Meshwork.GtkClient
 					PluginInfo info = new PluginInfo (selector.Filename);
 					pluginsListStore.AppendValues (info);
 				} catch (Exception ex) {
-					Console.Error.WriteLine (ex);
-					Gui.ShowErrorDialog (ex.Message);
+					LoggingService.LogError(ex);
 				}
 			}
 			selector.Destroy();

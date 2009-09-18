@@ -65,7 +65,7 @@ namespace FileFind.Meshwork.GtkClient
 				map.NodeDoubleClicked += map_NodeDoubleClicked;
 				mapWidget = map;
 			} catch (Exception ex) {
-				Console.Error.WriteLine("Failed to load map !!! " + ex.ToString());
+				LoggingService.LogError("Failed to load map !!!", ex);
 				mapWidget = new Label("Error loading map.");
 			}
 
@@ -134,8 +134,6 @@ namespace FileFind.Meshwork.GtkClient
 			network.ReceivedChatInvite       += (ReceivedChatInviteEventHandler)DispatchService.GuiDispatch(new ReceivedChatInviteEventHandler(network_ReceivedChatInvite));
 			network.ChatMessage              += (ChatMessageEventHandler)DispatchService.GuiDispatch(new ChatMessageEventHandler(network_ChatMessage));
 			network.PrivateMessage           += (PrivateMessageEventHandler)DispatchService.GuiDispatch(new PrivateMessageEventHandler(network_PrivateMessage));
-			network.NonCriticalError         += (ErrorEventHandler)DispatchService.GuiDispatch(new ErrorEventHandler(network_NonCriticalError));
-			network.CriticalError            += (ErrorEventHandler)DispatchService.GuiDispatch(new ErrorEventHandler(network_CriticalError));
 			network.ReceivedNonCriticalError += (ReceivedNonCriticalErrorEventHandler)DispatchService.GuiDispatch(new ReceivedNonCriticalErrorEventHandler(network_ReceivedNonCriticalError));
 			network.ReceivedCriticalError    += (ReceivedCriticalErrorEventHandler)DispatchService.GuiDispatch(new ReceivedCriticalErrorEventHandler(network_ReceivedCriticalError));
 
@@ -164,9 +162,9 @@ namespace FileFind.Meshwork.GtkClient
 		private void Core_TransportError (ITransport transport, Exception ex)
 		{
 			if (ex != null) {
-				Console.WriteLine ("Transport disconnected. Error: " + ex.ToString());
+				LoggingService.LogError("Transport disconnected with error.", ex);
 			} else {
-				Console.WriteLine ("Transport disconnected.");
+				LoggingService.LogError("Transport disconnected.");
 			}
 		}
 
@@ -212,17 +210,17 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void ConnectionReady (LocalNodeConnection sender)
 		{
-			LogManager.Current.WriteToLog("Connection to " + sender.NodeRemote.NickName + " is ready.");
-			UpdateConnectionList ();
+			LoggingService.LogInfo("Connection to {0} is ready.", sender.NodeRemote.NickName);
+			UpdateConnectionList();
 		}
 
 		private void network_ConnectionUp(INodeConnection c)
 		{
 			try {
-				LogManager.Current.WriteToLog ("Added new connection between " + c.NodeLocal.NickName + " and " + c.NodeRemote.NickName);
+				LoggingService.LogInfo("Added new connection between " + c.NodeLocal.NickName + " and " + c.NodeRemote.NickName);
 				UpdateConnectionList ();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -230,10 +228,10 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_ConnectionDown(INodeConnection c)
 		{
 			try {
-				LogManager.Current.WriteToLog ("Removed connection between " + c.NodeLocal.NickName + " and " + c.NodeRemote.NickName);
+				LoggingService.LogInfo("Removed connection between {0} and {1}.", c.NodeLocal.NickName, c.NodeRemote.NickName);
 				UpdateConnectionList ();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -260,7 +258,7 @@ namespace FileFind.Meshwork.GtkClient
 
 				dialog.Destroy ();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -272,7 +270,7 @@ namespace FileFind.Meshwork.GtkClient
 				ChatRoomInvitationDialog dialog = new ChatRoomInvitationDialog (network, inviteFrom, room, invitation);
 				dialog.Show ();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -286,7 +284,7 @@ namespace FileFind.Meshwork.GtkClient
 				}
 				page.AddToChat(messageFrom, messageText);
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -298,7 +296,7 @@ namespace FileFind.Meshwork.GtkClient
 					(room.Properties["Window"] as ChatRoomSubpage).AddToChat (node, text);
 				}
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}		
@@ -317,7 +315,7 @@ namespace FileFind.Meshwork.GtkClient
 				return accept;
 				
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				return false;
 			}
 		}
@@ -336,7 +334,7 @@ namespace FileFind.Meshwork.GtkClient
 				receiveKeyWait.Set ();
 				
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -344,31 +342,10 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_ReceivedNonCriticalError(Network network, Node from, MeshworkException error)
 		{
 			try {
-				LogManager.Current.WriteToLog ("RECEIVE NONCRITICALERROR: " + error.Message);
-				UpdateConnectionList ();
+				LoggingService.LogWarning("RECEIVE NONCRITICALERROR: " + error.Message);
+				UpdateConnectionList();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
-				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
-			}
-		}
-
-		private void network_NonCriticalError (object sender, Exception error)
-		{
-			try {
-				LogManager.Current.WriteToLog ("NON CRITICAL ERROR: " + error.ToString());
-				UpdateConnectionList ();
-			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
-				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
-			}
-		}
-
-		private void network_CriticalError (object sender, Exception error)
-		{
-			try {
-				LogManager.Current.WriteToLog (error.ToString());
-			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -376,9 +353,9 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_ReceivedCriticalError(INodeConnection ErrorFrom, MeshworkException error)
 		{
 			try {
-				LogManager.Current.WriteToLog ("RECIEVED CRITICAL ERROR: " + error.Message);
+				LoggingService.LogError("RECIEVED CRITICAL ERROR", error.Message);
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -387,21 +364,16 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			try {
 				AddConnectionEventHandlers (c);
-				LogManager.Current.WriteToLog ("New incoming connection from " + c.RemoteAddress);
+				LoggingService.LogInfo("New incoming connection from {0}.", c.RemoteAddress);
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
 
 		private void network_SocketError(LocalNodeConnection sock, Exception error)
 		{
-			try {
-				LogManager.Current.WriteToLog ("SOCKET ERROR !!!! " + error.ToString());
-			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
-				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
-			}
+			LoggingService.LogError("SOCKET ERROR !!!!", error);
 		}
 
 		private void UpdateConnectionList()
@@ -422,10 +394,9 @@ namespace FileFind.Meshwork.GtkClient
 		private void ConnectionConnected(LocalNodeConnection s)
 		{
 			try {
-				//LogManager.Current.WriteToLog ("Connnection to " + s.IpAddress.ToString() + " established.");
 				UpdateConnectionList ();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -433,10 +404,10 @@ namespace FileFind.Meshwork.GtkClient
 		private void ConnectionClosed(LocalNodeConnection c)
 		{
 			try {
-				LogManager.Current.WriteToLog ("Connection to " + c.RemoteAddress.ToString() + " closed.");
+				LoggingService.LogInfo("Connection to {0} closed.", c.RemoteAddress.ToString());
 				UpdateConnectionList ();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -446,7 +417,7 @@ namespace FileFind.Meshwork.GtkClient
 			try {
 				UpdateConnectionList();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -454,14 +425,14 @@ namespace FileFind.Meshwork.GtkClient
 		private void LocalConnectionError(LocalNodeConnection c, Exception error)
 		{
 			try {
-				LogManager.Current.WriteToLog ("Error in connection with " + c.RemoteAddress + ": " + error.ToString());
+				LoggingService.LogError("Error in connection with " + c.RemoteAddress, error);
 
 				// TODO: !!!!
 				//(c.Properties ["ListItem"] as ConnectionListItem).ErrorText = ex.Message;
 
 				UpdateConnectionList ();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -478,7 +449,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void map_MapError(Exception ex)
 		{
-			Console.WriteLine(ex.ToString());
+			LoggingService.LogError("Map Error", ex);
 		}
 
 		public bool UserListVisible {

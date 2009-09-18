@@ -1058,7 +1058,7 @@ namespace FileFind.Meshwork.GtkClient {
 			if (Error != null) {
 				Error (this, ex);
 			} else {
-				Console.Error.WriteLine ("Error in the network map: " + ex.ToString());
+				LoggingService.LogError("Error in the network map:", ex);
 			}
 		}
 		

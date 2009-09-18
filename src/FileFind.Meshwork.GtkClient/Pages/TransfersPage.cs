@@ -230,7 +230,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void manager_NewFileTransfer(IFileTransfer transfer)
 		{
 			try {
-				LogManager.Current.WriteToLog("Transfer added: {0}", transfer.File.Name);
+				LoggingService.LogInfo("Transfer added: {0}", transfer.File.Name);
 
 				// Add transfer to list
 				transferListStore.AppendValues(transfer);
@@ -247,7 +247,7 @@ namespace FileFind.Meshwork.GtkClient
 				Gui.MainWindow.RefreshCounts();
 
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog(ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog(ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
@@ -255,7 +255,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void manager_FileTransferRemoved(IFileTransfer transfer)
 		{
 			try {
-				LogManager.Current.WriteToLog("Transfer removed: {0}", transfer.File.Name);
+				LoggingService.LogInfo("Transfer removed: {0}", transfer.File.Name);
 
 				// Remove transfer from list
 				Gtk.TreeIter iter;
@@ -273,19 +273,19 @@ namespace FileFind.Meshwork.GtkClient
 				Gui.MainWindow.RefreshCounts();
 
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog(ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog(ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
 
 		private void transfer_PeerAdded(IFileTransfer transfer, IFileTransferPeer peer)
 		{
-			LogManager.Current.WriteToLog("New Transfer Peer ({0}): {1}", transfer.File.Name, peer.Node);
+			LoggingService.LogDebug("New Transfer Peer ({0}): {1}", transfer.File.Name, peer.Node);
 		}
 
 		private void transfer_Error(IFileTransfer transfer, Exception ex)
 		{
-			LogManager.Current.WriteToLog("Transfer error ({0}): {1}", transfer.File.Name, ex);
+			LoggingService.LogError(String.Format("Transfer error ({0})", transfer.File.Name), ex);
 		}
 	}
 }

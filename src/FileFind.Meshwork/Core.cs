@@ -137,17 +137,17 @@ namespace FileFind.Meshwork
 				try {
 					listener.StartListening();
 				} catch (Exception ex) {
-					LogManager.Current.WriteToLog("Listener failed to start: {0}", listener.ToString());
+					LoggingService.LogError("Listener failed to start: {0}", listener.ToString());
 					failedTransportListeners.Add(new FailedTransportListener(listener, ex));
 				}
 			}
 
 			TimeSpan lastScanAgo = (DateTime.Now - settings.LastShareScan);
 			if (Math.Abs(lastScanAgo.TotalHours) >= 1) {
-				LogManager.Current.WriteToLog("Rescanning share! Last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
+				LoggingService.LogDebug("Rescanning share! Last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
 				Core.RescanSharedDirectories();
 			} else {
-				LogManager.Current.WriteToLog("Not rescanning share, last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
+				LoggingService.LogDebug("Not rescanning share, last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
 			}
 
 			shareHasher.Start();
@@ -312,7 +312,7 @@ namespace FileFind.Meshwork
 				info.CreateInstance();
 				loadedPlugins.Add(info);
 			} catch (Exception ex) {
-				Console.Error.WriteLine (ex);
+				LoggingService.LogError("Failed to load plugin", ex);
 			}
 		}
 
@@ -338,7 +338,7 @@ namespace FileFind.Meshwork
 				}
 
 			} catch (Exception ex) {
-				Console.Error.WriteLine(ex);
+				LoggingService.LogError(ex);
 			}
 		}
 
@@ -450,7 +450,7 @@ namespace FileFind.Meshwork
 		public static void RescanSharedDirectories ()
 		{
 			if (shareBuilder.Going == true) {
-				Console.WriteLine ("Starting scan over!!");
+				LoggingService.LogDebug("Starting scan over!!");
 				shareBuilder.Stop();
 			}
 

@@ -120,7 +120,7 @@ namespace FileFind.Meshwork.GtkClient
 					window.GrabFocus();
 				}
 			} catch (Exception ex) {
-				Console.Error.WriteLine(ex);
+				LoggingService.LogError(ex);
 				Gui.ShowMessageDialog (ex.Message, Dialog);
 				Dialog.Respond (ResponseType.None);
 				return;

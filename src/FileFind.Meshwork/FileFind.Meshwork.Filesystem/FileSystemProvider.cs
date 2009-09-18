@@ -56,13 +56,13 @@ namespace FileFind.Meshwork.Filesystem
 				try {
 					// Do some sanity checking here, if anything looks bad, start over
 					if (RootDirectory == null) {
-						Console.Error.WriteLine("Unable to find root dir");
+						LoggingService.LogWarning("Unable to find root dir");
 						create = true;
 					} else {
 						// Verify version
 						string currentVersion = ExecuteScalar("SELECT value FROM properties WHERE name='version'").ToString();
 						if (currentVersion != SCHEMA_VERSION) {
-							Console.Error.WriteLine("Schema has changed, recreating db.");
+							LoggingService.LogWarning("Schema has changed, recreating db.");
 							create = true;
 						}
 					}

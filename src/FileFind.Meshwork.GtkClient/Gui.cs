@@ -244,7 +244,7 @@ namespace FileFind.Meshwork.GtkClient
 				}
 			}
 			
-			LogManager.Current.WriteToLog(String.Format ("UNABLE TO LOAD ICON {0}, SIZE {1}", String.Join(",",names), size));
+			LoggingService.LogWarning("UNABLE TO LOAD ICON {0}, SIZE {1}", String.Join(",",names), size);
 			return null;
 		}
 

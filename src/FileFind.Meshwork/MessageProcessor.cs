@@ -101,7 +101,7 @@ namespace FileFind.Meshwork
 
 		internal void ProcessRequestKeyMessage (Node messageFrom)
 		{
-			LogManager.Current.WriteToLog("{0} requested public key, sending. " + messageFrom.ToString());
+			LoggingService.LogInfo("MessageProcessor: {0} requested public key, sending.", messageFrom.ToString());
 			network.SendMyKey(messageFrom);
 		}
 
@@ -138,24 +138,24 @@ namespace FileFind.Meshwork
 			// This lets us create a brand new session key
 			// if someone wants that for whatever reason.
 			if (messageFrom.SessionKeyDataHash != String.Empty && keyHash != messageFrom.SessionKeyDataHash) {
-				LogManager.Current.WriteToLog("Re-keying with: {0}.", messageFrom.ToString());
+				LoggingService.LogInfo("MessageProcessor: Re-keying with: {0}.", messageFrom.ToString());
 				messageFrom.ClearSessionKey();
 			}
 			
 			if (messageFrom.FinishedKeyExchange == false) {
-				LogManager.Current.WriteToLog("Received secure channel key from: {0}.", messageFrom.ToString());
+				LoggingService.LogInfo("Received secure channel key from: {0}.", messageFrom.ToString());
 			
 				messageFrom.SessionKeyDataHash = keyHash;
 				messageFrom.DecryptKeyExchange(key);
 
 				if (messageFrom.RemoteHasKey == true) {
-					LogManager.Current.WriteToLog("Secure communication channel to {0} now avaliable.", messageFrom.ToString());
+					LoggingService.LogInfo("Secure communication channel to {0} now avaliable.", messageFrom.ToString());
 					network.SendInfoToTrustedNode(messageFrom);
 				} else {
 					messageFrom.CreateNewSessionKey();
 				}
 			} else {
-				LogManager.Current.WriteToLog("Received secure communication key from: {0}, but key exchange was already finished!", messageFrom.ToString());
+				LoggingService.LogWarning("Received secure communication key from: {0}, but key exchange was already finished!", messageFrom.ToString());
 			}
 		}
 
@@ -251,7 +251,7 @@ namespace FileFind.Meshwork
 			if (file != null) {
 				Core.FileTransferManager.StartTransfer(network, messageFrom, file);
 			} else {
-				Console.WriteLine("Invalid file request from: {0}", messageFrom);
+				LoggingService.LogWarning("Invalid file request from: {0}", messageFrom);
 				network.SendNonCriticalError(messageFrom, new FileNotFoundException(info.FullPath, info.TransferId));
 			}
 		}
@@ -308,11 +308,11 @@ namespace FileFind.Meshwork
 				if (c == null) {
 					c = new ChatRoom (network, message.RoomName);
 					network.AddChatRoom(c);
-					LogManager.Current.WriteToLog("assuming chat room " + c.Name + " exists and that somebody will be joining it in a moment..");
+					LoggingService.LogWarning("MessageProcessor: Assuming chat room {0} exists and that somebody will be joining it in a moment...", c.Name);
 				}
 			
 				if (!c.Users.ContainsKey(messageFrom.NodeID)) {
-					LogManager.Current.WriteToLog("assuming " + messageFrom.NickName + " is in " + c.Name + "....");
+					LoggingService.LogWarning("MessageProcessor: Assuming {0} is in {1}...", messageFrom.NickName, c.Name);
 					c.AddUser(messageFrom);
 
 					network.RaiseJoinedChat (messageFrom, c);
@@ -385,7 +385,7 @@ namespace FileFind.Meshwork
 				network.Connections.Remove(c);
 				network.RaiseConnectionDown (c);
 			} else {
-				//LogManager.Current.WriteToLog("ConnectionDown Received from " + messageFrom.IpAddress.ToString() + " for a non existant connection!");
+				LoggingService.LogWarning("MessageProcessor: ConnectionDown received from {0} for a non-existant connection!", messageFrom);
 			}
 			network.Cleanup();
 		}
@@ -455,7 +455,7 @@ namespace FileFind.Meshwork
 
 			if (memo.WrittenByNodeID != network.LocalNode.NodeID) {
 				if (network.TrustedNodes.ContainsKey(memo.WrittenByNodeID) && memo.Verify () == false) {
-					network.RaiseNonCriticalError(new Exception("Ignored a memo with an invalid signature!"));
+					LoggingService.LogWarning("Ignored a memo with an invalid signature!");
 					return;
 				}
 				if (network.Memos.ContainsKey(memo.ID)) {
@@ -481,7 +481,7 @@ namespace FileFind.Meshwork
 				if (messageFrom.NodeID == theMemo.WrittenByNodeID) {
 					network.RemoveMemo(theMemo);
 				} else {
-					network.RaiseNonCriticalError (new Exception("Someone tired to delete someone else's memo!"));
+					LoggingService.LogWarning("Someone tired to delete someone else's memo!");
 				}
 			}
 		}
@@ -514,7 +514,7 @@ namespace FileFind.Meshwork
 				directory.UpdateFromInfo(info);
 				network.RaiseReceivedDirListing(messageFrom, directory);
 			} else {
-				Console.WriteLine("Unwanted directory listing from " + messageFrom.ToString() + " for " + info.FullPath);
+				LoggingService.LogWarning("Unwanted directory listing from " + messageFrom.ToString() + " for " + info.FullPath);
 			}
 		}
 

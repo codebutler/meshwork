@@ -90,7 +90,7 @@ namespace FileFind.Meshwork.Search
 					return;
 				}
 			}
-			LogManager.Current.WriteToLog("Unexpected search reply.");
+			LoggingService.LogWarning("Unexpected search reply.");
 		}
 	}
 }

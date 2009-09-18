@@ -94,7 +94,7 @@ namespace FileFind.Meshwork.GtkClient
 					Gui.ShowErrorDialog("You cannot connect to this user.");
 				}
 			} catch (Exception ex) {
-				Console.WriteLine (ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog(ex.Message);
 			}
 		}

@@ -85,12 +85,12 @@ namespace FileFind.Meshwork.GtkClient
 			method.MessageID = message.MessageID;
 			network.AckMethods.Add (method.MessageID, method);
 		
-			Console.WriteLine("Sending message...");
+			LoggingService.LogDebug("Sending message...");
 		}
 
 		private void OnMessageReceived (DateTime timeReceived, object[] args)
 		{
-			Console.WriteLine("Your last message was successfully delivered.");
+			LoggingService.LogDebug("Your last message was successfully delivered.");
 		}
 	}
 }

@@ -640,7 +640,7 @@ namespace FileFind.Meshwork.GtkClient
 					}
 				}
 			} catch (Exception ex) {
-				Console.WriteLine(ex);
+				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog(ex.Message);
 			}
 		}

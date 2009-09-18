@@ -78,7 +78,7 @@ namespace FileFind.Meshwork
 				}
 			}
 			
-			Console.WriteLine("We need to hash " + filesToHash.Count + " files.");
+			LoggingService.LogInfo("We need to hash " + filesToHash.Count + " files.");
 
 			// XXX: This is here because right now HashFilesEventually gets
 			// called for the same files over and over if ShareBuilder gets

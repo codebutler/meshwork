@@ -7,7 +7,7 @@
 // (C) 2007-2008 FileFind.net (http://filefind.net)
 //
 
-//#define RIDICULOUS_DEBUG_OUTPUT
+#define RIDICULOUS_DEBUG_OUTPUT
 
 using System;
 using MonoTorrent.Common;
@@ -43,10 +43,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			
 			#if RIDICULOUS_DEBUG_OUTPUT
 			engine.ConnectionManager.PeerMessageTransferred += delegate (object sender, PeerMessageEventArgs e) {
-				Console.BackgroundColor = ConsoleColor.White;
-				Console.ForegroundColor = ConsoleColor.Black;
-				Console.WriteLine("{0}: {1}", e.Direction, e.Message.GetType().Name);
-				Console.ResetColor();
+				LoggingService.LogDebug("{0}: {1}", e.Direction, e.Message.GetType().Name);
 			};
 			#endif
 		}
@@ -84,12 +81,12 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		internal TorrentManager CreateTorrentManager(Torrent torrent, IFile file)
 		{
 			string localPath = (file is LocalFile) ? System.IO.Path.GetDirectoryName(((LocalFile)file).LocalPath) : engine.Settings.SavePath;
-			Console.WriteLine("Local path: {0}", localPath);
+			LoggingService.LogDebug("Local path: {0}", localPath);
 			TorrentManager manager = new TorrentManager(torrent,
 			                             localPath,
 			                             torrentDefaults);
 			engine.Register(manager);
-			Console.WriteLine("{0}: Registered Manager with engine", Environment.TickCount);
+			LoggingService.LogDebug("{0}: Registered Manager with engine", Environment.TickCount);
 			return manager;
 		}
 
@@ -101,9 +98,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		
 		public void AddConnection (TorrentConnection connection)
 		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Incoming connection: {0}", connection.IsIncoming ? "Incoming" : "Outgoing");
-			Console.ResetColor();
+			LoggingService.LogDebug("Incoming connection: {0}", connection.IsIncoming ? "Incoming" : "Outgoing");
 			listener.AddConnection(connection, null);
 		}
 
@@ -112,7 +107,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			if (transfer is BitTorrentFileTransfer) {
 				TorrentManager manager = ((BitTorrentFileTransfer)transfer).Manager;
 				if (manager != null) {
-					Console.WriteLine("Removing torrent from engine!");
+					LoggingService.LogDebug("Removing torrent from engine!");
 					engine.Unregister(manager);
 				}
 			}

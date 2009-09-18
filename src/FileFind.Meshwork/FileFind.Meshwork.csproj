@@ -91,7 +91,7 @@
     <Compile Include="IPlatform.cs" />
     <Compile Include="ISettings.cs" />
     <Compile Include="LocalNodeConnection.cs" />
-    <Compile Include="LogManager.cs" />
+    <Compile Include="LoggingService.cs" />
     <Compile Include="Memo.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageBuilder.cs" />
@@ -189,6 +189,11 @@
     <Compile Include="FileFind.Stun\SourceAddressAttribute.cs" />
     <Compile Include="FileFind.Stun\StunClient.cs" />
     <Compile Include="FileFind.Stun\Utility.cs" />
+    <Compile Include="FileFind.Meshwork.Logging\ConsoleCrayon.cs" />
+    <Compile Include="FileFind.Meshwork.Logging\ConsoleLogger.cs" />
+    <Compile Include="FileFind.Meshwork.Logging\FileLogger.cs" />
+    <Compile Include="FileFind.Meshwork.Logging\ILogger.cs" />
+    <Compile Include="FileFind.Meshwork.Logging\LogLevel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -198,5 +203,6 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="FileFind.Stun\" />
+    <Folder Include="FileFind.Meshwork.Logging\" />
   </ItemGroup>
 </Project>

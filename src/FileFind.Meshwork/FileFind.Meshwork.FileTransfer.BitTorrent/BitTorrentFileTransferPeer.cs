@@ -25,11 +25,11 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				foreach (PeerId p in peers) {
 					if (p.IsValid) {
 						if (returnMe != null) {
-							Console.Error.WriteLine("!!! Found more than one valid peer!!");
+							LoggingService.LogWarning("!!! Found more than one valid peer!!");
 						}
 						returnMe = p;
 					} else {
-						Console.WriteLine("Removing invalid peer !! WOHOO!!");
+						LoggingService.LogDebug("Removing invalid peer !! WOHOO!!");
 						removeMe.Add(p);
 					}
 				}

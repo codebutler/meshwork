@@ -179,7 +179,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_JoinedChat (Network network, ChatEventArgs args)
 		{
 			try {
-				LogManager.Current.WriteToLog (args.Node.NickName + " has joined " + args.Room.Name);
+				LoggingService.LogInfo("{0} has joined {1}", args.Node.NickName, args.Room.Name);
 
 				if (chatTreeStore.ContainsItem (network, args.Room) == false) {
 					TreeIter iter = chatTreeStore.AddItem (network, args.Room);
@@ -209,13 +209,13 @@ namespace FileFind.Meshwork.GtkClient
 				Gui.MainWindow.RefreshCounts();
 
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
+				LoggingService.LogError(ex);
 			}
 		}
 		
 		private void network_LeftChat (Network network, ChatEventArgs args) 
 		{
-			LogManager.Current.WriteToLog (args.Node.NickName + " has left " + args.Room.Name);
+			LoggingService.LogInfo("{0} has left {1}", args.Node.NickName, args.Room.Name);
 		    
 			if (args.Room.InRoom == true) {
 				(args.Room.Properties["Window"] as ChatRoomSubpage).RemoveUser (args.Node);

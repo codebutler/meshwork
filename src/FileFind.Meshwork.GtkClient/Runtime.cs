@@ -69,7 +69,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			/* Load settings */
 			if (options.ConfigPath != null) {
-				Console.WriteLine("Using config dir: " + options.ConfigPath);
+				LoggingService.LogDebug("Using config dir: " + options.ConfigPath);
 				Settings.OverrideConfigPath(options.ConfigPath);
 			}
 			tmpSettings = Settings.ReadSettings();
@@ -158,7 +158,7 @@ namespace FileFind.Meshwork.GtkClient
 			Core.Started += (EventHandler)DispatchService.GuiDispatch(new EventHandler(Core_Started));
 
 			if (tmpSettings.FirstRun) {
-				Console.WriteLine ("First run");
+				LoggingService.LogDebug("First run");
 
 				// Generate key
 				if (tmpSettings.EncryptionParameters.Modulus == null) {
@@ -235,7 +235,7 @@ namespace FileFind.Meshwork.GtkClient
 					return false;
 				}
 			} catch (Exception ex) {
-				Console.Error.WriteLine (ex);
+				LoggingService.LogError(ex);
 				throw ex;
 			}
 		}

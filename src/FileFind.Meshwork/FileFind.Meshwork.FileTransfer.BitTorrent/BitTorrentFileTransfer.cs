@@ -7,7 +7,7 @@
 // (C) 2007 FileFind.net (http://filefind.net)
 //
 
-//#define RIDICULOUS_DEBUG_OUTPUT
+#define RIDICULOUS_DEBUG_OUTPUT
 
 using System;
 using IO=System.IO;
@@ -49,9 +49,9 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			get {
 				#if RIDICULOUS_DEBUG_OUTPUT
 				if (manager != null)
-					Console.WriteLine("Internal Status: " + isCanceled + " " + startCalled + " " + manager.State + " " + manager.Progress);
+					LoggingService.LogDebug("Internal Status: " + isCanceled + " " + startCalled + " " + manager.State + " " + manager.Progress);
 				else
-					Console.WriteLine("Internal Status: " + isCanceled + " " + startCalled);
+					LoggingService.LogDebug("Internal Status: " + isCanceled + " " + startCalled);
 				#endif
 
 				if (!startCalled) {
@@ -93,7 +93,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 								if (!isCanceled) {
 									// XXX: I think this might happen for just a breif moment while
 									// we're going from Transferring -> Canceled.
-									Console.WriteLine("This shouldn't happen ever, right? " + manager.Progress);
+									LoggingService.LogWarning("This shouldn't happen ever, right? " + manager.Progress);
 								}
 							
 								return FileTransferStatus.Canceled;
@@ -118,7 +118,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 
 						default:
 							// XXX:
-							Console.WriteLine("Add a case for this: " + manager.State);
+							LoggingService.LogWarning("Add a case for this: " + manager.State);
 							return FileTransferStatus.WaitingForInfo;
 					}
 				}
@@ -211,7 +211,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				DetailsReceived();
 
 			} catch (Exception ex) {
-				Console.Error.WriteLine("Error in callback:\n" + ex.ToString());
+				LoggingService.LogError("Error in callback:", ex.ToString());
 			}
 		}
 
@@ -233,9 +233,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				throw new InvalidOperationException("No pieces");
 			}	
 
-			Console.WriteLine("{0}: Calling Start", Environment.TickCount);
-			Console.WriteLine(Environment.StackTrace);
-			Console.WriteLine();Console.WriteLine();Console.WriteLine();
+			LoggingService.LogDebug("{0}: Calling Start:\n{1}", Environment.TickCount, Environment.StackTrace);
 			
 			if (file.Pieces.Length == 0) {
 				throw new InvalidOperationException("No pieces");
@@ -253,7 +251,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			#if RIDICULOUS_DEBUG_OUTPUT
 			// Dump the hashes to the screen
 			for (int i=0; i < torrent.Pieces.Count; i++)
-				Console.WriteLine(string.Format("{0}) {1}", i, BitConverter.ToString(torrent.Pieces.ReadHash(i))));
+				LoggingService.LogDebug(string.Format("{0}) {1}", i, BitConverter.ToString(torrent.Pieces.ReadHash(i))));
 			#endif
 			
 			manager = provider.CreateTorrentManager(torrent, file);
@@ -266,9 +264,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			manager.PeerDisconnected += new EventHandler<PeerConnectionEventArgs>(manager_PeerDisconnected);
 
 			#if RIDICULOUS_DEBUG_OUTPUT
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Engine ID: {0}", provider.Engine.PeerId);
-			Console.ResetColor();
+			LoggingService.LogDebug("Engine ID: {0}", provider.Engine.PeerId);
 			#endif
 
 			manager.Start();
@@ -449,7 +445,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		private void manager_PeerConnected (object sender, PeerConnectionEventArgs args)
 		{
 			try {
-				Console.WriteLine("PEER CONNECTED: {0} {1}", args.PeerID.Location, args.PeerID.GetHashCode());
+				LoggingService.LogDebug("PEER CONNECTED: {0} {1}", args.PeerID.Location, args.PeerID.GetHashCode());
 			
 				// XXX: This check can probably be removed.
 				if (args.TorrentManager != this.manager) {
@@ -473,7 +469,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				// If we got here, then we were not expecting this peer.
 				throw new Exception("Unexpected peer!!!! - " + args.PeerID.Location);
 			} catch (Exception ex) {
-				Console.WriteLine("Error in manager_PeerConnected: " + ex);
+				LoggingService.LogError("Error in manager_PeerConnected.", ex);
 				args.PeerID.CloseConnection();
 			}
 		}
@@ -481,7 +477,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		private void manager_PeerDisconnected (object sender, PeerConnectionEventArgs args)
 		{
 			try {
-				Console.WriteLine("Disconneted: {0}", args.PeerID.Location);
+				LoggingService.LogDebug("Disconnected: {0}", args.PeerID.Location);
 
 				// Find the matching peer
 				bool found = false;
@@ -498,23 +494,23 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				}
 				if (!found) {
 					// This should never hapen.
-					Console.WriteLine("PeerDisconnected: Unknown peer!");
+					LoggingService.LogWarning("PeerDisconnected: Unknown peer!");
 				}
 
 				// No more peers, stop the torrent!
 				if (base.peers.Count == 0) {
-					LogManager.Current.WriteToLog("No more peers - canceling torrent!");
+					LoggingService.LogWarning("No more peers - canceling torrent!");
 					this.Cancel();
 				}
 			} catch (Exception ex) {
-				Console.WriteLine("Error in manager_PeerDisconnected: " + ex);
+				LoggingService.LogError("Error in manager_PeerDisconnected:", ex);
 				this.Cancel();
 			}
 		}
 		
 		private void manager_PeersFound(object sender, PeersAddedEventArgs args)
 		{
-			Console.WriteLine("Peers Found!");
+			LoggingService.LogDebug("Peers Found!");
 		}
 		
 		private void manager_PieceHashed(object sender, PieceHashedEventArgs args)
@@ -525,10 +521,10 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				}
 
 				#if RIDICULOUS_DEBUG_OUTPUT
-				Console.WriteLine("Piece Hashed!");
+				LoggingService.LogDebug("Piece Hashed!");
 				#endif
 			} catch (Exception ex) {
-				Console.WriteLine("Error in manager_PieceHashed: " + ex);
+				LoggingService.LogError("Error in manager_PieceHashed.", ex);
 				this.Cancel();
 			}
 		}
@@ -536,15 +532,15 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		private void manager_TorrentStateChanged(object sender, TorrentStateChangedEventArgs args)
 		{
 			try {
-				Console.WriteLine("State: {0}", args.NewState);
-				Console.WriteLine("Progress: {0:0.00}", this.manager.Progress);
+				LoggingService.LogDebug("State: {0}", args.NewState);
+				LoggingService.LogDebug("Progress: {0:0.00}", this.manager.Progress);
 
 				if (args.NewState == TorrentState.Downloading || (args.NewState == TorrentState.Seeding && args.OldState != TorrentState.Downloading)) {
 					// XXX: Only have the requesting end connect for now,
 					// so we dont end up with redundant conncetions in each direction.
 					// We need a solution for this that can handle reverse connections.
 					if (!(File is LocalFile)) {
-						Console.WriteLine("Torrent is ready! connecting to peers!");
+						LoggingService.LogDebug("Torrent is ready! connecting to peers!");
 						lock (this.peers) {
 							foreach (IFileTransferPeer p in this.peers) {
 								BitTorrentFileTransferPeer peer = (BitTorrentFileTransferPeer)p;
@@ -552,7 +548,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 							}
 						}
 					} else {
-						Console.WriteLine("Torrent is ready! Waiting for connections from peers!");
+						LoggingService.LogDebug("Torrent is ready! Waiting for connections from peers!");
 					}
 				}
 
@@ -575,7 +571,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 					this.Cancel();
 				}
 			} catch (Exception ex) {
-				Console.WriteLine("Error in manager_TorrentStateChanged: " + ex);
+				LoggingService.LogError("Error in manager_TorrentStateChanged.", ex);
 				this.Cancel();
 			}
 		}
@@ -585,9 +581,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			IDestination destination = peer.Node.FirstConnectableDestination;
 			if (destination != null) {
 				ITransport transport = destination.CreateTransport(ConnectionType.TransferConnection);
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("New outgoing connection");
-				Console.ResetColor();
+				LoggingService.LogDebug("New outgoing connection");
 				peer.Network.ConnectTo(transport, OutgoingPeerTransportConnected);
 			}
 		}
@@ -598,7 +592,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				((BitTorrentFileTransferProvider)Core.FileTransferManager.Provider).Listener.AddConnection(new TorrentConnection(t), this.manager);
 			} catch (Exception ex) {
 				// XXX: Better error handling here! Stop the torrent! Kill connections! Wreak havoc!
-				Console.Error.WriteLine(ex);
+				LoggingService.LogError(ex);
 			}
 		}
 	}

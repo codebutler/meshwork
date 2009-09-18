@@ -115,7 +115,7 @@ namespace FileFind.Meshwork
 
 					} catch (Exception ex) {
 						// XXX: Do something here!
-						Console.Error.WriteLine("Problem while hashing file. " + ex);
+						LoggingService.LogError("Problem while hashing file.", ex);
 					}
 				}
 			} catch (ThreadAbortException) {
@@ -124,7 +124,7 @@ namespace FileFind.Meshwork
 			} catch (Exception ex) {
 				// XXX: Do something here, we've aborted
 				// everything!
-				Console.Error.WriteLine("AAHHHH!!! " + ex);
+				LoggingService.LogError("AAHHHH!!!", ex);
 				throw ex;
 			}
 		}

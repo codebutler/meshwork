@@ -60,7 +60,7 @@ namespace FileFind.Meshwork.Transport
 				if (NewTransportAdded != null)
 					NewTransportAdded (transport);
 
-				LogManager.Current.WriteToLog (String.Format ("Transport {0} added", transport.ToString()));
+				LoggingService.LogInfo(String.Format ("Transport {0} added", transport.ToString()));
 
 				if (transport.Incoming == true) {
 					if (connectCallback != null)
@@ -93,8 +93,7 @@ namespace FileFind.Meshwork.Transport
 					responseBuffer = new byte[64];
 					transport.Receive (responseBuffer, 0, 64);
 					string networkId = EndianBitConverter.ToString (responseBuffer).Replace ("-", "");
-					//LogManager.Current.WriteToLog ("Received network id: " + networkId);
-
+					
 					// Match to one of our known networks!
 					foreach (Network network in Core.Networks) {
 						if (network.NetworkID == networkId) {
@@ -134,7 +133,7 @@ namespace FileFind.Meshwork.Transport
 
 					connectCallbacks.Add (transport, connectCallback);
 				
-					LogManager.Current.WriteToLog (String.Format ("Transport {0} connecting...", transport.ToString()));
+					LoggingService.LogInfo("Transport {0} connecting...", transport);
 
 					TransportCallback callback = new TransportCallback (OnConnected);
 					transport.Connect (callback);
@@ -157,13 +156,13 @@ namespace FileFind.Meshwork.Transport
 			if (TransportRemoved != null)
 				TransportRemoved(transport);
 
-			LogManager.Current.WriteToLog(String.Format("Transport {0} removed", transport.ToString()));
+			LoggingService.LogInfo("Transport {0} removed", transport);
 		}
 
 		private void OnConnected (ITransport transport)
 		{
 			try {
-				LogManager.Current.WriteToLog (String.Format ("Transport {0} connected.", transport.ToString()));
+				LoggingService.LogInfo("Transport {0} connected.", transport);
 				
 				if (transport.Encryptor != null) {
 					DiffieHellmanManaged dh = new DiffieHellmanManaged ();
@@ -184,12 +183,10 @@ namespace FileFind.Meshwork.Transport
 					transport.Encryptor.SetKey(keyBytes, ivBytes);
 				}
 
-				//LogManager.Current.WriteToLog ("Sending connection type: " + transport.ConnectionType);
 				byte[] connectionType = EndianBitConverter.GetBytes (transport.ConnectionType);
 				transport.Send (connectionType, 0, connectionType.Length);
 				
 				byte[] networkId = Common.SHA512 (transport.Network.NetworkName);
-				//LogManager.Current.WriteToLog ("Sending network id: " + BitConverter.ToString (networkId).Replace ("-", ""));
 				transport.Send (networkId, 0, networkId.Length);
 
 				// Ready, Steady, GO!

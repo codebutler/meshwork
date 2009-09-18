@@ -66,12 +66,12 @@ namespace FileFind.Meshwork.Transport
 					Socket socket = listener.AcceptSocket();
 					try {
 						ITransport transport = new TcpTransport(socket);
-						LogManager.Current.WriteToLog(String.Format("New incoming transport: {0}.", transport.ToString()));
+						LoggingService.LogInfo("New incoming transport: {0}.", transport.ToString());
 						Core.TransportManager.Add(transport);
 						// TransportManager will take care of this 
 						// connection now
 					} catch (Exception ex) {
-						LogManager.Current.WriteToLog(ex.ToString());
+						LoggingService.LogError(ex.ToString());
 					}
 				}
 			} catch (Exception) {

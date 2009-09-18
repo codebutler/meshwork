@@ -41,7 +41,7 @@ namespace FileFind.Meshwork.GtkClient
 			try {
 				spellCheck = new SpellCheck (inputTextView, CultureInfo.CurrentCulture.Name);
 			} catch (Exception ex) {
-				Console.WriteLine ("Spell check is not avaliable because: " + ex.ToString());
+				LoggingService.LogWarning("Spell check is not avaliable because: " + ex.ToString());
 			}
 			
 			TextTag myBoldTag = new TextTag ("Bold");

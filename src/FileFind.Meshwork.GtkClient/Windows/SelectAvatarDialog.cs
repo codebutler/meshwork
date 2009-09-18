@@ -123,7 +123,7 @@ namespace FileFind.Meshwork.GtkClient
 				byte[] data = client.DownloadData (String.Format ("http://www.gravatar.com/avatar.php?gravatar_id={0}", hash));
 				Application.Invoke (delegate { GotGravatarImage (data); });
 			} catch (Exception ex) {
-				Console.WriteLine (ex);
+				LoggingService.LogError(ex);
 				Application.Invoke (delegate { GotGravatarImage (null); });
 			}
 		}

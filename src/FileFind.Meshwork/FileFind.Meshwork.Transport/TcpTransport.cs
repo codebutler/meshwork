@@ -121,8 +121,7 @@ namespace FileFind.Meshwork.Transport
 					try {
 						return (EndPoint)socket.RemoteEndPoint;
 					} catch (SocketException ex) {
-						Console.Error.WriteLine("Failed to get remote end point. I am pretty sure this is a bug in mono!");
-						Console.Error.WriteLine(ex);
+						LoggingService.LogError("Failed to get remote end point. I am pretty sure this is a bug in mono!", ex);
 						return new IPEndPoint(address, port);
 					}
 				} else {
@@ -160,24 +159,19 @@ namespace FileFind.Meshwork.Transport
 				base.transportState = TransportState.Disconnected;
 
 				if (socket != null) {
-					//LogManager.Current.WriteToLog ("KILLING SOCKET!!!");
 					socket.Close ();
 					socket = null;
-				} /*else {
-					return;
-				}*/
-
+				}
+				
 				if (ex != null)
 					if (ex is SocketException)
-						LogManager.Current.WriteToLog (String.Format ("Transport {0} disconnected ({1}).", 
-						                                              this.ToString(), ex.Message));
+						LoggingService.LogInfo("Transport {0} disconnected ({1}).", this.ToString(), ex.Message);
 					else
-						LogManager.Current.WriteToLog (String.Format ("Transport {0} disconnected with error: {1}", 
-						                                              this.ToString(), ex.ToString()));
+						LoggingService.LogInfo("Transport {0} disconnected with error: {1}", this.ToString(), ex.ToString());
 				else
-					LogManager.Current.WriteToLog (String.Format("Transport {0} disconnected", this.ToString()));
+					LoggingService.LogInfo("Transport {0} disconnected", this.ToString());
 
-				base.RaiseDisconnected (ex);
+				base.RaiseDisconnected(ex);
 			}
 		}
 

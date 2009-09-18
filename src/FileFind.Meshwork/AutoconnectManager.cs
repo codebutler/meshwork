@@ -120,13 +120,13 @@ namespace FileFind.Meshwork
 								network.ConnectTo(transport);
 							}
 						} catch (Exception ex) {
-							LogManager.Current.WriteToLog (ex);
+							LoggingService.LogError("AutoconnectManager: Error while trying to connect", ex);
 						}
 					} else {
 						// Nothing left, I give up! :(
 						network.ConnectingTo -= connectingToHandler;
 						network.NewIncomingConnection -= incomingConnectionHandler;
-						LogManager.Current.WriteToLog ("autoconnect - nothing left to connect to.");
+						LoggingService.LogDebug("AutoconnectManager: Nothing left to connect to.");
 						return;
 					}
 				}

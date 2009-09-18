@@ -35,7 +35,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		{
 			string remoteId = String.Empty;
 
-			Console.WriteLine("AddConnection(): Start");
+			LoggingService.LogDebug("AddConnection(): Start");
 
 			if (!connection.IsIncoming) {
 				// Send my identity.
@@ -56,16 +56,14 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				connection.Transport.SendMessage(System.Text.Encoding.ASCII.GetBytes(Core.MyNodeID));
 			}
 
-			Console.ForegroundColor = ConsoleColor.Green;
-			Console.WriteLine("Pushing connection to engine: {0} - {1}", connection.IsIncoming ? "Incoming" : "Outgoing",
+			LoggingService.LogDebug("Pushing connection to engine: {0} - {1}", connection.IsIncoming ? "Incoming" : "Outgoing",
 			                  ((Meshwork.Transport.TcpTransport)connection.transport).RemoteEndPoint.ToString());
-			Console.ResetColor();
 
 			connectionID++;
 			Peer p = new Peer("", new Uri("meshwork://" + remoteId + "/" + connectionID.ToString()), new NoEncryption());
 			RaiseConnectionReceived(p, connection, manager);
 
-			Console.WriteLine("AddConnection(): End");
+			LoggingService.LogDebug("AddConnection(): End");
 		}
 	}
 }

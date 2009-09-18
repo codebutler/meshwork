@@ -179,7 +179,7 @@ namespace FileFind.Meshwork
 				if (connectionState != ConnectionState.Disconnected) {
 					Disconnect(ex);
 				} else {
-					LogManager.Current.WriteToLog("Tried to send a message after being disconnected");
+					LoggingService.LogWarning("Tried to send a message after being disconnected");
 				}
 			}
 		}
@@ -212,7 +212,7 @@ namespace FileFind.Meshwork
 		public void Disconnect (Exception ex)
 		{
 			try {
-				LogManager.Current.WriteToLog ("Local Node Connection Disconnect.");
+				LoggingService.LogDebug("Local Node Connection Disconnect.");
 
 				pingTimer.Stop ();
 				timeoutTimer.Stop ();
@@ -238,8 +238,7 @@ namespace FileFind.Meshwork
 					transport.Network.SendBroadcast(transport.Network.MessageBuilder.CreateConnectionDownMessage(NodeLocal, this.NodeRemote), this.NodeRemote);
 				}
 			} catch (Exception exx) {
-				// I want to make sure I see this exception.
-				LogManager.Current.WriteToLog ("ERROR IN LOCALNODECONNECTION.DISCONNECT: " + exx);
+				LoggingService.LogError(exx);
 			}
 		}
 
@@ -318,7 +317,7 @@ namespace FileFind.Meshwork
 			try {
 				if (connectionState == ConnectionState.Disconnected) {
 					// Connection has been closed. Ignore the message.
-					LogManager.Current.WriteToLog("Ignored message received after connection was closed.");
+					LoggingService.LogWarning("LocalNodeConnection: Ignored message received after connection was closed.");
 					return;
 				}
 				

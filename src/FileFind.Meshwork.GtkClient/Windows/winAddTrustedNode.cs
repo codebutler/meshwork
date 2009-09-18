@@ -59,7 +59,6 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			winDownloadPublicKey win = new winDownloadPublicKey();
 			if (win.Show() == (int)ResponseType.Ok) {
-				Console.WriteLine("Setting");
 				txtPublicKey.Buffer.Text = win.result;
 			}
 		}

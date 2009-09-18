@@ -209,7 +209,7 @@ namespace FileFind.Meshwork.GtkClient
 				memoList.GrabFocus();
 			}
 
-			LogManager.Current.WriteToLog ("Memo added: " + memo.Subject  + " by: " + network.Nodes[memo.WrittenByNodeID].ToString());
+			LoggingService.LogInfo("Memo added: {0} by {1}", memo.Subject, network.Nodes[memo.WrittenByNodeID]);
 			UpdateMemoList ();
 
 			memoCount += 1;
@@ -217,7 +217,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void network_MemoUpdated(Network network, Memo memo)
 		{
-			LogManager.Current.WriteToLog ("Memo updated: " + memo.Subject  + " by: " + network.Nodes[memo.WrittenByNodeID].ToString());
+			LoggingService.LogInfo("Memo updated: {0} by {1}.", memo.Subject, network.Nodes[memo.WrittenByNodeID]);
 			UpdateMemoList ();
 		}
 
@@ -225,7 +225,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			memoTreeStore.RemoveItem (network, memo);
 			Gui.MainWindow.RefreshCounts();
-			LogManager.Current.WriteToLog("Memo deleted: " + memo.Subject);
+			LoggingService.LogInfo("Memo deleted: " + memo.Subject);
 
 			memoCount -= 1;
 		}

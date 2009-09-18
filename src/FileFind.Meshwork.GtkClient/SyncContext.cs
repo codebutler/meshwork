@@ -1,4 +1,4 @@
-﻿// SyncContext.cs
+// SyncContext.cs
 //
 // Author:
 //   Lluis Sanchez Gual <lluis@novell.com>

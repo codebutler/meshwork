@@ -103,11 +103,11 @@ namespace FileFind.Meshwork.GtkClient
 		private void OnNewTransportAdded (ITransport transport)
 		{
 			try {
-				connectionListStore.AppendValues (transport);
+				connectionListStore.AppendValues(transport);
 				Gui.MainWindow.RefreshCounts();
 			} catch (Exception ex) {
-				LogManager.Current.WriteToLog (ex);
-				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
+				LoggingService.LogError(ex);
+				Gui.ShowErrorDialog(ex.ToString(), Gui.MainWindow.Window);
 			}
 		}
 

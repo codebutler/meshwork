@@ -95,7 +95,7 @@ namespace FileFind.Meshwork.GtkClient
 				LoadAvatar(dest, node);
 			} catch (Exception ex) {
 				//TODO: What to do here?
-				LogManager.Current.WriteToLog (ex.ToString());
+				LoggingService.LogError(ex);
 			}
 		}
 

@@ -26,7 +26,6 @@ namespace FileFind.Meshwork.GtkClient
 			int result = 0;
 			while (true) {
 				result = dialog.Run();
-				Console.WriteLine(result.ToString());
 				if (result != (int)ResponseType.None) 
 					break;
 			}
