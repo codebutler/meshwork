@@ -486,74 +486,76 @@ namespace FileFind.Meshwork
 					throw new ArgumentNullException("value");
 				}
 
-				settings = value;
-
-				if (started) {
-					// Update/remove networks.
-					foreach (Network network in Networks) {
-						string oldNick = network.LocalNode.NickName;
-						network.LocalNode.NickName = settings.NickName;
-						network.LocalNode.RealName = settings.RealName;
-						network.LocalNode.Email = settings.Email;
-
-						foreach (NetworkInfo networkInfo in settings.Networks) {
-							if (networkInfo.NetworkID == network.NetworkID) {
-								network.UpdateTrustedNodes(networkInfo.TrustedNodes);
-								goto found;
-							}
-						}
-
-						// Actually, this network was removed!
-						Core.RemoveNetwork(network);
-						continue;
-
-						found:
-						
-						network.SendInfoToTrustedNodes();
-						network.RaiseUpdateNodeInfo(oldNick, network.LocalNode);
-
-						network.AutoconnectManager.ConnectionCount = settings.AutoConnectCount;
-					}
-
-					// Add new networks
-					foreach (NetworkInfo networkInfo in settings.Networks) {
-						if (GetNetwork(networkInfo.NetworkID) == null) {
-							AddNetwork(networkInfo);
-						}
-					}
-				
-					// Update file transfer options
-					if (settings.EnableGlobalDownloadSpeedLimit) {
-						FileTransferManager.Provider.GlobalDownloadSpeedLimit = settings.GlobalDownloadSpeedLimit * 1024;
-					} else {
-						FileTransferManager.Provider.GlobalDownloadSpeedLimit = 0;
-					}
-
-					if (settings.EnableGlobalUploadSpeedLimit) {
-						FileTransferManager.Provider.GlobalUploadSpeedLimit = settings.GlobalUploadSpeedLimit * 1024;
-					} else {
-						FileTransferManager.Provider.GlobalUploadSpeedLimit = 0;
-					}
-
-					// Update listeners
-					foreach (ITransportListener listener in transportListeners) {
-						if (listener is TcpTransportListener) {
-							((TcpTransportListener)listener).Port = settings.TcpListenPort;
-						}
-					}
-
-					RescanSharedDirectories ();
-				}
+				settings = value;				
 				
 				if (settings.Plugins != null) {
 					foreach (string fileName in settings.Plugins) {
 						LoadPlugin (fileName);
 					}
 				}
-
+				
 				if (Core.DestinationManager != null) {
 					Core.DestinationManager.SyncFromSettings();
 				}
+
+				if (!started)
+					return;
+				
+				// Update/remove networks.
+				foreach (Network network in Networks) {
+					string oldNick = network.LocalNode.NickName;
+					network.LocalNode.NickName = settings.NickName;
+					network.LocalNode.RealName = settings.RealName;
+					network.LocalNode.Email = settings.Email;
+
+					bool foundNetwork = false;
+					
+					foreach (NetworkInfo networkInfo in settings.Networks) {
+						if (networkInfo.NetworkID == network.NetworkID) {
+							network.UpdateTrustedNodes(networkInfo.TrustedNodes);
+							foundNetwork = true;
+							break;
+						}
+					}
+
+					if (!foundNetwork) {
+						// Actually, this network was removed!
+						Core.RemoveNetwork(network);
+					} else {
+						network.SendInfoToTrustedNodes();
+						network.RaiseUpdateNodeInfo(oldNick, network.LocalNode);
+						network.AutoconnectManager.ConnectionCount = settings.AutoConnectCount;
+					}
+				}
+
+				// Add new networks
+				foreach (NetworkInfo networkInfo in settings.Networks) {
+					if (GetNetwork(networkInfo.NetworkID) == null) {
+						AddNetwork(networkInfo);
+					}
+				}
+			
+				// Update file transfer options
+				if (settings.EnableGlobalDownloadSpeedLimit) {
+					FileTransferManager.Provider.GlobalDownloadSpeedLimit = settings.GlobalDownloadSpeedLimit * 1024;
+				} else {
+					FileTransferManager.Provider.GlobalDownloadSpeedLimit = 0;
+				}
+
+				if (settings.EnableGlobalUploadSpeedLimit) {
+					FileTransferManager.Provider.GlobalUploadSpeedLimit = settings.GlobalUploadSpeedLimit * 1024;
+				} else {
+					FileTransferManager.Provider.GlobalUploadSpeedLimit = 0;
+				}
+
+				// Update listeners
+				foreach (ITransportListener listener in transportListeners) {
+					if (listener is TcpTransportListener) {
+						((TcpTransportListener)listener).Port = settings.TcpListenPort;
+					}
+				}
+
+				RescanSharedDirectories();
 			}
 		}
 	}
