@@ -151,7 +151,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_UserOnline(Network network, Node node)
 		{
 			userListStore.AppendValues (IterForNetwork (node.Network), node);
-			LoggingService.LogInfo("User online: " + node.NickName);
+			
 			if (Gui.GetPrivateMessageWindow (node) != null) {
 				Gui.GetPrivateMessageWindow (node).SetUserOnline ();
 			}
@@ -162,8 +162,6 @@ namespace FileFind.Meshwork.GtkClient
 			TreeIter networkIter;
 			TreeIter nodeIter;
 
-			LoggingService.LogInfo("{0} has disconnected from the network.", n);
-			
 			if (userListStore.GetIterFirst (out networkIter)) {
 				do {
 					if (userListStore.IterChildren (out nodeIter, networkIter)) {
@@ -189,7 +187,6 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			try {
 				if (oldNick != node.NickName) {
-					LoggingService.LogInfo("{0} has changed their nickname to {1}.", oldNick, node.NickName);
 					if (Gui.GetPrivateMessageWindow(node) != null) {
 						Gui.GetPrivateMessageWindow (node).UserInfoChanged (oldNick);
 					}

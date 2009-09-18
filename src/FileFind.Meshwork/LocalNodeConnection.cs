@@ -224,10 +224,14 @@ namespace FileFind.Meshwork
 
 				transport.Network.Connections.Remove(this);
 			
-				if (ex != null && ConnectionError != null) {
-					ConnectionError(this, ex);
+				if (ex != null) {					
+					LoggingService.LogError("Error in connection with " + this.RemoteAddress, ex);
+					if (ConnectionError != null)
+						ConnectionError(this, ex);
 				}
-
+				
+				LoggingService.LogInfo("Connection to {0} closed.", this.RemoteAddress.ToString());
+				
 				if (ConnectionClosed != null) {
 					ConnectionClosed(this);
 				}
@@ -266,13 +270,15 @@ namespace FileFind.Meshwork
 		}
 
 		internal void RaiseConnectionReady()
-		{
+		{			
 			connectionState = ConnectionState.Ready;
+			
+			LoggingService.LogInfo("Connection to {0} is ready.", this.NodeRemote.NickName);
+			
 			if (ConnectionReady != null) 
 				ConnectionReady(this);
 			
-			Ping ();
-			
+			Ping();			
 		}
 
 		private void PingTimerElapsed (object o, ElapsedEventArgs args)

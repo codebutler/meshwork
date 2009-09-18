@@ -140,9 +140,7 @@ namespace FileFind.Meshwork.Transport
 				}
 			} catch (Exception ex) {
 				transport.Disconnect (ex);
-				if (TransportError != null) {
-					TransportError (transport, ex);
-				}
+				RaiseTransportError(transport, ex);
 			}
 		}
 
@@ -197,11 +195,21 @@ namespace FileFind.Meshwork.Transport
 				
 			} catch (Exception ex) {
 				transport.Disconnect (ex);
-				if (TransportError != null) {
-					TransportError (transport, ex);
-				}
+				RaiseTransportError(transport, ex);
+			}
+		}
+		
+		private void RaiseTransportError(ITransport transport, Exception ex)
+		{	
+			if (ex != null) {
+				LoggingService.LogError("Transport disconnected with error.", ex);
+			} else {
+				LoggingService.LogError("Transport disconnected.");
+			}
+			
+			if (TransportError != null) {
+				TransportError (transport, ex);
 			}
 		}
 	}
-
 }

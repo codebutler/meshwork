@@ -161,11 +161,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void Core_TransportError (ITransport transport, Exception ex)
 		{
-			if (ex != null) {
-				LoggingService.LogError("Transport disconnected with error.", ex);
-			} else {
-				LoggingService.LogError("Transport disconnected.");
-			}
+			// FIXME: Do anything here?
 		}
 
 		private void AvatarManager_AvatarsChanged (object sender, EventArgs args)
@@ -210,15 +206,13 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void ConnectionReady (LocalNodeConnection sender)
 		{
-			LoggingService.LogInfo("Connection to {0} is ready.", sender.NodeRemote.NickName);
 			UpdateConnectionList();
 		}
 
 		private void network_ConnectionUp(INodeConnection c)
 		{
 			try {
-				LoggingService.LogInfo("Added new connection between " + c.NodeLocal.NickName + " and " + c.NodeRemote.NickName);
-				UpdateConnectionList ();
+				UpdateConnectionList();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
@@ -228,7 +222,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_ConnectionDown(INodeConnection c)
 		{
 			try {
-				LoggingService.LogInfo("Removed connection between {0} and {1}.", c.NodeLocal.NickName, c.NodeRemote.NickName);
 				UpdateConnectionList ();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
@@ -342,7 +335,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_ReceivedNonCriticalError(Network network, Node from, MeshworkException error)
 		{
 			try {
-				LoggingService.LogWarning("RECEIVE NONCRITICALERROR: " + error.Message);
 				UpdateConnectionList();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
@@ -353,7 +345,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_ReceivedCriticalError(INodeConnection ErrorFrom, MeshworkException error)
 		{
 			try {
-				LoggingService.LogError("RECIEVED CRITICAL ERROR", error.Message);
+				UpdateConnectionList();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
@@ -363,17 +355,11 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_NewIncomingConnection (Network network, LocalNodeConnection c)
 		{
 			try {
-				AddConnectionEventHandlers (c);
-				LoggingService.LogInfo("New incoming connection from {0}.", c.RemoteAddress);
+				AddConnectionEventHandlers(c);
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
 			}
-		}
-
-		private void network_SocketError(LocalNodeConnection sock, Exception error)
-		{
-			LoggingService.LogError("SOCKET ERROR !!!!", error);
 		}
 
 		private void UpdateConnectionList()
@@ -404,7 +390,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void ConnectionClosed(LocalNodeConnection c)
 		{
 			try {
-				LoggingService.LogInfo("Connection to {0} closed.", c.RemoteAddress.ToString());
 				UpdateConnectionList ();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
@@ -425,8 +410,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void LocalConnectionError(LocalNodeConnection c, Exception error)
 		{
 			try {
-				LoggingService.LogError("Error in connection with " + c.RemoteAddress, error);
-
 				// TODO: !!!!
 				//(c.Properties ["ListItem"] as ConnectionListItem).ErrorText = ex.Message;
 

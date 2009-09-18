@@ -179,8 +179,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_JoinedChat (Network network, ChatEventArgs args)
 		{
 			try {
-				LoggingService.LogInfo("{0} has joined {1}", args.Node.NickName, args.Room.Name);
-
 				if (chatTreeStore.ContainsItem (network, args.Room) == false) {
 					TreeIter iter = chatTreeStore.AddItem (network, args.Room);
 					if (args.Node.IsMe) {
@@ -215,8 +213,6 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void network_LeftChat (Network network, ChatEventArgs args) 
 		{
-			LoggingService.LogInfo("{0} has left {1}", args.Node.NickName, args.Room.Name);
-		    
 			if (args.Room.InRoom == true) {
 				(args.Room.Properties["Window"] as ChatRoomSubpage).RemoveUser (args.Node);
 			}

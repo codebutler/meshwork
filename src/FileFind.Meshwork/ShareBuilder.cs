@@ -51,6 +51,8 @@ namespace FileFind.Meshwork
 
 		private void DoStart ()
 		{
+			LoggingService.LogInfo("Started re-index of shared files...");
+			
 			if (StartedIndexing != null) {
 				StartedIndexing (this, EventArgs.Empty);
 			}
@@ -87,7 +89,9 @@ namespace FileFind.Meshwork
 
 			Core.ShareHasher.HashFilesEventually(filesToHash);
 			filesToHash.Clear();
-
+			
+			LoggingService.LogInfo("Finished re-index of shared files...");
+			
 			if (FinishedIndexing != null) {
 				FinishedIndexing (this, EventArgs.Empty);
 			}
@@ -99,7 +103,9 @@ namespace FileFind.Meshwork
 			if (thread != null) {
 				thread.Abort();
 				thread = null;
-
+				
+				LoggingService.LogInfo("Aborted re-index of shared files...");
+				
 				if (StoppedIndexing != null) {
 					StoppedIndexing(this, EventArgs.Empty);
 				}
@@ -149,6 +155,7 @@ namespace FileFind.Meshwork
 			} catch (ThreadAbortException) {
 				// Canceled, ignore error.
 			} catch (Exception ex) {
+				LoggingService.LogError("Error while re-indexing shared files:", ex);
 				if (ErrorIndexing != null) {
 					ErrorIndexing(this, ex);
 				}

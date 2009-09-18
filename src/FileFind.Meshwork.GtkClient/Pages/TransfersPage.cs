@@ -230,8 +230,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void manager_NewFileTransfer(IFileTransfer transfer)
 		{
 			try {
-				LoggingService.LogInfo("Transfer added: {0}", transfer.File.Name);
-
 				// Add transfer to list
 				transferListStore.AppendValues(transfer);
 
@@ -255,8 +253,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void manager_FileTransferRemoved(IFileTransfer transfer)
 		{
 			try {
-				LoggingService.LogInfo("Transfer removed: {0}", transfer.File.Name);
-
 				// Remove transfer from list
 				Gtk.TreeIter iter;
 				transferListStore.GetIterFirst(out iter);
@@ -278,11 +274,13 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
+		// FIXME: Nothing calls this!
 		private void transfer_PeerAdded(IFileTransfer transfer, IFileTransferPeer peer)
 		{
 			LoggingService.LogDebug("New Transfer Peer ({0}): {1}", transfer.File.Name, peer.Node);
 		}
 
+		// FIXME: Nothing calls this!
 		private void transfer_Error(IFileTransfer transfer, Exception ex)
 		{
 			LoggingService.LogError(String.Format("Transfer error ({0})", transfer.File.Name), ex);

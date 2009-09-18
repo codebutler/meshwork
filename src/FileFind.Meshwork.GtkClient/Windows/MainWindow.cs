@@ -298,20 +298,16 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void sb_ErrorIndexing (object sender, Exception ex)
 		{
-			// XXX: Do something more useful here
-			LoggingService.LogInfo("Error while re-indexing shared files:", ex);
-			LoggingService.LogError(ex);
+			// FIXME: Do something here.
 		}
 
 		private void sb_StoppedIndexing (object sender, EventArgs args)
 		{
-			LoggingService.LogInfo("Aborted re-index of shared files...");
 			rebuildingShareEventBox.Visible = false;
 		}
 
 		private void sb_FinishedIndexing (object sender, EventArgs args)
 		{
-			LoggingService.LogInfo("Finished re-index of shared files...");
 			UpdateStatusText ();
 			NetworkOverviewPage.Instance.RefreshUserList ();
 			
@@ -323,7 +319,6 @@ namespace FileFind.Meshwork.GtkClient
 		private void sb_StartedIndexing (object sender, EventArgs args)
 		{
 			rebuildingShareEventBox.ShowAll();
-			LoggingService.LogInfo("Started re-index of shared files...");
 		}
 
 		private void sh_QueueFinished (object sender, EventArgs args)

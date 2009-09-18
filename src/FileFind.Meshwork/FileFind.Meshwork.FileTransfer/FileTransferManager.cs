@@ -123,12 +123,16 @@ namespace FileFind.Meshwork.FileTransfer
 	
 		private void RaiseNewTransfer(IFileTransfer transfer)
 		{
+			LoggingService.LogInfo("Transfer added: {0}", transfer.File.Name);
+			
 			if (NewFileTransfer != null)
 				NewFileTransfer(transfer);
 		}
 
 		private void RaiseTransferRemoved(IFileTransfer transfer)
 		{
+			LoggingService.LogInfo("Transfer removed: {0}", transfer.File.Name);
+
 			if (FileTransferRemoved != null)
 				FileTransferRemoved(transfer);
 		}

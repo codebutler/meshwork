@@ -321,6 +321,7 @@ namespace FileFind.Meshwork
 
 		internal void RaiseNewIncomingConnection (LocalNodeConnection connection)
 		{
+			LoggingService.LogInfo("New incoming connection from {0}.", connection.RemoteAddress);
 			if (NewIncomingConnection != null) {
 				NewIncomingConnection (this, connection);
 			}
@@ -1114,6 +1115,7 @@ namespace FileFind.Meshwork
 				
 				if (connection != null && (message.From == connection.RemoteNodeInfo.NodeID & message.To == this.LocalNode.NodeID & message.Type == MessageType.CriticalError)) {
 					MeshworkException ex = ((MeshworkException)(content));
+					LoggingService.LogError("RECIEVED CRITICAL ERROR", ex.Message);
 					if (ReceivedCriticalError != null) {
 						ReceivedCriticalError((INodeConnection)connection, ex);
 					}
@@ -1293,9 +1295,7 @@ namespace FileFind.Meshwork
 				// XXX: Refactor all this into a DeleteNode() method.
 				foreach (INodeConnection c in n.GetConnections ()) {
 					if (c != null && this.Connections.Contains(c)) {
-						if (ConnectionDown != null) {
-							ConnectionDown(c);
-						}
+						RaiseConnectionDown(c);
 						this.Connections.Remove(c);
 					}
 				}
@@ -1312,6 +1312,9 @@ namespace FileFind.Meshwork
 						memosToRemove.ForEach(delegate (Memo m) { RemoveMemo(m); });
 						memosToRemove = null;
 					}
+					
+					LoggingService.LogInfo("{0} has disconnected from the network.", n);
+			
 					if (UserOffline != null) {
 						UserOffline(this, n);
 					}
@@ -1364,6 +1367,7 @@ namespace FileFind.Meshwork
 							c.NodeRemote = DestNode;
 							c.ConnectionState = ConnectionState.Remote;
 							this.Connections.Add(c);
+							LoggingService.LogInfo("Added new connection between " + c.NodeLocal.NickName + " and " + c.NodeRemote.NickName);
 							if (ConnectionUp != null)
 								ConnectionUp(c);
 						} else {
@@ -1386,19 +1390,26 @@ namespace FileFind.Meshwork
 	
 		internal void RaiseUpdateNodeInfo (string oldNickname, Node node)
 		{
+			if (oldNickname != node.NickName)
+				LoggingService.LogInfo("{0} has changed their nickname to {1}.", oldNickname, node.NickName);
+				
 			if (UpdateNodeInfo != null) {
 				UpdateNodeInfo(this, oldNickname, node);
 			}
 		}
 
-		internal void RaiseReceivedNonCriticalError (Node from, MeshworkException exception)
+		internal void RaiseReceivedNonCriticalError (Node from, MeshworkException error)
 		{
+			LoggingService.LogWarning("RECEIVE NONCRITICALERROR: " + error.Message);
+			
 			if (ReceivedNonCriticalError != null)
-				ReceivedNonCriticalError(this, from, exception);
+				ReceivedNonCriticalError(this, from, error);
 		}
 
 		protected virtual void OnMemoDeleted (Memo memo)
 		{
+			LoggingService.LogInfo("Memo deleted: " + memo.Subject);
+
 			if (MemoDeleted != null) {
 				MemoDeleted (this, memo);
 			}
@@ -1416,11 +1427,13 @@ namespace FileFind.Meshwork
 				ReceivedFileDetails(this, file);
 		}
 
-	       internal void RaiseUserOnline (Node node)
-	       {
-		       if (UserOnline != null)
-			       UserOnline (this, node);
-	       }
+		internal void RaiseUserOnline (Node node)
+		{
+			LoggingService.LogInfo("User online: " + node.NickName);
+					
+			if (UserOnline != null)
+				UserOnline (this, node);
+		}
 	       
 		internal void RaiseLeftChat (Node node, ChatRoom room)
 		{
@@ -1429,6 +1442,8 @@ namespace FileFind.Meshwork
 			
 		protected virtual void OnLeftChat (ChatEventArgs args)
 		{
+			LoggingService.LogInfo("{0} has left {1}", args.Node.NickName, args.Room.Name);
+		    
 			if (LeftChat != null) {
 				LeftChat (this, args);
 			}
@@ -1441,6 +1456,8 @@ namespace FileFind.Meshwork
 		
 		protected virtual void OnMemoUpdated (Memo memo)
 		{
+			LoggingService.LogInfo("Memo updated: {0} by {1}.", memo.Subject, this.Nodes[memo.WrittenByNodeID]);
+			
 			if (MemoUpdated != null) {
 				MemoUpdated (this, memo);
 			}
@@ -1448,6 +1465,8 @@ namespace FileFind.Meshwork
 
 		protected virtual void OnMemoAdded (Memo memo)
 		{
+			LoggingService.LogInfo("Memo added: {0} by {1}", memo.Subject, this.Nodes[memo.WrittenByNodeID]);
+			
 			if (MemoAdded != null) {
 				MemoAdded (this, memo);
 			}
@@ -1460,6 +1479,8 @@ namespace FileFind.Meshwork
 
 		protected virtual void OnJoinedChat (ChatEventArgs args)
 		{
+			LoggingService.LogInfo("{0} has joined {1}", args.Node.NickName, args.Room.Name);
+
 			if (JoinedChat != null) {
 				JoinedChat (this, args);
 			}
@@ -1505,8 +1526,10 @@ namespace FileFind.Meshwork
 
 		internal void RaiseConnectionDown (INodeConnection connection)
 		{
+			LoggingService.LogInfo("Removed connection between {0} and {1}.", connection.NodeLocal.NickName, connection.NodeRemote.NickName);
+			
 			if (ConnectionDown != null)
-				ConnectionDown (connection);
+				ConnectionDown(connection);
 		}
 
 		internal bool RaiseReceivedKey (Node node, KeyInfo key)
