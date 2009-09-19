@@ -194,6 +194,7 @@
     <Compile Include="FileFind.Meshwork.Logging\FileLogger.cs" />
     <Compile Include="FileFind.Meshwork.Logging\ILogger.cs" />
     <Compile Include="FileFind.Meshwork.Logging\LogLevel.cs" />
+    <Compile Include="Errors.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

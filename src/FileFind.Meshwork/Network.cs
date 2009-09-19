@@ -25,6 +25,7 @@ using FileFind.Meshwork.FileTransfer;
 using FileFind.Meshwork.Transport;
 using FileFind.Meshwork.Search;
 using FileFind.Collections;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork 
 {
@@ -43,8 +44,8 @@ namespace FileFind.Meshwork
 	public delegate void ChatMessageEventHandler (ChatRoom room, Node messageFromNode, string messageText);
 	public delegate void ReceivedDirListingEventHandler (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directoryListing);
 	public delegate void ReceivedSearchResultEventHandler (Network network, SearchResultInfoEventArgs args);
-	public delegate void ReceivedNonCriticalErrorEventHandler (Network network, Node from, MeshworkException error);
-	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkException ex);
+	public delegate void ReceivedNonCriticalErrorEventHandler (Network network, Node from, MeshworkError error);
+	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkError error);
 	public delegate void DebugWriteEventHandler (DebugInfo debugInfo);
 	public delegate void AvatarEventHandler (Network network, Node node, byte[] avatarData);
 	public delegate void RemoteFileEventHandler (Network network, RemoteFile remoteFile);
@@ -518,9 +519,9 @@ namespace FileFind.Meshwork
 			this.SendRoutedMessage(this.MessageBuilder.CreatePongMessage(node, timestamp));
 		}
 
-		internal void SendCriticalError (Node node, MeshworkException exception)
+		internal void SendCriticalError (Node node, MeshworkError error)
 		{
-			this.SendRoutedMessage(this.MessageBuilder.CreateCriticalErrorMessage(node, exception));
+			this.SendRoutedMessage(this.MessageBuilder.CreateCriticalErrorMessage(node, error));
 		}
 		
 		// XXX : Move this
@@ -539,7 +540,7 @@ namespace FileFind.Meshwork
 			this.SendRoutedMessage(this.MessageBuilder.CreateSearchReplyMessage(node, reply));
 		}
 
-		internal void SendNonCriticalError (Node node, MeshworkException error)
+		internal void SendNonCriticalError (Node node, MeshworkError error)
 		{
 			this.SendRoutedMessage(this.MessageBuilder.CreateNonCriticalErrorMessage(node, error));
 
@@ -1092,7 +1093,7 @@ namespace FileFind.Meshwork
 
 				if (trustedNode == null) {
 					if (InsecureMessageTypes.IndexOf(message.Type) == -1) {
-						this.SendNonCriticalError (messageFrom, new NotTrustedException());
+						this.SendNonCriticalError (messageFrom, new NotTrustedError());
 						return;
 					}
 				}
@@ -1100,7 +1101,7 @@ namespace FileFind.Meshwork
 				// Make sure nobody is trying to screw with us
 				if (LocalOnlyMessageTypes.IndexOf (message.Type) > -1) {
 					if (messageFrom != connection.NodeRemote) {
-						this.SendCriticalError (messageFrom, new MeshworkException ("That message type is only valid for local connections."));
+						this.SendCriticalError (messageFrom, new MeshworkError ("That message type is only valid for local connections."));
 					}
 				}
 
@@ -1110,12 +1111,12 @@ namespace FileFind.Meshwork
 				}
 				
 				if (connection != null && (message.From == connection.RemoteNodeInfo.NodeID & message.To == this.LocalNode.NodeID & message.Type == MessageType.CriticalError)) {
-					MeshworkException ex = ((MeshworkException)(content));
-					LoggingService.LogError("RECIEVED CRITICAL ERROR", ex.Message);
+					MeshworkError error = ((MeshworkError)(content));
+					LoggingService.LogError("RECIEVED CRITICAL ERROR", error.Message);
 					if (ReceivedCriticalError != null) {
-						ReceivedCriticalError((INodeConnection)connection, ex);
+						ReceivedCriticalError((INodeConnection)connection, error);
 					}
-					connection.Disconnect (ex.ToException ());
+					connection.Disconnect (error.ToException ());
 					return;
 				}
 
@@ -1150,7 +1151,7 @@ namespace FileFind.Meshwork
 						break;
 					case MessageType.NonCriticalError:
 						processor.ProcessNonCriticalErrorMessage(messageFrom, 
-								(MeshworkException)content);
+								(MeshworkError)content);
 						break;
 					case MessageType.SearchRequest:
 						processor.ProcessSearchRequestMessage (messageFrom, (SearchRequestInfo)content);
@@ -1394,7 +1395,7 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		internal void RaiseReceivedNonCriticalError (Node from, MeshworkException error)
+		internal void RaiseReceivedNonCriticalError (Node from, MeshworkError error)
 		{
 			LoggingService.LogWarning("RECEIVE NONCRITICALERROR: " + error.Message);
 			

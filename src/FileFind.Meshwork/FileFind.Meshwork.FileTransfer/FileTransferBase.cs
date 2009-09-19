@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.Exceptions;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork.FileTransfer
 {
@@ -92,7 +93,7 @@ namespace FileFind.Meshwork.FileTransfer
 
 		public abstract void DetailsReceived();
 
-		public abstract void ErrorReceived (Node node, FileTransferException ex);
+		public abstract void ErrorReceived (Node node, FileTransferError error);
 
 		public abstract int UploadSpeedLimit {
 			get;

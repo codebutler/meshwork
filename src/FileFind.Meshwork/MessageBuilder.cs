@@ -18,6 +18,7 @@ using FileFind.Meshwork.Exceptions;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.Protocol;
 using FileFind.Meshwork.FileTransfer;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork
 {
@@ -29,10 +30,10 @@ namespace FileFind.Meshwork
 			network = n;
 		}
 
-		public Message CreateCriticalErrorMessage(Node MessageTo, MeshworkException ex) {
+		public Message CreateCriticalErrorMessage(Node MessageTo, MeshworkError error) {
 			Message m = new Message(network, MessageType.CriticalError);
 			m.To = MessageTo.NodeID;
-			m.Content = ex;
+			m.Content = error;
 			return m;
 		}
 
@@ -206,14 +207,14 @@ namespace FileFind.Meshwork
 			return p;
 		}
 
-		public Message CreateNonCriticalErrorMessage(Node To, MeshworkException ex) {
-			return CreateNonCriticalErrorMessage(To.NodeID, ex);
+		public Message CreateNonCriticalErrorMessage(Node To, MeshworkError error) {
+			return CreateNonCriticalErrorMessage(To.NodeID, error);
 		}
 
-		public Message CreateNonCriticalErrorMessage(string To, MeshworkException ex) {
+		public Message CreateNonCriticalErrorMessage(string To, MeshworkError error) {
 			Message p = new Message(network, MessageType.NonCriticalError);
 			p.To = To;
-			p.Content = ex;
+			p.Content = error;
 			return p;
 		}
 

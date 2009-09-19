@@ -25,6 +25,7 @@ using FileFind.Meshwork.Transport;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.Exceptions;
 using FileFind.Meshwork.Protocol;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork.GtkClient
 {
@@ -332,7 +333,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 			
-		private void network_ReceivedNonCriticalError(Network network, Node from, MeshworkException error)
+		private void network_ReceivedNonCriticalError(Network network, Node from, MeshworkError error)
 		{
 			try {
 				UpdateConnectionList();
@@ -342,7 +343,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		private void network_ReceivedCriticalError(INodeConnection ErrorFrom, MeshworkException error)
+		private void network_ReceivedCriticalError(INodeConnection ErrorFrom, MeshworkError error)
 		{
 			try {
 				UpdateConnectionList();

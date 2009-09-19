@@ -18,6 +18,7 @@ using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.GtkClient;
 using FileFind.Meshwork.Protocol;
 using FileFind.Meshwork.Exceptions;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork.GtkClient
 {
@@ -210,11 +211,11 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		private void network_ReceivedNonCriticalError (Network network, Node from, MeshworkException error)
+		private void network_ReceivedNonCriticalError (Network network, Node from, MeshworkError error)
 		{
-			if (error is DirectoryNotFoundException)
+			if (error is DirectoryNotFoundError)
 			{
-				string errorPath = ((DirectoryNotFoundException)error).DirPath;
+				string errorPath = ((DirectoryNotFoundError)error).DirPath;
 				errorPath = errorPath.Substring(1);
 
 				// FIXME: errorPath doesn't have network part, navigatingTo does!!

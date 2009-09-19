@@ -11,6 +11,7 @@ using System;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.Exceptions;
 using FileFind.Meshwork.Transport;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork.FileTransfer
 {
@@ -142,7 +143,7 @@ namespace FileFind.Meshwork.FileTransfer
 	internal interface IFileTransferInternal
 	{
 		void DetailsReceived ();
-		void ErrorReceived (Node node, FileTransferException ex);
+		void ErrorReceived (Node node, FileTransferError error);
 	}
 
 	public class FileTransferOperation : IMeshworkOperation

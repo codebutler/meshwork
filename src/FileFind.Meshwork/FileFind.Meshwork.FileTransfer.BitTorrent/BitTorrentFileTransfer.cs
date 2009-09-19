@@ -20,6 +20,7 @@ using MonoTorrent.BEncoding;
 using FileFind.Meshwork.Transport;
 using FileFind.Meshwork.Destination;
 using FileFind.Meshwork.Exceptions;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork.FileTransfer.BitTorrent
 {
@@ -161,10 +162,10 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			}
 		}
 
-		public override void ErrorReceived (Node node, FileTransferException ex)
+		public override void ErrorReceived (Node node, FileTransferError error)
 		{
-			LoggingService.LogError("Received File Transfer Error: {0}", ex.Message);
-			base.statusDetail = ex.Message;
+			LoggingService.LogError("Received File Transfer Error: {0}", error.Message);
+			base.statusDetail = error.Message;
 			Cancel();
 		}
 

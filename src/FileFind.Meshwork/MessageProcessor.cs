@@ -18,6 +18,7 @@ using FileFind.Meshwork.Exceptions;
 using FileFind.Meshwork.Protocol;
 using FileFind.Meshwork.FileTransfer;
 using System.Security.Cryptography;
+using FileFind.Meshwork.Errors;
 
 namespace FileFind.Meshwork
 {
@@ -77,15 +78,15 @@ namespace FileFind.Meshwork
 
 			// XXX: Isn't this checked elsewhere?
 			if (c.NetworkName != network.NetworkName) {
-				InvalidNetworkNameException ex = new InvalidNetworkNameException(c.NetworkName, network.NetworkName);
-				network.SendCriticalError (messageFrom, ex);
-				throw ex.ToException();
+				InvalidNetworkNameError error = new InvalidNetworkNameError(c.NetworkName, network.NetworkName);
+				network.SendCriticalError (messageFrom, error);
+				throw error.ToException();
 			}
 
 			if (c.ProtocolVersion != Core.ProtocolVersion) {
-				VersionMismatchException e = new VersionMismatchException (c.ProtocolVersion.ToString());
+				VersionMismatchError e = new VersionMismatchError (c.ProtocolVersion.ToString());
 				network.SendCriticalError (messageFrom, e);
-				throw new VersionMismatchException().ToException();
+				throw new VersionMismatchError().ToException();
 			}
 
 			// Update node details:
@@ -195,22 +196,22 @@ namespace FileFind.Meshwork
 			network.AppendNetworkState(new NetworkState(nodeInfo));
 		}
 
-		internal void ProcessNonCriticalErrorMessage (Node messageFrom, MeshworkException ex)
+		internal void ProcessNonCriticalErrorMessage (Node messageFrom, MeshworkError error)
 		{
-			if (ex is NotTrustedException) {
+			if (error is NotTrustedError) {
 				messageFrom.ClearSessionKey();
 				messageFrom.RemotelyUntrusted = true;
-			} else if (ex is FileTransferException) {
-				string id = ((FileTransferException)ex).TransferId;
+			} else if (error is FileTransferError) {
+				string id = ((FileTransferError)error).TransferId;
 				foreach (IFileTransfer transfer in Core.FileTransferManager.Transfers) {
 					if (transfer.Id == id) {
-						((IFileTransferInternal)transfer).ErrorReceived(messageFrom, (FileTransferException)ex);
+						((IFileTransferInternal)transfer).ErrorReceived(messageFrom, (FileTransferError)error);
 						break;
 					}
 				}
 
 			} else {
-				network.RaiseReceivedNonCriticalError (messageFrom, ex);
+				network.RaiseReceivedNonCriticalError (messageFrom, error);
 			}
 		}
 
@@ -249,7 +250,7 @@ namespace FileFind.Meshwork
 				Core.FileTransferManager.StartTransfer(network, messageFrom, file);
 			} else {
 				LoggingService.LogWarning("Invalid file request from: {0}", messageFrom);
-				network.SendNonCriticalError(messageFrom, new FileNotFoundException(info.FullPath, info.TransferId));
+				network.SendNonCriticalError(messageFrom, new FileNotFoundError(info.FullPath, info.TransferId));
 			}
 		}
 		
@@ -288,10 +289,10 @@ namespace FileFind.Meshwork
 				if (network.ChatRooms[invitation.RoomName].Users.ContainsKey(messageFrom.NodeID)) {
 					network.RaiseReceivedChatInvite (messageFrom, invitation);
 				} else {
-					network.SendNonCriticalError (messageFrom, new MeshworkException("you tried to invite me to a chatroom that you arent in! shame on you!"));
+					network.SendNonCriticalError (messageFrom, new MeshworkError("you tried to invite me to a chatroom that you arent in! shame on you!"));
 				}
 			} else {
-				network.SendNonCriticalError (messageFrom, new MeshworkException("you tried to invite me to a chatroom that doesnt exit! shame on you!"));
+				network.SendNonCriticalError (messageFrom, new MeshworkError("you tried to invite me to a chatroom that doesnt exit! shame on you!"));
 			}
 		}
 
@@ -352,7 +353,7 @@ namespace FileFind.Meshwork
 			if (file != null)
 				network.SendFileDetails(messageFrom, file);
 			else
-				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new FileNotFoundException()));
+				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new FileNotFoundError()));
 		}
 		
 		internal void ProcessFileDetailsMessage (Node messageFrom, SharedFileDetails info)
@@ -499,13 +500,13 @@ namespace FileFind.Meshwork
 					if (Core.FileSystem.GetDirectory(directoryPath) != null) {
 						network.SendRoutedMessage(network.MessageBuilder.CreateRespondDirListingMessage(messageFrom, directoryPath));
 					} else {
-						network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundException(requestedPath)));
+						network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundError(requestedPath)));
 					}
 				} else {
-					network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new MeshworkException("You are not authorized to browse my files.")));
+					network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new MeshworkError("You are not authorized to browse my files.")));
 				}
 			} catch (Exception ex) {
-				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundException(requestedPath)));
+				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundError(requestedPath)));
 				throw ex;
 			}
 		}
