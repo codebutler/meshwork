@@ -41,6 +41,7 @@ namespace FileFind.Meshwork.GtkClient
 		static BuiltinActionGroup builtin_actions;
 		static UIManager ui_manager;
 		static GtkMeshworkOptions options;
+		static TrayIcon trayIcon;
 
 		private static Settings tmpSettings;
 
@@ -126,7 +127,7 @@ namespace FileFind.Meshwork.GtkClient
 			ui_manager.AddUiFromResource ("FileFind.Meshwork.GtkClient.SearchPopupMenu.xml");
 
 			/* Create the Tray Icon */
-			new TrayIcon();
+			trayIcon = new TrayIcon();
 
 			/* Add default error handler */
 			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {
