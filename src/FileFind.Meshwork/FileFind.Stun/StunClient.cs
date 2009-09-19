@@ -21,7 +21,7 @@ namespace FileFind.Stun
 		
 		public static IPAddress GetExternalAddress ()
 		{
-			IPHostEntry entry = Dns.GetHostByName (stunServer);
+			IPHostEntry entry = Dns.GetHostEntry (stunServer);
 			IPEndPoint endPoint = new IPEndPoint (entry.AddressList [0], 3478);
 			UdpClient client = new UdpClient ();
 			client.Connect (endPoint);

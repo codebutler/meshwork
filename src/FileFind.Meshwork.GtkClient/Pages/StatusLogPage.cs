@@ -98,7 +98,7 @@ namespace FileFind.Meshwork.GtkClient
 			TextIter endIter = m_TextView.Buffer.EndIter;
 			m_TextView.Buffer.InsertWithTagsByName(ref endIter, message, new string[] { level.ToString() });
 			var endMark = m_TextView.Buffer.GetMark("end");
-			if (endMark != null);
+			if (endMark != null)
 				m_TextView.ScrollToMark(endMark, 0, true, 0, 1);
 		}
 	}

@@ -28,7 +28,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		string currentPath;
 		IDirectory currentDirectory;
-		TreePath selectedFolderListPath = null;
+		//TreePath selectedFolderListPath = null;
 		
 		bool navigating = false;
 		string navigatingTo = "";
@@ -502,8 +502,9 @@ namespace FileFind.Meshwork.GtkClient
 			return waitingBoxAlignment.Visible;
 		}
 
+		/*
 		private void RebuildFolderTree() {
-	/*		folderTreeStore.Clear();
+			folderTreeStore.Clear();
 		
 			TreeIter iter = folderTreeStore.AppendValues(new object[] {networkIcon, "Network Root", network.FileSystem.RootDirectory.FullPath() });
 			
@@ -519,10 +520,9 @@ namespace FileFind.Meshwork.GtkClient
 				folderTree.Selection.SelectPath(selectedFolderListPath);
 				folderTree.ScrollToCell(selectedFolderListPath, null, false,0,0);
 			}
-			*/
 		}	
 
-	/*	private void AddDirectoryToTree(TreeIter parent, IDirectory directory) {
+		private void AddDirectoryToTree(TreeIter parent, IDirectory directory) {
 			TreeIter iter;
 			if (directory.Parent == network.FileSystem.RootDirectory) {
 				iter = folderTreeStore.AppendValues(parent, new object[] {personIcon, network.Nodes[directory.Name].ToString(),directory.FullPath()});
@@ -536,14 +536,16 @@ namespace FileFind.Meshwork.GtkClient
 			
 			if (directory == currentDirectory)
 				selectedFolderListPath = folderTreeStore.GetPath(iter);		
-		}*/
+		}
 		
-		/*public void on_folderTree_row_activated (object o, RowActivatedArgs e) {
+		public void on_folderTree_row_activated (object o, RowActivatedArgs e) {
 			TreeIter iter;
 			folderTreeStore.GetIter(out iter, e.Path);
 			
 			NavigateTo(Helper.GetTreeRow(iter, folderTreeStore).Cells[2].ToString());
-		}*/
+		}
+	
+	*/
 
 		private void on_navigationBar_PathButtonClicked (string path)
 		{

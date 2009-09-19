@@ -34,6 +34,7 @@ namespace FileFind.Meshwork.Transport
 			port = (socket.RemoteEndPoint as IPEndPoint).Port;
 			base.incoming = true;
 			base.transportState = TransportState.Connected;
+			base.RaiseConnected();
 		}
 
 		public TcpTransport (IPAddress address, int port, ulong connectionType)
@@ -180,7 +181,7 @@ namespace FileFind.Meshwork.Transport
 			try {
 				socket.EndConnect (result);
 				base.transportState = TransportState.Connected;
-
+				base.RaiseConnected();
 				connectCallback (this);
 			} catch (Exception ex) {
 				Disconnect (ex);

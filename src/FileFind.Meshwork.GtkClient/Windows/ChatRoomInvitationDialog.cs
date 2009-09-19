@@ -17,8 +17,6 @@ namespace FileFind.Meshwork.GtkClient
 {
 	public class ChatRoomInvitationDialog : GladeWindow
 	{
-		Network network;
-		Node    inviteFrom;
 		ChatRoom room;
 		[Widget] Expander passwordExpander;
 		[Widget] Label descLabel;
@@ -27,8 +25,6 @@ namespace FileFind.Meshwork.GtkClient
 
 		public ChatRoomInvitationDialog (Network network, Node inviteFrom, ChatRoom room, ChatInviteInfo invitation) : base ("ChatRoomInvitationDialog")
 		{
-			this.network = network;
-			this.inviteFrom = inviteFrom;
 			this.room = room;
 			this.invitation = invitation;
 

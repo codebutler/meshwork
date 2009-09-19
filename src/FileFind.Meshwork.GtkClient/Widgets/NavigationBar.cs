@@ -213,7 +213,6 @@ namespace FileFind.Meshwork.GtkClient
 
 		private class NavigationBarEntry
 		{
-			Label label;
 			string path = String.Empty;
 			ToggleButton button = null;
 		

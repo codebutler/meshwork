@@ -88,8 +88,6 @@ namespace FileFind.Meshwork
 		internal MessageBuilder MessageBuilder;
 
 		// Public Events
-		public event NetworkEventHandler StartedIndexing;
-		public event NetworkEventHandler FinishedIndexing;
 		public event JoinPartChatEventHandler JoinedChat;
 		public event JoinPartChatEventHandler LeftChat;
 		public event NetworkLocalNodeConnectionEventHandler ConnectingTo;
@@ -875,8 +873,9 @@ namespace FileFind.Meshwork
 			if (listing == null)
 				throw new ArgumentNullException("listing");
 			
+			// FIXME: When attempting to download a search result, the file won't likely exist.
 			string filePath = PathUtil.Join(node.Directory.FullPath, listing.FullPath);
-			RemoteFile file = directory.GetFile(listing.Name) as RemoteFile;			
+			RemoteFile file = Core.FileSystem.GetFile(filePath) as RemoteFile;			
 			if (file != null)
 				return DownloadFile(node, file);
 			else

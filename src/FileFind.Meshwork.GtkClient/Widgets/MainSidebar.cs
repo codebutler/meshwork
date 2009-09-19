@@ -215,18 +215,6 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		private TreeIter AppendItem (TreeStore store, ISidebarItem item)
-		{
-			TreeIter iter = store.AppendValues(item);
-			if (ItemAdded != null) {
-				ItemAdded(this, item);
-			}
-			if (item.PageWidget != null) {
-				((IPage)item.PageWidget).UrgencyHintChanged += page_UrgencyHintChanged;
-			}
-			return iter;
-		}
-
 		private TreeIter AppendItem (ListStore store, ISidebarItem item)
 		{
 			TreeIter iter = store.AppendValues(item);

@@ -35,6 +35,7 @@ namespace FileFind.Meshwork.Transport
 		public abstract void Disconnect ();
 		public abstract void Disconnect (Exception ex);
 		
+		public event TransportEventHandler Connected;
 		public event TransportErrorEventHandler Disconnected;
 		
 		public IMeshworkOperation Operation  {
@@ -82,6 +83,12 @@ namespace FileFind.Meshwork.Transport
 			set {
 				encryptor = value;
 			}
+		}
+		
+		protected void RaiseConnected ()
+		{
+			if (Connected != null)
+				Connected(this);
 		}
 
 		protected void RaiseDisconnected (Exception ex)

@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <RootNamespace>FileFind.Meshwork.GtkClient</RootNamespace>
     <DebugType>full</DebugType>
+    <NoWarn>0169</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputType>Exe</OutputType>

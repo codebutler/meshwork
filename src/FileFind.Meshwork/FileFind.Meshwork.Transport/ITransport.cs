@@ -42,6 +42,7 @@ namespace FileFind.Meshwork.Transport
 		void Disconnect ();
 		void Disconnect (Exception ex);
 
+		event TransportEventHandler Connected;
 		event TransportErrorEventHandler Disconnected;
 
 		ITransportEncryptor Encryptor {

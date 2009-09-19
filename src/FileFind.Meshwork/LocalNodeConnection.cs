@@ -117,6 +117,7 @@ namespace FileFind.Meshwork
 			}
 			
 			this.transport = transport;
+			transport.Connected += OnTransportConnected;
 			transport.Disconnected += OnTransportDisconnected;
 			Construct ();
 		}
@@ -199,6 +200,12 @@ namespace FileFind.Meshwork
 			transport.BeginReceiveMessage(receiveDataCallback, null);
 		}
 	
+		private void OnTransportConnected (ITransport transport)
+		{
+			if (ConnectionConnected != null)
+				ConnectionConnected(this);
+		}
+		
 		private void OnTransportDisconnected (ITransport transport, Exception ex)
 		{
 			Disconnect (ex);

@@ -17,7 +17,6 @@ namespace FileFind.Meshwork.GtkClient
 	public class TrayIcon
 	{
 		Menu          trayMenu;
-		EventHandler  handler;
 		StatusIcon    statusIcon = null;
 
 		public TrayIcon ()
