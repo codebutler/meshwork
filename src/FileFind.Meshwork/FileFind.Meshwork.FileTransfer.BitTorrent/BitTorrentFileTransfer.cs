@@ -546,9 +546,15 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 					if (!(File is LocalFile)) {
 						LoggingService.LogDebug("Torrent is ready! connecting to peers!");
 						lock (this.peers) {
+							bool didConnect = false;
 							foreach (IFileTransferPeer p in this.peers) {
 								BitTorrentFileTransferPeer peer = (BitTorrentFileTransferPeer)p;
-								ConnectToPeer(peer);
+								if (ConnectToPeer(peer))
+									didConnect = true;
+							}
+							if (!didConnect) {
+								base.statusDetail = "Unable to connect to any peers";
+								this.Cancel();
 							}
 						}
 					} else {
@@ -580,13 +586,18 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			}
 		}
 
-		private void ConnectToPeer (BitTorrentFileTransferPeer peer)
+		private bool ConnectToPeer (BitTorrentFileTransferPeer peer)
 		{
 			IDestination destination = peer.Node.FirstConnectableDestination;
 			if (destination != null) {
 				ITransport transport = destination.CreateTransport(ConnectionType.TransferConnection);
 				LoggingService.LogDebug("New outgoing connection");
 				peer.Network.ConnectTo(transport, OutgoingPeerTransportConnected);
+				return true;
+			} else {
+				// FIXME: Mark peer as bad!
+				LoggingService.LogError("Transfer can't connect to peer {0} - no destinations available!", peer.Node);
+				return false;
 			}
 		}
 		
