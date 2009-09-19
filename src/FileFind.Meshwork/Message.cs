@@ -298,11 +298,11 @@ namespace FileFind.Meshwork
 			index += 1;
 		}
 		
+		/*
 		// XXX: Move all this somewhere else!
 		public static Dictionary<MessageType, Type> MessageTypeToType;
 		static Message ()
 		{
-			/*
 			Message.MessageTypeToType = new Dictionary<MessageType,Type>();
 			Message.MessageTypeToType[MessageType.Auth] 		= typeof(AuthInfo);
 			Message.MessageTypeToType[MessageType.AuthReply] 	= typeof(AuthInfo);
@@ -333,9 +333,9 @@ namespace FileFind.Meshwork
 			Message.MessageTypeToType[MessageType.Hello] 		= typeof(HelloInfo);
 			Message.MessageTypeToType[MessageType.NewSessionKey] 	= typeof(byte[]);
 //			Message.MessageTypeToType[MessageType.OfferFile] 	= typeof();
-			*/
 		}
-
+		*/
+		
 		public static bool TypeIsEncrypted (MessageType type)
 		{
 			if (Network.InsecureMessageTypes.Contains(type) || Network.LocalOnlyMessageTypes.Contains(type) || Network.UnencryptedMessageTypes.Contains(type)) {

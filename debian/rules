@@ -15,3 +15,18 @@ binary-predeb/meshwork::
 
 clean::
 	rm -rf $(MONO_SHARED_DIR)/.wapi
+
+ 
+VERSION=$(shell ./version.sh)
+REV=$(shell git rev-list HEAD^!)
+DATE=$(shell date --rfc-2822)
+DIST=$(shell lsb_release -c -s)
+ 
+update-version:
+	echo "\
+meshwork (${VERSION}-1~${DIST}0) ${DIST}; urgency=low\n\
+\n\
+  * Automatic package for revision ${REV}. \n\
+\n\
+ -- Eric Butler <eric@extremeboredom.net>  ${DATE}" > debian/changelog
+	echo "\n\n*** PACKAGE WILL BE BUILT FOR ${DIST} ***\n\n"

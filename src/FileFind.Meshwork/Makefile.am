@@ -93,6 +93,7 @@ FILES = \
 	ConnectionType.cs                                                      \
 	DebugInfo.cs                                                           \
 	Exceptions.cs                                                          \
+	Errors.cs                                                              \
 	EndianBitConverter.cs						       \
 	PublicKey.cs                                                           \
 	Node.cs                                                                \
