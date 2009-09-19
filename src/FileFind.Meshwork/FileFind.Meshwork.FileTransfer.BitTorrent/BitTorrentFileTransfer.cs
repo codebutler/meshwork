@@ -7,7 +7,8 @@
 // (C) 2007 FileFind.net (http://filefind.net)
 //
 
-#define RIDICULOUS_DEBUG_OUTPUT
+
+//#define RIDICULOUS_DEBUG_OUTPUT
 
 using System;
 using IO=System.IO;
@@ -49,9 +50,9 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			get {
 				#if RIDICULOUS_DEBUG_OUTPUT
 				if (manager != null)
-					LoggingService.LogDebug("Internal Status: " + isCanceled + " " + startCalled + " " + manager.State + " " + manager.Progress);
+					LoggingService.LogDebug("Transfer Internal Status -- Canceled: " + isCanceled + " StartCalled: " + startCalled + " State: " + manager.State + " Progress: " + manager.Progress);
 				else
-					LoggingService.LogDebug("Internal Status: " + isCanceled + " " + startCalled);
+					LoggingService.LogDebug("Transfer Internal Status -- Canceled: " + isCanceled + " StartCalled: " + startCalled);
 				#endif
 
 				if (!startCalled) {
@@ -162,6 +163,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 
 		public override void ErrorReceived (Node node, FileTransferException ex)
 		{
+			LoggingService.LogError("Received File Transfer Error: {0}", ex.Message);
 			base.statusDetail = ex.Message;
 			Cancel();
 		}
@@ -293,6 +295,8 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				}
 				*/
 			}
+			
+			LoggingService.LogDebug("Transfer Cancel() {0}", Environment.StackTrace);
 
 			isCanceled = true;
 		}

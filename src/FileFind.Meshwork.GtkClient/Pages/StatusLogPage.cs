@@ -56,8 +56,8 @@ namespace FileFind.Meshwork.GtkClient
 			tag.Foreground = "darkred";
 			m_TextView.Buffer.TagTable.Add(tag);
 			
-			tag = new TextTag("warn");
-			tag.Foreground = "orange";
+			tag = new TextTag("Warn");
+			tag.Foreground = "darkorange";
 			m_TextView.Buffer.TagTable.Add(tag);
 			
 			tag = new TextTag("Info");

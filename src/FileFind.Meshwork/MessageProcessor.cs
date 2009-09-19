@@ -357,22 +357,29 @@ namespace FileFind.Meshwork
 		
 		internal void ProcessFileDetailsMessage (Node messageFrom, SharedFileDetails info)
 		{
-			string filePath = PathUtil.Join(messageFrom.Directory.FullPath, PathUtil.Join(info.DirPath, info.Name));
-			
+			string filePath = PathUtil.Join(messageFrom.Directory.FullPath, PathUtil.Join(info.DirPath, info.Name));			
 			RemoteFile file = (RemoteFile)Core.FileSystem.GetFile(filePath);
-			if (file != null)
-				file.UpdateWithInfo(info);
-			
-			// FIXME: Update cache!
-
-			// If we have a file transfer that was waiting for
-			// piece data, start it up!
-			IFileTransfer transfer = Core.FileTransferManager.GetTransfer(file);
-			if (transfer != null && transfer.Status == FileTransferStatus.WaitingForInfo) {
-				((IFileTransferInternal)transfer).DetailsReceived();
+			if (file != null) {
+				
+				// FIXME: Update cache!
+				
+				// If there is a file transfer that was waiting for
+				// piece data, start it up!
+				// FIXME: Can't call UpdateWithInfo before checking transfer status, otherwise
+				// it will be Connecting instead of WaitingForInfo! Same file reference!
+				// Need to improve logic in BitTorrentFileTransfer.Status method.
+				IFileTransfer transfer = Core.FileTransferManager.GetTransfer(file);
+				if (transfer != null && transfer.Status == FileTransferStatus.WaitingForInfo) {
+					file.UpdateWithInfo(info);
+					((IFileTransferInternal)transfer).DetailsReceived();					
+				} else {
+					file.UpdateWithInfo(info);
+				}
+							
+				network.RaiseReceivedFileDetails(file);
+			} else {
+				LoggingService.LogError("Received file details for unknown file: " + filePath);
 			}
-			
-			network.RaiseReceivedFileDetails(file);
 		}
 
 		internal void ProcessConnectionDownMessage (Node messageFrom, ConnectionInfo info)

@@ -7,7 +7,7 @@
 // (C) 2007-2008 FileFind.net (http://filefind.net)
 //
 
-#define RIDICULOUS_DEBUG_OUTPUT
+//#define RIDICULOUS_DEBUG_OUTPUT
 
 using System;
 using MonoTorrent.Common;

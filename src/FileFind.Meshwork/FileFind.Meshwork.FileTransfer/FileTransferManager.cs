@@ -106,7 +106,7 @@ namespace FileFind.Meshwork.FileTransfer
 
 		internal IFileTransfer GetTransfer(IFile file)
 		{
-			return transfers.Find (delegate (IFileTransfer t) { return t.File.Equals(file); });
+			return GetTransfer(file.FullPath);
 		}
 
 		internal void NewIncomingConnection(ITransport transport)
