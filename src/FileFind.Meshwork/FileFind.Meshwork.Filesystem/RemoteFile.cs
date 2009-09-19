@@ -60,7 +60,7 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public override void Reload ()
 		{
-			throw new System.NotImplementedException();
+			// FIXME: Reload from disk cache!
 		}
 		
 		public Network Network {

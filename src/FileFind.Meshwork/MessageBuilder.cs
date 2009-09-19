@@ -376,10 +376,11 @@ namespace FileFind.Meshwork
 
 		public Message CreateRequestFileMessage(Node node, IFileTransfer transfer)
 		{
-			Message p = new Message(network, MessageType.RequestFile);
-			p.To = node.NodeID;
-			p.Content = new RequestFileInfo(transfer.File.FullPath, transfer.Id);
-			return p;
+			string filePath = "/" + String.Join("/", transfer.File.FullPath.Split('/').Slice(3));
+ 			Message p = new Message(network, MessageType.RequestFile);
+ 			p.To = node.NodeID;
+			p.Content = new RequestFileInfo(filePath, transfer.Id);
+ 			return p;
 		}
 
 		public Message CreateChatInviteMessage (Node messageTo, string name, string message, string password)

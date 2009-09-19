@@ -242,10 +242,7 @@ namespace FileFind.Meshwork
 
 		internal void ProcessRequestFileMessage (Node messageFrom, RequestFileInfo info)
 		{
-			string filePath = info.FullPath;
-			// Remove network part from path.
-			// FIXME: This is nasty
-			filePath = filePath.Substring(filePath.Split('/')[1].Length + 1);
+			string filePath = PathUtil.Join("/local", info.FullPath);
 
 			LocalFile file = (LocalFile)Core.FileSystem.GetFile(filePath);
 			if (file != null) {

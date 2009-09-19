@@ -869,29 +869,25 @@ namespace FileFind.Meshwork
 		
 		public IFileTransfer DownloadFile (Node node, SharedFileListing listing)
 		{
-			/*
-			string    dir       = PathUtil.Join("/", PathUtil.Join(this.NetworkID, PathUtil.GetDirectoryName(listing.FullPath)));
-			Directory directory = Directory.CreateDirectory(Core.FileSystem, dir, node);
-			File      file      = null;
-
-			if ((file = directory.GetFile(listing.Name)) == null) {
-				file = directory.CreateFile(listing, node);
-			}
-
-			return DownloadFile(node, file);
-			*/
-			// FIXME:
-			throw new NotImplementedException();
+			if (node == null)
+				throw new ArgumentNullException("node");
+			if (listing == null)
+				throw new ArgumentNullException("listing");
+			
+			string filePath = PathUtil.Join(node.Directory.FullPath, listing.FullPath);
+			RemoteFile file = directory.GetFile(listing.Name) as RemoteFile;			
+			if (file != null)
+				return DownloadFile(node, file);
+			else
+				throw new Exception("File not found");
 		}
 
 		public IFileTransfer DownloadFile (Node node, RemoteFile file)
 		{
-			if (node == null) {
+			if (node == null)
 				throw new ArgumentNullException("node");
-			}
-			if (file == null) {
+			if (file == null)
 				throw new ArgumentNullException("file");
-			}
 
 			IFileTransfer transfer = Core.FileTransferManager.StartTransfer(this, node, file);
 
