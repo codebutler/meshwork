@@ -498,8 +498,28 @@ namespace FileFind.Meshwork
 					Core.DestinationManager.SyncFromSettings();
 				}
 
+				// Update listeners
+				foreach (ITransportListener listener in transportListeners) {
+					if (listener is TcpTransportListener) {
+						((TcpTransportListener)listener).Port = settings.TcpListenPort;
+					}
+				}
+				
 				if (!started)
 					return;
+	
+				// Update file transfer options
+				if (settings.EnableGlobalDownloadSpeedLimit) {
+					FileTransferManager.Provider.GlobalDownloadSpeedLimit = settings.GlobalDownloadSpeedLimit * 1024;
+				} else {
+					FileTransferManager.Provider.GlobalDownloadSpeedLimit = 0;
+				}
+
+				if (settings.EnableGlobalUploadSpeedLimit) {
+					FileTransferManager.Provider.GlobalUploadSpeedLimit = settings.GlobalUploadSpeedLimit * 1024;
+				} else {
+					FileTransferManager.Provider.GlobalUploadSpeedLimit = 0;
+				}
 				
 				// Update/remove networks.
 				foreach (Network network in Networks) {
@@ -532,26 +552,6 @@ namespace FileFind.Meshwork
 				foreach (NetworkInfo networkInfo in settings.Networks) {
 					if (GetNetwork(networkInfo.NetworkID) == null) {
 						AddNetwork(networkInfo);
-					}
-				}
-			
-				// Update file transfer options
-				if (settings.EnableGlobalDownloadSpeedLimit) {
-					FileTransferManager.Provider.GlobalDownloadSpeedLimit = settings.GlobalDownloadSpeedLimit * 1024;
-				} else {
-					FileTransferManager.Provider.GlobalDownloadSpeedLimit = 0;
-				}
-
-				if (settings.EnableGlobalUploadSpeedLimit) {
-					FileTransferManager.Provider.GlobalUploadSpeedLimit = settings.GlobalUploadSpeedLimit * 1024;
-				} else {
-					FileTransferManager.Provider.GlobalUploadSpeedLimit = 0;
-				}
-
-				// Update listeners
-				foreach (ITransportListener listener in transportListeners) {
-					if (listener is TcpTransportListener) {
-						((TcpTransportListener)listener).Port = settings.TcpListenPort;
 					}
 				}
 
