@@ -321,7 +321,7 @@ namespace FileFind.Meshwork.GtkClient
 			try {
 				AcceptKeyDialog dialog = new AcceptKeyDialog(network, args.Node, 
 				                                             args.Key);
-				int response = dialog.Show();
+				int response = dialog.Run();
 				
 				acceptKey = (response == (int)ResponseType.Ok);
 				

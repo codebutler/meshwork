@@ -60,7 +60,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public void on_mnuViewMemo_activate(object o, EventArgs e)
 		{
-			winViewMemo w = new winViewMemo(selectedMemo);
+			MemoWindow w = new MemoWindow(selectedMemo);
 			w.Show();
 		}
 		

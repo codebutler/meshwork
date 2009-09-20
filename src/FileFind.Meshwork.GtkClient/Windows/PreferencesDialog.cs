@@ -569,7 +569,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			if (badOptions.Count > 0) {
 				BadOptionsDialog badOptionsWindow = new BadOptionsDialog(dialog, badOptions);
-				badOptionsWindow.Show();
+				badOptionsWindow.Run();
 				return;
 			}
 			

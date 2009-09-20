@@ -1,5 +1,5 @@
 //
-// winAcceptKey.cs:
+// AcceptKeyDialog.cs:
 //
 // Authors:
 //   Eric Butler <eric@extremeboredom.net>
@@ -23,10 +23,8 @@ using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork.GtkClient
 {
-	public class AcceptKeyDialog
-	{
-		private Gtk.Dialog dialog;
-		
+	public class AcceptKeyDialog : GladeDialog
+	{		
 		[Widget] Label nicknameLabel;
 		[Widget] Label nodeIdLabel;
 		[Widget] TextView keyTextView;
@@ -41,12 +39,8 @@ namespace FileFind.Meshwork.GtkClient
 		
 		RSACryptoServiceProvider provider;
 		
-		public AcceptKeyDialog (Network network, Node node, KeyInfo key)
+		public AcceptKeyDialog (Network network, Node node, KeyInfo key) : base (null, "AcceptKeyDialog")
 		{
-			Glade.XML winXml = new Glade.XML (null, "FileFind.Meshwork.GtkClient.meshwork.glade", "AcceptKeyDialog", null);
-			winXml.Autoconnect (this);
-			dialog = (Gtk.Dialog) winXml.GetWidget ("AcceptKeyDialog");
-
 			this.network = network;
 			this.node = node;
 			this.key = key;
@@ -70,23 +64,14 @@ namespace FileFind.Meshwork.GtkClient
 
 		}
 		
-		public int Show ()
+		public override int Run ()
 		{
-			dialog.ShowAll ();
-			dialog.Resize (1,1);
+			base.Dialog.Resize(1,1);			
 			eventbox10.ModifyBg (Gtk.StateType.Normal, keyTextView.Style.Base (Gtk.StateType.Normal));
 
 			GLib.Timeout.Add (1000, new GLib.TimeoutHandler (IncreaseDenyCountdown));
 
-			int result = 0;
-			while (true) {
-				result = dialog.Run();
-				if (result != (int)ResponseType.None)
-					break;
-			}
-			dialog.Hide ();
-
-			return result;
+			return base.Run();
 		}
 		
 		private bool IncreaseDenyCountdown ()
@@ -95,7 +80,7 @@ namespace FileFind.Meshwork.GtkClient
 			secondsLeft --;
 
 			if (secondsLeft == 0) {
-				dialog.Respond ((int)Gtk.ResponseType.Cancel);
+				base.Dialog.Respond ((int)Gtk.ResponseType.Cancel);
 				return false;
 			} else {
 				return true;
@@ -104,19 +89,17 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void on_btnOK_clicked (object o, EventArgs e)
 		{
-			if (Gui.ShowMessageDialog ("Are you absolutley sure you want to add this node to your trusted nodes list using this key?", dialog, Gtk.MessageType.Question, ButtonsType.YesNo) == (int)ResponseType.Yes) {
-				dialog.Respond ((int)Gtk.ResponseType.Ok);			
+			if (Gui.ShowMessageDialog ("Are you absolutley sure you want to add this node to your trusted nodes list using this key?", base.Dialog, Gtk.MessageType.Question, ButtonsType.YesNo) == (int)ResponseType.Yes) {
+				base.Dialog.Respond ((int)Gtk.ResponseType.Ok);			
 			} else {
-				Gui.ShowMessageDialog ("No key was added.", dialog);
-				dialog.Respond ((int)Gtk.ResponseType.Cancel);
+				Gui.ShowMessageDialog ("No key was added.", base.Dialog);
+				base.Dialog.Respond ((int)Gtk.ResponseType.Cancel);
 			}
 		}
 
 		private void on_btnCancel_clicked (object o, EventArgs e)
 		{
-			dialog.Respond ((int)Gtk.ResponseType.Cancel);
+			base.Dialog.Respond ((int)Gtk.ResponseType.Cancel);
 		}
-		 
-		
 	}
 }
