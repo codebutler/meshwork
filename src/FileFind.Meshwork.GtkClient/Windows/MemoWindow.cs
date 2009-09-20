@@ -1,5 +1,5 @@
 //
-// winViewMemo.cs: View memo window
+// MemoWindow.cs: View memo window
 //
 // Author:
 //   Eric Butler <eric@extremeboredom.net>
@@ -17,7 +17,7 @@ using FileFind.Meshwork.Filesystem;
 
 namespace FileFind.Meshwork.GtkClient
 {
-	public class winViewMemo
+	public class MemoWindow : GladeWindow
 	{
 		[Widget] Label lblSubject;
 		[Widget] Label lblPostedBy;
@@ -33,21 +33,18 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] Label networkLabel;
 		
 		ListStore fileListStore;
-		Gtk.Window innerWindow;
+		
 		Memo memo;
 
-		public winViewMemo (Memo memo)
+		public MemoWindow (Memo memo) : base ("MemoWindow")
 		{
-			Glade.XML winXml = new Glade.XML (null, "FileFind.Meshwork.GtkClient.meshwork.glade","winViewMemo",null);
-			winXml.Autoconnect (this);
-			innerWindow = (Gtk.Window) winXml.GetWidget("winViewMemo");
 			Node theNode = memo.Network.Nodes[memo.WrittenByNodeID];
 			lblSubject.Markup = "<b>" + memo.Subject + "</b>";
 			lblPostedBy.Text = theNode.ToString();
 			lblDate.Text = memo.CreatedOn.ToString();
 			lblExpireDate.Text = "Expires: " + memo.CreatedOn.AddDays(2).ToString();
 			txtMemo.Buffer.Text = memo.Text;
-			innerWindow.Title = memo.Subject;
+			base.Window.Title = memo.Subject;
 			networkLabel.Text = memo.Network.NetworkName;
 
 			this.memo = memo;
@@ -81,14 +78,9 @@ namespace FileFind.Meshwork.GtkClient
 			*/
 		}
 		
-		public void Show ()
-		{ 
-			innerWindow.Show();
-		}
-		
 		public void on_btnClose_clicked (object sender, EventArgs args)
 		{
-			innerWindow.Destroy ();
+			base.Close();
 		}
 	}
 }

@@ -19,21 +19,34 @@ namespace FileFind.Meshwork.GtkClient
 	{
 		public AboutDialog (Window parent) : base(parent, "AboutDialog")
 		{
-			//AssemblyDescriptionAttribute desc;
-			AssemblyTitleAttribute title;
-			AssemblyVersionAttribute version;
-
-			Assembly aAssembly = Assembly.GetExecutingAssembly ();
-
-			//desc = (AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute (aAssembly, typeof(AssemblyDescriptionAttribute));
-			title = (AssemblyTitleAttribute)AssemblyTitleAttribute.GetCustomAttribute (aAssembly, typeof(AssemblyTitleAttribute));
-			version = (AssemblyVersionAttribute)AssemblyVersionAttribute.GetCustomAttribute (aAssembly, typeof(AssemblyVersionAttribute));
-		 
+			string title = String.Empty;
+			string version = String.Empty;
 			
-	 		Gtk.AboutDialog dialog = (Gtk.AboutDialog)Dialog;
-			dialog.ProgramName = title.Title;
-			dialog.Version = version.Version;
-			dialog.Comments = "The Official Meshwork Client";
-		}
+			var assembly = Assembly.GetExecutingAssembly();
+			
+			var titleAttributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+			if (titleAttributes.Length > 0) {
+				AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)titleAttributes[0];
+				if (!String.IsNullOrEmpty(titleAttribute.Title)) {
+					title = titleAttribute.Title;
+				}
+			}
+			
+			var versionAttributes = assembly.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
+			if (versionAttributes.Length > 0) {
+				AssemblyVersionAttribute versionAttribute = (AssemblyVersionAttribute)versionAttributes[0];
+				if (!String.IsNullOrEmpty(versionAttribute.Version)) {
+					version =  versionAttribute.Version;
+				}
+			}			
+			
+			Gtk.AboutDialog dialog = (Gtk.AboutDialog)base.Dialog;
+			
+			if (!String.IsNullOrEmpty(title))
+				dialog.ProgramName = title;
+			
+			if (!String.IsNullOrEmpty(version))
+				dialog.Version = version;
+		}		
 	}
 }

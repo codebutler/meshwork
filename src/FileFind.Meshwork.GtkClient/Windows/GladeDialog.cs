@@ -38,16 +38,23 @@ namespace FileFind.Meshwork.GtkClient
 
 		public virtual int Run ()
 		{
-			dialog.Show ();
+			base.Show();
+			
 			int result = (int)ResponseType.None;
 			do {
 				result = dialog.Run ();
 			} while (result == (int)ResponseType.None);
 
 			OnResponded (result);
+			
 			base.Close();
-			//dialog.Hide ();
+			
 			return result;
+		}
+		
+		public override void Show ()
+		{
+			this.Run();
 		}
 
 		protected Dialog Dialog {

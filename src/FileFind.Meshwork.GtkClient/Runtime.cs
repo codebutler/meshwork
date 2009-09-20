@@ -164,14 +164,14 @@ namespace FileFind.Meshwork.GtkClient
 				// Generate key
 				if (tmpSettings.EncryptionParameters.Modulus == null) {
 					GenerateKeyDialog keyDialog = new GenerateKeyDialog (null);
-					keyDialog.Show();
+					keyDialog.Run();
 					tmpSettings.EncryptionParameters = keyDialog.KeyParameters;
 				}
 
 				/* Init the core */
 				Core.Init(tmpSettings);
 
-				splashWindow.Hide();
+				splashWindow.Close();
 
 				PreferencesDialog preferences = new PreferencesDialog ();
 				if (preferences.Run () != (int)ResponseType.Ok) {
@@ -203,8 +203,7 @@ namespace FileFind.Meshwork.GtkClient
 				}
 			}
 			
-
-			splashWindow.Hide ();
+			splashWindow.Close();
 
 			if ((!Gui.Settings.StartInTray && options.MainWindowState != "hidden") ||
 			    (Gui.Settings.StartInTray && (options.MainWindowState == "shown" | options.MainWindowState == "iconified"))) {

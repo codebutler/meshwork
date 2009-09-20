@@ -15,45 +15,28 @@ using Glade;
 
 namespace FileFind.Meshwork.GtkClient
 {
-	public class GenerateKeyDialog
+	public class GenerateKeyDialog : GladeDialog
 	{
 		bool keyGenerated = false;
-		Dialog dialog;
 
 		[Widget] ProgressBar generateKeyProgress;
 
 		RSAParameters keyParameters;
 
-		public GenerateKeyDialog (Gtk.Window parent)
+		public GenerateKeyDialog (Gtk.Window parent) : base (parent, "GenerateKeyDialog")
 		{
-			Glade.XML winXml = new Glade.XML (null, "FileFind.Meshwork.GtkClient.meshwork.glade", "GenerateKeyDialog", null);
-			winXml.Autoconnect (this);
-			dialog = (Gtk.Dialog) winXml.GetWidget("GenerateKeyDialog");
-			dialog.TransientFor = parent;
-
-			winXml ["dialog-action_area20"].Visible = false;	 
+			base.Dialog.ActionArea.Visible = false;
 		}
 
-		public int Show ()
+		public override int Run()
 		{
-			dialog.Show ();
 			
 			GLib.Timeout.Add (50, new GLib.TimeoutHandler (PulseGenerateKeyProgress));
 			
 			Thread thread = new Thread (new ThreadStart (GenerateKey));
 			thread.Start ();
 
-			int result = 0;
-
-			while (true) {
-				result = dialog.Run(); 
-				if (result == (int)ResponseType.Ok) 
-					break;
-			}
-
-			dialog.Destroy ();
-
-			return result;
+			return base.Run();
 		}
 
 		public RSAParameters KeyParameters {
@@ -87,7 +70,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void FinishedGeneratingKey ()
 		{
-			dialog.Respond (ResponseType.Ok);
+			base.Dialog.Respond(ResponseType.Ok);
 		}
 	}
 }

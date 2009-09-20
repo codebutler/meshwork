@@ -27,6 +27,9 @@ namespace FileFind.Meshwork.Transport
 
 		public void StartListening ()
 		{
+			if (listener != null || listenThread != null)
+				throw new InvalidOperationException("Already started");
+			
 			if (Common.SupportsIPv6) {
 				listener = new TcpListener(IPAddress.IPv6Any, port);
 			} else {
@@ -41,10 +44,13 @@ namespace FileFind.Meshwork.Transport
 
 		public void StopListening ()
 		{
-			if (listener != null) {
-				listener.Stop();
+			if (listenThread != null) {
 				listenThread.Abort ();
 				listenThread = null;
+			}
+			if (listener != null) {
+				listener.Stop();
+				listener = null;
 			}
 		}
 
@@ -53,9 +59,17 @@ namespace FileFind.Meshwork.Transport
 				return port;
 			}
 			set {
-				port = value;
-				StopListening();
-				StartListening();
+				port = value;				
+				if (this.Listening) {
+					StopListening();
+					StartListening();
+				}
+			}
+		}
+		
+		public bool Listening {
+			get {
+				return (listener != null  || listenThread != null);
 			}
 		}
 		
@@ -74,9 +88,10 @@ namespace FileFind.Meshwork.Transport
 						LoggingService.LogError(ex.ToString());
 					}
 				}
-			} catch (Exception) {
+			} catch (ThreadAbortException) {
 				// Someone called StopListening(), that's OK...
-				// (There's PROBABLY nothing else that can go wrong here.)
+			}  catch (Exception ex) {
+				LoggingService.LogError("Error in TcpListener.Listen()", ex);
 			}
 		}
 

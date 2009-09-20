@@ -1,5 +1,5 @@
 //
-// winBadOptions.cs:
+// BadOptionsDialog.cs:
 //
 // Authors:
 //   Eric Butler <eric@extremeboredom.net>
@@ -14,21 +14,14 @@ using System.Collections;
 
 namespace FileFind.Meshwork.GtkClient
 {
-	public class BadOptionsDialog
+	public class BadOptionsDialog : GladeDialog
 	{
 		[Widget] TreeView badOptionsTree;
 
 		TreeStore badOptionsTreeStore;
 
-		Dialog dialog; 
-		 
-		public BadOptionsDialog (Gtk.Window parent, ArrayList badOptions)
+		public BadOptionsDialog (Gtk.Window parent, ArrayList badOptions) : base (parent, "BadOptionsDialog")
 		{
-			Glade.XML winXml = new Glade.XML (null, "FileFind.Meshwork.GtkClient.meshwork.glade","BadOptionsDialog",null);
-			winXml.Autoconnect (this);
-			dialog = (Dialog) winXml.GetWidget ("BadOptionsDialog");
-			dialog.TransientFor = parent;
-		
 			badOptionsTreeStore = new TreeStore (typeof (string));
 			badOptionsTree.Model = badOptionsTreeStore;
 			badOptionsTree.AppendColumn ("Name", new CellRendererText (), "text", 0);
@@ -39,16 +32,9 @@ namespace FileFind.Meshwork.GtkClient
 				badOptionsTreeStore.AppendValues (new string[] {badOptions[x].ToString()});
 		}
 		
-		public void Show ()
-		{
-			dialog.Show ();
-			dialog.Run ();
-		}
-
 		private void on_btnOk_clicked (object sender, EventArgs e)
 		{
-			dialog.Hide ();
-		//	dialog.Destroy ();
+			base.Dialog.Respond((int)Gtk.ResponseType.Ok);
 		}
 
 		private bool SelectFunc (TreeSelection selection, TreeModel model, TreePath path, bool path_currently_selected)

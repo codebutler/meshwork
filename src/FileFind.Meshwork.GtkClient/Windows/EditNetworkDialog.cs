@@ -35,7 +35,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void addTrustedNodeButton_Clicked (object sender, EventArgs args)
 		{
-			winAddTrustedNode w = new winAddTrustedNode(Dialog);
+			AddTrustedNodeDialog w = new AddTrustedNodeDialog(Dialog);
 
 			int result = w.Run();
 			if (result == (int)ResponseType.Ok) { 

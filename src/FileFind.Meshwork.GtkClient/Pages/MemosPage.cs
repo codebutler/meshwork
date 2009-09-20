@@ -128,7 +128,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			Memo selectedMemo = GetSelectedMemo ();
 			if (selectedMemo != null) {
-				winViewMemo viewMemoWindow = new winViewMemo (selectedMemo);
+				MemoWindow viewMemoWindow = new MemoWindow (selectedMemo);
 				viewMemoWindow.Show ();
 			}	
 		}

@@ -22,13 +22,13 @@ using FileFind.Meshwork.GtkClient;
 
 namespace FileFind.Meshwork.GtkClient
 {
-	public class winAddTrustedNode : GladeDialog
+	public class AddTrustedNodeDialog : GladeDialog
 	{
 		[Widget] TextView txtPublicKey;
 		
 		TrustedNodeInfo tni;
 		
-		public winAddTrustedNode (Window parent) : base (parent, "winAddTrustedNode")
+		public AddTrustedNodeDialog (Window parent) : base (parent, "AddTrustedNodeDialog")
 		{
 		
 		}
@@ -57,9 +57,9 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void on_btnDownloadPublicKey_clicked(object sender, EventArgs e)
 		{
-			winDownloadPublicKey win = new winDownloadPublicKey();
-			if (win.Show() == (int)ResponseType.Ok) {
-				txtPublicKey.Buffer.Text = win.result;
+			DownloadPublicKeyDialog win = new DownloadPublicKeyDialog(base.Window);
+			if (win.Run() == (int)ResponseType.Ok) {
+				txtPublicKey.Buffer.Text = win.Result;
 			}
 		}
 		
