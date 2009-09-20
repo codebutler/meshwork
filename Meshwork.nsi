@@ -121,13 +121,13 @@ Section "!Meshwork Program Files" secProgFiles
 	File "Build\FileFind.Meshwork.pdb"
 	File "Build\DiffieHellman.dll"
 	File "Build\gtkspell-sharp.dll"
-	File "Build\Mono.Data.dll"
-	File "Build\Mono.Data.Sqlite.dll"
-	File "Build\Mono.Data.SqliteClient.dll"
-	File "Build\Mono.GetOptions.dll"
 	File "Build\MonoTorrent.dll"
-	File "Build\sqlite3.dll"
 	File "Build\ige-mac-integration-sharp.dll"
+	File "Contrib\DotNet\Mono.Data.dll"
+	File "Contrib\DotNet\Mono.Data.Sqlite.dll"
+	File "Contrib\DotNet\Mono.Data.SqliteClient.dll"
+	File "Contrib\DotNet\Mono.GetOptions.dll"
+	File "Contrib\Win32\sqlite3.dll"
 
 	WriteRegStr HKCU "Software\${PRODUCT}" "" $INSTDIR
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
