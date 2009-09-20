@@ -1,17 +1,21 @@
-!include "MUI.nsh"
-!include Sections.nsh
+# Meshwork for Windows Installer
+# Cobbled together by Eric Butler <eric@extremeboredom.net>
 
-SetCompressor LZMA
+!include 'MUI2.nsh'
+!include 'Sections.nsh'
+!include 'LogicLib.nsh'
+!include 'WordFunc.nsh'
 
 Var STARTMENU_FOLDER
 
 !define PRODUCT "Meshwork"
 
-Name "Meshwork"
-OutFile "MeshworkSetup.exe"
-InstallDir "$PROGRAMFILES\${PRODUCT}"
-InstallDirRegKey HKCU "Software\${PRODUCT}" ""
-LicenseData "COPYING"
+!define DOTNET_URL "http://www.microsoft.com/downloads/info.aspx?na=90&p=&SrcDisplayLang=en&SrcCategoryId=&SrcFamilyId=333325fd-ae52-4e35-b531-508d977d32a6&u=http%3a%2f%2fdownload.microsoft.com%2fdownload%2f7%2f0%2f3%2f703455ee-a747-4cc8-bd3e-98a615c3aedb%2fdotNetFx35setup.exe"
+!define DOTNET_FILE "dotNetFx35setup.exe"
+!define DOTNET_VERSION "3.5.30729.4926"
+!define GTKSHARP_URL "http://ftp.novell.com/pub/mono/gtk-sharp/gtk-sharp-2.12.9-2.win32.msi"
+!define GTKSHARP_FILE "gtk-sharp-2.12.9-2.win32.msi"
+!define GTKSHARP_VERSION "2.12.9"
 
 !define MUI_WELCOMEFINISHPAGE_BITMAP  "Resources\Images\install_side.bmp"
 !define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
@@ -20,27 +24,30 @@ LicenseData "COPYING"
 !define MUI_HEADERIMAGE_BITMAP_NOSTRETCH
 !define MUI_HEADERIMAGE_RIGHT
 
-BrandingText "Copyright (C) 2003-2008 FileFind.net"
+SetCompressor LZMA
+Name "${PRODUCT}"
+OutFile "MeshworkSetup.exe"
+InstallDir "$PROGRAMFILES\${PRODUCT}"
+InstallDirRegKey HKCU "Software\${PRODUCT}" ""
+LicenseData "COPYING"
+BrandingText "Copyright (C) 2003-2009 Eric Butler"
+
 !define MUI_ABORTWARNING
-;!define MUI_COMPONENTSPAGE_SMALLDESC
-;!define MUI_LICENSEPAGE_CHECKBOX
 !define MUI_COMPONENTSPAGE_NODESC
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\${PRODUCT}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
 
-; XXX: Temporarily disabled. Environment PATH needs to be updated to include new GTK# directory or Meshwork won't start. Apparently the way this gets executed, this doesn't happen.
-; !define MUI_FINISHPAGE_RUN "$PROGRAMFILES\${PRODUCT}\FileFind.Meshwork.GtkClient.exe"
+# FIXME: Temporarily disabled. Environment PATH needs to be updated to include new GTK# directory or Meshwork won't start. Apparently the way this gets executed, this doesn't happen.
+# !define MUI_FINISHPAGE_RUN "$PROGRAMFILES\${PRODUCT}\FileFind.Meshwork.GtkClient.exe"
 
-;!define MUI_FINISHPAGE_SHOWREADME "$PROGRAMFILES\${PRODUCT}\Changelog.txt"
-;!define MUI_FINISHPAGE_SHOWREADME_TEXT "View release notes (Required)"
+# !define MUI_FINISHPAGE_SHOWREADME "$PROGRAMFILES\${PRODUCT}\Changelog.txt"
+# !define MUI_FINISHPAGE_SHOWREADME_TEXT "View release notes"
 
 !define MUI_FINISHPAGE_NOAUTOCLOSE
-!define MUI_PAGE_CUSTOMFUNCTION_LEAVE  componentsLeave
 
 !define MUI_FINISHPAGE_TEXT_LARGE
-!define MUI_FINISHPAGE_TEXT "Meshwork has been installed on your computer.\r\n\r\nClick Finish to close this wizard."
-
+!define MUI_FINISHPAGE_TEXT "Meshwork has been installed on your computer.$\r$\n$\r$\nClick Finish to close this wizard."
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "COPYING"
@@ -53,56 +60,51 @@ BrandingText "Copyright (C) 2003-2008 FileFind.net"
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_LANGUAGE "English"
 
-Section /o ".NET Framework (Already Installed)" SecFrameworkInstalled
-	SectionIn 1 RO
-	; Microsoft .NET Framework already installed - do nothing.
-SectionEnd
-
-Section "!.NET Framework (Required)" SecFramework
+Section "!.NET Framework v3.5 (Required)" SecFramework
 	SectionIn 1 RO
 	Call ConnectInternet
-	StrCpy $2 "$TEMP\dotnetfx.exe"
-	NSISdl::download http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/dotnetfx.exe $2
+	StrCpy $2 "$TEMP\${DOTNET_FILE}"
+	NSISdl::download ${DOTNET_URL} ${DOTNET_FILE}
 	Pop $0
 	StrCmp $0 success success
 	SetDetailsView show
-	DetailPrint "download failed: $0"
-	MessageBox MB_OK "The Microsoft .NET Frameworked failed to download: $\n $0 $\n Please check your internet connection and/or install the .NET Framework manually, then run this setup again"
+	DetailPrint ".NET download failed: $0"
+	MessageBox MB_OK "The Microsoft .NET Framework failed to download: $\n $0 $\n Please check your internet connection and/or install the .NET Framework manually, then run Meshwork setup again."
 	Quit
 	success:
 		DetailPrint "Installing the Microsoft .NET Framework..."
 		ExecWait '"$2" /Q'
+		IfErrors die
 		DetailPrint "Microsoft .NET Framework install complete."
-		Pop $0
-		StrCmp $0 "" skip
-	skip:
+		Goto continue
+	die:
+		MessageBox MB_OK|MB_ICONEXCLAMATION "The Microsoft .NET Framework failed to install. Try downloading/installing .NET manually, then run Meshwork setup again."
+		SetDetailsView show
+		Quit
+	continue:
 SectionEnd
 
-Section /o "GTK# Runtime v2.10.3 (Already Installed)" SecGtkSharpInstalled
-	SectionIn 1 RO
-	; GTK# already installed - do nothing.
-SectionEnd
-
-Section "!GTK# Runtime v2.10.3 (Required)" SecGtkSharp
+Section "!GTK# for .NET v${GTKSHARP_VERSION} (Required)" SecGtkSharp
 	SectionIn 1 RO
 	Call ConnectInternet
-	StrCpy $2 "$TEMP\gtksharp-runtime-2.10.3.exe"
-	NSISdl::download http://internap.dl.sourceforge.net/sourceforge/openvista/gtksharp-runtime-2.10.3.exe $2
+	StrCpy $2 "$TEMP\${GTKSHARP_FILE}"
+	NSISdl::download ${GTKSHARP_URL} $2
 	Pop $0
 	Strcmp $0 success success
 	SetDetailsView show
-	DetailPrint "download failed: $0"
-	MessageBox MB_OK "The GTK# v2.10.3 Runtime failed to download: $\n $0 $\n Please check your internet connection and/or download/install GTK# manually, then run Meshwork setup again"
+	DetailPrint "GTK# download failed: $0"
+	MessageBox MB_OK|MB_ICONEXCLAMATION "GTK# failed to download: $\n $0 $\n Please check your internet connection and/or install GTK# manually, then run Meshwork setup again."
 	Quit
 	success:
 		ClearErrors
-		DetailPrint "Installing GTK# v2.10.3..."
-		ExecWait '"$2" /VERYQUIET'
+		DetailPrint "Installing GTK#..."
+		ExecWait 'msiexec /i "$2" /quiet'
     		IfErrors die
 		DetailPrint "GTK# Install Complete"
 		Goto continue
 	die:
-		MessageBox MB_OK "The GTK# v2.10.3 Runtime failed to install. Try downloading/installing GTK# manually, then run Meshwork setup again."
+		SetDetailsView show
+		MessageBox MB_OK|MB_ICONEXCLAMATION "GTK# failed to install. Try downloading/installing GTK# manually, then run Meshwork setup again."
 		Quit
 	continue:
 SectionEnd
@@ -118,14 +120,11 @@ Section "!Meshwork Program Files" secProgFiles
 	File "Build\FileFind.Meshwork.dll"
 	File "Build\FileFind.Meshwork.pdb"
 	File "Build\DiffieHellman.dll"
-	File "Build\FileFind.Stun.dll"
 	File "Build\gtkspell-sharp.dll"
 	File "Build\Mono.Data.dll"
 	File "Build\Mono.Data.Sqlite.dll"
 	File "Build\Mono.Data.SqliteClient.dll"
 	File "Build\Mono.GetOptions.dll"
-	File "Build\Mono.Posix.dll"
-	File "Build\MonoPosixHelper.dll"
 	File "Build\MonoTorrent.dll"
 	File "Build\sqlite3.dll"
 	File "Build\ige-mac-integration-sharp.dll"
@@ -150,19 +149,11 @@ SectionEnd
 ;	SectionEnd
 ;SubSectionEnd
 
-Section "Desktop Icon" secDesktopIcon
+Section "Desktop Icon" SecDesktopIcon
 	CreateShortCut "$DESKTOP\Meshwork.lnk" "$INSTDIR\FileFind.Meshwork.GtkClient.exe" "" "$INSTDIR\FileFind.Meshwork.GtkClient.exe" 0
 SectionEnd
 
-LangString DESC_secProgFiles ${LANG_ENGLISH} "The Meshwork executable."
-LangString DESC_secDesktopIcon ${LANG_ENGLISH} "Create a desktop icon for quick access."
-!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${secProgFiles} $(DESC_secProgFiles)
-	!insertmacro MUI_DESCRIPTION_TEXT ${secDesktopIcon} $(DESC_secDesktopIcon)
-!insertmacro MUI_FUNCTION_DESCRIPTION_END
-
 Section "Uninstall"
-
 	Delete "$INSTDIR\FileFind.Meshwork.GtkClient.exe"
 	Delete "$INSTDIR\Filefind.Meshwork.GtkClient.pdb"
 	Delete "$INSTDIR\FileFind.Meshwork.dll"
@@ -174,8 +165,6 @@ Section "Uninstall"
 	Delete "$INSTDIR\Mono.Data.Sqlite.dll"
 	Delete "$INSTDIR\Mono.Data.SqliteClient.dll"
 	Delete "$INSTDIR\Mono.GetOptions.dll"
-	Delete "$INSTDIR\Mono.Posix.dll"
-	Delete "$INSTDIR\MonoPosixHelper.dll"
 	Delete "$INSTDIR\MonoTorrent.dll"
 	Delete "$INSTDIR\sqlite3.dll"
 	Delete "$INSTDIR\ige-mac-integration-sharp.dll"
@@ -191,109 +180,90 @@ Section "Uninstall"
 SectionEnd
 
 Function .onInit
-	Call IsDotNETInstalled
+	Call IsDotNET3Point5Installed
 	Pop $R3
 	StrCmp $R3 0 NoDotNet
 	StrCmp $R3 1 GoodDotNet
 	StrCmp $R3 2 OldDotNet
 	GoodDotNet:
-	SectionSetText ${SecFramework} ""
-	SectionSetFlags ${SecFramework} 0
+	SectionSetFlags ${SecFramework} 16
+	SectionSetText ${SecFramework} ".NET Framework v3.5 (Already Installed)"
 	Goto Continue
 	NoDotNet:
-	SectionSetText ${SecFrameworkInstalled} ""
-	goto Continue
+	Goto Continue
 	OldDotNet:
 	SectionSetText ${SecFramework} ".NET Framework (Needs Upgrade)"
-	SectionSetText ${SecFrameworkInstalled} ""
 	Continue:
 
 	Call IsGtkSharpInstalled
 	Pop $R4
 	StrCmp $R4 0 NoGtkSharp
-	StrCmp $R4 1 GoodGtkSharp
-	GoodGtkSharp:
-	SectionSetText ${SecGtkSharp} ""
-	SectionSetFlags ${SecGtkSharp} 0
-	Goto end
+	SectionSetFlags ${SecGtkSharp} 16
+	SectionSetText ${SecGtkSharp} "GTK# for .NET v${GTKSHARP_VERSION} (Already Installed)"
 	NoGtkSharp:
-	SectionSetText ${SecGtkSharpInstalled} ""
-	Goto end
-	end:
-
 FunctionEnd
 
 Function .onInstSuccess
-	Delete "$TEMP\dotnetfx.exe"
+	Delete "$TEMP\${DOTNET_FILE}"
+	Delete "$TEMP\${GTKSHARP_FILE}"
 FunctionEnd
 
 Function un.onInit
-	IfSilent issilent notsilent
-	issilent:
-		SetSilent silent
-	notsilent:
-
 FunctionEnd
 
 ;--------------------------------------
 ;--------------------------------------
 
-Function IsDotNETInstalled
-  Push $0
-  Push $1
-  Push $2
-  Push $3
-  Push $4
-  ReadRegStr $4 HKEY_LOCAL_MACHINE \
-    "Software\Microsoft\.NETFramework" "InstallRoot"
-  # remove trailing back slash
-  Push $4
-  Exch $EXEDIR
-  Exch $EXEDIR
-  Pop $4
-  # if the root directory doesn't exist .NET is not installed
-  IfFileExists $4 0 noDotNET
-goto foundDotNet
-  noDotNET:
-    StrCpy $0 0
-    Goto done
-  foundDotNET:
-    ClearErrors
-    ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\.NETFramework\policy\v2.0\" "50727"
-    IfErrors die
-    StrCpy $0 1
-    goto done
-    die:
-    StrCpy $0 2
-  done:
-    Pop $4
-    Pop $3
-    Pop $2
-    Pop $1
-    Exch $0
-FunctionEnd
-
-Function IsGtkSharpInstalled
+; 0 = .NET 3.5 not found
+; 1 = .NET 3.5 found
+; 2 = .NET 3.5 outdated
+Function IsDotNET3Point5Installed
 	Push $0
 	Push $1
+	Push $2
 
-	StrCpy $0 0
+	ClearErrors
+	ReadRegStr $1 HKLM "SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5" "Version"
+	${IF} ${ERRORS}
+		StrCpy $0 0
+	${ELSE}
+		${VersionCompare} $1 ${DOTNET_VERSION} $2
+		${IF} $2 == 2
+			StrCpy $0 2
+		${ELSE}
+			StrCpy $0 1
+		${ENDIF}
+	${ENDIF}
 
-	ReadRegStr $1 HKEY_LOCAL_MACHINE "Software\Medsphere\Gtk-Sharp\Runtime" "Version"
-	StrCmp $1 "2.10.3" 0 +2
-		StrCpy $0 1
+	Pop $2
 	Pop $1
 	Exch $0
 FunctionEnd
 
-Function componentsLeave
-	SectionGetText ${SecFramework} $1
-	StrCmp $1 '' moo
-	MessageBox MB_YESNO "The Microsoft .NET Framework (Required to run ${PRODUCT}) will be automatically downloaded and installed. $\nIt is 23.1 MB and may take a while to download depending on the speed of your connection. $\n $\nDo you want to continue?" IDYES noabort
-	Quit
-	noabort:
-	moo:
- FunctionEnd
+; 0 = GTK# not found or outdated
+; 1 = GTK# found
+Function IsGtkSharpInstalled
+	Push $0
+	Push $1
+	Push $2
+
+	ClearErrors
+	ReadRegStr $1 HKLM "Software\Novell\GtkSharp\Version" ""
+	${IF} ${ERRORS}
+		StrCpy $0 0
+	${ELSE}
+		${VersionCompare} $1 ${GTKSHARP_VERSION} $2
+		${IF} $2 == 2
+			StrCpy $0 0
+		${ELSE}
+			StrCpy $0 1
+		${ENDIF}
+	${ENDIF}
+
+	Pop $2
+	Pop $1
+	Exch $0
+FunctionEnd
 
 Function ConnectInternet
   Push $R0
