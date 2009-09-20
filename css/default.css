@@ -1,0 +1,131 @@
+html, body {
+	height: 100%;
+}
+
+body {
+	padding: 0;
+	margin: 0;
+	background: #e0e0e0;
+	color: #303030;
+	font-size: small;
+	font-family: sans-serif;
+}
+
+a {
+	color: #286ea0;
+}
+
+#container {
+	background-color: #ffffff;
+	width: 800px;
+	min-height: 100%; 
+	height: auto !important; 
+	margin: 0 auto;
+	position: relative;
+}
+
+#content:after {
+	clear: both;
+	display: block;
+	font: 1px/0px serif;
+	content: ".";
+	height: 0;
+	visibility: hidden;
+}
+
+#content {
+	margin: 0 auto 0px auto;
+	width: 800px;
+	padding: 5px 0px 40px 0px;
+	background: #ffffff;
+}
+
+
+#footer {
+	clear: both;
+	background: #e0e0e0;
+	color: #808080;
+	font-size: 0.9em;
+	text-align: center;
+	width: 100%;
+	position: absolute;
+	bottom: 0 !important;
+	height: 40px;
+}
+
+#footer div {
+	line-height: 40px;
+}
+
+#footer a {
+	color: #808080;
+}
+
+h1 {
+margin: 0 0 20px 0;
+font-size: 2.1em;
+font-weight: normal;
+}
+
+h2 {
+margin: 0 0 20px 0;
+font-size: 1.6em;
+font-weight: normal;
+}
+
+h3 {
+margin: 20px 0 10px 0;
+font-size: 1.4em;
+font-weight: normal;
+}
+
+p {
+margin: 0 0 15px 0;
+line-height: 1.5em;
+text-align: left;
+}
+
+a img {
+border: 0;
+}
+
+.featuretable td {
+	padding-bottom: 10px;
+	vertical-align: top;
+}
+
+hr {
+	height: 1px !important;
+	border: 0px;
+	background-color: #b0b0b0;
+        margin: 15px 0px;
+}
+
+td.imagecell {
+	padding-top: 4px;
+}
+
+td.textcell {
+	width: 100%;
+	padding-left: 5px;
+}
+
+#helpwanted_bar {
+	text-align: center;
+	margin-top: 5px;
+	height: 48px;
+	background: url('../images/meshwork_helpwanted_bg.png') no-repeat;
+	width: 747px;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+}
+
+#helpwanted_bar div {
+	padding-left: 60px;
+	padding-top: 7px;
+	text-align: left;
+	float: left;
+	padding-right: 10px;
+	font-size: small;
+}
