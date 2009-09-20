@@ -52,14 +52,14 @@ FILES +=                                       \
 	Windows/winEditTrustedNode.cs          \
 	Windows/PreferencesDialog.cs           \
 	Windows/EditNetworkDialog.cs           \
-	Windows/winBadOptions.cs               \
-	Windows/winAddTrustedNode.cs           \
+	Windows/BadOptionsDialog.cs            \
+	Windows/AddTrustedNodeDialog.cs        \
 	Windows/EditMemoDialog.cs              \
-	Windows/winAcceptKey.cs                \
-	Windows/winDownloadPublicKey.cs        \
+	Windows/AcceptKeyDialog.cs             \
+	Windows/DownloadPublicKeyDialog.cs     \
 	Windows/AboutDialog.cs                 \
-	Windows/winViewMemo.cs                 \
-	Windows/winSplash.cs                   \
+	Windows/MemoWindow.cs                  \
+	Windows/SplashWindow.cs                \
 	Windows/UserInfoDialog.cs              \
 	Windows/GenerateKeyDialog.cs           \
 	Windows/ConnectDialog.cs               \
