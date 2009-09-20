@@ -110,7 +110,7 @@ namespace FileFind.Meshwork
 			MonoTorrent.Client.Tracker.TrackerFactory.Register("meshwork", typeof(MeshworkTracker));
 
 			ITransportListener tcpListener = new TcpTransportListener(Core.Settings.TcpListenPort);
-			transportListeners.Add (tcpListener);
+			transportListeners.Add(tcpListener);
 			
 			loaded = true;
 
@@ -137,7 +137,7 @@ namespace FileFind.Meshwork
 				try {
 					listener.StartListening();
 				} catch (Exception ex) {
-					LoggingService.LogError("Listener failed to start: {0}", listener.ToString());
+					LoggingService.LogError(String.Format("Listener failed to start: {0}", listener.ToString()), ex);
 					failedTransportListeners.Add(new FailedTransportListener(listener, ex));
 				}
 			}
