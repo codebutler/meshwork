@@ -48,8 +48,8 @@ namespace FileFind.Meshwork.GtkClient
 			connectionList.HeadersVisible = true;
 			connectionList.ButtonPressEvent += connectionList_ButtonPressEvent;
 
-			incomingPixbuf = Gui.LoadIcon(16, "right");
-			outgoingPixbuf = Gui.LoadIcon(16, "left");
+			incomingPixbuf = Gui.LoadIcon(16, "go-next");
+			outgoingPixbuf = Gui.LoadIcon(16, "go-previous");
 			
 			TreeViewColumn column;
 			

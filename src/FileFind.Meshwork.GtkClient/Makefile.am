@@ -144,10 +144,10 @@ IMAGES = \
 	stock_icons/locked_16.png               \
 	stock_icons/down_22.png                 \
 	stock_icons/down_16.png                 \
-	stock_icons/left_22.png                 \
-	stock_icons/left_16.png                 \
-	stock_icons/right_22.png                \
-	stock_icons/right_16.png                \
+	stock_icons/go-previous_22.png          \
+	stock_icons/go-previous_16.png          \
+	stock_icons/go-next_22.png              \
+	stock_icons/go-next_16.png              \
 	stock_icons/up_16.png                   \
 	stock_icons/up_22.png	            	\
 	stock_icons/stock_new-text_24.png       \

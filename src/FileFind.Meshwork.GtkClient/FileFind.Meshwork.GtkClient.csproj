@@ -159,12 +159,12 @@
     <EmbeddedResource Include="..\..\resources\images\stock_icons\image-x-generic_16.png" />
     <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_16.png" />
     <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_24.png" />
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\left_16.png" />
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\left_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-previous_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-previous_22.png" />
     <EmbeddedResource Include="..\..\resources\images\stock_icons\locked_16.png" />
     <EmbeddedResource Include="..\..\resources\images\stock_icons\mail_16.png" />
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\right_16.png" />
-    <EmbeddedResource Include="..\..\resources\images\stock_icons\right_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-next_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-next_22.png" />
     <EmbeddedResource Include="..\..\resources\images\stock_icons\stock-close_12.png" />
     <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_16.png" />
     <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_24.png" />

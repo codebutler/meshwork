@@ -37,10 +37,10 @@ namespace Pixane.Widgets
 		
 		static ZoomableCairoArea ()
 		{			
-			arrowUp    = Gui.LoadIcon(22, "up");
-			arrowDown  = Gui.LoadIcon(22, "down");
-			arrowLeft  = Gui.LoadIcon(22, "left");
-			arrowRight = Gui.LoadIcon(22, "right");
+			arrowUp    = Gui.LoadIcon(22, "go-up");
+			arrowDown  = Gui.LoadIcon(22, "go-down");
+			arrowLeft  = Gui.LoadIcon(22, "go-previous");
+			arrowRight = Gui.LoadIcon(22, "go-next");
 			zoomGlass  = new Pixbuf (null, "FileFind.Meshwork.GtkClient.zoom.png");			
 		}
 		
