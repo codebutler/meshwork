@@ -68,7 +68,11 @@ namespace FileFind.Meshwork.GtkClient
 			chatList.RowActivated += chatList_RowActivated;
 			chatList.ButtonPressEvent += chatList_ButtonPressEvent;
 
-			notebook.AppendPage(swindow, new Label("Chatroom List"));
+			EventBox box = new EventBox();
+			box.Add(new Label("Chatroom List"));
+			box.ButtonPressEvent += HandleTabButtonPressEvent;
+			box.ShowAll();
+			notebook.AppendPage(swindow, box);
 
 			this.PackStart(notebook, true, true, 0);
 			notebook.ShowAll();
@@ -81,6 +85,15 @@ namespace FileFind.Meshwork.GtkClient
 				(NetworkEventHandler)DispatchService.GuiDispatch(
 					new NetworkEventHandler(Core_NetworkAdded)
 				);
+		}
+
+		void HandleTabButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			if (tabLabelPages.ContainsKey((Widget)o)) {
+				ChatSubpageBase page = tabLabelPages[(Widget)o];
+				var menu = new ChatPageMenu(page);
+				menu.Popup();				
+			}			
 		}
 
 		public bool UrgencyHint {
@@ -248,7 +261,9 @@ namespace FileFind.Meshwork.GtkClient
 			urgencyHint = false;
 			for (int x = 1; x < notebook.NPages; x++) {
 				ChatSubpageBase page = (ChatSubpageBase)notebook.GetNthPage(x);
-				Label label = (Label)((Container)notebook.GetTabLabel(page)).Children[0];
+				
+				EventBox box = (EventBox)notebook.GetTabLabel(page);
+				Label label = (Label)((Box)box.Child).Children[0];
 				if (page.UrgencyHint == true) {
 					urgencyHint = true;
 					label.Markup = "<b>" + label.Text + "</b>";
@@ -276,7 +291,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void closeButton_Clicked (object o, EventArgs args)
 		{
-			ChatSubpageBase page = tabLabelPages[((Button)o).Parent];
+			ChatSubpageBase page = tabLabelPages[((Button)o).Parent.Parent];
 			page.Close();
 		}
 
@@ -304,8 +319,13 @@ namespace FileFind.Meshwork.GtkClient
 			labelWidget.PackStart(closeButton, true, true, 0);
 			labelWidget.CanFocus = false;
 
-			labelWidget.ShowAll();
-			return labelWidget;
+			EventBox box = new EventBox();
+			box.Add(labelWidget);
+			box.ButtonPressEvent += HandleTabButtonPressEvent;
+			
+			box.ShowAll();
+			
+			return box;
 		}
 	}
 }

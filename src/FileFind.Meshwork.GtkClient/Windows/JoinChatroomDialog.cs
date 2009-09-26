@@ -52,7 +52,6 @@ namespace FileFind.Meshwork.GtkClient
 			networkCombo.PackStart (textCell, true);
 			networkCombo.SetCellDataFunc (textCell, new CellLayoutDataFunc (networkComboBox_TextFunc));
 			networkCombo.Model = networksListStore;
-			networkCombo.Active = 0;
 
 			roomNameCombo.Entry.Changed += roomNameCombo_Entry_Changed;
 			roomNameCombo.Entry.ActivatesDefault = true;
@@ -63,6 +62,14 @@ namespace FileFind.Meshwork.GtkClient
 			roomNameCombo.AddAttribute (textCell, "text", 0);
 			roomNameCombo.Model = roomListStore;
 			roomNameCombo.TextColumn = 0;
+			
+			if (networksListStore.IterNChildren() > 0) {
+				networkCombo.Active = 1;
+				roomNameCombo.Entry.GrabFocus();
+				roomNameCombo.Entry.SelectRegion(1,1);
+			} else {
+				networkCombo.Active = 0;
+			}
 
 			base.Dialog.Shown += delegate {
 				roomNameCombo.Entry.SelectRegion (1,1);

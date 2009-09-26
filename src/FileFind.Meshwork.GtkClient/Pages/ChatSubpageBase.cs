@@ -174,7 +174,8 @@ namespace FileFind.Meshwork.GtkClient
 		[GLib.ConnectBefore]
 		private void chatTextView_KeyPressEvent (object o, KeyPressEventArgs args)
 		{
-			inputTextView.GrabFocus ();
+			inputTextView.GrabFocus();
+			inputTextView.ProcessEvent(args.Event);
 		}
 	}
 }

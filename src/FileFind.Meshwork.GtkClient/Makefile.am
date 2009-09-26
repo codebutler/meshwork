@@ -18,6 +18,7 @@ FILES +=                                       \
 	Menus/MapMenu.cs                       \
 	Menus/UserMenu.cs                      \
 	Menus/ChatMenu.cs                      \
+	Menus/ChatPageMenu.cs                  \
 	Widgets/GladeWidgetExtract.cs          \
 	Widgets/SearchEntry.cs                 \
 	Widgets/MainSidebar.cs                 \
@@ -48,7 +49,7 @@ FILES +=                                       \
 	Windows/InviteToChatDialog.cs          \
 	Windows/MainWindow.cs                  \
 	Windows/ChatRoomInvitationDialog.cs    \
-	Windows/winJoinChat.cs                 \
+	Windows/JoinChatroomDialog.cs          \
 	Windows/winEditTrustedNode.cs          \
 	Windows/PreferencesDialog.cs           \
 	Windows/EditNetworkDialog.cs           \
