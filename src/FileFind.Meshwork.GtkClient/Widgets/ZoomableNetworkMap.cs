@@ -456,8 +456,8 @@ namespace FileFind.Meshwork.GtkClient {
 						mapMenu.Popup ();
 					} else {
 						if (firstNodeHit != null) {
-							UserMenu userMenu = new UserMenu ();
-							userMenu.Popup (firstNodeHit.Network, firstNodeHit);
+							UserMenu userMenu = new UserMenu(firstNodeHit.Network, firstNodeHit);
+							userMenu.Popup();
 						}
 					}
 					break;

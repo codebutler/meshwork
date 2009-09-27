@@ -8125,6 +8125,43 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                     <property name="position">1</property>
                   </packing>
                 </child>
+                <child>
+                  <widget class="GtkButton" id="actionsButton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="focus_on_click">False</property>
+                    <signal name="clicked" handler="HandleActionsButtonClicked"/>
+                    <child>
+                      <widget class="GtkHBox" id="hbox1">
+                        <property name="visible">True</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <widget class="GtkLabel" id="label1">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Actions</property>
+                          </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkArrow" id="arrow1">
+                            <property name="visible">True</property>
+                            <property name="arrow_type">down</property>
+                          </widget>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="expand">False</property>

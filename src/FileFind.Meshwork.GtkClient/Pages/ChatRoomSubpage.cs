@@ -102,8 +102,8 @@ namespace FileFind.Meshwork.GtkClient
 		private void on_userList_button_release_event (object o, Gtk.ButtonReleaseEventArgs args)
 		{
 			if (args.Event.Button == 3) {
-				UserMenu menu = new UserMenu();
-				menu.Popup(network, GetSelectedNode());
+				UserMenu menu = new UserMenu(network, GetSelectedNode());
+				menu.Popup();
 			}
 		}
 

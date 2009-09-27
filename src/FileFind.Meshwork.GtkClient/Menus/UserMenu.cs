@@ -28,20 +28,23 @@ namespace FileFind.Meshwork.GtkClient
 		Network network;
 		Node selectedNode;
 
-		public UserMenu ()
+		public UserMenu (Network network, Node node)
 		{
 			Glade.XML xmlMnuUsers = new Glade.XML(null, "FileFind.Meshwork.GtkClient.meshwork.glade", "mnuUsers", null);
 			mnuUsers = (xmlMnuUsers.GetWidget("mnuUsers") as Gtk.Menu);
 			xmlMnuUsers.Autoconnect(this);
+			
+			this.selectedNode = node;
+			this.network = network;
 		}
 
-		public void Popup (Network network, Node selectedNode)
+		public void Popup ()
 		{
-			if (selectedNode != null) {
-				this.selectedNode = selectedNode;
-				this.network = network;
-			}
-
+			Popup(null);
+		}
+		
+		public void Popup (Widget widget)
+		{
 			// Enable none
 			mnuUsersConnectTo.Sensitive = false;
 			mnuUsersMessageUser.Sensitive = false;
@@ -51,7 +54,7 @@ namespace FileFind.Meshwork.GtkClient
 			mnuUsersSendFile.Sensitive = false;
 			
 			mnuUsersRequestPublicKey.Visible = false;
-			
+						
 			if (selectedNode != null) {
 				if (Core.IsLocalNode(selectedNode)) {
 					mnuUsersGetInfo.Sensitive = true;
@@ -79,7 +82,27 @@ namespace FileFind.Meshwork.GtkClient
 			}
 
 			mnuUsers.Show();
-			mnuUsers.Popup ();
+			
+			if (widget != null) {
+				mnuUsersGetInfo.Hide();
+				
+				int windowX, windowY;
+				widget.ParentWindow.GetOrigin(out windowX, out windowY);
+				MenuPositionFunc positionFunc = delegate (Menu menu, out int x, out int y, out bool push_in) {
+					var widgetX = windowX + widget.Allocation.X;
+					var widgetY = windowY + widget.Allocation.Y;					
+					widgetY += widget.Allocation.Height;
+					
+					x = widgetX;
+					y = widgetY;
+					
+					push_in = true;
+					
+				};
+				mnuUsers.Popup(null, null, positionFunc, 1, 0);
+			} else {			
+				mnuUsers.Popup();
+			}
 		}
 
 

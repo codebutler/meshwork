@@ -232,18 +232,16 @@ namespace FileFind.Meshwork.GtkClient
 				userList.Selection.UnselectAll ();
 			}
 
-			if (map != null) {
-				map.SelectNode (GetSelectedNode ());
-			}
+			var node = GetSelectedNode();
 			
+			if (map != null) {
+				map.SelectNode(node);
+			}
+						
 			if (args.Event.Button == 3) {
-				Node node = GetSelectedNode();
-
-				UserMenu menu = new UserMenu();
 				if (node != null) {
-					menu.Popup (node.Network, node);
-				} else {
-					menu.Popup (null, node);
+					UserMenu menu = new UserMenu(node.Network, node);
+					menu.Popup();
 				}
 			}
 		}

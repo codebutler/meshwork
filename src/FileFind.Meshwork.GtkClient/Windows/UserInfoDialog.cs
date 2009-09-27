@@ -47,7 +47,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			avatarImage.Pixbuf = ((AvatarManager)Core.AvatarManager).GetAvatar(node);
 
-			nickNameLabel.Markup = String.Format("<span weight=\"bold\" size=\"x-large\">{0}</span>\non <i>{1}</i>", node.NickName, network.NetworkName);
+			nickNameLabel.Markup = String.Format("<span weight=\"bold\" size=\"x-large\">{0}</span> on <i>{1}</i>", node.NickName, network.NetworkName);
 			
 			realNameLabel.Text = node.RealName;
 			emailLabel.Text    = node.Email;
@@ -97,6 +97,12 @@ namespace FileFind.Meshwork.GtkClient
 			operatingSystemLabel.Text = node.OperatingSystem;
 
 			nodeIdLabel.Text = node.NodeID;
+		}
+		
+		void HandleActionsButtonClicked (object sender, EventArgs args)
+		{
+			var menu = new UserMenu(network, node);
+			menu.Popup((Widget)sender);
 		}
 	}
 }
