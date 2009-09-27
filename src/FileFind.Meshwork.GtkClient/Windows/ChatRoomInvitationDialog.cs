@@ -18,9 +18,14 @@ namespace FileFind.Meshwork.GtkClient
 	public class ChatRoomInvitationDialog : GladeWindow
 	{
 		ChatRoom room;
-		[Widget] Expander passwordExpander;
+		[Widget] Widget messageContainer;
+		[Widget] Widget passwordInfoBox;
 		[Widget] Label descLabel;
-		[Widget] Label passwordLabel;
+		[Widget] Label messageLabel;
+		[Widget] Entry passwordEntry;
+		[Widget] CheckButton showPasswordCheck;
+		[Widget] Button joinButton;
+		
 		ChatInviteInfo invitation;
 
 		public ChatRoomInvitationDialog (Network network, Node inviteFrom, ChatRoom room, ChatInviteInfo invitation) : base ("ChatRoomInvitationDialog")
@@ -28,20 +33,43 @@ namespace FileFind.Meshwork.GtkClient
 			this.room = room;
 			this.invitation = invitation;
 
-			descLabel.Markup = String.Format(descLabel.Text, inviteFrom.ToString(), room.Name, invitation.Message);
-			passwordExpander.Visible = !String.IsNullOrEmpty(invitation.Password);
-			passwordLabel.Markup = String.Format(passwordLabel.Text, invitation.Password);
+			descLabel.Markup = String.Format(descLabel.Text, GLib.Markup.EscapeText(inviteFrom.ToString()), GLib.Markup.EscapeText(room.Name));
+			
+			messageContainer.Visible = !String.IsNullOrEmpty(invitation.Message);
+			messageLabel.Text = GLib.Markup.EscapeText(invitation.Message);
+			
+			passwordInfoBox.Visible = room.HasPassword;
+			
+			passwordEntry.Text = invitation.Password;
+			showPasswordCheck.Visible = !String.IsNullOrEmpty(invitation.Password);
+			
+			Validate();
 		}
 
 		private void joinButton_Clicked (object sender, EventArgs args)
 		{
 			Window.Destroy();
-			Gui.JoinChatRoom(room, invitation.Password);
+			Gui.JoinChatRoom(room, passwordEntry.Text);
 		}
 
 		private void denyButton_Clicked (object sender, EventArgs args)
 		{
 			Window.Destroy();
+		}
+		
+		void HandleShowPasswordCheckToggled (object sender, EventArgs args)
+		{
+			passwordEntry.Visibility = showPasswordCheck.Active;
+		}
+		
+		void HandlePasswordEntryChanged (object sender, EventArgs args)
+		{
+			Validate();
+		}
+		
+		void Validate ()
+		{
+			joinButton.Sensitive = !room.HasPassword || (room.HasPassword && room.TestPassword(passwordEntry.Text));
 		}
 	}
 }

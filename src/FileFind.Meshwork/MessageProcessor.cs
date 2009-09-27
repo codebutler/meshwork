@@ -258,12 +258,11 @@ namespace FileFind.Meshwork
 		{
 			if (action.RoomName != null && action.RoomName.StartsWith("#")) {
 				ChatRoom c;
-				if (!network.ChatRooms.ContainsKey(action.RoomName)) {
-					c = new ChatRoom(network, action.RoomName);
-					c.PasswordTest = action.PasswordTest;
+				if (!network.HasChatRoom(action.RoomId)) {
+					c = new ChatRoom(network, action.RoomId, action.RoomName);
 					network.AddChatRoom(c);
 				} else {
-					c = network.ChatRooms[action.RoomName];
+					c = network.GetChatRoom(action.RoomId);
 				}
 
 				if (!c.Users.ContainsKey(messageFrom.NodeID)) {
@@ -285,8 +284,9 @@ namespace FileFind.Meshwork
 
 		internal void ProcessChatInviteMessage (Node messageFrom, ChatInviteInfo invitation)
 		{
-			if (network.ChatRooms.ContainsKey(invitation.RoomName)) {
-				if (network.ChatRooms[invitation.RoomName].Users.ContainsKey(messageFrom.NodeID)) {
+			if (network.HasChatRoom(invitation.RoomId)) {
+				ChatRoom room = network.GetChatRoom(invitation.RoomId);
+				if (room.Users.ContainsKey(messageFrom.NodeID)) {
 					network.RaiseReceivedChatInvite (messageFrom, invitation);
 				} else {
 					network.SendNonCriticalError (messageFrom, new MeshworkError("you tried to invite me to a chatroom that you arent in! shame on you!"));
@@ -298,13 +298,12 @@ namespace FileFind.Meshwork
 
 		internal void ProcessChatMessage (Node messageFrom, ChatMessage message)
 		{
-			ChatRoom c = network.ChatRooms[message.RoomName];
+			ChatRoom c = network.GetChatRoom(message.RoomId);
 			
-
 			if (messageFrom != null) {
-
+				
 				if (c == null) {
-					c = new ChatRoom (network, message.RoomName);
+					c = new ChatRoom (network, message.RoomId, message.RoomName);
 					network.AddChatRoom(c);
 					LoggingService.LogWarning("MessageProcessor: Assuming chat room {0} exists and that somebody will be joining it in a moment...", c.Name);
 				}
@@ -317,7 +316,7 @@ namespace FileFind.Meshwork
 				}
 				if (c.InRoom == true) {
 					string messageText = message.Message;
-					if (c.PasswordTest != null) {
+					if (c.HasPassword) {
 						try {
 							messageText = Security.Encryption.PasswordDecrypt(c.Password, messageText);
 						} catch (Exception) {
@@ -397,26 +396,20 @@ namespace FileFind.Meshwork
 
 		internal void ProcessLeaveChatMessage (Node messageFrom, ChatAction action)
 		{
-			if (action.RoomName != null && action.RoomName.StartsWith("#")) {
-				//Node n = network.Nodes[action.NodeID];
-				ChatRoom c = network.GetChatRoom(action.RoomName);
-				if (c != null) {
-					if (c.Users.ContainsKey(messageFrom.NodeID)) {
-						c.RemoveUser(messageFrom);
-						/*
-						if (messageFrom == network.LocalNode) {
-							c.InRoom = false;
-						}*/
-
-						network.RaiseLeftChat(messageFrom,c);
-						
-						if (c.Users.Count == 0) {
-							network.RemoveChatRoom(c.Name);
-						}
+			if (action.RoomName == null || !action.RoomName.StartsWith("#"))
+				return;
+			
+			ChatRoom room = network.GetChatRoom(action.RoomId);
+			if (room != null) {
+				if (room.Users.ContainsKey(messageFrom.NodeID)) {
+					room.RemoveUser(messageFrom);
+					network.RaiseLeftChat(messageFrom, room);					
+					if (room.Users.Count == 0) {
+						network.RemoveChatRoom(room);
 					}
-				} else {
 				}
-			} else {
+			} else {				
+				LoggingService.LogWarning("Received LeaveChat message for unknown room {0}", action.RoomName);
 			}
 		}
 

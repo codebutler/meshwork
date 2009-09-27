@@ -47,8 +47,8 @@ namespace FileFind.Meshwork.Protocol
 	[Serializable]
 	public struct ChatAction
 	{
+		public string RoomId;
 		public string RoomName;
-		public string PasswordTest;
 	}
 
 	[Serializable]
@@ -61,6 +61,7 @@ namespace FileFind.Meshwork.Protocol
 	[Serializable]
 	public struct ChatMessage
 	{
+		public string RoomId;
 		public string RoomName;
 		public string Message;
 	}
@@ -293,6 +294,7 @@ namespace FileFind.Meshwork.Protocol
 	[Serializable]
 	public struct ChatInviteInfo
 	{
+		public string RoomId;
 		public string RoomName;
 		public string Message;
 		public string Password;
@@ -301,10 +303,10 @@ namespace FileFind.Meshwork.Protocol
 	[Serializable]
 	public struct ChatRoomInfo
 	{
+		public string Id;
 		public string Name;
-		public string Topic;
+		//public string Topic;
 		public string[] Users; /* List of NodeIDs */
-		public string PasswordTest;
 	}
 
 	[Serializable]

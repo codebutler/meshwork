@@ -59,10 +59,10 @@ namespace FileFind.Meshwork
 				}
 			}
 
-			foreach (ChatRoom currentRoom in network.ChatRooms.Values) {
+			foreach (ChatRoom currentRoom in network.ChatRooms) {
 				ChatRoomInfo tmpRoom = new ChatRoomInfo();
+				tmpRoom.Id = currentRoom.Id;
 				tmpRoom.Name = currentRoom.Name;
-				tmpRoom.PasswordTest = currentRoom.PasswordTest;
 				tmpRoom.Users = new string[currentRoom.Users.Count];
 				int x = 0;
 				foreach (Node node in currentRoom.Users.Values) {
@@ -166,23 +166,22 @@ namespace FileFind.Meshwork
 			return theMessage;
 		}
 
-		public Message CreateJoinChatMessage (string Name)
+		public Message CreateJoinChatMessage (ChatRoom room)
 		{
 			Message p = new Message(network, MessageType.JoinChat);
 			ChatAction c = new ChatAction();
-			c.RoomName = Name;
-	//		c.NodeID = JoinedNode.NodeID;
-			c.PasswordTest = network.ChatRooms[Name].PasswordTest;
+			c.RoomId = room.Id;
+			c.RoomName = room.Name;
 			p.Content = c;
 			return p;
 		}
 
-		public Message CreateLeaveChatMessage (string Name) {
+		public Message CreateLeaveChatMessage (ChatRoom room) 
+		{
 			Message p = new Message(network, MessageType.LeaveChat);
 			ChatAction c = new ChatAction();
-			c.RoomName = Name;
-			//c.NodeID = LeftNode.NodeID;
-			c.PasswordTest = network.ChatRooms[Name].PasswordTest;
+			c.RoomId = room.Id;
+			c.RoomName = room.Name;
 			p.Content = c;
 			return p;
 		}
@@ -295,17 +294,17 @@ namespace FileFind.Meshwork
 				}
 			}
 
-			foreach (ChatRoom currentRoom in network.ChatRooms.Values) {
-				ChatRoomInfo tmpRoom = new ChatRoomInfo();
-				tmpRoom.Name = currentRoom.Name;
-				tmpRoom.PasswordTest = currentRoom.PasswordTest;
-				tmpRoom.Users = new string[currentRoom.Users.Count];
+			foreach (ChatRoom currentRoom in network.ChatRooms) {
+				ChatRoomInfo roomInfo = new ChatRoomInfo();
+				roomInfo.Id = currentRoom.Id;
+				roomInfo.Name = currentRoom.Name;
+				roomInfo.Users = new string[currentRoom.Users.Count];
 				int x = 0;
 				foreach (Node node in currentRoom.Users.Values) {
-					tmpRoom.Users[x] = node.NodeID;
+					roomInfo.Users[x] = node.NodeID;
 					x ++;
 				}
-				rooms.Add(tmpRoom);
+				rooms.Add(roomInfo);
 			}
 
 			foreach (Memo currentMemo in network.Memos.Values) {
@@ -323,11 +322,12 @@ namespace FileFind.Meshwork
 			return p;
 		}
 
-		public Message CreateChatMessageMessage(string Name, string MessageText) {
+		public Message CreateChatMessageMessage(ChatRoom room, string messageText) {
 			Message p = new Message(network, MessageType.ChatroomMessage);
 			ChatMessage c = new ChatMessage();
-			c.RoomName = Name;
-			c.Message = MessageText;
+			c.RoomId = room.Id;
+			c.RoomName = room.Name;
+			c.Message = messageText;
 	//		p.To = "";
 			p.Content = c;
 			return p;
@@ -384,12 +384,13 @@ namespace FileFind.Meshwork
  			return p;
 		}
 
-		public Message CreateChatInviteMessage (Node messageTo, string name, string message, string password)
+		public Message CreateChatInviteMessage (Node messageTo, ChatRoom room, string message, string password)
 		{
 			Message p = new Message(network, MessageType.ChatInvite);
 			p.To = messageTo.NodeID;
 			ChatInviteInfo c = new ChatInviteInfo();
-			c.RoomName = name;
+			c.RoomId = room.Id;
+			c.RoomName = room.Name;
 			c.Message = message;
 			c.Password = password;
 			p.Content = c;

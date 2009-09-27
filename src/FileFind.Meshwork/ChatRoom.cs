@@ -14,6 +14,7 @@ using System.Xml.Serialization;
 using System.Security.Cryptography;
 using FileFind;
 using FileFind.Meshwork;
+using FileFind.Meshwork.Protocol;
 using FileFind.Meshwork.Exceptions;
 using FileFind.Collections;
 
@@ -21,16 +22,24 @@ namespace FileFind.Meshwork
 {
 	public class ChatRoom : FileFind.Meshwork.Object
 	{
+		string id;
 		string name;
-		string passwordTest;
 		string password;
 		Dictionary<string, Node> users = new Dictionary<string, Node>();
 		Network network;
 
-		public ChatRoom (Network network, string name)
+		public ChatRoom (Network network, string id, string name)
 		{
 			this.network = network;
+			this.id = id;
 			this.name = name;
+		}
+		
+		internal ChatRoom (Network network, ChatRoomInfo info)
+		{
+			this.network = network;
+			this.id = info.Id;
+			this.name = info.Name;
 		}
 
 		public Network Network {
@@ -39,6 +48,12 @@ namespace FileFind.Meshwork
 			}
 		}
 
+		public string Id {
+			get {
+				return id;
+			}
+		}
+		
 		public string Name {
 			get {
 				return name;
@@ -66,22 +81,18 @@ namespace FileFind.Meshwork
 				return password;
 			}
 			internal set {
-				password = value;
+				if (!String.IsNullOrEmpty(value)) {
+					if (!TestPassword(value))
+						throw new ArgumentException("Invalid password");
+					password = value;
+				} else
+					password = null;
 			}
 		}
 
 		public bool HasPassword {
 			get {
-				return !String.IsNullOrEmpty(password) || !String.IsNullOrEmpty(passwordTest);
-			}
-		}
-
-		internal string PasswordTest {
-			get {
-				return passwordTest;
-			}
-			set {
-				passwordTest = value;
+				return this.id != Common.SHA512Str(this.name);
 			}
 		}
 
@@ -93,11 +104,10 @@ namespace FileFind.Meshwork
 
 		public bool TestPassword (string password)
 		{
-			if (String.IsNullOrEmpty(password)) {
-				return false;
-			}
+			if (!HasPassword)
+				return true;
 
-			return (passwordTest == Common.SHA512Str(password));
+			return (id == Common.SHA512Str(name + password));
 		}
 	}
 }

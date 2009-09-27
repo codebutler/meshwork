@@ -54,7 +54,7 @@ namespace FileFind.Meshwork.GtkClient
 		public void on_mnuChatJoinRoom_activate (object o, EventArgs e)
 		{
 			if (selectedRoom.InRoom == false) {
-				selectedRoom.Network.JoinChat (selectedRoom.Name);
+				Gui.JoinChatRoom(selectedRoom);
 			} else {
 				(selectedRoom.Properties["Window"] as ChatRoomSubpage).GrabFocus();
 			}

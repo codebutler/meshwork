@@ -68,8 +68,8 @@ namespace FileFind.Meshwork.GtkClient
 			textCell = new CellRendererText ();
 			
 			roomStore = new ListStore (typeof (object));
-			roomComboBox.PackStart (imageCell, false);
 			roomComboBox.PackStart (textCell, true);
+			roomComboBox.PackStart (imageCell, false);
 			roomComboBox.SetCellDataFunc (imageCell, RoomComboImageFunc);
 			roomComboBox.SetCellDataFunc (textCell, RoomComboTextFunc);
 			roomComboBox.Changed += delegate {
@@ -89,19 +89,24 @@ namespace FileFind.Meshwork.GtkClient
 			}
 
 			if (room == null) {
-				if (network.ChatRooms.Count > 0) {
-					roomStore.AppendValues(new SelectRoom());
-					foreach (ChatRoom currentRoom in network.ChatRooms.Values) {
-						roomStore.AppendValues (currentRoom);
+				int count = 0;
+				foreach (ChatRoom currentRoom in network.ChatRooms) {
+					if (currentRoom.InRoom) {
+						if (count == 0)
+							roomStore.AppendValues(new SelectRoom());
+						
+						roomStore.AppendValues(currentRoom);
+						count ++;
 					}
-				} else { 
+				}
+				if (count == 0) {
 					roomStore.AppendValues(new NotInAnyRooms());
 					roomComboBox.Sensitive = false;
 				}
 				roomComboBox.Model = roomStore;	
 				roomComboBox.Active = 0;
 			} else {
-				roomStore.AppendValues (room);
+				roomStore.AppendValues(room);
 				roomComboBox.Model = roomStore;	
 				roomComboBox.Active = 0;
 				roomComboBox.Sensitive = false;
@@ -135,13 +140,12 @@ namespace FileFind.Meshwork.GtkClient
 
 		protected override void OnResponded (int responseId)
 		{
-			string password = null;
-			if (SelectedChatRoom.HasPassword && includePasswordCheck.Active) {
-				password = SelectedChatRoom.Password;
-			}
-
 			if (responseId == (int)ResponseType.Ok) {
-				network.SendChatInvitation (SelectedNode, SelectedChatRoom, messageTextView.Buffer.Text, password);
+				string password = null;
+				if (SelectedChatRoom.HasPassword && includePasswordCheck.Active) {
+					password = SelectedChatRoom.Password;
+				}			
+				network.SendChatInvitation(SelectedNode, SelectedChatRoom, messageTextView.Buffer.Text, password);
 			}
 		}
 	
@@ -153,7 +157,13 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void RoomComboImageFunc (CellLayout layout, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
-			// XXX: Show different icon if password protected.
+			var pixbufCell = (CellRendererPixbuf)cell;
+			var obj = model.GetValue (iter, 0);
+			if (obj is ChatRoom && ((ChatRoom)obj).HasPassword) {
+				pixbufCell.Pixbuf = Gui.LoadIcon(22, "dialog-password");
+			} else {
+				 pixbufCell.Pixbuf = null;
+			}
 		}
 		
 		private void RoomComboTextFunc (CellLayout layout, CellRenderer cell, TreeModel model, TreeIter iter)

@@ -32,8 +32,18 @@ namespace FileFind.Meshwork.GtkClient
 
 			userListStore = new ListStore (typeof (Node));
 			userList.Model = userListStore;
-			userList.AppendColumn ("Image", new CellRendererPixbuf(), new TreeCellDataFunc (UserListIconFunc));
-			userList.AppendColumn ("Text", new CellRendererText(), new TreeCellDataFunc (UserListTextFunc));
+			
+			var iconCell = new CellRendererPixbuf();
+			var textCell = new CellRendererText();
+			
+			var column = new TreeViewColumn();
+			column.PackStart(iconCell, false);
+			column.SetCellDataFunc(iconCell, new TreeCellDataFunc(UserListIconFunc));
+			
+			column.PackStart(textCell, true);
+			column.SetCellDataFunc(textCell, new TreeCellDataFunc (UserListTextFunc));
+			
+			userList.AppendColumn(column);
 
 			userList.HeadersVisible = false;
 			userList.RowActivated += on_userList_RowActivated;

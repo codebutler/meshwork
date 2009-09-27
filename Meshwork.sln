@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express 2008
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileFind.Meshwork.GtkClient", "src\FileFind.Meshwork.GtkClient\FileFind.Meshwork.GtkClient.csproj", "{3365276B-1897-48BF-AE17-13519F98888B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileFind.Meshwork", "src\FileFind.Meshwork\FileFind.Meshwork.csproj", "{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}"
@@ -11,13 +11,17 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Debug|x86.ActiveCfg = Debug|x86
+		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Debug|x86.Build.0 = Debug|x86
+		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Release|x86.ActiveCfg = Release|x86
 		{3365276B-1897-48BF-AE17-13519F98888B}.Debug|x86.ActiveCfg = Debug|x86
 		{3365276B-1897-48BF-AE17-13519F98888B}.Debug|x86.Build.0 = Debug|x86
 		{3365276B-1897-48BF-AE17-13519F98888B}.Release|x86.ActiveCfg = Release|Any CPU
 		{3365276B-1897-48BF-AE17-13519F98888B}.Release|x86.Build.0 = Release|Any CPU
-		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Debug|x86.ActiveCfg = Debug|x86
-		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Debug|x86.Build.0 = Debug|x86
-		{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 0.1
+		StartupItem = src\FileFind.Meshwork.GtkClient\FileFind.Meshwork.GtkClient.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

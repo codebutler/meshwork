@@ -56,13 +56,15 @@ namespace FileFind.Meshwork.GtkClient
 
 			TreeViewColumn column;
 
-			column = chatList.AppendColumn ("Room Name", new CellRendererText (),
-					new TreeCellDataFunc (NameDataFunc));
+			column = chatList.AppendColumn("Room Name", new CellRendererText(), new TreeCellDataFunc (NameDataFunc));
 			column.Expand = true;
 			column.Sizing = TreeViewColumnSizing.Autosize;
+			
+			var pixbufCell = new CellRendererPixbuf();
+			column.PackStart(pixbufCell, false);
+			column.SetCellDataFunc(pixbufCell, new TreeCellDataFunc(RoomSecureDataFunc));
 
-			column = chatList.AppendColumn ("Users", new CellRendererText (),
-					new TreeCellDataFunc (RoomUsersDataFunc));
+			column = chatList.AppendColumn("Users", new CellRendererText(), new TreeCellDataFunc (RoomUsersDataFunc));
 			column.Sizing = TreeViewColumnSizing.Autosize;
 		
 			chatList.RowActivated += chatList_RowActivated;
@@ -89,10 +91,12 @@ namespace FileFind.Meshwork.GtkClient
 
 		void HandleTabButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
-			if (tabLabelPages.ContainsKey((Widget)o)) {
-				ChatSubpageBase page = tabLabelPages[(Widget)o];
-				var menu = new ChatPageMenu(page);
-				menu.Popup();				
+			if (args.Event.Button == 3) {
+				if (tabLabelPages.ContainsKey((Widget)o)) {
+					ChatSubpageBase page = tabLabelPages[(Widget)o];
+					var menu = new ChatPageMenu(page);
+					menu.Popup();				
+				}
 			}			
 		}
 
@@ -150,6 +154,17 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
+		private void RoomSecureDataFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
+		{
+			var pixbufCell = (CellRendererPixbuf)cell;
+			object item = model.GetValue (iter, 0);
+			if (item is ChatRoom && ((ChatRoom)item).HasPassword) {
+				pixbufCell.Pixbuf = Gui.LoadIcon(22, "dialog-password");
+			} else {
+				pixbufCell.Pixbuf = null;
+			}
+		}
+		
 		private ChatRoom GetSelectedChatRoom ()
 		{
 			TreeIter iter;

@@ -46,7 +46,7 @@ namespace FileFind.Meshwork.GtkClient
 				networksListStore.AppendValues (network);
 			}
 
-			roomListStore = new ListStore (typeof(string));
+			roomListStore = new ListStore (typeof(string), typeof(ChatRoom));
 
 			CellRendererText textCell = new CellRendererText ();
 			networkCombo.PackStart (textCell, true);
@@ -57,9 +57,10 @@ namespace FileFind.Meshwork.GtkClient
 			roomNameCombo.Entry.ActivatesDefault = true;
 			roomNameCombo.Entry.Text = "#";
 
-			textCell = new CellRendererText ();
-			roomNameCombo.PackStart (textCell, true);
-			roomNameCombo.AddAttribute (textCell, "text", 0);
+			var imageCell = new CellRendererPixbuf ();
+			roomNameCombo.PackEnd(imageCell, false);			
+			roomNameCombo.SetCellDataFunc(imageCell, RoomComboImageFunc);
+			
 			roomNameCombo.Model = roomListStore;
 			roomNameCombo.TextColumn = 0;
 			
@@ -80,19 +81,16 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void roomNameCombo_Entry_Changed (object sender, EventArgs args)
 		{
-			// Enable/disable password box 
-
 			Network selectedNetwork = GetSelectedNetwork();
 			if (selectedNetwork != null) {
-				ChatRoom room = selectedNetwork.GetChatRoom(roomNameCombo.Entry.Text);
-				if (room != null && room.HasPassword) {
-					passwordCheck.Active = true;
-					passwordCheck.Sensitive = false;
-				} else {
-					passwordCheck.Sensitive = true;
+				foreach (ChatRoom room in selectedNetwork.ChatRooms) {
+					if (room.Name == roomNameCombo.Entry.Text) {
+						passwordCheck.Active = room.HasPassword;
+						break;
+					}
 				}
 			}
-
+			
 			EnableDisableOkButton();
 		}
 
@@ -105,26 +103,28 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			Network selectedNetwork = GetSelectedNetwork();
 			if (selectedNetwork == null) {
-				Gui.ShowMessageDialog ("No network selected.",
-				                       Dialog,
-						       Gtk.MessageType.Error,
-						       Gtk.ButtonsType.Ok);
+				Gui.ShowMessageDialog("No network selected.", Dialog, Gtk.MessageType.Error, Gtk.ButtonsType.Ok);
 				return;
 			}
 
 			try {
 				string roomName = roomNameCombo.Entry.Text.Trim();
-				ChatRoom room = selectedNetwork.GetChatRoom(roomName);
-				if (room == null || room.InRoom == false) {
+				string password = passwordEntry.Text;
+				
+				string roomId = (passwordCheck.Active) ? Common.SHA512Str(roomName + password) : Common.SHA512Str(roomName);
+				
+				ChatRoom room = selectedNetwork.GetChatRoom(roomId);
+				if (room != null && room.InRoom) {
+					// Already in here!
+					ChatRoomSubpage window = (ChatRoomSubpage)room.Properties["Window"];
+					window.GrabFocus();					
+				} else {
 					if (passwordCheck.Active == true) { 
-						selectedNetwork.JoinChat(roomName, passwordEntry.Text);
+						selectedNetwork.JoinOrCreateChat(roomName, passwordEntry.Text);
 					}
 					else {
-						selectedNetwork.JoinChat(roomName);
+						selectedNetwork.JoinOrCreateChat(roomName, null);
 					}
-				} else {
-					ChatRoomSubpage window = (ChatRoomSubpage)room.Properties["Window"];
-					window.GrabFocus();
 				}
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
@@ -159,8 +159,8 @@ namespace FileFind.Meshwork.GtkClient
 
 			Network selectedNetwork = GetSelectedNetwork();
 			if (selectedNetwork != null) {
-				foreach (ChatRoom room in selectedNetwork.ChatRooms.Values) {
-					roomNameCombo.AppendText (room.Name);
+				foreach (ChatRoom room in selectedNetwork.ChatRooms) {
+					((ListStore)roomNameCombo.Model).AppendValues(room.Name, room);
 				}
 			}
 
@@ -192,6 +192,16 @@ namespace FileFind.Meshwork.GtkClient
 						((passwordCheck.Active & passwordEntry.Text.Length > 0) ||
 						passwordCheck.Active == false));
 
+		}
+			
+		private void RoomComboImageFunc (CellLayout layout, CellRenderer cell, TreeModel model, TreeIter iter)
+		{
+			var pixbufCell = (CellRendererPixbuf)cell;
+			var room = model.GetValue(iter, 1) as ChatRoom;
+			if (room != null && room.HasPassword)
+				pixbufCell.Pixbuf = Gui.LoadIcon(22, "dialog-password");
+			else
+				pixbufCell.Pixbuf = null;
 		}
 	}
 }

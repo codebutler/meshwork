@@ -101,16 +101,16 @@ namespace FileFind.Meshwork.GtkClient
 			if (room.Properties.ContainsKey("Window") == false) {
 				if (room.HasPassword) {
 					if (password != null && room.TestPassword(password)) {
-						room.Network.JoinChat (room.Name, password);
+						room.Network.JoinChat(room, password);
 					} else {
 						ChatRoomPasswordDialog dialog =
 							new ChatRoomPasswordDialog (Gui.MainWindow.Window, room);
 						if (dialog.Run() == (int)ResponseType.Ok) {
-							room.Network.JoinChat (room.Name, dialog.Password);
+							room.Network.JoinChat(room, dialog.Password);
 						}
 					}
 				} else {
-					room.Network.JoinChat (room.Name);
+					room.Network.JoinChat(room);
 				}
 			} else {
 				(room.Properties ["Window"] as ChatRoomSubpage).GrabFocus();

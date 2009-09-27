@@ -28,3 +28,4 @@ src/FileFind.Meshwork.GtkClient/Defines.cs
 Thumbs.db
 obj/
 meshwork-gtk.pc
+*~.cs

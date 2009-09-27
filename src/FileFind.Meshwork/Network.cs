@@ -435,56 +435,77 @@ namespace FileFind.Meshwork
 			SendBroadcast(m, null);
 		}
 
-		public void SendChatMessage(ChatRoom SendTo, string MessageText)
+		public void SendChatMessage(ChatRoom room, string MessageText)
 		{
-			if (SendTo.InRoom == true) {
-				if (SendTo.PasswordTest != null) {
-					SendBroadcast(MessageBuilder.CreateChatMessageMessage(SendTo.Name, Security.Encryption.PasswordEncrypt(SendTo.Password, MessageText)), LocalNode);
+			if (room.InRoom == true) {
+				if (room.HasPassword) {
+					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, Security.Encryption.PasswordEncrypt(room.Password, MessageText)), LocalNode);
 				} else {
-					SendBroadcast(MessageBuilder.CreateChatMessageMessage(SendTo.Name, MessageText), LocalNode);
+					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, MessageText), LocalNode);
 				}
 			} else {
 				throw new Exception("You cannot send messages to chatrooms that you are not in");
 			}
 		}
+		
+		public void JoinOrCreateChat (string name, string password)	
+		{
+			string roomId = String.IsNullOrEmpty(password) ? Common.SHA512Str(name) : Common.SHA512Str(name + password);
+			lock (chatRooms) {
+				ChatRoom room = null;
+				if (chatRooms.ContainsKey(roomId)) {
+					room = chatRooms[roomId];
+				} else {
+					room = new ChatRoom(this, roomId, name);
+					AddChatRoom(room);
+				}
+				JoinChat(room, password);
+			}
+		}		
 
+		public void JoinChat (ChatRoom room, string password)
+		{
+			if (!room.TestPassword(password))
+				throw new ArgumentException("Incorrect password");
+			
+			room.Password = password;
+			
+			JoinChat(room);
+		}
+		
 		public void JoinChat (ChatRoom room)
 		{
 			if (room == null) {
 				throw new ArgumentNullException ("room");
 			}
 
-			JoinChat (room.Name);
-		}
-
-		public void JoinChat(string roomName)
-		{
-			ChatRoom c;
 			lock (chatRooms) {
-				if (!chatRooms.ContainsKey(roomName)) {
-					c = new ChatRoom (this, roomName);
-					AddChatRoom(c);
+				if (!room.Users.ContainsKey(this.LocalNode.NodeID)) {
+					room.AddUser(this.LocalNode);
+					SendBroadcast(MessageBuilder.CreateJoinChatMessage(room), this.LocalNode);
+					OnJoinedChat(new ChatEventArgs(this.LocalNode, room));
 				} else {
-					c = chatRooms[roomName];
+					throw new Exception("Already in room");
 				}
 			}
-			if (c.Users.ContainsKey (LocalNode.NodeID) == false) {
-				c.AddUser(LocalNode);
-				SendBroadcast (MessageBuilder.CreateJoinChatMessage(c.Name), LocalNode);
-				OnJoinedChat (new ChatEventArgs (LocalNode, c));
-			}
+		}
+		
+		/*
+
+		internal void JoinChat(string roomId, string roomName)
+		{
+			JoinChat(roomId, roomName, null);
 		}
 
-		public void JoinChat(string roomName, string password)
+		internal void JoinChat(string roomName, string roomId, string password)
 		{
-			ChatRoom c;
 			lock (chatRooms) {
-				if (!chatRooms.ContainsKey(roomName)) {
-					c = new ChatRoom (this, roomName);
-					c.PasswordTest = Common.SHA512Str(password);
+				ChatRoom room;
+				if (!chatRooms.ContainsKey(roomId)) {
+					room = new ChatRoom (this, roomId, roomName);
 					AddChatRoom(c);
 				} else {
-					c = chatRooms[roomName];
+					c = chatRooms[roomId];
 					if (c.PasswordTest == "") {
 						throw new Exception("That chatroom is not password-protected.");
 					}
@@ -501,14 +522,16 @@ namespace FileFind.Meshwork
 				OnJoinedChat (new ChatEventArgs (LocalNode, c));
 			}
 		}
+		
+		*/
 
 		public void LeaveChat(ChatRoom room)
 		{
-			SendBroadcast(MessageBuilder.CreateLeaveChatMessage(room.Name), LocalNode);
+			SendBroadcast(MessageBuilder.CreateLeaveChatMessage(room), LocalNode);
 			room.RemoveUser(LocalNode);
 			OnLeftChat (new ChatEventArgs (LocalNode, room));
 			if (room.Users.Count == 0) {
-				RemoveChatRoom(room.Name);
+				RemoveChatRoom(room);
 			}
 		}
 
@@ -745,33 +768,41 @@ namespace FileFind.Meshwork
 			OnMemoDeleted(memo);
 		}
 
-		public IDictionary<string, ChatRoom> ChatRooms {
+		public ICollection<ChatRoom> ChatRooms {
 			get {
-				return new ReadOnlyDictionary<string, ChatRoom>(chatRooms);
+				return chatRooms.Values;
+				//return new ReadOnlyDictionary<string, ChatRoom>(chatRooms);
 			}
 		}
 
 		internal void AddChatRoom (ChatRoom room)
 		{
 			lock (chatRooms) {
-				chatRooms.Add(room.Name, room);
+				chatRooms.Add(room.Id, room);
 			}
 		}
 
-		internal void RemoveChatRoom (string name)
+		internal void RemoveChatRoom (ChatRoom room)
 		{
 			lock (chatRooms) {
-				chatRooms.Remove(name);
+				chatRooms.Remove(room.Id);
 			}
 		}
 
-		public ChatRoom GetChatRoom (string name)
+		internal bool HasChatRoom (string id)
 		{
 			lock (chatRooms) {
-				if (!chatRooms.ContainsKey(name)) {
+				return chatRooms.ContainsKey(id);
+			}
+		}
+		
+		public ChatRoom GetChatRoom (string id)
+		{
+			lock (chatRooms) {
+				if (!chatRooms.ContainsKey(id)) {
 					return null;
 				} else {
-					return chatRooms[name];
+					return chatRooms[id];
 				}
 			}
 		}
@@ -836,7 +867,7 @@ namespace FileFind.Meshwork
 		
 		public void SendChatInvitation (Node node, ChatRoom room, string message, string password)
 		{
-			Message m = MessageBuilder.CreateChatInviteMessage(node, room.Name, message, password);
+			Message m = MessageBuilder.CreateChatInviteMessage(node, room, message, password);
 			SendRoutedMessage (m);
 		}
 
@@ -938,18 +969,17 @@ namespace FileFind.Meshwork
 			}
 
 			if (stateObject.KnownChatRooms != null) {
-				foreach (ChatRoomInfo currentRoom in stateObject.KnownChatRooms) {
+				foreach (ChatRoomInfo roomInfo in stateObject.KnownChatRooms) {
 					lock (chatRooms) {
-						if (!chatRooms.ContainsKey(currentRoom.Name)) {
-							ChatRoom newRoom = new ChatRoom(this, currentRoom.Name);
+						if (!chatRooms.ContainsKey(roomInfo.Id)) {
+							ChatRoom newRoom = new ChatRoom(this, roomInfo);
 							AddChatRoom(newRoom);
-							newRoom.PasswordTest = currentRoom.PasswordTest;
 						}
 					}
 
-					ChatRoom realRoom = chatRooms[currentRoom.Name];
+					ChatRoom realRoom = chatRooms[roomInfo.Id];
 
-					foreach (string nodeId in currentRoom.Users) {
+					foreach (string nodeId in roomInfo.Users) {
 						Node currentNode = GetNode(nodeId);
 						if (currentNode != null) {
 							if (!realRoom.Users.ContainsKey(currentNode.NodeID)) {
@@ -964,7 +994,7 @@ namespace FileFind.Meshwork
 								}
 							}
 						} else {
-							LoggingService.LogWarning("TRIED TO ADD NON-EXISTANT NODE {0} TO CHATROOM {1}", nodeId, currentRoom.Name);
+							LoggingService.LogWarning("TRIED TO ADD NON-EXISTANT NODE {0} TO CHATROOM {1}", nodeId, roomInfo.Name);
 						}
 					}
 				}
@@ -1283,8 +1313,8 @@ namespace FileFind.Meshwork
 				}
 			}
 
-			foreach (ChatRoom r in chatRoomsToDelete) {
-				this.RemoveChatRoom(r.Name);
+			foreach (ChatRoom room in chatRoomsToDelete) {
+				this.RemoveChatRoom(room);
 			}
 
 			foreach (Node n in usersToDelete) {
@@ -1511,11 +1541,11 @@ namespace FileFind.Meshwork
 		internal void RaiseReceivedChatInvite (Node from, ChatInviteInfo invitation)
 		{
 			if (ReceivedChatInvite != null) {
-				if (chatRooms.ContainsKey(invitation.RoomName)) {
-					ChatRoom room = chatRooms[invitation.RoomName];
+				if (chatRooms.ContainsKey(invitation.RoomId)) {
+					ChatRoom room = chatRooms[invitation.RoomId];
 					ReceivedChatInvite(this, from, room, invitation);
 				} else {
-					// Ignore invites for non-existant rooms.
+					LoggingService.LogWarning("Ignored invitation for non-existent chatroom: {0}", invitation.RoomName);
 				}
 			}
 		}
