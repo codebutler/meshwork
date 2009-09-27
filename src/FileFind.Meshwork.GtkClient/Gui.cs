@@ -201,7 +201,7 @@ namespace FileFind.Meshwork.GtkClient
 				// Try to load from gtk theme...
 				try {
 					Gdk.Pixbuf pixbuf1 = IconTheme.Default.LoadIcon (thisName, thisSize, Gtk.IconLookupFlags.UseBuiltin);
-					if (pixbuf1 != null) {
+					if (pixbuf1 != null && pixbuf1.Width == thisSize && pixbuf1.Height == thisSize) {
 						return pixbuf1;
 					}
 				} catch (Exception) {
@@ -230,6 +230,7 @@ namespace FileFind.Meshwork.GtkClient
 				if (Environment.OSVersion.Platform == PlatformID.Unix) {
 					pixbuf = loadFromGtkTheme(name, size);
 					if (pixbuf == null) {
+						LoggingService.LogWarning("Icon not found in theme: {0} {1}", name, size);
 						pixbuf = loadFromResource(name, size);
 					}
 				} else {
