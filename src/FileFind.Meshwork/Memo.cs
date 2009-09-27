@@ -16,6 +16,7 @@ using FileFind;
 using FileFind.Meshwork;
 using FileFind.Meshwork.Collections;
 using FileFind.Meshwork.Exceptions;
+using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork
 {
@@ -24,26 +25,29 @@ namespace FileFind.Meshwork
 		//public ArrayList FileLinks = new ArrayList();
 		bool unread = true;
 		byte[] signature;
-		string writtenByNodeID;
+		Node node;
 		string id;
 		string subject;
 		string text;
 		Network network;
 		DateTime createdOn;
 
-		public Memo (Network network, FileFind.Meshwork.Protocol.MemoInfo memoInfo) : this (network)
+		public Memo (Network network, MemoInfo memoInfo) 
 		{
-			id = memoInfo.ID;
-			writtenByNodeID = memoInfo.FromNodeID;
-			createdOn = memoInfo.CreatedOn;
-			signature = memoInfo.Signature;
-			subject = memoInfo.Subject;
-			text = memoInfo.Text;
+			this.network = network;
+			this.id = memoInfo.ID;
+			this.node = network.Nodes[memoInfo.FromNodeID];
+			this.createdOn = memoInfo.CreatedOn;
+			this.signature = memoInfo.Signature;
+			this.subject = memoInfo.Subject;
+			this.text = memoInfo.Text;
 		}
 
 		public Memo (Network network)
 		{
 			this.network = network;
+			this.node = network.Nodes[Core.MyNodeID];
+			this.createdOn = DateTime.Now;
 		}
 
 		public string Subject {
@@ -70,17 +74,11 @@ namespace FileFind.Meshwork
 			get {
 				return createdOn;
 			}
-			set {
-				createdOn = value;
-			}
 		}
 
-		public string WrittenByNodeID {
+		public Node Node {
 			get {
-				return writtenByNodeID;
-			}
-			set {
-				writtenByNodeID = value.Trim().ToLower();
+				return node;
 			}
 		}
 
@@ -119,7 +117,7 @@ namespace FileFind.Meshwork
 
 		public bool Verify ()
 		{
-			TrustedNodeInfo remoteNode = network.TrustedNodes[WrittenByNodeID];
+			TrustedNodeInfo remoteNode = network.TrustedNodes[this.node.NodeID];
 			byte[] buf = System.Text.Encoding.UTF8.GetBytes (CreateSignString());
 			return remoteNode.Crypto.VerifyData (buf, new SHA1CryptoServiceProvider(), signature);
 		}
@@ -129,7 +127,7 @@ namespace FileFind.Meshwork
 		{
 			byte[] tmpsig = signature;
 			signature = null;
-			string returnMe = writtenByNodeID + id + Subject + Text;
+			string returnMe = node.NodeID + id + Subject + createdOn.ToString() + Text;
 			signature = tmpsig;
 			return returnMe;
 		}

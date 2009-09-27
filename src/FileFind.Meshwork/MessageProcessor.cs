@@ -121,8 +121,7 @@ namespace FileFind.Meshwork
 
 				network.AddTrustedNode(tni);
 
-				Core.Settings.SyncTrustedNodes();
-				Core.Settings.SaveSettings();
+				Core.Settings.SyncNetworkInfoAndSave();
 			}
 		}
 		
@@ -180,7 +179,7 @@ namespace FileFind.Meshwork
 			tNode.DestinationInfos.Clear();
 			tNode.DestinationInfos.AddRange(nodeInfo.DestinationInfos);
 
-			Core.Settings.SyncTrustedNodesAndSave();
+			Core.Settings.SyncNetworkInfoAndSave();
 
 			/*
 			IDirectory userDirectory = network.Directory.GetSubdirectory(currentNode.NodeID);
@@ -421,7 +420,7 @@ namespace FileFind.Meshwork
 				connection.ConnectionState = ConnectionState.Ready;
 				connection.RaiseConnectionReady();
 				connection.RemoteNodeInfo.LastConnected = DateTime.Now;
-				Core.Settings.SyncTrustedNodesAndSave();
+				Core.Settings.SyncNetworkInfoAndSave();
 
 				if (connection.ReadySent == false) {
 					connection.SendReady();
@@ -451,32 +450,21 @@ namespace FileFind.Meshwork
 		{
 			Memo memo = new Memo (network, memoInfo);
 
-			if (memo.WrittenByNodeID != network.LocalNode.NodeID) {
-				if (network.TrustedNodes.ContainsKey(memo.WrittenByNodeID) && memo.Verify () == false) {
+			if (!Core.IsLocalNode(memo.Node)) {
+				if (network.TrustedNodes.ContainsKey(memo.Node.NodeID) && memo.Verify() == false) {
 					LoggingService.LogWarning("Ignored a memo with an invalid signature!");
 					return;
 				}
-				if (network.Memos.ContainsKey(memo.ID)) {
-					Memo existingMemo = network.Memos[memo.ID];
-					//existingMemo.FileLinks = memo.FileLinks;
-					existingMemo.Subject = memo.Subject;
-					existingMemo.Text = memo.Text;
-
-					network.RaiseMemoUpdated (memo);
-					
-				} else {
-					//memo.Properties = new PropertiesHashtable();
-					network.AddMemo(memo);
-				}
+				network.AddOrUpdateMemo(memo);
 			}
 
 		}
 		
 		internal void ProcessDeleteMemoMessage (Node messageFrom, string memoId)
 		{
-			if (network.Memos.ContainsKey(memoId)) {
-				Memo theMemo = network.Memos[memoId];
-				if (messageFrom.NodeID == theMemo.WrittenByNodeID) {
+			if (network.HasMemo(memoId)) {
+				Memo theMemo = network.GetMemo(memoId);
+				if (messageFrom == theMemo.Node) {
 					network.RemoveMemo(theMemo);
 				} else {
 					LoggingService.LogWarning("Someone tired to delete someone else's memo!");

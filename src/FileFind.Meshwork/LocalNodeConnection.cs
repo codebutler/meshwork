@@ -371,8 +371,7 @@ namespace FileFind.Meshwork
 							trustedNode.Identifier = String.Format("[{0}]", nodeID);
 							trustedNode.EncryptionParameters = provider.ExportParameters(false);														
 							transport.Network.AddTrustedNode(trustedNode);
-							Core.Settings.SyncTrustedNodes();
-							Core.Settings.SaveSettings();
+							Core.Settings.SyncNetworkInfoAndSave();
 						} else {
 							throw new ConnectNotTrustedException ();
 						}

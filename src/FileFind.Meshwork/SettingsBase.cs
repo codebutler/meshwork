@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Collections.Generic;
 using FileFind.Meshwork.Destination;
 using FileFind.Meshwork.Search;
+using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork
 {
@@ -250,7 +251,7 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		public void SyncTrustedNodes ()
+		public void SyncNetworkInfo ()
 		{
 			foreach (NetworkInfo info in networks) {
 				foreach (Network network in Core.Networks) {
@@ -259,15 +260,25 @@ namespace FileFind.Meshwork
 						foreach (TrustedNodeInfo tni in network.TrustedNodes.Values) {
 							info.TrustedNodes.Add(tni.NodeID, tni);
 						}
+						
+						info.Memos.Clear();
+						foreach (Memo memo in network.Memos) {
+							if (Core.IsLocalNode(memo.Node)) {
+								var memoInfo = new MemoInfo(memo);
+								memoInfo.FromNodeID = null;
+								info.Memos.Add(memoInfo);
+							}
+						}
+						
 						break;
 					}
 				}
 			}
 		}
 	
-		public void SyncTrustedNodesAndSave ()
+		public void SyncNetworkInfoAndSave ()
 		{
-			SyncTrustedNodes();
+			SyncNetworkInfo();
 			SaveSettings();
 		}
 	}

@@ -1647,18 +1647,6 @@ To manually add a new trusted friend, paste their public key below, select to im
                     <property name="position">1</property>
                   </packing>
                 </child>
-                <child>
-                  <widget class="GtkLabel" id="label349">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">This memo will expire in two days, unless modified.</property>
-                  </widget>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
               </widget>
               <packing>
                 <property name="position">2</property>
@@ -1754,6 +1742,7 @@ To manually add a new trusted friend, paste their public key below, select to im
   </widget>
   <widget class="GtkWindow" id="MemoWindow">
     <property name="title" translatable="yes">Memo</property>
+    <property name="window_position">center-on-parent</property>
     <property name="default_width">500</property>
     <property name="default_height">400</property>
     <child>
@@ -1767,7 +1756,6 @@ To manually add a new trusted friend, paste their public key below, select to im
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="orientation">vertical</property>
-            <property name="position">295</property>
             <child>
               <widget class="GtkEventBox" id="eventbox2">
                 <property name="visible">True</property>
@@ -1968,9 +1956,11 @@ To manually add a new trusted friend, paste their public key below, select to im
                                                 <property name="n_rows">2</property>
                                                 <property name="n_columns">2</property>
                                                 <property name="column_spacing">5</property>
+                                                <property name="row_spacing">5</property>
                                                 <child>
                                                   <widget class="GtkHBox" id="hbox136">
                                                     <property name="visible">True</property>
+                                                    <property name="spacing">5</property>
                                                     <child>
                                                       <widget class="GtkLabel" id="label366">
                                                         <property name="visible">True</property>
@@ -1983,17 +1973,18 @@ To manually add a new trusted friend, paste their public key below, select to im
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <widget class="GtkButton" id="button107">
+                                                      <widget class="GtkButton" id="signedByButton">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
-                                                        <property name="relief">none</property>
+                                                        <property name="relief">half</property>
+                                                        <signal name="clicked" handler="HandleSignedByButtonClicked"/>
                                                         <child>
                                                           <widget class="GtkLabel" id="lblSignatureInfo">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="yalign">0</property>
-                                                            <property name="label" translatable="yes">&lt;span underline="single" foreground="blue" &gt;Nickname (NodeID)&lt;/span&gt;</property>
+                                                            <property name="label" translatable="yes">Nickname (NodeID)</property>
                                                             <property name="use_markup">True</property>
                                                           </widget>
                                                         </child>
@@ -2029,7 +2020,8 @@ To manually add a new trusted friend, paste their public key below, select to im
                                                 <child>
                                                   <widget class="GtkImage" id="image124">
                                                     <property name="visible">True</property>
-                                                    <property name="stock">gtk-missing-image</property>
+                                                    <property name="icon_name">dialog-password</property>
+                                                    <property name="icon-size">6</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="bottom_attach">2</property>
@@ -2129,18 +2121,9 @@ To manually add a new trusted friend, paste their public key below, select to im
           </packing>
         </child>
         <child>
-          <widget class="GtkHBox" id="hbox138">
+          <widget class="GtkHButtonBox" id="hbuttonbox1">
             <property name="visible">True</property>
-            <property name="spacing">5</property>
-            <child>
-              <widget class="GtkLabel" id="lblExpireDate">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-              </widget>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
+            <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="btnClose">
                 <property name="label">gtk-close</property>
@@ -2148,14 +2131,14 @@ To manually add a new trusted friend, paste their public key below, select to im
                 <property name="height_request">30</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
+                <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_btnClose_clicked"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">1</property>
+                <property name="position">0</property>
               </packing>
             </child>
           </widget>
@@ -8126,33 +8109,40 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkButton" id="actionsButton">
+                  <widget class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="focus_on_click">False</property>
-                    <signal name="clicked" handler="HandleActionsButtonClicked"/>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
                     <child>
-                      <widget class="GtkHBox" id="hbox1">
+                      <widget class="GtkButton" id="actionsButton">
                         <property name="visible">True</property>
-                        <property name="spacing">6</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="focus_on_click">False</property>
+                        <signal name="clicked" handler="HandleActionsButtonClicked"/>
                         <child>
-                          <widget class="GtkLabel" id="label1">
+                          <widget class="GtkHBox" id="hbox1">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Actions</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <widget class="GtkLabel" id="label1">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Actions</property>
+                              </widget>
+                              <packing>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkArrow" id="arrow1">
+                                <property name="visible">True</property>
+                                <property name="arrow_type">down</property>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
                           </widget>
-                          <packing>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkArrow" id="arrow1">
-                            <property name="visible">True</property>
-                            <property name="arrow_type">down</property>
-                          </widget>
-                          <packing>
-                            <property name="position">1</property>
-                          </packing>
                         </child>
                       </widget>
                     </child>

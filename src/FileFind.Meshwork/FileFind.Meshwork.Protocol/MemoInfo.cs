@@ -17,7 +17,7 @@ namespace FileFind.Meshwork.Protocol
 		public MemoInfo (Memo memo)
 		{
 			this.ID = memo.ID;
-			this.FromNodeID = memo.WrittenByNodeID;
+			this.FromNodeID = memo.Node.NodeID;
 			this.CreatedOn = memo.CreatedOn;
 			this.Signature = memo.Signature;
 			this.Subject = memo.Subject;

@@ -128,7 +128,7 @@ namespace FileFind.Meshwork
 		}
 
 		void SaveSettings ();
-		void SyncTrustedNodes ();
-		void SyncTrustedNodesAndSave ();
+		void SyncNetworkInfo ();
+		void SyncNetworkInfoAndSave ();
 	}
 }

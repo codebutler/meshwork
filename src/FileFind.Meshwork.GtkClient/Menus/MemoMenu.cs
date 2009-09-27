@@ -51,7 +51,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public void on_mnuPostMemo_activate (object o, EventArgs e)
 		{
-			EditMemoDialog editMemoDialog = new EditMemoDialog();
+			EditMemoDialog editMemoDialog = new EditMemoDialog(Gui.MainWindow.Window);
 			if (editMemoDialog.Run() != (int)ResponseType.Cancel) {
 				// XXX: UpdateMemoList();
 			}
@@ -68,7 +68,7 @@ namespace FileFind.Meshwork.GtkClient
 		{	
 			if (selectedMemo != null) {
 				mnuViewMemo.Sensitive = true;			
-				if (selectedMemo.WrittenByNodeID == Core.MyNodeID) {
+				if (Core.IsLocalNode(selectedMemo.Node)) {
 					mnuEditMemo.Sensitive = true;	
 					mnuDeleteMemo.Sensitive = true;
 				} else {	

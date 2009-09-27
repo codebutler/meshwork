@@ -106,6 +106,13 @@ namespace FileFind.Meshwork.GtkClient
 			network.MemoAdded   += (MemoEventHandler) DispatchService.GuiDispatch (new MemoEventHandler(network_MemoAdded));
 			network.MemoDeleted += (MemoEventHandler) DispatchService.GuiDispatch (new MemoEventHandler(network_MemoDeleted));
 			network.MemoUpdated += (MemoEventHandler) DispatchService.GuiDispatch (new MemoEventHandler(network_MemoUpdated));
+			
+			foreach (Memo memo in network.Memos) {
+				var m = memo;
+				Application.Invoke(delegate {
+					network_MemoAdded(network, m);
+				});
+			}
 		}
 
 		private Memo GetSelectedMemo ()
@@ -182,7 +189,7 @@ namespace FileFind.Meshwork.GtkClient
 			object item = (object) model.GetValue (iter, 0);
 			if (item is Memo) {
 				Memo memo = (Memo)item;
-				(cell as CellRendererText).Text = memo.Network.Nodes [memo.WrittenByNodeID].ToString ();
+				(cell as CellRendererText).Text = memo.Node.ToString();
 				(cell as CellRendererText).Weight = memo.Unread ? (int)Pango.Weight.Bold : (int)Pango.Weight.Normal;
 			} else {
 				(cell as CellRendererText).Text = String.Empty;
@@ -204,7 +211,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_MemoAdded (Network network, Memo memo)
 		{
 			TreeIter iter = memoTreeStore.AddItem (network, memo);
-			if (memo.WrittenByNodeID == Core.MyNodeID) {
+			if (Core.IsLocalNode(memo.Node)) {
 				memoList.Selection.SelectIter (iter);
 				memoList.GrabFocus();
 			}

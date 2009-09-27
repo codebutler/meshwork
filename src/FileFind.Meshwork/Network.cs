@@ -163,6 +163,12 @@ namespace FileFind.Meshwork
 			foreach (TrustedNodeInfo node in networkInfo.TrustedNodes.Values) {
 				network.AddTrustedNode(node);
 			}
+			
+			foreach (MemoInfo m in networkInfo.Memos) {
+				var memoInfo = m;
+				memoInfo.FromNodeID = Core.MyNodeID;
+				network.PostMemo(new Memo(network, memoInfo));
+			}
 
 			return network;
 		}
@@ -268,7 +274,7 @@ namespace FileFind.Meshwork
 					node.CreateNewSessionKey();
 				}
 			}
-			Core.Settings.SyncTrustedNodes();
+			Core.Settings.SyncNetworkInfo();
 		}
 
 		internal void AddTrustedNode(TrustedNodeInfo info)
@@ -740,9 +746,10 @@ namespace FileFind.Meshwork
 			return false;
 		}
 
-		public IDictionary<string, Memo> Memos {
+		public ICollection<Memo> Memos {
 			get {
-				return new ReadOnlyDictionary<string, Memo>(memos);
+				lock (memos)
+					return memos.Values;
 			}
 		}
 
@@ -766,6 +773,34 @@ namespace FileFind.Meshwork
 			}
 
 			OnMemoDeleted(memo);
+		}
+		
+		internal bool HasMemo (string id)
+		{
+			lock (memos)
+				return memos.ContainsKey(id);
+		}
+		
+		internal Memo GetMemo (string id)
+		{
+			lock (memos) {
+				return memos[id];
+			}
+		}
+		
+		internal void AddOrUpdateMemo (Memo memo)
+		{
+			lock (memos) {
+				if (memos.ContainsKey(memo.ID)) {
+					Memo existingMemo = memos[memo.ID];
+					//existingMemo.FileLinks = memo.FileLinks;
+					existingMemo.Subject = memo.Subject;
+					existingMemo.Text = memo.Text;
+					OnMemoUpdated(memo);					
+				} else {
+					AddMemo(memo);
+				}	
+			}
 		}
 
 		public ICollection<ChatRoom> ChatRooms {
@@ -809,23 +844,28 @@ namespace FileFind.Meshwork
 
 		public void PostMemo (Memo memo)
 		{
-			if (!Memos.ContainsKey(memo.ID)) {
-				AddMemo(memo);
-			} else {
-				OnMemoUpdated(memo);
+			lock (memos) {
+				if (!memos.ContainsKey(memo.ID)) {
+					AddMemo(memo);
+				} else {
+					OnMemoUpdated(memo);
+				}
 			}
-
 			SendBroadcast(MessageBuilder.CreateAddMemoMessage(memo), LocalNode);
+			
+			Core.Settings.SyncNetworkInfoAndSave();
 		}
 
 		public void DeleteMemo(Memo m)
 		{
-			if (m.WrittenByNodeID == LocalNode.NodeID) {
+			if (Core.IsLocalNode(m.Node)) {
 				RemoveMemo(m);
 				SendBroadcast(MessageBuilder.CreateDelMemoMessage(m), LocalNode);
 			} else {
 				throw new InvalidOperationException();
 			}
+			
+			Core.Settings.SyncNetworkInfoAndSave();
 		}
 
 		public void SendInfoToTrustedNode(Node node)
@@ -1002,26 +1042,17 @@ namespace FileFind.Meshwork
 
 			if (stateObject.KnownMemos != null) {
 				foreach (MemoInfo memoInfo in stateObject.KnownMemos) {
-
-					// XXX: We need to verify the signature.
-					// XXX: Actually just do this in the UI.
-					/*
-					if (TrustedNodes.ContainsKey(memoInfo.FromNodeID) && 
-					    memoInfo.Verify () == false)
-					{
-					    	RaiseNonCriticalError (new Exception(String.Format("Ignored memo due to invalid signature.")));
-						continue;
-					}*/
-
-					if (Memos.ContainsKey(memoInfo.ID)) {
-						Memo existingMemo = Memos[memoInfo.ID];
-						existingMemo.Subject = memoInfo.Subject;
-						existingMemo.Text = memoInfo.Text;
-						OnMemoUpdated (existingMemo);
-					} else {
-						Memo memo = new Memo (this, memoInfo);
-						AddMemo(memo);
-					}	
+					lock (memos) {
+						if (memos.ContainsKey(memoInfo.ID)) {
+							Memo existingMemo = memos[memoInfo.ID];
+							existingMemo.Subject = memoInfo.Subject;
+							existingMemo.Text = memoInfo.Text;
+							OnMemoUpdated (existingMemo);
+						} else {
+							Memo memo = new Memo (this, memoInfo);
+							AddMemo(memo);
+						}	
+					}
 				}
 			}
 		}
@@ -1331,7 +1362,7 @@ namespace FileFind.Meshwork
 					lock (memos) {
 						List<Memo> memosToRemove = new List<Memo>();
 						foreach (Memo m in memos.Values) {
-							if (m.WrittenByNodeID == n.NodeID) {
+							if (m.Node == n) {
 								memosToRemove.Add(m);
 							}
 						}
@@ -1474,15 +1505,10 @@ namespace FileFind.Meshwork
 				LeftChat (this, args);
 			}
 		}
- 
-		internal void RaiseMemoUpdated (Memo memo)
-		{
-			OnMemoUpdated (memo);
-		}
 		
 		protected virtual void OnMemoUpdated (Memo memo)
 		{
-			LoggingService.LogInfo("Memo updated: {0} by {1}.", memo.Subject, this.Nodes[memo.WrittenByNodeID]);
+			LoggingService.LogInfo("Memo updated: {0} by {1}.", memo.Subject, memo.Node);
 			
 			if (MemoUpdated != null) {
 				MemoUpdated (this, memo);
@@ -1491,7 +1517,7 @@ namespace FileFind.Meshwork
 
 		protected virtual void OnMemoAdded (Memo memo)
 		{
-			LoggingService.LogInfo("Memo added: {0} by {1}", memo.Subject, this.Nodes[memo.WrittenByNodeID]);
+			LoggingService.LogInfo("Memo added: {0} by {1}", memo.Subject, memo.Node);
 			
 			if (MemoAdded != null) {
 				MemoAdded (this, memo);

@@ -41,7 +41,7 @@ namespace FileFind.Meshwork.GtkClient
 			TreeIter iter;
 			if (networksListStore.GetIterFirst (out iter)) {
 				do {
-					Network thisNetwork = (Network) networksListStore.GetValue (iter, 0);
+					Network thisNetwork = networksListStore.GetValue(iter, 0) as Network;
 					if (thisNetwork == editMemo.Network) {
 						networksComboBox.SetActiveIter (iter);
 						networksComboBox.Sensitive = false;
@@ -56,11 +56,7 @@ namespace FileFind.Meshwork.GtkClient
 				//newItem.Tag = f
 			//}
 		}
-
-		public EditMemoDialog () : this (null)
-		{
-		}
-
+		
 		public EditMemoDialog (Window parentWindow) : base (parentWindow, "EditMemoDialog")
 		{
 			SharedConstructor ();
@@ -70,11 +66,31 @@ namespace FileFind.Meshwork.GtkClient
 			Dialog.Title = "Post New Memo";
 		}
 
+		private void SharedConstructor ()
+		{
+			fileListStore = new ListStore(typeof(string));
+			fileList.Model = fileListStore;
+			TreeViewColumn theCol = fileList.AppendColumn("File Attachments", new CellRendererText(), "text", 0 );
+			theCol.Sizing = TreeViewColumnSizing.Autosize;
+
+			networksListStore = new ListStore(typeof (object));
+			networksListStore.AppendValues(new object());
+			foreach (Network network in Core.Networks) {
+				networksListStore.AppendValues (network);
+			}
+			networksComboBox.Clear ();
+			CellRendererText networkNameCell = new CellRendererText ();
+			networksComboBox.PackStart (networkNameCell, true);
+			networksComboBox.SetCellDataFunc (networkNameCell, NetworkTextFunc);
+			networksComboBox.Model = networksListStore;
+			
+			networksComboBox.Active = Math.Min(networksListStore.IterNChildren(), 1);
+		}
 		
 		/* private methods */
 		private void on_postButton_clicked (object sender, EventArgs e)
 		{
-			Network network = GetSelectedNetwork ();
+			Network network = GetSelectedNetwork();
 			
 			if (network == null) {
 				Gui.ShowMessageDialog ("You must select a network.", Dialog);
@@ -86,25 +102,29 @@ namespace FileFind.Meshwork.GtkClient
 				theMemo.FileLinks.Add(row[0].ToString());
 			}*/
 
+			bool isNew = false;
+			
 			if (theMemo == null) {
-
-				foreach (Memo m in network.Memos.Values) {
-					if (m.Subject == subjectEntry.Text & m.WrittenByNodeID == network.LocalNode.NodeID) {
+				foreach (Memo m in network.Memos) {
+					if (m.Subject == subjectEntry.Text & Core.IsLocalNode(m.Node)) {
 						Gui.ShowMessageDialog ("You have already posted a memo with the specified subject, please select another.",Dialog);
 						return;
 					}
 				}
-				theMemo = new Memo (network);
+				theMemo = new Memo(network);
+				isNew = true;
 			}
 
 			theMemo.Subject = subjectEntry.Text;
 			theMemo.Text = memoTextView.Buffer.Text;
-			theMemo.CreatedOn = DateTime.Now;
-			theMemo.WrittenByNodeID = network.LocalNode.NodeID;
 			theMemo.Sign ();
 		 
 			network.PostMemo (theMemo);
-			Gui.ShowMessageDialog ("Your memo has been posted.\n\nExpires: " + theMemo.CreatedOn.AddDays(2).ToString(), Dialog);
+			
+			if (isNew)
+				Gui.ShowMessageDialog("Your memo has been posted.", base.Dialog);
+			else
+				Gui.ShowMessageDialog("Your memo has been updated.", base.Dialog);
 		
 			Dialog.Respond(ResponseType.Ok);
 			Dialog.Hide();
@@ -136,37 +156,24 @@ namespace FileFind.Meshwork.GtkClient
 				fileListStore.Remove(ref iter);
 		}
 
-		private void SharedConstructor ()
-		{
-			fileListStore = new ListStore(typeof(string));
-			fileList.Model = fileListStore;
-			TreeViewColumn theCol = fileList.AppendColumn("File Attachments", new CellRendererText(), "text", 0 );
-			theCol.Sizing = TreeViewColumnSizing.Autosize;
-
-			networksListStore = new ListStore (typeof (Network));
-			foreach (Network network in Core.Networks) {
-				networksListStore.AppendValues (network);
-			}
-			networksComboBox.Clear ();
-			CellRendererText networkNameCell = new CellRendererText ();
-			networksComboBox.PackStart (networkNameCell, true);
-			networksComboBox.SetCellDataFunc (networkNameCell, NetworkNameFunc);
-			networksComboBox.Model = networksListStore;
-		}
-
-		private void NetworkNameFunc (CellLayout layout, CellRenderer cell, TreeModel model, TreeIter iter)
-		{
-			Network network = (Network) model.GetValue (iter, 0);
-			(cell as CellRendererText).Text = network.NetworkName;
-		}
-
 		private Network GetSelectedNetwork ()
 		{
 			TreeIter iter;
 			if (networksComboBox.GetActiveIter (out iter)) {
-				return (Network) networksListStore.GetValue (iter, 0);
+				return networksListStore.GetValue (iter, 0) as Network;
+			} 
+			return null;
+		}
+		
+		private void NetworkTextFunc (CellLayout layout, CellRenderer cell, TreeModel model, TreeIter iter)
+		{
+			Network network = (model.GetValue (iter, 0) as Network);
+			if (network != null) {
+				(cell as CellRendererText).Text = network.NetworkName;
+				(cell as CellRendererText).Sensitive = true;
 			} else {
-				return null;
+				(cell as CellRendererText).Text = "(Select a network)";
+				(cell as CellRendererText).Sensitive = false;
 			}
 		}
 	}

@@ -34,7 +34,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public void on_mnuNewMemo_activate (object o, EventArgs e)
 		{
-			EditMemoDialog w = new EditMemoDialog ();
+			EditMemoDialog w = new EditMemoDialog(Gui.MainWindow.Window);
 			if (w.Run() != (int)Gtk.ResponseType.Cancel) {
 				MemosPage.Instance.UpdateMemoList();
 			}

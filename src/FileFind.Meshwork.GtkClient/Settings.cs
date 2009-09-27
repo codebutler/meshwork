@@ -94,7 +94,7 @@ namespace FileFind.Meshwork.GtkClient
 		public Point WindowPosition = new Point();
 		public Size WindowSize = new Size();
 		
-		public ArrayList MyMemos = new ArrayList();
+		
 		public DateTime LastUsed;
 
 		public override string ClientName {
@@ -147,26 +147,14 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		object moo = new object();
+		object saveLock = new object();
 		
 		public override void SaveSettings ()
 		{
 			if (firstRun) {
 				throw new InvalidOperationException("Cannot save if FirstRun is true");
 			}
-			lock (moo) {	
-				// XXX: Save Memos for all networks
-				/*
-				if (network != null) {
-					settings.MyMemos.Clear();
-					foreach (Memo m in network.Memos) {
-						if (m.WrittenByNodeID == network.LocalNode.NodeID) {
-							settings.MyMemos.Add(m);
-						}
-					}
-				}
-				*/
-
+			lock (saveLock) {
 				FileFind.Common.WriteToFile(FileName, Xml.Serialize(this));
 			}
 		}

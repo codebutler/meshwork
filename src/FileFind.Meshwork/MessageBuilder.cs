@@ -72,7 +72,7 @@ namespace FileFind.Meshwork
 				rooms.Add(tmpRoom);
 			}
 
-			foreach (Memo currentMemo in network.Memos.Values) {
+			foreach (Memo currentMemo in network.Memos) {
 				MemoInfo info = new MemoInfo(currentMemo);
 				memos.Add(info);
 			}
@@ -307,8 +307,8 @@ namespace FileFind.Meshwork
 				rooms.Add(roomInfo);
 			}
 
-			foreach (Memo currentMemo in network.Memos.Values) {
-				if (MessageTo.NodeID.ToLower() != currentMemo.WrittenByNodeID.ToLower()) {
+			foreach (Memo currentMemo in network.Memos) {
+				if (Core.IsLocalNode(currentMemo.Node)) {
 					MemoInfo info = new MemoInfo(currentMemo);
 					memos.Add(info);
 				}

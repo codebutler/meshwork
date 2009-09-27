@@ -11,11 +11,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using FileFind.Collections;
+using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork
 {
 	public class NetworkInfo
 	{
+		List<MemoInfo> memos = new List<MemoInfo>();		
 		SerializableDictionary<string, TrustedNodeInfo> trustedNodes = new SerializableDictionary<string, TrustedNodeInfo>();
 		string networkName;
 
@@ -25,6 +27,15 @@ namespace FileFind.Meshwork
 			}
 			set { // Setter exists ONLY for XML Serializer. Do not use!
 				trustedNodes = value;
+			}
+		}
+		
+		public List<MemoInfo> Memos {
+			get {
+				return memos;
+			}
+			set { // Setter exists ONLY for XML Serializer. Do not use!
+				memos = value;
 			}
 		}
 
@@ -52,6 +63,8 @@ namespace FileFind.Meshwork
 				// XXX: pair.Value should be cloned too!
 				clone.TrustedNodes.Add(pair.Key, pair.Value);
 			}
+			
+			clone.Memos.AddRange(memos);
 
 			return clone;
 		}
