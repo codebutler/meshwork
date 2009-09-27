@@ -41,17 +41,31 @@ namespace FileFind.Meshwork
 	public class ReceivedKeyEventArgs
 	{
 		Node node;
+		LocalNodeConnection connection;
+		
 		KeyInfo keyInfo;
-
+		
 		public ReceivedKeyEventArgs (Node node, KeyInfo keyInfo)
 		{
 			this.node = node;
 			this.keyInfo = keyInfo;
 		}
+		
+		public ReceivedKeyEventArgs (LocalNodeConnection connection, KeyInfo keyInfo)
+		{
+			this.connection = connection;
+			this.keyInfo = keyInfo;
+		}		
 
 		public Node Node {
 			get {
 				return node;
+			}
+		}
+		
+		public LocalNodeConnection Connection {
+			get {
+				return connection;
 			}
 		}
 

@@ -364,7 +364,7 @@ namespace FileFind.Meshwork
 						// a KeyReceived event to LocalNodeConnection instead of using Network's.
 						// key.Info = (transport.RemoteEndPoint as IPEndPoint).Address.ToString ();
 						
-						bool acceptKey = transport.Network.RaiseReceivedKey (null, key);
+						bool acceptKey = transport.Network.RaiseReceivedKey (this, key);
 						if (acceptKey) {
 							TrustedNodeInfo trustedNode = new TrustedNodeInfo();
 							trustedNode.NodeID = nodeID;

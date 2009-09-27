@@ -30,34 +30,36 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] TextView keyTextView;
 		[Widget] EventBox eventbox10;
 		[Widget] Label denyKeyButtonLabel;
-
-		private Network network;
-		private Node node;
-		private KeyInfo key;
-		private string nodeID;
+		[Widget] Label connectionTitleLabel;
+		[Widget] Label connectionLabel;
+		
 		int secondsLeft = 20;
 		
 		RSACryptoServiceProvider provider;
 		
-		public AcceptKeyDialog (Network network, Node node, KeyInfo key) : base (null, "AcceptKeyDialog")
+		public AcceptKeyDialog (Network network, ReceivedKeyEventArgs args) : base (null, "AcceptKeyDialog")
 		{
-			this.network = network;
-			this.node = node;
-			this.key = key;
-
 			provider = new RSACryptoServiceProvider ();
-			provider.FromXmlString (key.Key);
+			provider.FromXmlString(args.Key.Key);
 			keyTextView.Buffer.Text = KeyFunctions.MakePublicKeyBlock (nicknameLabel.Text, null, provider.ToXmlString (false));
-			nodeID = FileFind.Common.MD5 (provider.ToXmlString (false));
+			string nodeID = FileFind.Common.MD5(provider.ToXmlString (false));
 			nodeIdLabel.Text = nodeID;
 
-			if (node != null)  {
-				if (nodeID.ToUpper() != node.NodeID.ToUpper()) {
+			if (args.Node != null)  {
+				if (nodeID.ToUpper() != args.Node.NodeID.ToUpper()) {
 					throw new Exception ("The key recieved does not match this user!");
 				}
-				nicknameLabel.Text = node.NickName;
+				nicknameLabel.Text = args.Node.NickName;
+			} else if (args.Connection != null) {
+				var conn = args.Connection;
+				
+				connectionLabel.Text = String.Format("{0} ({1})", conn.RemoteAddress, conn.Incoming ? "Incoming" : "Outgoing");
+				nicknameLabel.Text = args.Key.Info;
+				
+				connectionLabel.Show();
+				connectionTitleLabel.Show();
 			} else {
-				nicknameLabel.Text = key.Info;
+				nicknameLabel.Text = args.Key.Info;
 			}
 			
 			denyKeyButtonLabel.Text = String.Format ("Deny Key ({0})", secondsLeft);

@@ -319,8 +319,7 @@ namespace FileFind.Meshwork.GtkClient
 		                           ref bool acceptKey)
 		{
 			try {
-				AcceptKeyDialog dialog = new AcceptKeyDialog(network, args.Node, 
-				                                             args.Key);
+				AcceptKeyDialog dialog = new AcceptKeyDialog(network, args);
 				int response = dialog.Run();
 				
 				acceptKey = (response == (int)ResponseType.Ok);

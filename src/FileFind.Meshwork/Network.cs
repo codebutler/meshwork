@@ -1558,9 +1558,14 @@ namespace FileFind.Meshwork
 				ConnectionDown(connection);
 		}
 
+		internal bool RaiseReceivedKey (LocalNodeConnection connection, KeyInfo key)
+		{
+			return OnReceivedKey(new ReceivedKeyEventArgs(connection, key));
+		}
+			
 		internal bool RaiseReceivedKey (Node node, KeyInfo key)
 		{
-			return OnReceivedKey (new ReceivedKeyEventArgs (node, key));
+			return OnReceivedKey(new ReceivedKeyEventArgs(node, key));
 		}
 
 		protected virtual bool OnReceivedKey (ReceivedKeyEventArgs args)
