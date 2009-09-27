@@ -46,6 +46,7 @@ namespace FileFind.Meshwork.GtkClient
 			ipCombo.SetCellDataFunc (imageCell, ShowImage);
 			ipCombo.SetCellDataFunc (textCell, ShowText);
 			ipCombo.WrapWidth = 3;
+			ipCombo.Entry.ActivatesDefault = true;
 			PopulateAddressCombo();
 
 			networksListStore = new ListStore (typeof (object));
