@@ -30,6 +30,7 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] EventBox eventbox2;
 		[Widget] Alignment alignmentSignatureInfo;
 		[Widget] Label networkLabel;
+		[Widget] Button signedByButton;
 		
 		ListStore fileListStore;
 		
@@ -52,13 +53,13 @@ namespace FileFind.Meshwork.GtkClient
 				if (Core.IsLocalNode(memo.Node)) {
 					alignmentSignatureInfo.Visible = false;
 				} else {
-					lblSignatureStatus.Markup = "<b>Unable to verify digital signature (Reason: node not trusted)</b>";
-					lblSignatureInfo.Text = "Meshwork cannot verify the authenticity of this memo.";
+					lblSignatureStatus.Markup = "<b>Unable to verify digital signature (Node not trusted)</b>";
+					signedByButton.Sensitive = false;
 				}
 			} else {
-				lblSignatureStatus.Markup = "<b>This memo has a valid digital signature.</b>";
-				lblSignatureInfo.Text = memo.Node.NickName + " (" + memo.Node.NodeID + ")";
+				lblSignatureStatus.Markup = "<b>This memo has a valid digital signature.</b>";				
 			}
+			lblSignatureInfo.Text = String.Format("{0} ({1})", memo.Node.NickName, memo.Node.NodeID);
 		
 			fileListStore = new ListStore(typeof(string),typeof(string));
 			fileList.Model = fileListStore;
