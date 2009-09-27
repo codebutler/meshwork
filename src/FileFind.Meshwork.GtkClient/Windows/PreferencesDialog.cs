@@ -14,6 +14,7 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Threading;
 using Gtk;
 using Glade;
 using FileFind;
@@ -117,12 +118,18 @@ namespace FileFind.Meshwork.GtkClient
 			computerImage.Pixbuf = Gui.LoadIcon(24, "computer");
 			internetConnectionImage.Pixbuf = new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.network1.png");
 			userImage = Gui.LoadIcon (24, "stock_person");
-			folderImage = Gui.LoadIcon (22, "folder", "gtk-directory");
+			folderImage = Gui.LoadIcon (24, "folder", "gtk-directory");
 		
 			sharedFoldersListStore = new Gtk.ListStore(typeof(string));
 			sharedFoldersList.Model = sharedFoldersListStore;
-			sharedFoldersList.AppendColumn ("Image", new Gtk.CellRendererPixbuf(), new Gtk.TreeCellDataFunc(showFolderIcon));
-			sharedFoldersList.AppendColumn ("Text", new Gtk.CellRendererText (), new Gtk.TreeCellDataFunc (showFolderText));
+			var imageCell = new CellRendererPixbuf();
+			var textCell = new CellRendererText();
+			var column = new TreeViewColumn();
+			column.PackStart(imageCell, false);
+			column.PackStart(textCell, true);
+			column.SetCellDataFunc(imageCell, showFolderIcon);
+			column.SetCellDataFunc(textCell, showFolderText);
+			sharedFoldersList.AppendColumn(column);
 			sharedFoldersList.RulesHint = true;
 
 			Gtk.Drag.DestSet (sharedFoldersList, Gtk.DestDefaults.All, new Gtk.TargetEntry [] { new Gtk.TargetEntry ("text/uri-list", 0, 0) }, Gdk.DragAction.Copy);
@@ -256,7 +263,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			CellRendererText autoConnectTextCell = new CellRendererText ();
 
-			TreeViewColumn column = new TreeViewColumn ();
+			column = new TreeViewColumn ();
 			column.PackStart (autoConnectToggleCell, false);
 			column.SetCellDataFunc (autoConnectToggleCell, new TreeCellDataFunc(ShowAutoConnectToggle));
 			column.PackStart (autoConnectTextCell, true);
@@ -487,17 +494,32 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void detectInternetIPButton_Clicked (object sender, EventArgs args)
 		{
-			try {
-				externalIPv4AddressEntry.Text = FileFind.Stun.StunClient.GetExternalAddress().ToString();
-			} catch (Exception) {
-				externalIPv4AddressEntry.Text = "<Error>";
-			}
+			base.Dialog.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.Watch);
+			Button button = (Button)sender;
+			button.Sensitive = false;
+			ThreadPool.QueueUserWorkItem(delegate {			                                              
+				string publicIP = DetectPublicIP();
+				Application.Invoke(delegate {
+					externalIPv4AddressEntry.Text = publicIP;
+					button.Sensitive = true;
+					base.Dialog.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.LeftPtr);
+				});
+			});
 		}
 
 		private void testTcpPortButton_clicked (object sender, EventArgs args)
 		{
-			// XXX: Query webserver to test our port!
-			nodePortOpenCheckButton.Active = false;
+			base.Dialog.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.Watch);
+			Button button = (Button)sender;
+			button.Sensitive = false;
+			ThreadPool.QueueUserWorkItem(delegate {
+				bool portOpen = TestTCPPort();
+				Application.Invoke(delegate {
+					nodePortOpenCheckButton.Active = portOpen;
+					button.Sensitive = true;
+					base.Dialog.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.LeftPtr);
+				});
+			});				                   
 		}
 
 		private void nodePortOpenCheckButton_Toggled (object sender, EventArgs args)
@@ -508,8 +530,43 @@ namespace FileFind.Meshwork.GtkClient
 		private void on_redetectConnectionButton_clicked(object o, EventArgs args)
 		{
 			// This button acts as if all other buttons were clicked.
-			testTcpPortButton_clicked(null, EventArgs.Empty);
-			detectInternetIPButton_Clicked(null, EventArgs.Empty);
+			base.Dialog.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.Watch);
+			Button button = (Button)o;
+			button.Sensitive = false;
+			ThreadPool.QueueUserWorkItem(delegate {
+				string publicIP = DetectPublicIP();
+				bool portOpen = TestTCPPort();
+				Application.Invoke(delegate {
+					nodePortOpenCheckButton.Active = portOpen;
+					externalIPv4AddressEntry.Text = publicIP;
+					button.Sensitive = true;
+					base.Dialog.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.LeftPtr);
+				});				
+			});
+		}
+		
+		private string DetectPublicIP ()
+		{
+			try {
+				return FileFind.Stun.StunClient.GetExternalAddress().ToString();
+			} catch (Exception) {
+				return "<Error>";
+			}
+		}
+		
+		private bool TestTCPPort ()
+		{
+			try {
+				WebResponse resp = HttpWebRequest.Create("http://filefind.net/test_port.php?port=" + nodePortSpinButton.Value.ToString()).GetResponse();
+				using (resp) {
+					using (StreamReader reader = new StreamReader(resp.GetResponseStream())) {
+						string response = reader.ReadToEnd();
+						if (response == "1")
+							return true;
+					}
+				}
+			} catch (Exception) { /* ignore */ }
+			return false;
 		}
 		
 		private void showUserIcon(TreeViewColumn treeColumn, CellRenderer cellRenderer, TreeModel treeModel, TreeIter treeIter)
