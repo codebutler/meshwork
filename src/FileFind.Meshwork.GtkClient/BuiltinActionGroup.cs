@@ -206,9 +206,8 @@ namespace FileFind.Meshwork.GtkClient
 
 		public void SidebarSearchAgain_Activated (object sender, EventArgs args)
 		{
-			// FIXME: Fix this
-			// FileSearchItem item = (FileSearchItem)Gui.MainWindow.SelectedItem;
-			//item.Search.SearchAgain();
+			FileSearchItem item = (FileSearchItem)Gui.MainWindow.SelectedItem;
+			item.Search.Repeat();
 		}
 	}
 }

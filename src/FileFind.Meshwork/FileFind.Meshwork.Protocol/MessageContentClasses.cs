@@ -232,7 +232,7 @@ namespace FileFind.Meshwork.Protocol
 		public SharedDirListing (IDirectory dir)
 		{
 			this.name = dir.Name;
-			this.fullPath = dir.FullPath;
+			this.fullPath = "/" + String.Join("/", dir.FullPath.Split('/').Slice(2));
 		}
 
 		public SharedDirListing (string name, string fullPath)

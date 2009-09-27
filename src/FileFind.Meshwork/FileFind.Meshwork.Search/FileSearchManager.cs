@@ -37,10 +37,11 @@ namespace FileFind.Meshwork.Search
 
 			if (networkId != null) {
 				search.NetworkIds.Add(networkId);
-			}	AddFileSearch(search);
+			}
+			
+			AddFileSearch(search);
 
 			return search;
-
 		}
 
 		public void AddFileSearch (FileSearch search)
@@ -50,8 +51,6 @@ namespace FileFind.Meshwork.Search
 			if (SearchAdded != null) {
 				SearchAdded(search);
 			}
-
-			search.LastRun = DateTime.Now;
 			
 			foreach (Network network in Core.Networks) {
 				if (search.NetworkIds.Count == 0 || search.NetworkIds.IndexOf(network.NetworkID) > -1) { 

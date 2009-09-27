@@ -24,7 +24,6 @@ namespace FileFind.Meshwork.Search
 		string name;
 		string query;
 		bool filtersEnabled = false;
-		DateTime lastRun = DateTime.MinValue;
 		List<FileSearchFilter> filters;
 		List<string> networkIds;
 		[NonSerialized] Dictionary<string,SearchResult> results;
@@ -33,16 +32,12 @@ namespace FileFind.Meshwork.Search
 		int id;
 
 		public event NewResultsEventHandler NewResults;
-
-		// For performance.
-		[NonSerialized] Dictionary<FileType, int> resultCountByTypeCache;
+		public event EventHandler ClearedResults;
 
 		public FileSearch ()
 		{
 			filters = new List<FileSearchFilter>();
 			networkIds = new List<string>();
-
-		 	resultCountByTypeCache = new Dictionary<FileType, int>();
 
 			results = new Dictionary<string, SearchResult>();
 			allFileResults = new Dictionary<string, List<SearchResult>>();
@@ -80,15 +75,6 @@ namespace FileFind.Meshwork.Search
 			}
 		}
 
-		public DateTime LastRun {
-			get {
-				return lastRun;
-			}
-			internal set {
-				lastRun = value;
-			}
-		}
-
 		public bool FiltersEnabled {
 			get {
 				return filtersEnabled;
@@ -107,6 +93,22 @@ namespace FileFind.Meshwork.Search
 		public List<string> NetworkIds {
 			get {
 				return networkIds;
+			}
+		}
+		
+		public void Repeat ()
+		{
+			id = new Random().Next();
+			results.Clear();
+			allFileResults.Clear();
+			
+			if (ClearedResults != null)
+				ClearedResults(this, EventArgs.Empty);
+			
+			foreach (Network network in Core.Networks) {
+				if (networkIds.Count == 0 || networkIds.IndexOf(network.NetworkID) > -1) { 
+					network.FileSearch(this);
+				}
 			}
 		}
 
@@ -134,8 +136,7 @@ namespace FileFind.Meshwork.Search
 			}
 
 			foreach (SharedDirListing dir in resultInfo.Directories) {
-				SearchResult directoryResult = new SearchResult(SearchResultType.Directory, null, dir);
-				directoryResult.Node = node;
+				SearchResult directoryResult = new SearchResult(SearchResultType.Directory, node, dir);
 
 				// Create a random key for directories, we never look them up.
 				Random random = new Random();
@@ -145,8 +146,7 @@ namespace FileFind.Meshwork.Search
 				if (dir.Files != null) {
 					foreach (SharedFileListing file in dir.Files) {
 
-						SearchResult fileResult = new SearchResult(SearchResultType.File, file.InfoHash, file);
-						fileResult.Node = node;
+						SearchResult fileResult = new SearchResult(SearchResultType.File, node, file);
 						directoryResult.Add(fileResult);
 
 						if (!allFileResults.ContainsKey(file.InfoHash)) {
@@ -161,11 +161,10 @@ namespace FileFind.Meshwork.Search
 
 			foreach (SharedFileListing file in resultInfo.Files) {
 
-				SearchResult result = new SearchResult(SearchResultType.File, file.InfoHash, file);
-				result.Node = node;
+				SearchResult result = new SearchResult(SearchResultType.File, node, file);
 
 				if (!results.ContainsKey(file.InfoHash)) {
-					SearchResult resultGroup = new SearchResult(SearchResultType.File, file.InfoHash, null);
+					SearchResult resultGroup = new SearchResult(SearchResultType.File, node, file.InfoHash);
 					resultGroup.Add(result);
 
 					results[file.InfoHash] = resultGroup;

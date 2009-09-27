@@ -24,18 +24,53 @@ namespace FileFind.Meshwork.Search
 		List<SearchResult> children;
 		Node               node;
 		
-		public SearchResult (SearchResultType type, string infoHash, ISharedListing listing) 
+		public SearchResult (SearchResultType type, Node node, string infoHash)
 		{
+			if (type == null)
+				throw new ArgumentNullException("type");
+			
+			if (node == null)
+				throw new ArgumentNullException("node");
+			
+			if (infoHash == null)
+				throw new ArgumentNullException("infoHash");
+					
+			this.node = node;
 			this.type = type;
 			this.infoHash = infoHash;
+			
+			children = new List<SearchResult>();
+		}
+			
+		
+		public SearchResult (SearchResultType type, Node node, ISharedListing listing) 
+		{
+			if (type == null)
+				throw new ArgumentNullException("type");
+			
+			if (node == null)
+				throw new ArgumentNullException("node");
+			
+			if (listing == null)
+				throw new ArgumentNullException("listing");
+					
+			this.node = node;
+			this.type = type;
 			this.listing = listing;
 			
 			children = new List<SearchResult>();
 		}
-		
+
 		public string InfoHash {
 			get {
-				return infoHash;
+				if (type == SearchResultType.File) {
+					if (listing != null)
+						return ((SharedFileListing)listing).InfoHash;
+					else
+						return infoHash;
+				} else {
+					return null;
+				}
 			}
 		}
 		
@@ -60,9 +95,6 @@ namespace FileFind.Meshwork.Search
 		public Node Node {
 			get {
 				return node;
-			}
-			internal set {
-				node = value;
 			}
 		}
 		

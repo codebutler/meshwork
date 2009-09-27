@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using FileFind;
 using FileFind.Meshwork;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.Search;
@@ -24,6 +25,8 @@ namespace FileFind.Meshwork.GtkClient
 		Gdk.Pixbuf      unknownPixbuf;
 		ToggleButton    filterButton;
 		Menu            filePopupMenu;
+		ToolButton      downloadToolButton;
+		ToolButton      browseToolButton;
 
 		List<TreeViewColumn> audioColumns;
 		List<TreeViewColumn> videoColumns;
@@ -39,19 +42,22 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			VPaned         paned;
 			TreeViewColumn column;
-			ToolButton     downloadToolButton;
 			ToolItem       spacerItem;
 			ToolItem       filterItem;
 			Alignment      filterAlignment;
-			ToolButton     browseToolButton;
-
-
+			ToolButton     searchAgainToolButton;
+			
 			this.search = search;
 	
 			downloadToolButton = new ToolButton(new Image("gtk-save", IconSize.LargeToolbar), "Download");
 			downloadToolButton.IsImportant = true;
 			downloadToolButton.Sensitive = false;
-
+			downloadToolButton.Clicked += DownloadToolButtonClicked;
+			
+			searchAgainToolButton = new ToolButton(new Image("gtk-refresh", IconSize.LargeToolbar), "Search Again");
+			searchAgainToolButton.IsImportant = true;
+			searchAgainToolButton.Clicked += SearchAgainToolButtonClicked;		
+			
 			spacerItem = new ToolItem();
 			spacerItem.Expand = true;
 
@@ -70,10 +76,12 @@ namespace FileFind.Meshwork.GtkClient
 			browseToolButton = new ToolButton(new Image("gtk-open", IconSize.LargeToolbar), "Browse");
 			browseToolButton.IsImportant = true;
 			browseToolButton.Sensitive = false;
+			browseToolButton.Clicked += BrowseToolButtonClicked;
 
 			toolbar = new Toolbar();
 			toolbar.ToolbarStyle = ToolbarStyle.BothHoriz;
 			toolbar.Insert(downloadToolButton, -1);
+			toolbar.Insert(searchAgainToolButton, -1);
 			toolbar.Insert(spacerItem, -1);
 			toolbar.Insert(filterItem, -1);
 			toolbar.Insert(new SeparatorToolItem(), -1);
@@ -148,7 +156,8 @@ namespace FileFind.Meshwork.GtkClient
 			};
 			resultsTree = new TreeView();
 			resultsTree.RowActivated += resultsTree_RowActivated;
-			resultsTree.ButtonPressEvent  += resultsTree_ButtonPressEvent;
+			resultsTree.ButtonPressEvent += resultsTree_ButtonPressEvent;
+			resultsTree.Selection.Changed += ResultsTreeSelectionChanged;
 
 			imageColumns = new List<TreeViewColumn>();
 			audioColumns = new List<TreeViewColumn>();
@@ -273,6 +282,7 @@ namespace FileFind.Meshwork.GtkClient
 			TypeSelectionChanged(typeTree, EventArgs.Empty);
 
 			search.NewResults += (NewResultsEventHandler)DispatchService.GuiDispatch(new NewResultsEventHandler(search_NewResults));
+			search.ClearedResults += (EventHandler)DispatchService.GuiDispatch(new EventHandler(search_ClearedResults));
 
 			filePopupMenu = new Menu();
 			
@@ -286,12 +296,83 @@ namespace FileFind.Meshwork.GtkClient
 			filePopupMenu.Append(item);
 		}
 
+		void SearchAgainToolButtonClicked (object sender, EventArgs e)
+		{
+			search.Repeat();
+		}
+
+		void BrowseToolButtonClicked (object sender, EventArgs e)
+		{
+			 try {
+				TreeIter iter;
+				if (resultsTree.Selection.GetSelected(out iter)) {
+					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;	
+					if (selectedResult != null) {
+						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
+											
+						string path = PathUtil.Join(selectedResult.Node.Directory.FullPath, 
+						                            String.Join("/", result.Listing.FullPath.Split('/').Slice(0, -2)));
+						
+						UserBrowserPage.Instance.NavigateTo(path);
+						Gui.MainWindow.SelectedPage = UserBrowserPage.Instance;					
+					}
+				}
+			} catch (Exception ex) {
+				LoggingService.LogError(ex);
+				Gui.ShowErrorDialog(ex.Message);
+			}
+		}
+
+		void DownloadToolButtonClicked (object sender, EventArgs e)
+		{				
+			try {
+				TreeIter iter;
+				if (resultsTree.Selection.GetSelected(out iter)) {
+					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;					
+					if (selectedResult.Type == SearchResultType.File) { 
+						// XXX: Request from all sources, not just the first! (Refactor out of UI)
+						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
+						result.Node.Network.DownloadFile(result.Node, (SharedFileListing)result.Listing);
+					}			
+				}					
+			} catch (Exception ex) {
+				LoggingService.LogError(ex);
+				Gui.ShowErrorDialog(ex.Message);
+			}
+		}
+
+		void ResultsTreeSelectionChanged (object sender, EventArgs e)
+		{
+			TreeIter iter;
+			if (resultsTree.Selection.GetSelected(out iter)) {
+				SearchResult result = resultsTree.Model.GetValue(iter, 0) as SearchResult;
+				if (result != null) {
+					browseToolButton.Sensitive = true;
+					if (result.Type == SearchResultType.File)
+						downloadToolButton.Sensitive = true;
+					else
+						downloadToolButton.Sensitive = false;
+				} else {
+					downloadToolButton.Sensitive = false;
+					browseToolButton.Sensitive = false;
+				}
+			} else {	
+				browseToolButton.Sensitive = false;
+				downloadToolButton.Sensitive = false;
+			}
+		}
+
 		public void search_NewResults (FileSearch sender, SearchResult[] newResults)
 		{
 			AppendResults(TreeIter.Zero, newResults);
 
 			RecountTypes();
 			Gui.MainWindow.RefreshCounts();
+		}
+		
+		public void search_ClearedResults (object sender, EventArgs args)
+		{
+			resultsStore.Clear();
 		}
 
 		private void AppendResults (TreeIter parent, SearchResult[] results)

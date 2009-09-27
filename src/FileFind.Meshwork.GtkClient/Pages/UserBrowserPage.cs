@@ -488,7 +488,7 @@ namespace FileFind.Meshwork.GtkClient
 				} 
 				else 
 				{
-					Gui.ShowErrorDialog("Directory not found");
+					Gui.ShowErrorDialog(String.Format("Directory not found: {0}.", path));
 				}
 			} catch (Exception ex) {
 				LoggingService.LogError(ex.ToString());
