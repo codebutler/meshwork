@@ -151,35 +151,38 @@ namespace FileFind.Meshwork.Transport
 
 		public byte[] ReceiveMessage()
 		{
-			lock (foo) {
-				// get the message size 
-				byte[] messageSizeBytes = new byte[4];
-				int    dataLength;
-
-				int count = Receive(messageSizeBytes, 0, 4);
-
-				if (count != 4) {
-					Disconnect(new Exception(String.Format("Received wrong amount in message size! Got: {0}, Expected: {1}", count, 4)));
-					return null;
+			try {
+				lock (foo) {
+					// get the message size 
+					byte[] messageSizeBytes = new byte[4];
+					int    dataLength;
+	
+					int count = Receive(messageSizeBytes, 0, 4);
+	
+					if (count != 4) {
+						throw new Exception(String.Format("Received wrong amount in message size! Got: {0}, Expected: {1}", count, 4));
+					}
+	
+					dataLength = EndianBitConverter.ToInt32(messageSizeBytes, 0);
+	
+					// get the message
+					byte[] messageBytes = new byte[dataLength];
+					
+					count = Receive(messageBytes, 0, dataLength);
+	
+					if (count != dataLength) {
+						throw new Exception(String.Format("Received wrong amount! Got: {0}, Expected: {1}", count, dataLength));
+					}
+					
+					if (encryptor != null) {
+						messageBytes = encryptor.Decrypt(messageBytes);
+					}
+					
+					return messageBytes;
 				}
-
-				dataLength = EndianBitConverter.ToInt32(messageSizeBytes, 0);
-
-				// get the message
-				byte[] messageBytes = new byte[dataLength];
-				
-				count = Receive(messageBytes, 0, dataLength);
-
-				if (count != dataLength) {
-					Disconnect(new Exception(String.Format("Received wrong amount! Got: {0}, Expected: {1}", count, dataLength)));
-					return null;
-				}
-				
-				if (encryptor != null) {
-					messageBytes = encryptor.Decrypt(messageBytes);
-				}
-				
-				return messageBytes;
+			} catch (Exception ex) {
+				Disconnect(ex);
+				return null;
 			}
 		}
 
