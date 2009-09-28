@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Drawing;
 using System.Collections;
 using System.Collections.Generic;
@@ -69,6 +70,17 @@ namespace FileFind.Meshwork.GtkClient
 			if (File.Exists(FileName) == true) {
 				string settingsText = FileFind.Common.ReadAllText (FileName);
 				Settings result = (Settings)Xml.DeSerialize (settingsText, typeof(Settings));
+				
+				foreach (var networkInfo in result.Networks) {
+					foreach (var key in networkInfo.TrustedNodes.Keys.ToArray()) {
+						var info = networkInfo.TrustedNodes[key];
+						if (String.IsNullOrEmpty(info.NodeID)) {
+							LoggingService.LogWarning("Ignored TrustedNodeInfo with bad public key.");
+							networkInfo.TrustedNodes.Remove(key);
+						}
+					}
+				}
+				
 				return result;
 			} else {
 				return null;

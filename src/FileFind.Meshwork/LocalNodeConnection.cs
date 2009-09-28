@@ -347,7 +347,6 @@ namespace FileFind.Meshwork
 				Core.RaiseMessageReceived(info);
 
 				if (remoteNodeInfo == null) {
-
 					KeyInfo key = (KeyInfo) message.Content;
 					
 					RSACryptoServiceProvider provider = new RSACryptoServiceProvider ();
@@ -367,9 +366,8 @@ namespace FileFind.Meshwork
 						bool acceptKey = transport.Network.RaiseReceivedKey (this, key);
 						if (acceptKey) {
 							TrustedNodeInfo trustedNode = new TrustedNodeInfo();
-							trustedNode.NodeID = nodeID;
 							trustedNode.Identifier = String.Format("[{0}]", nodeID);
-							trustedNode.EncryptionParameters = provider.ExportParameters(false);														
+							trustedNode.PublicKey = key.Key;
 							transport.Network.AddTrustedNode(trustedNode);
 							Core.Settings.SyncNetworkInfoAndSave();
 						} else {

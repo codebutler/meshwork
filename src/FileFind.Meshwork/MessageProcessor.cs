@@ -111,13 +111,9 @@ namespace FileFind.Meshwork
 			bool acceptKey = network.RaiseReceivedKey (node, key);
 
 			if (acceptKey) {
-				RSACryptoServiceProvider provider = new RSACryptoServiceProvider ();
-				provider.FromXmlString (key.Key);
-
 				TrustedNodeInfo tni = new TrustedNodeInfo();
-				tni.NodeID = node.NodeID;
 				tni.Identifier = node.NickName;
-				tni.EncryptionParameters = provider.ExportParameters(false);
+				tni.PublicKey = key.Key;
 
 				network.AddTrustedNode(tni);
 

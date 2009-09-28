@@ -23,9 +23,8 @@ namespace FileFind.Meshwork
 	public class TrustedNodeInfo
 	{	
 		/* Private Variables */
-		RSAParameters encryptionParameters;
 		RSACryptoServiceProvider crypto;
-		string nodeId = "";
+		string nodeId;
 		string identifier;
 		List<DestinationInfo> destinationInfos = new List<DestinationInfo>();
 
@@ -36,29 +35,10 @@ namespace FileFind.Meshwork
 
 		public TrustedNodeInfo (PublicKey key)
 		{
-			RSACryptoServiceProvider r = new RSACryptoServiceProvider();
-			r.FromXmlString(key.Key);
-
 			this.Identifier = key.Identifier;
-			this.NodeID = FileFind.Common.MD5(key.Key);
-			this.EncryptionParameters = r.ExportParameters(false);
+			this.PublicKey = key.Key;
 		}
 
-		public TrustedNodeInfo (Node node, RSAParameters parameters)
-		{
-			if (node == null) {
-				throw new ArgumentException ("node");
-			}
-
-			// TODO: Check for every field?
-			if (parameters.Modulus == null)
-				throw new Exception ("parameters cannot be null");
-
-			this.nodeId = node.NodeID;
-			this.Identifier = node.NickName;
-			this.EncryptionParameters = parameters;
-		}
-		
 		public string Identifier {
 			get {
 				return identifier;
@@ -80,36 +60,49 @@ namespace FileFind.Meshwork
 			get {
 				return nodeId;
 			}
-			set {
-				nodeId = value.ToLower();
-			}
 		}
-
-		[XmlElement]
-		public RSAParameters EncryptionParameters {
+		
+		[XmlIgnore]
+		public string PublicKey {
 			get {
-				return encryptionParameters;
+				if (crypto != null)
+					return crypto.ToXmlString(false);
+				else
+					return null;
 			}
 			set {
-				encryptionParameters = value;
-				crypto = new RSACryptoServiceProvider(new CspParameters());
-				crypto.ImportParameters(value);
+				if (value != null) {
+					crypto = new RSACryptoServiceProvider(new CspParameters());
+					crypto.FromXmlString(value);
+					nodeId = Common.MD5(value);
+				} else {
+					crypto = null;
+					nodeId = null;
+				}
 			}
 		}
-
+		
+		[XmlElement("PublicKey")]
+		public System.Xml.XmlCDataSection PublicKeyData {
+			get {
+				var doc = new System.Xml.XmlDocument();
+				return doc.CreateCDataSection(this.PublicKey);
+			}
+			set {
+				try {
+					this.PublicKey = value.Value;
+				} catch (Exception) {
+					this.PublicKey = null;
+				}
+			}
+		}
+		
 		[XmlIgnore]
 		public RSACryptoServiceProvider Crypto {
 			get {
 				if (crypto == null)
 					throw new Exception ("No Crypto object for " + Identifier + "!");
 				return crypto;
-			}
-		}
-
-		[XmlIgnore]
-		public string PublicKey {
-			get {
-				return Crypto.ToXmlString(false);
 			}
 		}
 
