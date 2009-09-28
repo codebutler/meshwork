@@ -336,6 +336,9 @@ namespace FileFind.Meshwork
 				
 				byte[] messageData = transport.EndReceiveMessage(result);
 				
+				if (messageData == null)
+					return;
+				
 				// Get the next one!
 				ReceiveMessage();
 

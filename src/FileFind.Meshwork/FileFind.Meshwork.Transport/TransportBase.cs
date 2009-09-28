@@ -159,7 +159,8 @@ namespace FileFind.Meshwork.Transport
 				int count = Receive(messageSizeBytes, 0, 4);
 
 				if (count != 4) {
-					throw new Exception(String.Format("Received wrong amount in message size! Got: {0}, Expected: {1}", count, 4));
+					Disconnect(new Exception(String.Format("Received wrong amount in message size! Got: {0}, Expected: {1}", count, 4)));
+					return null;
 				}
 
 				dataLength = EndianBitConverter.ToInt32(messageSizeBytes, 0);
@@ -170,7 +171,8 @@ namespace FileFind.Meshwork.Transport
 				count = Receive(messageBytes, 0, dataLength);
 
 				if (count != dataLength) {
-					throw new Exception(String.Format("Received wrong amount! Got: {0}, Expected: {1}", count, dataLength));
+					Disconnect(new Exception(String.Format("Received wrong amount! Got: {0}, Expected: {1}", count, dataLength)));
+					return null;
 				}
 				
 				if (encryptor != null) {
