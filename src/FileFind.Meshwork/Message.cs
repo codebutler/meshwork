@@ -66,12 +66,11 @@ namespace FileFind.Meshwork
 			}
 
 			byte[] contentBuffer = new byte[contentLength];
-			Buffer.BlockCopy(data, offset, contentBuffer, 0, contentLength);
+			Buffer.BlockCopy(data, offset, contentBuffer, 0, contentLength);		
 			
-			// Now deserialize content
-
-			if (Message.TypeIsEncrypted(type) && to == Network.BroadcastNodeID) {
-				// Decrypt if needed
+			// Decrypt if needed
+			
+			if (Message.TypeIsEncrypted(type)) {
 				if (From != Core.MyNodeID) {
 					if (network.Nodes.ContainsKey(From)) {
 						contentBuffer = Security.Encryption.Decrypt(network.Nodes[From].CreateDecryptor(), contentBuffer);
@@ -81,22 +80,26 @@ namespace FileFind.Meshwork
 				} else {
 					contentBuffer = Security.Encryption.Decrypt(network.Nodes[To].CreateDecryptor(), contentBuffer);
 				}
-
-				if (From != Core.MyNodeID) {
-					if (network.TrustedNodes.ContainsKey(from)) {
-						bool validSignature = network.TrustedNodes[from].Crypto.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
-						if (validSignature == false)
-							throw new InvalidSignatureException();
-					} else {
-						throw new Exception ("Unable to verify message signature! (Type: " + type.ToString() + ")");
-					}
-				} else {
-					bool validSignature = Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
-					if (validSignature == false) {
+			}
+			
+			// Verify signature
+			
+			if (From != Core.MyNodeID) {
+				if (network.TrustedNodes.ContainsKey(from)) {
+					bool validSignature = network.TrustedNodes[from].Crypto.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
+					if (validSignature == false)
 						throw new InvalidSignatureException();
-					}
+				} else if (Message.TypeIsEncrypted(type)) {
+					throw new Exception ("Unable to verify message signature! (Type: " + type.ToString() + ")");
+				}
+			} else {
+				bool validSignature = Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
+				if (validSignature == false) {
+					throw new InvalidSignatureException();
 				}
 			}
+
+			// Now deserialize content
 
 			content = Serialization.Binary.Deserialize(contentBuffer);
 		}
@@ -223,7 +226,7 @@ namespace FileFind.Meshwork
 			this.signature = Core.CryptoProvider.SignData(contentBytes, new SHA1CryptoServiceProvider());
 			this.signatureLength = (ulong)this.signature.Length;
 			
-			if (Message.TypeIsEncrypted(type) && to == Network.BroadcastNodeID) {
+			if (Message.TypeIsEncrypted(type)) {
 
 				if (!network.Nodes.ContainsKey(to)) {
 					throw new Exception ("network.Nodes[to] was null!... to was " +  to);
