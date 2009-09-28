@@ -676,27 +676,27 @@ namespace FileFind.Meshwork
 			SendBroadcast (message, null);
 		}
 
-		internal void SendBroadcast(Message Message, Node NodeFrom)
+		internal void SendBroadcast(Message message, Node nodeFrom)
 		{
-			string messageID = Message.MessageID;
+			string messageID = message.MessageID;
 			if (routedMessages.ContainsKey(messageID) == false) {
 				routedMessages.Add(messageID);
 				
 				int count = 0;
 
 				foreach (LocalNodeConnection c in GetLocalConnections ()) {
-					if ((NodeFrom == null || c.NodeRemote != NodeFrom) & c.ConnectionState == ConnectionState.Ready) {
-						c.SendMessage(Message);
+					if (c.ConnectionState == ConnectionState.Ready && (nodeFrom == null || c.NodeRemote != nodeFrom)) {
+						c.SendMessage(message);
 						count ++;
 					}
 				}
 				
 				if (count == 0) {
-					if (Message.To != Network.BroadcastNodeID) {
+					if (message.To != Network.BroadcastNodeID) {
 						throw new Exception("ERROR: Message didn't end up going anywhere!" + 
-						                    " Type: " + Message.Type +
-						                    " From: " + Message.From +
-						                    " To: " + Message.To);
+						                    " Type: " + message.Type +
+						                    " From: " + message.From +
+						                    " To: " + message.To);
 					}
 				}
 			}
@@ -1092,10 +1092,10 @@ namespace FileFind.Meshwork
 
 				this.processedMessages.Add(message.MessageID);
 
-				if (message.To == Network.BroadcastNodeID | message.To != this.LocalNode.NodeID) {
-					    this.SendBroadcast (message, connection.NodeRemote);
-					    if (message.To != Network.BroadcastNodeID)
-						    return;
+				if (message.To == Network.BroadcastNodeID || message.To != this.LocalNode.NodeID) {
+					this.SendBroadcast(message, connection.NodeRemote);
+					if (message.To != Network.BroadcastNodeID)
+						return;
 				}
 
 				TrustedNodeInfo trustedNode = null;

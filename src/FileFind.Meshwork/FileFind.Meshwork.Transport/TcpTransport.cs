@@ -69,7 +69,7 @@ namespace FileFind.Meshwork.Transport
 		
 		public override int Send (byte[] buffer, int offset, int size)
 		{
-                        lock (sendLock) {
+			lock (sendLock) {
 				int totalSent = 0;
 				while (totalSent < size) {
 					int sent = socket.Send(buffer, offset + totalSent, size - totalSent, SocketFlags.None);
@@ -82,7 +82,7 @@ namespace FileFind.Meshwork.Transport
 					throw new Exception("Sent too much! " + totalSent + " " + size);
 				}
 				return totalSent;
-                        }
+			}
 		}
 
 		public override int Receive (byte[] buffer, int offset, int size)

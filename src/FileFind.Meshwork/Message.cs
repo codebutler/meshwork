@@ -18,6 +18,7 @@ namespace FileFind.Meshwork
 	public class Message
 	{
 		Network network;
+		byte[] data;
 		
 		private Message (Network network, byte[] data, out string messageFrom)
 		{
@@ -30,6 +31,7 @@ namespace FileFind.Meshwork
 			}
 			
 			this.network = network;
+			this.data = data;
 			
 			// Read message header
 			
@@ -66,44 +68,48 @@ namespace FileFind.Meshwork
 				throw new Exception(String.Format("Message size mismatch! Content length should be {0}, was {1}", contentLength, remainingLength));
 			}
 
-			byte[] contentBuffer = new byte[contentLength];
-			Buffer.BlockCopy(data, offset, contentBuffer, 0, contentLength);		
-			
-			// Decrypt if needed
-			
-			if (Message.TypeIsEncrypted(type)) {
-				if (From != Core.MyNodeID) {
-					if (network.Nodes.ContainsKey(From)) {
-						contentBuffer = Security.Encryption.Decrypt(network.Nodes[From].CreateDecryptor(), contentBuffer);
+			// If this message isn't for us, ignore the content.
+			if (to == Core.MyNodeID || to == Network.BroadcastNodeID) {
+				
+				byte[] contentBuffer = new byte[contentLength];
+				Buffer.BlockCopy(data, offset, contentBuffer, 0, contentLength);		
+				
+				// Decrypt if needed			
+				
+				if (Message.TypeIsEncrypted(type)) {
+					if (From != Core.MyNodeID) {
+						if (network.Nodes.ContainsKey(From)) {
+							contentBuffer = Security.Encryption.Decrypt(network.Nodes[From].CreateDecryptor(), contentBuffer);
+						} else {
+							throw new Exception(String.Format("Node not found: {0}", From));
+						}
 					} else {
-						throw new Exception(String.Format("Node not found: {0}", From));
+						contentBuffer = Security.Encryption.Decrypt(network.Nodes[To].CreateDecryptor(), contentBuffer);
+					}
+				}
+				
+				// Verify signature
+				
+				if (From != Core.MyNodeID) {
+					if (network.TrustedNodes.ContainsKey(from)) {
+						bool validSignature = network.TrustedNodes[from].Crypto.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
+						if (validSignature == false) {
+							throw new InvalidSignatureException();
+						}
+					} else if (Message.TypeIsEncrypted(type)) {
+						throw new Exception ("Unable to verify message signature! (Type: " + type.ToString() + ")");
 					}
 				} else {
-					contentBuffer = Security.Encryption.Decrypt(network.Nodes[To].CreateDecryptor(), contentBuffer);
-				}
-			}
-			
-			// Verify signature
-			
-			if (From != Core.MyNodeID) {
-				if (network.TrustedNodes.ContainsKey(from)) {
-					bool validSignature = network.TrustedNodes[from].Crypto.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
+					bool validSignature = Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
 					if (validSignature == false) {
 						throw new InvalidSignatureException();
 					}
-				} else if (Message.TypeIsEncrypted(type)) {
-					throw new Exception ("Unable to verify message signature! (Type: " + type.ToString() + ")");
-				}
-			} else {
-				bool validSignature = Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
-				if (validSignature == false) {
-					throw new InvalidSignatureException();
-				}
+				}			
+	
+				// Now deserialize content
+	
+				content = Serialization.Binary.Deserialize(contentBuffer);					
 			}
-
-			// Now deserialize content
-
-			content = Serialization.Binary.Deserialize(contentBuffer);
 		}
 		
 		public static Message Parse (Network network, byte[] data, out string messageFrom)
@@ -147,6 +153,9 @@ namespace FileFind.Meshwork
 				return from;
 			}
 			set {
+				if (data != null)
+					throw new InvalidOperationException("Message has already been signed");
+				
 				if (!network.Nodes.ContainsKey(value)) {
 					throw new Exception ("The specified node was not found (" + value + ").");
 				} else {
@@ -163,6 +172,9 @@ namespace FileFind.Meshwork
 					return this.to;
 			}
 			set {
+				if (data != null)
+					throw new InvalidOperationException("Message has already been signed");
+				
 				if (value == null) {
 					throw new ArgumentNullException("value");
 				}
@@ -180,12 +192,18 @@ namespace FileFind.Meshwork
 				return type;
 			}
 			set {
+				if (data != null)
+					throw new InvalidOperationException("Message has already been signed");
+				
 				this.type = value;
 			}
 		}
 
 		public string MessageID {
 			set {
+				if (data != null)
+					throw new InvalidOperationException("Message has already been signed");
+				
 				if (value.Length == 32)
 					this.id = value;
 				else
@@ -198,6 +216,9 @@ namespace FileFind.Meshwork
 		
 		public ulong Timestamp {
 			set {
+				if (data != null)
+					throw new InvalidOperationException("Message has already been signed");
+				
 				//TODO: verify that it is a valid unix epoch timestamp
 				this.timestamp = value;
 			}
@@ -211,6 +232,9 @@ namespace FileFind.Meshwork
 				return content;
 			}
 			set {
+				if (data != null)
+					throw new InvalidOperationException("Message has already been signed");
+				
 				content = value;
 			}
 		}
@@ -219,6 +243,9 @@ namespace FileFind.Meshwork
 		
 		public byte[] GetAssembledData()
 		{
+			if (data != null)
+				return data;
+			
 			int index = 0;
 			byte[] buffer;
 
