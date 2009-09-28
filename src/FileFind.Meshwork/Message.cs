@@ -19,7 +19,7 @@ namespace FileFind.Meshwork
 	{
 		Network network;
 		
-		private Message (Network network, byte[] data)
+		private Message (Network network, byte[] data, out string messageFrom)
 		{
 			if (network == null) {
 				throw new ArgumentNullException("network");
@@ -43,6 +43,7 @@ namespace FileFind.Meshwork
 			offset += (int)signatureLength;
 
 			from = System.Text.Encoding.ASCII.GetString(data, offset, 32);
+			messageFrom = from;
 			offset += 32;
 			
 			to = System.Text.Encoding.ASCII.GetString(data, offset, 32);
@@ -87,8 +88,9 @@ namespace FileFind.Meshwork
 			if (From != Core.MyNodeID) {
 				if (network.TrustedNodes.ContainsKey(from)) {
 					bool validSignature = network.TrustedNodes[from].Crypto.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
-					if (validSignature == false)
+					if (validSignature == false) {
 						throw new InvalidSignatureException();
+					}
 				} else if (Message.TypeIsEncrypted(type)) {
 					throw new Exception ("Unable to verify message signature! (Type: " + type.ToString() + ")");
 				}
@@ -104,9 +106,9 @@ namespace FileFind.Meshwork
 			content = Serialization.Binary.Deserialize(contentBuffer);
 		}
 		
-		public static Message Parse (Network network, byte[] data)
+		public static Message Parse (Network network, byte[] data, out string messageFrom)
 		{
-			Message message = new Message(network, data);
+			Message message = new Message(network, data, out messageFrom);
 			return message;
 		}
 

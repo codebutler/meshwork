@@ -342,7 +342,18 @@ namespace FileFind.Meshwork
 				// Get the next one!
 				ReceiveMessage();
 
-				Message message = Message.Parse(transport.Network, messageData);
+				Message message = null;
+				string messageFrom = null;
+				try {
+					message = Message.Parse(transport.Network, messageData, out messageFrom);
+				} catch (InvalidSignatureException ex) {
+					if (String.IsNullOrEmpty(messageFrom) || messageFrom == remoteNodeInfo.NodeID) {
+						throw ex;
+					} else {
+						LoggingService.LogWarning("Ignored message with invalid signature from {0}", messageFrom);
+						return;
+					}
+				}
 
 				ReceivedMessageInfo info = new ReceivedMessageInfo ();
 				info.Connection = this;
