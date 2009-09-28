@@ -17,7 +17,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public ConnectionsItem ()
 		{
-			icon = Gui.LoadIcon(16, "connect_established");
+			icon = Gui.LoadIcon(16, "network-transmit-receive");
 		}
 
 		public string Name {

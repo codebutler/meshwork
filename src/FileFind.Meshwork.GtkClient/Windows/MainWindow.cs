@@ -174,7 +174,7 @@ namespace FileFind.Meshwork.GtkClient
 			// Create the 'Rescanning shared files' widget
 			rebuildingShareEventBox = new Gtk.EventBox ();
 			Gtk.HBox rebuildingShareBox = new Gtk.HBox ();
-			rebuildingShareImage = new Gtk.Image (Gui.LoadIcon(16, "stock_refresh"));
+			rebuildingShareImage = new Gtk.Image (Gui.LoadIcon(16, "view-refresh"));
 			rebuildingShareBox.PackStart (rebuildingShareImage, false, false, 0);
 			Gtk.Label rebuildingShareLabel = new Gtk.Label ();
 			rebuildingShareLabel.Markup = "<span size=\"small\">Rescanning shared files...</span>";

@@ -17,7 +17,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public MemosItem ()
 		{
-			icon = Gui.LoadIcon(16, "mail");
+			icon = Gui.LoadIcon(16, "mail_generic");
 		}
 
 		public string Name {

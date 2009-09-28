@@ -92,7 +92,6 @@ namespace FileFind.Meshwork.GtkClient
 		Gtk.ListStore pluginsListStore;
 
 		Gtk.Dialog dialog;
-		Gdk.Pixbuf userImage;
 		Gdk.Pixbuf folderImage;
 
 		Settings settings;
@@ -115,10 +114,8 @@ namespace FileFind.Meshwork.GtkClient
 			/* Configure gui */
 
 			firewallImage.Pixbuf = new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.firewall-small.png");
-			computerImage.Pixbuf = Gui.LoadIcon(24, "computer");
 			internetConnectionImage.Pixbuf = new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.network1.png");
-			userImage = Gui.LoadIcon (24, "stock_person");
-			folderImage = Gui.LoadIcon (24, "folder", "gtk-directory");
+			folderImage = Gui.LoadIcon (24, "folder");
 		
 			sharedFoldersListStore = new Gtk.ListStore(typeof(string));
 			sharedFoldersList.Model = sharedFoldersListStore;
@@ -177,7 +174,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (File.Exists (myAvatarFile)) {
 				avatarImage.Pixbuf = new Gdk.Pixbuf (myAvatarFile);
 			} else {
-				avatarImage.Pixbuf = new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.avatar_generic.png");
+				avatarImage.Pixbuf = new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.avatar-generic-large.png");
 				avatarImage.Sensitive = false;
 			}
 	
@@ -569,12 +566,6 @@ namespace FileFind.Meshwork.GtkClient
 			return false;
 		}
 		
-		private void showUserIcon(TreeViewColumn treeColumn, CellRenderer cellRenderer, TreeModel treeModel, TreeIter treeIter)
-		{
-			CellRendererPixbuf renderer = (CellRendererPixbuf)cellRenderer;
-			renderer.Pixbuf = userImage;
-		}
-		
 		private void showFolderText(TreeViewColumn treeColumn, CellRenderer cellRenderer, TreeModel treeModel, TreeIter treeIter)
 		{
 			string path = treeModel.GetValue (treeIter, 0).ToString ();
@@ -776,7 +767,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void clearItem_Activated (object o, EventArgs args)
 		{
 			//avatarImage.Pixbuf = null;
-			avatarImage.Pixbuf = new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.avatar_generic.png");
+			avatarImage.Pixbuf = new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.avatar-generic-large.png");
 			avatarImage.Sensitive = false;
 		}
 

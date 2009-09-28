@@ -28,14 +28,12 @@ namespace FileFind.Meshwork.GtkClient
 
 		string currentPath;
 		IDirectory currentDirectory;
-		//TreePath selectedFolderListPath = null;
 		
 		bool navigating = false;
 		string navigatingTo = "";
 			 
 		Gdk.Pixbuf stockDirectoryPixbuf;
 		Gdk.Pixbuf stockFilePixbuf;
-		Gdk.Pixbuf personIcon;
 		Gdk.Pixbuf networkIcon;
 		
 		NavigationBar navigationBar;
@@ -80,24 +78,9 @@ namespace FileFind.Meshwork.GtkClient
 			navigationBarAlignment.ShowAll ();
 			
 			// Load some images
-			stockDirectoryPixbuf = Gui.LoadIcon(16, "folder", "gtk-directory");
-			stockFilePixbuf      = Gui.LoadIcon(16, "text-x-generic", "gtk-file");
-			personIcon           = Gui.LoadIcon(16, "stock_person");
+			stockDirectoryPixbuf = Gui.LoadIcon(16, "folder");
+			stockFilePixbuf      = Gui.LoadIcon(16, "text-x-generic");
 			networkIcon          = Gui.LoadIcon(16, "stock_internet");
-
-			// Create the folder list column
-			/*
-			Gtk.TreeViewColumn completeColumn = new Gtk.TreeViewColumn ();
-			Gtk.CellRendererPixbuf pixRender = new Gtk.CellRendererPixbuf ();
-			completeColumn.PackStart (pixRender, false);
-			completeColumn.AddAttribute (pixRender, "pixbuf-expander-open", 0);
-			completeColumn.AddAttribute (pixRender, "pixbuf-expander-closed", 0);
-			completeColumn.AddAttribute (pixRender, "pixbuf", 0);
-			Gtk.CellRendererText textRender = new Gtk.CellRendererText(); 
-			completeColumn.PackStart (textRender,true);
-			completeColumn.AddAttribute (textRender, "text", 1);
-			folderTree.AppendColumn(completeColumn); 
-			*/
 	
 			// Set up the file list 
 			filesList.Selection.Changed += filesList_Selection_Changed;
@@ -159,7 +142,7 @@ namespace FileFind.Meshwork.GtkClient
 			filePopupMenu = new Menu();
 			
 			ImageMenuItem item = new ImageMenuItem("Download");
-			item.Image = new Image(Gui.LoadIcon(16, "down"));
+			item.Image = new Image(Gui.LoadIcon(16, "go-down"));
 			item.Activated += on_mnuFileDownload_activate;
 			filePopupMenu.Append(item);
 
@@ -239,7 +222,9 @@ namespace FileFind.Meshwork.GtkClient
 				if (item is NetworkDirectory) {
 					(cell as CellRendererPixbuf).Pixbuf = networkIcon;
 				} else if (item is NodeDirectory || item is MyDirectory) {
-					(cell as CellRendererPixbuf).Pixbuf = personIcon;
+					var nodeId = (item is NodeDirectory) ? ((NodeDirectory)item).Node.NodeID : Core.MyNodeID;
+					var avatar = Gui.AvatarManager.GetMiniAvatar(nodeId);
+					(cell as CellRendererPixbuf).Pixbuf = avatar;
 				} else {
 					(cell as CellRendererPixbuf).Pixbuf = stockDirectoryPixbuf;
 				}
@@ -501,51 +486,6 @@ namespace FileFind.Meshwork.GtkClient
 			waitProgressBar.Pulse ();
 			return waitingBoxAlignment.Visible;
 		}
-
-		/*
-		private void RebuildFolderTree() {
-			folderTreeStore.Clear();
-		
-			TreeIter iter = folderTreeStore.AppendValues(new object[] {networkIcon, "Network Root", network.FileSystem.RootDirectory.FullPath() });
-			
-			if (network.FileSystem.RootDirectory == currentDirectory)
-				selectedFolderListPath = folderTreeStore.GetPath(iter);		
-			
-			foreach (IDirectory directory in network.FileSystem.RootDirectory.Directories) {
-				AddDirectoryToTree(iter, directory);
-			}		
-			
-			if (selectedFolderListPath != null) {
-				folderTree.ExpandToPath(selectedFolderListPath);
-				folderTree.Selection.SelectPath(selectedFolderListPath);
-				folderTree.ScrollToCell(selectedFolderListPath, null, false,0,0);
-			}
-		}	
-
-		private void AddDirectoryToTree(TreeIter parent, IDirectory directory) {
-			TreeIter iter;
-			if (directory.Parent == network.FileSystem.RootDirectory) {
-				iter = folderTreeStore.AppendValues(parent, new object[] {personIcon, network.Nodes[directory.Name].ToString(),directory.FullPath()});
-			} else {
-				iter = folderTreeStore.AppendValues(parent, new object[] {stockDirectoryPixbuf, directory.Name,directory.FullPath()});
-			}
-
-			foreach (IDirectory subDirectory in directory.Directories) {			
-				AddDirectoryToTree(iter, subDirectory);	
-			}
-			
-			if (directory == currentDirectory)
-				selectedFolderListPath = folderTreeStore.GetPath(iter);		
-		}
-		
-		public void on_folderTree_row_activated (object o, RowActivatedArgs e) {
-			TreeIter iter;
-			folderTreeStore.GetIter(out iter, e.Path);
-			
-			NavigateTo(Helper.GetTreeRow(iter, folderTreeStore).Cells[2].ToString());
-		}
-	
-	*/
 
 		private void on_navigationBar_PathButtonClicked (string path)
 		{

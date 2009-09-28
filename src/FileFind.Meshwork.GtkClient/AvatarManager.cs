@@ -10,16 +10,23 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
+using Gdk;
 
 namespace FileFind.Meshwork.GtkClient
 {
 	public class AvatarManager : IAvatarManager
 	{
-		Hashtable avatars         = new Hashtable ();
-		Hashtable smallAvatars    = new Hashtable ();
-		long      avatarSize      = 0;
+		Dictionary<String, Pixbuf> avatars = new Dictionary<String, Pixbuf>();
+		Dictionary<String, Pixbuf> smallAvatars = new Dictionary<String, Pixbuf>();
+		Dictionary<String, Pixbuf> miniAvatars = new Dictionary<String, Pixbuf>();
+		long      avatarSize = 0;
 		string    avatarsPath;
 
+		Pixbuf genericAvatar;
+		Pixbuf smallGenericAvatar;
+		Pixbuf miniGenericAvatar;
+		
 		public event EventHandler AvatarsChanged;
 
 		static AvatarManager instance = null;
@@ -31,6 +38,10 @@ namespace FileFind.Meshwork.GtkClient
 			} else {
 				instance = this;
 			}
+			
+			genericAvatar = new Pixbuf(null, "FileFind.Meshwork.GtkClient.avatar-generic-large.png");
+			smallGenericAvatar = new Pixbuf(null, "FileFind.Meshwork.GtkClient.avatar-generic-medium.png");
+			miniGenericAvatar = new Pixbuf(null, "FileFind.Meshwork.GtkClient.avatar-generic-small.png");
 
 			avatarsPath = Path.Combine (Settings.ConfigurationDirectory, "avatars");
 
@@ -62,10 +73,14 @@ namespace FileFind.Meshwork.GtkClient
 
 			if (File.Exists (myAvatarFile)) {
 
-				Gdk.Pixbuf pixbuf = new Gdk.Pixbuf(myAvatarFile);
-				avatars[Core.MyNodeID] = pixbuf;
-				pixbuf = pixbuf.ScaleSimple(22,22, Gdk.InterpType.Hyper);
+				var origPixbuf = new Pixbuf(myAvatarFile);
+				avatars[Core.MyNodeID] = origPixbuf;
+				
+				var pixbuf = origPixbuf.ScaleSimple(22,22, InterpType.Hyper);
 				smallAvatars[Core.MyNodeID] = pixbuf;
+				
+				pixbuf = origPixbuf.ScaleSimple(16, 16, InterpType.Hyper);
+				miniAvatars[Core.MyNodeID] = pixbuf;
 
 				this.avatarSize = new FileInfo(myAvatarFile).Length;
 
@@ -121,11 +136,14 @@ namespace FileFind.Meshwork.GtkClient
 			RemoveAvatars(node.NodeID);
 
 			if (File.Exists(filePath)) {
-				Gdk.Pixbuf pixbuf = new Gdk.Pixbuf(filePath);
-				avatars.Add(node.NodeID, pixbuf);
+				var origAvatar = new Pixbuf(filePath);
+				avatars.Add(node.NodeID, origAvatar);
 				
-				pixbuf = pixbuf.ScaleSimple(22,22, Gdk.InterpType.Hyper);
+				var pixbuf = origAvatar.ScaleSimple(22,22, InterpType.Hyper);
 				smallAvatars.Add(node.NodeID, pixbuf);
+				
+				pixbuf = origAvatar.ScaleSimple(16, 16, InterpType.Hyper);
+				miniAvatars.Add(node.NodeID, pixbuf);
 			}
 		}
 
@@ -149,47 +167,62 @@ namespace FileFind.Meshwork.GtkClient
 			
 			if (smallAvatars.ContainsKey (nodeid) == true)
 				smallAvatars.Remove (nodeid);
+			
+			if (miniAvatars.ContainsKey(nodeid))
+				miniAvatars.Remove(nodeid);
 
 			if (AvatarsChanged != null)
 				AvatarsChanged (this, EventArgs.Empty);
 		}
 
-		public Gdk.Pixbuf GetAvatar (string nodeID)
+		public Pixbuf GetAvatar (string nodeID)
 		{
-			if (avatars.ContainsKey (nodeID) == true)
-				return (Gdk.Pixbuf) avatars [nodeID];
+			if (avatars.ContainsKey(nodeID) == true)
+				return avatars[nodeID];
 			else
-				return null;
-
+				return genericAvatar;
 		}
 
-		public Gdk.Pixbuf GetAvatar (Node node)
+		public Pixbuf GetAvatar (Node node)
 		{
 			return GetAvatar(node.NodeID);
 		}
 
-		public Gdk.Pixbuf GetSmallAvatar (string nodeID)
+		public Pixbuf GetSmallAvatar (string nodeID)
 		{
-			if (smallAvatars.ContainsKey (nodeID) == true)
-				return (Gdk.Pixbuf) smallAvatars [nodeID];
+			if (smallAvatars.ContainsKey(nodeID) == true)
+				return smallAvatars[nodeID];
 			else
-				return null;
+				return smallGenericAvatar;
 		}
 
-		public Gdk.Pixbuf GetSmallAvatar (Node node)
+		public Pixbuf GetSmallAvatar (Node node)
 		{
 			return GetSmallAvatar(node.NodeID);
+		}
+		
+		public Pixbuf GetMiniAvatar (string nodeID)
+		{
+			if (miniAvatars.ContainsKey(nodeID))
+				return miniAvatars[nodeID];
+			else
+				return miniGenericAvatar;
+		}
+		
+		public Pixbuf GetMiniAvatar (Node node)
+		{
+			return GetMiniAvatar(node.NodeID);
 		}
 
 		public byte[] GetAvatarBytes (string nodeId)
 		{
-			Gdk.Pixbuf pixbuf = GetAvatar(nodeId);
+			Pixbuf pixbuf = GetAvatar(nodeId);
 			return pixbuf.SaveToBuffer("png");
 		}
 
 		public byte[] GetSmallAvatarBytes (string nodeId)
 		{
-			Gdk.Pixbuf pixbuf = GetSmallAvatar(nodeId);
+			Pixbuf pixbuf = GetSmallAvatar(nodeId);
 			return pixbuf.SaveToBuffer("png");
 		}
 		

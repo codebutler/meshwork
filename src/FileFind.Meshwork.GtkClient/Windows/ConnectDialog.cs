@@ -22,7 +22,6 @@ namespace FileFind.Meshwork.GtkClient
 {
 	public class ConnectDialog : GladeDialog
 	{
-		Pixbuf userImage;
 		Pixbuf notImage;
 		Pixbuf localImage;
 		ListStore store;
@@ -64,8 +63,7 @@ namespace FileFind.Meshwork.GtkClient
 			networksComboBox.Changed += delegate { PopulateAddressCombo(); };
 			networksComboBox.Active = Math.Min(networksListStore.IterNChildren(), 1);
 			
-			userImage = Gui.LoadIcon(16, "stock_person");
-			notImage = Gui.LoadIcon(16, "stock_not");
+			notImage = Gui.LoadIcon(16, "dialog-warning");
 			localImage = Gui.LoadIcon(16, "stock_channel");
 		}
 
@@ -151,8 +149,10 @@ namespace FileFind.Meshwork.GtkClient
 			object currentRow = tree_model.GetValue(iter, 0);
 			
 			if (currentRow != null) {
-				if (currentRow is TrustedNodeInfo)
-					((CellRendererPixbuf)cell).Pixbuf = userImage; else if (currentRow is NearbyNode)
+				if (currentRow is TrustedNodeInfo) {
+					var pixbuf = Gui.AvatarManager.GetSmallAvatar(((TrustedNodeInfo)currentRow).NodeID);
+					((CellRendererPixbuf)cell).Pixbuf = pixbuf; 
+				} else if (currentRow is NearbyNode)
 					((CellRendererPixbuf)cell).Pixbuf = localImage;
 				else
 					((CellRendererPixbuf)cell).Pixbuf = notImage;

@@ -763,7 +763,7 @@ namespace FileFind.Meshwork
 				memos.Add(memo.ID, memo);
 			}
 
-			OnMemoAdded (memo);
+			OnMemoAdded(memo);
 		}
 		
 		internal void RemoveMemo (Memo memo)
@@ -1520,7 +1520,7 @@ namespace FileFind.Meshwork
 			LoggingService.LogInfo("Memo added: {0} by {1}", memo.Subject, memo.Node);
 			
 			if (MemoAdded != null) {
-				MemoAdded (this, memo);
+				MemoAdded(this, memo);
 			}
 		}
 

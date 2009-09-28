@@ -192,51 +192,49 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 		
-		private delegate Gdk.Pixbuf IconLoadDelegate(string name, int size);
+		public static Gdk.Pixbuf LoadIconFromResource (string name, int size)
+		{
+			try {
+				Assembly asm = System.Reflection.Assembly.GetCallingAssembly();
+				string resourceName = String.Format("FileFind.Meshwork.GtkClient.{0}_{1}.png", name, size.ToString());
+				if (asm.GetManifestResourceInfo(resourceName) != null) {
+					Gdk.Pixbuf pixbuf = new Gdk.Pixbuf(null, resourceName);
+					if (pixbuf != null) {
+						return pixbuf;
+					}
+				}
+			} catch (Exception) {
+			} 
+			return null;
+		}
+		
+		public static Gdk.Pixbuf LoadIconFromTheme (string name, int size) 
+		{			
+			try {
+				Gdk.Pixbuf pixbuf = IconTheme.Default.LoadIcon(name, size, Gtk.IconLookupFlags.UseBuiltin);
+				if (pixbuf != null && pixbuf.Width == size && pixbuf.Height == size) {
+					return pixbuf;
+				}
+			} catch (Exception) {
+			}
+			return null;
+		}
+		
 		public static Gdk.Pixbuf LoadIcon (int size, params string[] names)
 		{				
-			Assembly asm = System.Reflection.Assembly.GetCallingAssembly();
-			
-			IconLoadDelegate loadFromGtkTheme = delegate(string thisName, int thisSize) {
-				// Try to load from gtk theme...
-				try {
-					Gdk.Pixbuf pixbuf1 = IconTheme.Default.LoadIcon (thisName, thisSize, Gtk.IconLookupFlags.UseBuiltin);
-					if (pixbuf1 != null && pixbuf1.Width == thisSize && pixbuf1.Height == thisSize) {
-						return pixbuf1;
-					}
-				} catch (Exception) {
-				}
-				return null;
-			};
-				
-			IconLoadDelegate loadFromResource = delegate(string thisName, int thisSize) {
-				// If that fails, try from resource...
-				try {
-					string resourceName = String.Format("FileFind.Meshwork.GtkClient.{0}_{1}.png", thisName, thisSize.ToString());
-					if (asm.GetManifestResourceInfo (resourceName) != null) {
-						Gdk.Pixbuf pixbuf2 = new Gdk.Pixbuf (null, resourceName);
-						if (pixbuf2 != null) {
-							return pixbuf2;
-						}
-					}
-				} catch (Exception) {
-				} 
-				return null;
-			};
-		
 			foreach (string name in names) {
 				Gdk.Pixbuf pixbuf = null;
 				
 				if (Environment.OSVersion.Platform == PlatformID.Unix) {
-					pixbuf = loadFromGtkTheme(name, size);
+					pixbuf = LoadIconFromTheme(name, size);
 					if (pixbuf == null) {
 						LoggingService.LogWarning("Icon not found in theme: {0} {1}", name, size);
-						pixbuf = loadFromResource(name, size);
+						pixbuf = LoadIconFromResource(name, size);
 					}
 				} else {
-					pixbuf = loadFromResource(name, size);
+					pixbuf = LoadIconFromResource(name, size);
 					if (pixbuf == null) {
-						pixbuf = loadFromGtkTheme(name, size);
+						pixbuf = LoadIconFromTheme(name, size);
 					}
 				}
 				
@@ -255,6 +253,12 @@ namespace FileFind.Meshwork.GtkClient
 			swindow.Add(widget);
 			swindow.Show();
 			return swindow;
+		}
+		
+		public static AvatarManager AvatarManager {
+			get {
+				return (AvatarManager) Core.AvatarManager;
+			}
 		}
 	}
 }

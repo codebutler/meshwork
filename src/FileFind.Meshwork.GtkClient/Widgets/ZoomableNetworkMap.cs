@@ -95,7 +95,6 @@ namespace FileFind.Meshwork.GtkClient {
 		private double nodeDraggingLastX, nodeDraggingLastY;
 		private ArrayList connections;
 		private Random rng;
-		private MapMenu mapMenu;
 		#endregion
 		
 		#region colors
@@ -125,8 +124,6 @@ namespace FileFind.Meshwork.GtkClient {
 		private static readonly double Padding = 4.0;
 		private static readonly double NodegroupNameFontSize = 14.0;
 		private static readonly double NetworkNameFontSize = 20.0;
-//		private static readonly Gdk.Pixbuf AvatarGeneric = new Gdk.Pixbuf (null, "avatar_generic.png");
-		private static Gdk.Pixbuf AvatarGeneric;
 		private static Gdk.Pixbuf noticeIcon;
 		#endregion
 		
@@ -137,15 +134,13 @@ namespace FileFind.Meshwork.GtkClient {
 
 		public ZoomableNetworkMap ()
 		{
-			AvatarGeneric = Gui.LoadIcon(24, "stock_person");
-			noticeIcon = Gui.LoadIcon(24, "info");
+			noticeIcon = Gui.LoadIcon(24, "dialog-information");
 			rng = new Random ();
 			
 			networkZOrder = ArrayList.Synchronized (new ArrayList ());
 			
 			selectedGroup = null;
 			connections = ArrayList.Synchronized (new ArrayList ());
-			mapMenu = new MapMenu ();
 			nodeDragging = false;
 			nodeDraggingLastX = 0;
 			nodeDraggingLastY = 0;
@@ -453,7 +448,10 @@ namespace FileFind.Meshwork.GtkClient {
 				
 				case 3:
 					if (firstNodeGroupHit == null) { // clicked on map background
+				
+						Menu mapMenu = (Menu) Runtime.UIManager.GetWidget("/MapPopupMenu");					
 						mapMenu.Popup ();
+					
 					} else {
 						if (firstNodeHit != null) {
 							UserMenu userMenu = new UserMenu(firstNodeHit.Network, firstNodeHit);
@@ -889,16 +887,7 @@ namespace FileFind.Meshwork.GtkClient {
 			xBelow = Math.Floor (x) + 0.5;
 			yBelow = Math.Floor (y) + 0.5;
 			
-			AvatarManager avatarManager = (AvatarManager) Core.AvatarManager;
-			Gdk.Pixbuf avatar = null;
-			if (avatarManager != null) {
-				avatar = avatarManager.GetAvatar (n);
-				if (avatar == null) {
-					avatar = AvatarGeneric;
-				}
-			} else {
-				avatar = AvatarGeneric;
-			}
+			Gdk.Pixbuf avatar = Gui.AvatarManager.GetAvatar(n);
 
 			double avatarWidth = (avatar.Width < 40) ? avatar.Width : 40;
 			double avatarHeight = (avatar.Height < 40) ? avatar.Height : 40;

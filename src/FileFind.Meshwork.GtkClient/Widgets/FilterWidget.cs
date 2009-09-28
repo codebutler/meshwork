@@ -152,12 +152,12 @@ namespace FileFind.Meshwork.GtkClient
 
 				addButton = new Button();
 				addButton.Relief = ReliefStyle.None;
-				addButton.Image = new Image(Gui.LoadIcon(16, "add"));
+				addButton.Image = new Image(Gui.LoadIcon(16, "list-add"));
 				addButton.Clicked += AddButtonClicked;
 
 				removeButton = new Button();
 				removeButton.Relief = ReliefStyle.None;
-				removeButton.Image = new Image(Gui.LoadIcon(16, "remove"));
+				removeButton.Image = new Image(Gui.LoadIcon(16, "list-remove"));
 				removeButton.Clicked += RemoveButtonClicked;
 
 				box = new HBox();

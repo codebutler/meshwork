@@ -52,7 +52,7 @@ namespace FileFind.Meshwork.GtkClient
 			column = memoList.AppendColumn(String.Empty,
 			                               new CellRendererPixbuf(),
 						       new TreeCellDataFunc(MemoAttachmentFunc));
-			column.Widget = new Gtk.Image(Gui.LoadIcon(16, "attachment-col"));
+			column.Widget = new Gtk.Image(new Gdk.Pixbuf(null, "FileFind.Meshwork.GtkClient.attachment-col-small.png"));
 			column.Widget.Show();
 
 			column = memoList.AppendColumn("Posted By",

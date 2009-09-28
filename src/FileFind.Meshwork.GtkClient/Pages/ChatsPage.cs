@@ -20,6 +20,7 @@ namespace FileFind.Meshwork.GtkClient
 		TreeView chatList;
 		NetworkGroupedTreeStore<ChatRoom> chatTreeStore;
 		Dictionary<Widget, ChatSubpageBase> tabLabelPages;
+		Gdk.Pixbuf closePixbuf;
 
 		bool urgencyHint = false;
 		public event EventHandler UrgencyHintChanged;
@@ -38,6 +39,8 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			base.FocusGrabbed += base_FocusGrabbed;
 
+			closePixbuf = new Gdk.Pixbuf(null, "FileFind.Meshwork.GtkClient.smallclose.png");
+			
 			tabLabelPages = new Dictionary<Widget, ChatSubpageBase>();
 			
 			notebook = new Notebook();
@@ -322,7 +325,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private Widget CreateTabLabel (string text)
 		{
-			Button closeButton = new Button(new Image(Gui.LoadIcon(12, "stock-close")));
+			Button closeButton = new Button(new Image(closePixbuf));
 			closeButton.SetSizeRequest(17,17);
 			closeButton.FocusOnClick = false;
 			closeButton.CanFocus = false;

@@ -28,6 +28,7 @@
 using Gtk;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Threading;
 using System.IO;
 
@@ -90,34 +91,37 @@ namespace FileFind.Meshwork.GtkClient
 				new Gdk.Pixbuf(null, "FileFind.Meshwork.GtkClient.tray_icon.png")
 			};
 			
-			// XXX: This is the deprecated API:
-			IconSet chatIconSet = new IconSet (new Gdk.Pixbuf (null, "FileFind.Meshwork.GtkClient.internet-group-chat_24.png"));
-			IconFactory factory = new IconFactory ();
-			factory.Add ("internet-group-chat", chatIconSet);
-			factory.AddDefault ();
-
-			if (Environment.OSVersion.Platform != PlatformID.Unix) {
-				
-				// Windows specific. Override stock icons to use embeded files.
-				Gtk.IconTheme.AddBuiltinIcon("gtk-add", 24, Gui.LoadIcon(24, "add"));
-				Gtk.IconTheme.AddBuiltinIcon("gtk-add", 16, Gui.LoadIcon(16, "add"));
-				
-				Gtk.IconTheme.AddBuiltinIcon("gtk-remove", 24, Gui.LoadIcon(24, "remove"));
-				Gtk.IconTheme.AddBuiltinIcon("gtk-remove", 16, Gui.LoadIcon(16, "remove"));
-				
-				Gtk.IconTheme.AddBuiltinIcon("gtk-preferences", 24, Gui.LoadIcon(24, "gtk-preferences"));
-				Gtk.IconTheme.AddBuiltinIcon("gtk-preferences", 16, Gui.LoadIcon(16, "gtk-preferences"));
-				
-				Gtk.IconTheme.AddBuiltinIcon("gtk-new", 24, Gui.LoadIcon(24, "gtk-new"));
-				Gtk.IconTheme.AddBuiltinIcon("gtk-new", 16, Gui.LoadIcon(16, "gtk-new"));
-				
-				Gtk.IconTheme.AddBuiltinIcon("gtk-find", 24, Gui.LoadIcon(24, "find"));
-				Gtk.IconTheme.AddBuiltinIcon("gtk-find", 16, Gui.LoadIcon(16, "find"));
-				
-				Gtk.IconTheme.AddBuiltinIcon("gtk-home", 24, Gui.LoadIcon(24, "home"));
-				Gtk.IconTheme.AddBuiltinIcon("gtk-home", 16, Gui.LoadIcon(16, "home"));
+		
+			// Windows specific. Override stock icons to use embeded files.
+			var sizes = new [] { 16, 22, 24, 34 };
+			var iconNames = new[] { 
+				"application-exit", "application-x-executable", "audio-x-generic", 
+				"computer", "dialog-error", "dialog-information", "dialog-password", 
+				"gtk-preferences", "dialog-question",  "dialog-warning", "folder", 
+				"go-down", "go-home", "go-next", "go-previous", "go-up", "image-x-generic",
+				"internet-group-chat", "list-add", "list-remove", "mail-attachment", 
+				"mail_generic", "mail-message-new", "mail-signed-verified", 
+				"network-transmit-receive", "stock_channel", "stock_internet", 
+				"system-search", "text-x-generic", "user-home", "video-x-generic",
+				"view-refresh", "x-office-document"
+			};
+			
+			foreach (var size in sizes) {
+				foreach (var iconName in iconNames) {
+					
+					if (Environment.OSVersion.Platform != PlatformID.Unix ||
+					    !IconTheme.Default.HasIcon(iconName) || 
+					    !IconTheme.Default.GetIconSizes(iconName).Contains(size)) 
+					{					
+						var pixbuf = Gui.LoadIconFromResource(iconName, size);
+						if (pixbuf != null)
+							Gtk.IconTheme.AddBuiltinIcon(iconName, size, pixbuf);
+						else
+							LoggingService.LogWarning("Missing embeded icon: {0} ({1}x{1})", iconName, size);
+					}
+				}
 			}
-
+			
 			/* Set up UI actions */
 			builtin_actions = new BuiltinActionGroup ();
 			ui_manager = new UIManager ();
@@ -125,6 +129,7 @@ namespace FileFind.Meshwork.GtkClient
 			ui_manager.AddUiFromResource ("FileFind.Meshwork.GtkClient.MainWindow.xml");
 			ui_manager.AddUiFromResource ("FileFind.Meshwork.GtkClient.TrayPopupMenu.xml");
 			ui_manager.AddUiFromResource ("FileFind.Meshwork.GtkClient.SearchPopupMenu.xml");
+			ui_manager.AddUiFromResource ("FileFind.Meshwork.GtkClient.MapPopupMenu.xml");
 
 			/* Create the Tray Icon */
 			trayIcon = new TrayIcon();

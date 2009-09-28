@@ -17,7 +17,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public NewSearchItem ()
 		{
-			icon = Gui.LoadIcon(24, Gtk.Stock.Find);
+			icon = Gui.LoadIcon(24, "system-search");
 		}
 
 		public string Name {

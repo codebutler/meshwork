@@ -56,12 +56,8 @@ namespace FileFind.Meshwork.GtkClient
 				Node node = (Node)item;
 
 				AvatarManager avatarManager = (AvatarManager)Core.AvatarManager;
-				Gdk.Pixbuf avatar = avatarManager.GetSmallAvatar (node);
-
-				if (avatar != null)
-					(cell as CellRendererPixbuf).Pixbuf = avatar;
-				else
-					(cell as CellRendererPixbuf).Pixbuf = Gui.LoadIcon (24, "stock_person");
+				Gdk.Pixbuf avatar = avatarManager.GetSmallAvatar(node);
+				(cell as CellRendererPixbuf).Pixbuf = avatar;
 				(cell as CellRendererPixbuf).Visible = true;
 			} else {
 				//Network network = (Network)item;

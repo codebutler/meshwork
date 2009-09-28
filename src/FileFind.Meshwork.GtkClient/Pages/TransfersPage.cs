@@ -71,8 +71,8 @@ namespace FileFind.Meshwork.GtkClient
 			transferList.RowActivated += OnTransferListRowActivated;
 			transferList.ButtonPressEvent +=  OnTransferListButtonPressEvent;
 
-			downloadImage = Gui.LoadIcon(16, "down");
-			uploadImage = Gui.LoadIcon(16, "up");
+			downloadImage = Gui.LoadIcon(16, "go-down");
+			uploadImage = Gui.LoadIcon(16, "go-up");
 
 			GLib.Timeout.Add (500, new GLib.TimeoutHandler (RefreshTransferList));
 

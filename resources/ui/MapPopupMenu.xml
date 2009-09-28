@@ -1,0 +1,8 @@
+<ui>
+	<popup name="MapPopupMenu">
+		<menuitem action="Connect" />
+		<separator />
+		<menuitem action="PostMemo" />
+		<menuitem action="JoinChat" />
+	</popup>
+</ui>

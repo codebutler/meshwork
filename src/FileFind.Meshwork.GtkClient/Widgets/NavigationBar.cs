@@ -27,7 +27,6 @@ namespace FileFind.Meshwork.GtkClient
 
 		Gdk.Pixbuf homeIcon;
 		Gdk.Pixbuf networkIcon;
-		Gdk.Pixbuf personIcon;
 
 		public NavigationBar () : base (new Adjustment(0, 0, 0, 0, 0, 0), new Adjustment(0, 0, 0, 0, 0, 0))
 		{
@@ -43,9 +42,8 @@ namespace FileFind.Meshwork.GtkClient
 
 			base.ScrollEvent += base_ScrollEvent;
  	
-			homeIcon = Gui.LoadIcon(16, "go-home", "gtk-home");
+			homeIcon = Gui.LoadIcon(16, "user-home");
  			networkIcon = Gui.LoadIcon(16, "stock_internet");
- 			personIcon = Gui.LoadIcon (16, "stock_person");
 		}
 
 		private ArrayList path = new ArrayList();
@@ -96,7 +94,7 @@ namespace FileFind.Meshwork.GtkClient
 					
 					if (x > 0 && pathParts[1] == "local") {
 						if (x == 1) {
-							image = new Image(personIcon);
+							image = new Image(Gui.AvatarManager.GetMiniAvatar(Core.MyNodeID));
 							text = "My Shared Files";
 						} 
 					} else {
@@ -111,11 +109,14 @@ namespace FileFind.Meshwork.GtkClient
 							}
 						} else if (x == 2) {
 							Network network = Core.GetNetwork(pathParts[x-1]);
+							string nodeID = "";
 							if (network != null) {
-								text = network.GetNode(pathParts[x]).NickName;
+								Node node = network.GetNode(pathParts[x]);
+								text = node.NickName;
+								nodeID = node.NodeID;
 							}
 
-							image = new Image(personIcon);
+							image = new Image(Gui.AvatarManager.GetMiniAvatar(nodeID));
 						}
 					}
 

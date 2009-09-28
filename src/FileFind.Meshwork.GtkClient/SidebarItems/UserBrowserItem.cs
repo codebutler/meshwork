@@ -17,7 +17,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public UserBrowserItem ()
 		{
-			icon = Gui.LoadIcon(24, "stock_person");
+			icon = Gui.LoadIcon(24, "folder");
 		}
 
 		public string Name {

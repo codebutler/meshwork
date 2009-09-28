@@ -96,7 +96,7 @@ namespace FileFind.Meshwork.GtkClient
 			Gdk.Pixbuf videoPixbuf = Gui.LoadIcon(16, "video-x-generic");
 			Gdk.Pixbuf imagePixbuf = Gui.LoadIcon(16, "image-x-generic");
 			Gdk.Pixbuf docPixbuf = Gui.LoadIcon(16, "x-office-document");
-			unknownPixbuf = Gui.LoadIcon(16, "unknown");
+			unknownPixbuf = Gui.LoadIcon(16, "text-x-generic");
 			folderPixbuf = Gui.LoadIcon(16, "folder");
 			
 			typeStore = new ListStore(typeof(Gdk.Pixbuf), typeof(string), typeof(FileType));
@@ -287,7 +287,7 @@ namespace FileFind.Meshwork.GtkClient
 			filePopupMenu = new Menu();
 			
 			ImageMenuItem item = new ImageMenuItem("Download");
-			item.Image = new Image(Gui.LoadIcon(16, "down"));
+			item.Image = new Image(Gui.LoadIcon(16, "go-down"));
 			//item.Activated += on_mnuFileDownload_activate;
 			filePopupMenu.Append(item);
 

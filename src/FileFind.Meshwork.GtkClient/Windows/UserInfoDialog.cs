@@ -45,7 +45,7 @@ namespace FileFind.Meshwork.GtkClient
 			
 			base.Window.Title = node.ToString();
 
-			avatarImage.Pixbuf = ((AvatarManager)Core.AvatarManager).GetAvatar(node);
+			avatarImage.Pixbuf = Gui.AvatarManager.GetAvatar(node);
 
 			nickNameLabel.Markup = String.Format("<span weight=\"bold\" size=\"x-large\">{0}</span> on <i>{1}</i>", node.NickName, network.NetworkName);
 			

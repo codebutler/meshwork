@@ -17,22 +17,56 @@ namespace FileFind.Meshwork.GtkClient
 {
 	public class UserMenu
 	{
-		[Widget] MenuItem mnuUsersConnectTo;
-		[Widget] MenuItem mnuUsersMessageUser;
-		[Widget] MenuItem mnuUsersGetInfo;
-		[Widget] MenuItem mnuUsersInviteChat;
-		[Widget] MenuItem mnuUsersBrowseFiles;
-		[Widget] MenuItem mnuUsersSendFile;
-		[Widget] MenuItem mnuUsersRequestPublicKey;
-		Menu mnuUsers;
+		Menu m_Menu;
+		
+		MenuItem m_ConnectMenuItem;		
+		MenuItem m_MessageMenuItem;
+		MenuItem m_GetInfoMenuItem;
+		MenuItem m_InviteChatMenuRoom;
+		MenuItem m_BrowseMenuItem;
+		MenuItem m_SendFileMenuItem;
+		MenuItem m_TrustMenuItem;
+		
 		Network network;
 		Node selectedNode;
 
 		public UserMenu (Network network, Node node)
 		{
-			Glade.XML xmlMnuUsers = new Glade.XML(null, "FileFind.Meshwork.GtkClient.meshwork.glade", "mnuUsers", null);
-			mnuUsers = (xmlMnuUsers.GetWidget("mnuUsers") as Gtk.Menu);
-			xmlMnuUsers.Autoconnect(this);
+			m_Menu = new Menu();
+						
+			m_MessageMenuItem = new MenuItem("_Message");
+			m_MessageMenuItem.Activated += on_m_MessageMenuItem_activate;
+			m_Menu.Append(m_MessageMenuItem);
+			
+			m_GetInfoMenuItem = new MenuItem("View _Info");
+			m_GetInfoMenuItem.Activated += on_m_GetInfoMenuItem_activate;
+			m_Menu.Append(m_GetInfoMenuItem);
+			
+			m_InviteChatMenuRoom = new MenuItem("In_vite to Chat...");
+			m_InviteChatMenuRoom.Activated += on_m_InviteChatMenuRoom_activate;
+			m_Menu.Append(m_InviteChatMenuRoom);
+			
+			m_Menu.Append(new SeparatorMenuItem());
+			
+			m_ConnectMenuItem = new MenuItem("C_onnect");
+			m_ConnectMenuItem.Activated += on_mnuUsersConnectTo_activate;
+			m_Menu.Append(m_ConnectMenuItem);
+			
+			m_Menu.Append(new SeparatorMenuItem());
+			
+			m_BrowseMenuItem = new MenuItem("_Browse");
+			m_BrowseMenuItem.Activated += on_m_BrowseMenuItem_activate;
+			m_Menu.Append(m_BrowseMenuItem);
+			
+			m_SendFileMenuItem = new MenuItem("Send _File...");
+			m_SendFileMenuItem.Activated += on_m_SendFileMenuItem_activate;
+			m_Menu.Append(m_SendFileMenuItem);
+			
+			m_TrustMenuItem = new MenuItem("_Trust");
+			m_TrustMenuItem.Activated += on_m_TrustMenuItem_activate;
+			m_Menu.Append(m_TrustMenuItem);
+			
+			m_Menu.ShowAll();
 			
 			this.selectedNode = node;
 			this.network = network;
@@ -46,33 +80,33 @@ namespace FileFind.Meshwork.GtkClient
 		public void Popup (Widget widget)
 		{
 			// Enable none
-			mnuUsersConnectTo.Sensitive = false;
-			mnuUsersMessageUser.Sensitive = false;
-			mnuUsersGetInfo.Sensitive = false;
-			mnuUsersInviteChat.Sensitive = false;
-			mnuUsersBrowseFiles.Sensitive = false;
-			mnuUsersSendFile.Sensitive = false;
+			m_ConnectMenuItem.Sensitive = false;
+			m_MessageMenuItem.Sensitive = false;
+			m_GetInfoMenuItem.Sensitive = false;
+			m_InviteChatMenuRoom.Sensitive = false;
+			m_BrowseMenuItem.Sensitive = false;
+			m_SendFileMenuItem.Sensitive = false;
 			
-			mnuUsersRequestPublicKey.Visible = false;
+			m_TrustMenuItem.Visible = false;
 						
 			if (selectedNode != null) {
 				if (Core.IsLocalNode(selectedNode)) {
-					mnuUsersGetInfo.Sensitive = true;
-					mnuUsersBrowseFiles.Sensitive = true;
+					m_GetInfoMenuItem.Sensitive = true;
+					m_BrowseMenuItem.Sensitive = true;
 				}
 				else {
 					if (!network.TrustedNodes.ContainsKey(selectedNode.NodeID)) {
 						// Request Public Key
-						mnuUsersRequestPublicKey.Visible = true;
+						m_TrustMenuItem.Visible = true;
 					} else {
 						if (selectedNode.FinishedKeyExchange == true) {
 							// Enable all
-							mnuUsersConnectTo.Sensitive = true;
-							mnuUsersMessageUser.Sensitive = true;
-							mnuUsersGetInfo.Sensitive = true;
-							mnuUsersInviteChat.Sensitive = true;
-							mnuUsersBrowseFiles.Sensitive = true;
-							mnuUsersSendFile.Sensitive = true;
+							m_ConnectMenuItem.Sensitive = true;
+							m_MessageMenuItem.Sensitive = true;
+							m_GetInfoMenuItem.Sensitive = true;
+							m_InviteChatMenuRoom.Sensitive = true;
+							m_BrowseMenuItem.Sensitive = true;
+							m_SendFileMenuItem.Sensitive = true;
 						}
 						else { 
 							// This just means we are waiting to finish the key exchange 
@@ -81,10 +115,10 @@ namespace FileFind.Meshwork.GtkClient
 				}
 			}
 
-			mnuUsers.Show();
+			m_Menu.Show();
 			
 			if (widget != null) {
-				mnuUsersGetInfo.Hide();
+				m_GetInfoMenuItem.Hide();
 				
 				int windowX, windowY;
 				widget.ParentWindow.GetOrigin(out windowX, out windowY);
@@ -99,14 +133,13 @@ namespace FileFind.Meshwork.GtkClient
 					push_in = true;
 					
 				};
-				mnuUsers.Popup(null, null, positionFunc, 1, 0);
+				m_Menu.Popup(null, null, positionFunc, 1, 0);
 			} else {			
-				mnuUsers.Popup();
+				m_Menu.Popup();
 			}
 		}
 
-
-		public void on_mnuUsersConnectTo_activate(object o, EventArgs e)
+		void on_mnuUsersConnectTo_activate(object o, EventArgs e)
 		{
 			try {
 				IDestination destination = selectedNode.FirstConnectableDestination;
@@ -122,24 +155,24 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		public void on_mnuUsersMessageUser_activate(object o, EventArgs e)
+		void on_m_MessageMenuItem_activate(object o, EventArgs e)
 		{
 			Gui.StartPrivateChat(network, selectedNode);
 		}
 
-		public void on_mnuUsersGetInfo_activate(object o, EventArgs e)
+		void on_m_GetInfoMenuItem_activate(object o, EventArgs e)
 		{
 			 UserInfoDialog dialog = new UserInfoDialog(Gui.MainWindow.Window, network, selectedNode);
 			 dialog.Run();
 		}
 
-		public void on_mnuUsersInviteChat_activate(object o, EventArgs e)
+		void on_m_InviteChatMenuRoom_activate(object o, EventArgs e)
 		{
 			InviteToChatDialog dialog = new InviteToChatDialog (network, selectedNode);
 			dialog.Run ();
 		}
 
-		public void on_mnuUsersBrowseFiles_activate (object o, EventArgs e)
+		void on_m_BrowseMenuItem_activate (object o, EventArgs e)
 		{
 			Gui.MainWindow.SelectedPage = UserBrowserPage.Instance;
 			if (Core.IsLocalNode(selectedNode)) {
@@ -149,7 +182,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		public void on_mnuUsersSendFile_activate(object o, EventArgs e)
+		void on_m_SendFileMenuItem_activate(object o, EventArgs e)
 		{
 			FileSelector dialog = new FileSelector ("Select file to send");
 			dialog.Show ();
@@ -159,12 +192,8 @@ namespace FileFind.Meshwork.GtkClient
 			dialog.Destroy ();
 		}
 
-		public void on_mnuUsersRequestPublicKey_activate(object o, EventArgs e) {
+		void on_m_TrustMenuItem_activate(object o, EventArgs e) {
 			network.RequestPublicKey( selectedNode );			
-		}
-
-		public void on_mnuUsers_show (object o, EventArgs args)
-		{
 		}
 	}
 }

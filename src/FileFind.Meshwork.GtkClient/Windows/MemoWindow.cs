@@ -31,6 +31,7 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] Alignment alignmentSignatureInfo;
 		[Widget] Label networkLabel;
 		[Widget] Button signedByButton;
+		[Widget] Image signatureImage;
 		
 		ListStore fileListStore;
 		
@@ -55,6 +56,7 @@ namespace FileFind.Meshwork.GtkClient
 				} else {
 					lblSignatureStatus.Markup = "<b>Unable to verify digital signature (Node not trusted)</b>";
 					signedByButton.Sensitive = false;
+					signatureImage.IconName = "dialog-warning";
 				}
 			} else {
 				lblSignatureStatus.Markup = "<b>This memo has a valid digital signature.</b>";				

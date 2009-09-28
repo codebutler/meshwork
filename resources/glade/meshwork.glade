@@ -433,82 +433,6 @@
       </widget>
     </child>
   </widget>
-  <widget class="GtkMenu" id="mnuUsers">
-    <signal name="show" handler="on_mnuUsers_show"/>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuUsersMessageUser">
-        <property name="label">Send Private Message</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuUsersMessageUser_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuUsersGetInfo">
-        <property name="label">Get Info...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuUsersGetInfo_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuUsersInviteChat">
-        <property name="label">Invite to chat...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuUsersInviteChat_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkSeparatorMenuItem" id="separator26">
-        <property name="visible">True</property>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuUsersRequestPublicKey">
-        <property name="label">Trust this user</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuUsersRequestPublicKey_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuUsersConnectTo">
-        <property name="label">Connect to User</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuUsersConnectTo_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkSeparatorMenuItem" id="separator10">
-        <property name="visible">True</property>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuUsersBrowseFiles">
-        <property name="label">Browse Files...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuUsersBrowseFiles_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuUsersSendFile">
-        <property name="label">Send File...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuUsersSendFile_activate"/>
-      </widget>
-    </child>
-  </widget>
   <widget class="GtkDialog" id="AddTrustedNodeDialog">
     <property name="visible">True</property>
     <property name="title" translatable="yes">Add Trusted Friend</property>
@@ -1288,7 +1212,6 @@ To manually add a new trusted friend, paste their public key below, select to im
             <child>
               <widget class="GtkImage" id="splashImage">
                 <property name="visible">True</property>
-                <property name="stock">gtk-missing-image</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -1324,49 +1247,6 @@ To manually add a new trusted friend, paste their public key below, select to im
       </widget>
     </child>
   </widget>
-  <widget class="GtkMenu" id="mnuMap">
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuNewConnection">
-        <property name="label">Connect to a Friend...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuNewConnection_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkSeparatorMenuItem" id="separator23">
-        <property name="visible">True</property>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuNewMemo">
-        <property name="label">Post New Memo...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuNewMemo_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="mnuJoinCreateChat">
-        <property name="label">Join/Create Chat Room...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuJoinChat_activate"/>
-      </widget>
-    </child>
-    <child>
-      <widget class="GtkImageMenuItem" id="browse/search_for_files1">
-        <property name="label">Browse/Search for Files...</property>
-        <property name="visible">True</property>
-        <property name="use_underline">True</property>
-        <property name="use_stock">True</property>
-        <signal name="activate" handler="on_mnuBrowseFiles_activate"/>
-      </widget>
-    </child>
-  </widget>
   <widget class="GtkDialog" id="EditMemoDialog">
     <property name="visible">True</property>
     <property name="title" translatable="yes">Post New Memo</property>
@@ -1388,7 +1268,8 @@ To manually add a new trusted friend, paste their public key below, select to im
                 <child>
                   <widget class="GtkImage" id="image222">
                     <property name="visible">True</property>
-                    <property name="stock">gtk-new</property>
+                    <property name="pixel_size">32</property>
+                    <property name="icon_name">mail-message-new</property>
                     <property name="icon-size">6</property>
                   </widget>
                   <packing>
@@ -1556,7 +1437,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                                     <child>
                                       <widget class="GtkImage" id="image122">
                                         <property name="visible">True</property>
-                                        <property name="stock">gtk-add</property>
+                                        <property name="icon_name">list-add</property>
                                       </widget>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1605,7 +1486,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                                     <child>
                                       <widget class="GtkImage" id="image123">
                                         <property name="visible">True</property>
-                                        <property name="stock">gtk-remove</property>
+                                        <property name="icon_name">list-remove</property>
                                       </widget>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2018,9 +1899,9 @@ To manually add a new trusted friend, paste their public key below, select to im
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkImage" id="image124">
+                                                  <widget class="GtkImage" id="signatureImage">
                                                     <property name="visible">True</property>
-                                                    <property name="icon_name">dialog-password</property>
+                                                    <property name="icon_name">mail-signed-verified</property>
                                                     <property name="icon-size">6</property>
                                                   </widget>
                                                   <packing>
@@ -2298,7 +2179,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                       <widget class="GtkImage" id="image1">
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="stock">gtk-file</property>
+                        <property name="icon_name">text-x-generic</property>
                       </widget>
                     </child>
                   </widget>
@@ -3118,7 +2999,6 @@ To manually add a new trusted friend, paste their public key below, select to im
                                         <child>
                                           <widget class="GtkImage" id="avatarImage">
                                             <property name="visible">True</property>
-                                            <property name="stock">gtk-missing-image</property>
                                             <property name="icon-size">3</property>
                                           </widget>
                                         </child>
@@ -3416,7 +3296,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                         <child>
                           <widget class="GtkImage" id="image224">
                             <property name="visible">True</property>
-                            <property name="stock">gtk-add</property>
+                            <property name="icon_name">list-add</property>
                           </widget>
                         </child>
                       </widget>
@@ -3436,7 +3316,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                         <child>
                           <widget class="GtkImage" id="image225">
                             <property name="visible">True</property>
-                            <property name="stock">gtk-remove</property>
+                            <property name="icon_name">list-remove</property>
                           </widget>
                         </child>
                       </widget>
@@ -3549,7 +3429,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                                     <child>
                                       <widget class="GtkImage" id="image210">
                                         <property name="visible">True</property>
-                                        <property name="stock">gtk-add</property>
+                                        <property name="icon_name">list-add</property>
                                       </widget>
                                     </child>
                                   </widget>
@@ -3569,7 +3449,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                                     <child>
                                       <widget class="GtkImage" id="image223">
                                         <property name="visible">True</property>
-                                        <property name="stock">gtk-remove</property>
+                                        <property name="icon_name">list-remove</property>
                                       </widget>
                                     </child>
                                   </widget>
@@ -3759,7 +3639,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                         <child>
                           <widget class="GtkImage" id="computerImage">
                             <property name="visible">True</property>
-                            <property name="stock">gtk-missing-image</property>
+                            <property name="icon_name">computer</property>
                             <property name="icon-size">3</property>
                           </widget>
                           <packing>
@@ -3850,7 +3730,6 @@ To manually add a new trusted friend, paste their public key below, select to im
                         <child>
                           <widget class="GtkImage" id="firewallImage">
                             <property name="visible">True</property>
-                            <property name="stock">gtk-missing-image</property>
                             <property name="icon-size">3</property>
                           </widget>
                           <packing>
@@ -3953,7 +3832,6 @@ To manually add a new trusted friend, paste their public key below, select to im
                         <child>
                           <widget class="GtkImage" id="internetConnectionImage">
                             <property name="visible">True</property>
-                            <property name="stock">gtk-missing-image</property>
                             <property name="icon-size">3</property>
                           </widget>
                           <packing>
@@ -4518,7 +4396,7 @@ To make manual changes, select &lt;i&gt;Advanced -&gt; Connection&lt;/i&gt;.</pr
                                 <child>
                                   <widget class="GtkImage" id="image226">
                                     <property name="visible">True</property>
-                                    <property name="stock">gtk-add</property>
+                                    <property name="icon_name">list-add</property>
                                   </widget>
                                 </child>
                               </widget>
@@ -4537,7 +4415,7 @@ To make manual changes, select &lt;i&gt;Advanced -&gt; Connection&lt;/i&gt;.</pr
                                 <child>
                                   <widget class="GtkImage" id="image227">
                                     <property name="visible">True</property>
-                                    <property name="stock">gtk-remove</property>
+                                    <property name="icon_name">list-remove</property>
                                   </widget>
                                 </child>
                               </widget>
@@ -5419,7 +5297,8 @@ To make manual changes, select &lt;i&gt;Advanced -&gt; Connection&lt;/i&gt;.</pr
                 <child>
                   <widget class="GtkImage" id="image229">
                     <property name="visible">True</property>
-                    <property name="stock">gtk-dialog-error</property>
+                    <property name="pixel_size">32</property>
+                    <property name="icon_name">dialog-error</property>
                     <property name="icon-size">6</property>
                   </widget>
                   <packing>
@@ -6153,7 +6032,8 @@ If you hide Meshwork to the panel the main window will be hidden but Meshwork wi
                   <widget class="GtkImage" id="image444">
                     <property name="visible">True</property>
                     <property name="yalign">0</property>
-                    <property name="stock">gtk-dialog-warning</property>
+                    <property name="pixel_size">32</property>
+                    <property name="icon_name">dialog-warning</property>
                     <property name="icon-size">6</property>
                   </widget>
                   <packing>
@@ -6748,7 +6628,7 @@ Idan Gazit &lt;idan@fastmail.fm&gt;</property>
                     <child>
                       <widget class="GtkImage" id="image573">
                         <property name="visible">True</property>
-                        <property name="stock">gtk-add</property>
+                        <property name="icon_name">list-add</property>
                       </widget>
                     </child>
                   </widget>
@@ -6768,7 +6648,7 @@ Idan Gazit &lt;idan@fastmail.fm&gt;</property>
                     <child>
                       <widget class="GtkImage" id="image574">
                         <property name="visible">True</property>
-                        <property name="stock">gtk-remove</property>
+                        <property name="icon_name">list-remove</property>
                       </widget>
                     </child>
                   </widget>
@@ -7221,7 +7101,9 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
             <child>
               <widget class="GtkImage" id="image690">
                 <property name="visible">True</property>
-                <property name="stock">gtk-dialog-question</property>
+                <property name="yalign">0</property>
+                <property name="pixel_size">32</property>
+                <property name="icon_name">dialog-question</property>
                 <property name="icon-size">6</property>
               </widget>
               <packing>
@@ -7980,7 +7862,7 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                               <widget class="GtkImage" id="image3">
                                 <property name="visible">True</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="stock">gtk-refresh</property>
+                                <property name="icon_name">view-refresh</property>
                               </widget>
                               <packing>
                                 <property name="position">0</property>
@@ -8089,7 +7971,6 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                   <widget class="GtkImage" id="avatarImage">
                     <property name="visible">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="stock">gtk-missing-image</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -8464,7 +8345,7 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                 <child>
                   <widget class="GtkImage" id="image6">
                     <property name="visible">True</property>
-                    <property name="stock">gtk-dialog-warning</property>
+                    <property name="icon_name">dialog-warning</property>
                     <property name="icon-size">3</property>
                   </widget>
                   <packing>

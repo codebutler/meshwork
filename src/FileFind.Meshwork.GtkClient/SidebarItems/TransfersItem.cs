@@ -17,7 +17,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public TransfersItem ()
 		{
-			icon = Gui.LoadIcon(16, "down");
+			icon = Gui.LoadIcon(16, "go-down");
 		}
 
 		public string Name {

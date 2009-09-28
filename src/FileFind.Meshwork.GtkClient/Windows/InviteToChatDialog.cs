@@ -54,12 +54,11 @@ namespace FileFind.Meshwork.GtkClient
 			CellRendererPixbuf imageCell = new CellRendererPixbuf ();
 			CellRendererText textCell = new CellRendererText ();
 			
-			imageCell.Pixbuf = Gui.LoadIcon (16, "stock_person");
-
 			userStore = new ListStore (typeof (Node));
 			userComboBox.PackStart (imageCell, false);
 			userComboBox.PackStart (textCell, true);
 			userComboBox.SetCellDataFunc (textCell, UserComboTextFunc);
+			userComboBox.SetCellDataFunc (imageCell, UserComboImageFunc);
 			userComboBox.Changed += delegate {
 				EnableDisableOkButton();
 			};
@@ -153,6 +152,12 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			Node node = (Node) model.GetValue (iter, 0);
 			(cell as CellRendererText).Text = node.ToString ();
+		}
+		
+		private void UserComboImageFunc (CellLayout layout, CellRenderer cell, TreeModel model, TreeIter iter)
+		{
+			Node node = (Node) model.GetValue(iter, 0);
+			(cell as CellRendererPixbuf).Pixbuf = Gui.AvatarManager.GetSmallAvatar(node);
 		}
 		
 		private void RoomComboImageFunc (CellLayout layout, CellRenderer cell, TreeModel model, TreeIter iter)

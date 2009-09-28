@@ -71,19 +71,19 @@ namespace FileFind.Meshwork.GtkClient
 			new ActionEntry ("NetworkMenu", null, string_network_menu,
 				null, null, null),
 
-			new ActionEntry ("PostMemo", Stock.New, string_post_memo,
+			new ActionEntry ("PostMemo", null, string_post_memo,
 				"<control>M", null, null),
 
-			new ActionEntry ("JoinChat", "internet-group-chat", string_join_chat,
+			new ActionEntry ("JoinChat", null, string_join_chat,
 				"<control>J", null, null),
 
-			new ActionEntry ("Connect", Stock.Add, string_connect,
+			new ActionEntry ("Connect", null, string_connect,
 				"<control>N", null, null),
 
 			new ActionEntry ("Preferences", Stock.Preferences, string_preferences,
 				"<control>P", null, null),
 
-			new ActionEntry ("Quit", Stock.Quit, string_quit, 
+			new ActionEntry ("Quit", null, string_quit, 
 				"<control>Q", null, null),
 
 			new ActionEntry ("EditMenu", null, string_edit_menu,
@@ -97,10 +97,10 @@ namespace FileFind.Meshwork.GtkClient
 
 			new ActionEntry ("About", Stock.About),
 
-			new ActionEntry ("SidebarRemoveSearch", Stock.Remove, string_remove_search,
+			new ActionEntry ("SidebarRemoveSearch", null, string_remove_search,
 				null, null, null),
 
-			new ActionEntry ("SidebarSearchAgain", Stock.Refresh, string_search_again,
+			new ActionEntry ("SidebarSearchAgain", null, string_search_again,
 				null, null, null)
 		};
 		
@@ -133,7 +133,14 @@ namespace FileFind.Meshwork.GtkClient
 			this["About"              ].Activated += About_Activated;
 			this["SidebarSearchAgain" ].Activated += SidebarSearchAgain_Activated;
 			this["SidebarRemoveSearch"].Activated += SidebarRemoveSearch_Activated;
-
+			
+			this["Connect"].IconName = "list-add";
+			this["PostMemo"].IconName = "mail-message-new";
+			this["JoinChat"].IconName = "internet-group-chat";
+			this["Quit"].IconName = "application-exit";
+			this["SidebarRemoveSearch"].IconName = "list-remove";
+			this["SidebarSearchAgain"].IconName = "view-refresh";
+			
 			// Toolbar items need to be important or else no text
 			// is displayed. AFAIK, this does not affect menu items
 			// at all.
