@@ -157,7 +157,6 @@
     <Compile Include="FileFind.Meshwork.Search\FileSearchFilter.cs" />
     <Compile Include="FileFind.Meshwork.Search\FileSearchGroup.cs" />
     <Compile Include="FileFind.Meshwork.Search\FileSearchManager.cs" />
-    <Compile Include="FileFind.Meshwork.Search\ISearchResult.cs" />
     <Compile Include="FileFind.Meshwork.Search\SearchResult.cs" />
     <Compile Include="FileFind\ReadOnlyDictionary.cs" />
     <Compile Include="FileFind\SerializableDictionary.cs" />

@@ -438,6 +438,8 @@ namespace FileFind.Meshwork.GtkClient
 
 					private void Relocate ()
 					{
+						/*
+						 * 
 						int x, y, xx, yy, h;
 						h = attachTo.SizeRequest().Height;
 						attachTo.GdkWindow.GetRootOrigin(out x, out y);
@@ -451,6 +453,15 @@ namespace FileFind.Meshwork.GtkClient
 						this.Move(x + xx + 1, y + yy + h + 1);
 
 						this.Move(x + xx, y + yy + h);
+						*/
+						
+						int windowX, windowY;
+						this.attachTo.ParentWindow.GetPosition(out windowX, out windowY);
+												
+						int x = windowX + this.attachTo.Allocation.X;
+						int y = windowY + this.attachTo.Allocation.Y + this.attachTo.Allocation.Height;
+						
+						this.Move(x, y);
 					}
 				}
 			}

@@ -496,10 +496,14 @@ namespace FileFind.Meshwork.GtkClient
 
 		private SizeD CalculateNodeGroupSize (NodeGroup ng, Cairo.Context gc)
 		{
-			var titleTextHeight = CalculateNodeGroupTitleTextSize(ng, gc).Height + (Padding * 2.0);
+			var titleTextSize = CalculateNodeGroupTitleTextSize(ng, gc);
+			var titleTextHeight = titleTextSize.Height + (Padding * 2.0);
 			var heightNodeCount = (ng.Nodes.Count < 3) ? 1 : ng.Nodes.Count;
-			return new SizeD((ng.Nodes.Count * AvatarDimension) + (Padding * 2.0) + (Padding * ng.Nodes.Count), 
-			                 (heightNodeCount * AvatarDimension) + titleTextHeight + (Padding * 2.0) + (Padding * heightNodeCount));
+			
+			var width = Math.Max(titleTextSize.Width + (Padding * 2.0), 
+			                     (ng.Nodes.Count * AvatarDimension) + (Padding * 2.0) + (Padding * ng.Nodes.Count));
+			var height = (heightNodeCount * AvatarDimension) + titleTextHeight + (Padding * 2.0) + (Padding * heightNodeCount);
+			return new SizeD(width, height);
 		}
 
 		private void RenderNodeGroup (NodeGroup ng, Network network, Cairo.Context gc)

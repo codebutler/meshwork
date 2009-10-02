@@ -81,11 +81,11 @@ namespace FileFind.Meshwork.GtkClient
 			toolbar = new Toolbar();
 			toolbar.ToolbarStyle = ToolbarStyle.BothHoriz;
 			toolbar.Insert(downloadToolButton, -1);
-			toolbar.Insert(searchAgainToolButton, -1);
+			toolbar.Insert(browseToolButton, -1);
 			toolbar.Insert(spacerItem, -1);
 			toolbar.Insert(filterItem, -1);
 			toolbar.Insert(new SeparatorToolItem(), -1);
-			toolbar.Insert(browseToolButton, -1);
+			toolbar.Insert(searchAgainToolButton, -1);
 			toolbar.ShowAll();
 
 			this.PackStart(toolbar, false, false, 0);
