@@ -72,7 +72,6 @@ Makefile
 src/Makefile
 src/FileFind.Meshwork/Makefile
 src/FileFind.Meshwork.GtkClient/Makefile
-src/FileFind.Meshwork.GtkClient/Defines.cs
 contrib/Makefile
 resources/Makefile
 po/Makefile.in
