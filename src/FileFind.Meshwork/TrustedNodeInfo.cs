@@ -21,30 +21,31 @@ using FileFind.Meshwork.Destination;
 namespace FileFind.Meshwork
 {
 	public class TrustedNodeInfo
-	{	
+	{
 		/* Private Variables */
-		RSACryptoServiceProvider crypto;
-		string nodeId;
-		string identifier;
-		List<DestinationInfo> destinationInfos = new List<DestinationInfo>();
+		PublicKey m_PublicKey;
+		RSACryptoServiceProvider m_Crypto;
+		string m_NodeId;
+		string m_Identifier;
+		List<DestinationInfo> m_DestinationInfos = new List<DestinationInfo>();
 
-		public TrustedNodeInfo () 
+		public TrustedNodeInfo ()
 		{
 			// For the serializer
 		}
 
 		public TrustedNodeInfo (PublicKey key)
 		{
-			this.Identifier = key.Identifier;
-			this.PublicKey = key.Key;
+			this.Identifier = key.Nickname;
+			this.PublicKey = key;
 		}
 
 		public string Identifier {
-			get {
-				return identifier;
-			}
+			get { return m_Identifier; }
 			set {
-				identifier = value;
+				m_Identifier = value;
+				if (m_PublicKey != null)
+					m_PublicKey.Nickname = value;
 			}
 		}
 
@@ -52,71 +53,68 @@ namespace FileFind.Meshwork
 		public bool AllowProfile = true;
 		public bool AllowNetworkInfo = true;
 		public bool AllowSharedFiles = true;
-		public DateTime LastConnected = new DateTime (0);
+		public DateTime LastConnected = new DateTime(0);
 		public bool AllowAutoConnect = true;
 		public bool AllowConnect = true;
 
 		public string NodeID {
-			get {
-				return nodeId;
-			}
+			get { return m_NodeId; }
 		}
-		
+
 		[XmlIgnore]
-		public string PublicKey {
-			get {
-				if (crypto != null)
-					return crypto.ToXmlString(false);
-				else
-					return null;
-			}
+		public PublicKey PublicKey {
+			get { return m_PublicKey; }
 			set {
 				if (value != null) {
-					crypto = new RSACryptoServiceProvider(new CspParameters());
-					crypto.FromXmlString(value);
-					nodeId = Common.MD5(value);
+					var crypto = new RSACryptoServiceProvider(new CspParameters());
+					crypto.FromXmlString(value.Key);
+					string nodeId = Common.MD5(value.Key);
+					m_PublicKey = value;
+					m_PublicKey.Nickname = m_Identifier;
+					m_Crypto = crypto;
+					m_NodeId = nodeId;
 				} else {
-					crypto = null;
-					nodeId = null;
+					m_PublicKey = null;
+					m_Crypto = null;
+					m_NodeId = null;
 				}
 			}
 		}
-		
+
 		[XmlElement("PublicKey")]
 		public System.Xml.XmlCDataSection PublicKeyData {
 			get {
 				var doc = new System.Xml.XmlDocument();
-				return doc.CreateCDataSection(this.PublicKey);
+				return doc.CreateCDataSection(this.PublicKey.Key);
 			}
 			set {
 				try {
-					this.PublicKey = value.Value;
-				} catch (Exception) {
+					this.PublicKey = new PublicKey(value.Value);
+				} catch (Exception ex) {
+					LoggingService.LogError("Error loading TrustedNodeInfo", ex);
 					this.PublicKey = null;
 				}
 			}
 		}
-		
+
 		[XmlIgnore]
 		public RSACryptoServiceProvider Crypto {
 			get {
-				if (crypto == null)
-					throw new Exception ("No Crypto object for " + Identifier + "!");
-				return crypto;
+				if (m_Crypto == null)
+					throw new Exception("No Crypto object for " + Identifier + "!");
+				return m_Crypto;
 			}
 		}
 
 		public List<DestinationInfo> DestinationInfos {
-			get {
-				return destinationInfos;
-			}
-		}	
-		
+			get { return m_DestinationInfos; }
+		}
+
 		[XmlIgnore]
 		public IDestination[] Destinations {
 			get {
 				List<IDestination> result = new List<IDestination>();
-				foreach (DestinationInfo info in destinationInfos) {
+				foreach (DestinationInfo info in m_DestinationInfos) {
 					if (info.Supported) {
 						info.CreateAndAddDestination(result);
 					}
@@ -142,14 +140,14 @@ namespace FileFind.Meshwork
 		public IDestination[] ConnectableDestinations {
 			get {
 				List<IDestination> result = new List<IDestination>();
-
+				
 				foreach (IDestination d in this.Destinations) {
 					if (d.CanConnect) {
 						result.Add(d);
 					}
 				}
-
-				result.Sort(delegate (IDestination a, IDestination b) {
+				
+				result.Sort(delegate(IDestination a, IDestination b) {
 					if (a.IsExternal && !b.IsExternal) {
 						return 1;
 					} else if (!a.IsExternal && b.IsExternal) {

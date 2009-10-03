@@ -66,7 +66,9 @@ namespace FileFind.Meshwork.GtkClient
 		private void on_btnAdd_clicked(object sender, EventArgs e)
 		{
 			try {
-				PublicKey result = KeyFunctions.ParsePublicKeyBlock(txtPublicKey.Buffer.Text);
+				PublicKey result = PublicKey.Parse(txtPublicKey.Buffer.Text);
+				if (Common.MD5(result.Key) == Core.MyNodeID)
+					throw new Exception("Cannot add your own key!");
 				
 				tni = new TrustedNodeInfo(result);
 			
@@ -81,7 +83,8 @@ namespace FileFind.Meshwork.GtkClient
 				base.Dialog.Destroy();
 			}
 			catch (Exception ex) {
-				Gui.ShowMessageDialog ("Invalid public key \n\n" + ex.ToString(),base.Dialog, Gtk.MessageType.Error,ButtonsType.Ok);
+				Gui.ShowMessageDialog(String.Format("Invalid public key: {0}", ex.Message),
+				                      base.Dialog, Gtk.MessageType.Error, ButtonsType.Ok);
 				base.Dialog.Respond(ResponseType.None);
 				return;
 			}

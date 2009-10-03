@@ -376,7 +376,7 @@ namespace FileFind.Meshwork
 						if (acceptKey) {
 							TrustedNodeInfo trustedNode = new TrustedNodeInfo();
 							trustedNode.Identifier = String.Format("[{0}]", nodeID);
-							trustedNode.PublicKey = key.Key;
+							trustedNode.PublicKey = new PublicKey(key.Key);
 							transport.Network.AddTrustedNode(trustedNode);
 							Core.Settings.SyncNetworkInfoAndSave();
 						} else {

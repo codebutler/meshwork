@@ -114,7 +114,7 @@ namespace FileFind.Meshwork
 			if (acceptKey) {
 				TrustedNodeInfo tni = new TrustedNodeInfo();
 				tni.Identifier = node.NickName;
-				tni.PublicKey = key.Key;
+				tni.PublicKey = new PublicKey(key.Key);
 
 				network.AddTrustedNode(tni);
 

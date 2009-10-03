@@ -279,7 +279,11 @@ namespace FileFind.Meshwork
 
 		internal void AddTrustedNode(TrustedNodeInfo info)
 		{
+			if (info.NodeID == Core.MyNodeID)
+				throw new InvalidOperationException("Cannot add a TrustedNodeInfo with your own key!");
+			
 			this.trustedNodes.Add(info.NodeID, info);
+			
 			if (nodes.ContainsKey(info.NodeID)) {
 				Node node = nodes[info.NodeID];
 				if (!node.FinishedKeyExchange) {

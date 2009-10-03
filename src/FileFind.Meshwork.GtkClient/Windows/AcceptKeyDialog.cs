@@ -35,14 +35,11 @@ namespace FileFind.Meshwork.GtkClient
 		
 		int secondsLeft = 20;
 		
-		RSACryptoServiceProvider provider;
-		
 		public AcceptKeyDialog (Network network, ReceivedKeyEventArgs args) : base (null, "AcceptKeyDialog")
 		{
-			provider = new RSACryptoServiceProvider ();
-			provider.FromXmlString(args.Key.Key);
-			keyTextView.Buffer.Text = KeyFunctions.MakePublicKeyBlock (nicknameLabel.Text, null, provider.ToXmlString (false));
-			string nodeID = FileFind.Common.MD5(provider.ToXmlString (false));
+			var publicKey = new PublicKey(args.Key.Info, args.Key.Key);
+			keyTextView.Buffer.Text = publicKey.ToArmoredString();
+			string nodeID = FileFind.Common.MD5(publicKey.Key);
 			nodeIdLabel.Text = nodeID;
 
 			if (args.Node != null)  {

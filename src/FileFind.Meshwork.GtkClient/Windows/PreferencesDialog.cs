@@ -452,10 +452,9 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void on_copyKeyButton_clicked(object o, EventArgs args)
 		{
-			
-			string publicKey = KeyFunctions.MakePublicKeyBlock(nicknameEntry.Text, "Meshwork for Linux", provider.ToXmlString(false));
-			Gtk.Clipboard.GetForDisplay(Gdk.Display.OpenDefaultLibgtkOnly(),Gdk.Atom.Intern("CLIPBOARD",true)).Text = publicKey;
-			Gui.ShowMessageDialog ("The clipboard has been set.", dialog);
+			string publicKey = new PublicKey(nicknameEntry.Text, provider.ToXmlString(false)).ToArmoredString();
+			Gtk.Clipboard.GetForDisplay(Gdk.Display.Default, Gdk.Atom.Intern("CLIPBOARD", true)).Text = publicKey;
+			Gui.ShowMessageDialog("The clipboard has been set.", dialog);
 		}
 		
 		private void on_saveKeyButton_clicked(object o, EventArgs args)
@@ -464,7 +463,7 @@ namespace FileFind.Meshwork.GtkClient
 			selector.TransientFor = dialog;
 			selector.CurrentName = nicknameEntry.Text + ".mpk";
 			if (selector.Run() == (int)ResponseType.Ok) {
-				string publicKey = KeyFunctions.MakePublicKeyBlock(nicknameEntry.Text, "Meshwork for Linux", provider.ToXmlString(false));
+				string publicKey = new PublicKey(nicknameEntry.Text, provider.ToXmlString(false)).ToArmoredString();
 				FileFind.Common.WriteToFile(selector.Filename,publicKey);
 			}
 			selector.Destroy();
