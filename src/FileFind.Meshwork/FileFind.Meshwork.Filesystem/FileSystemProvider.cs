@@ -382,11 +382,11 @@ namespace FileFind.Meshwork.Filesystem
 								 name  TEXT,
 								 value TEXT);
 					";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					command.CommandText = "INSERT INTO properties (name, value) VALUES (\"version\", @version)";
 					AddParameter (command, "@version", SCHEMA_VERSION);
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					command = connection.CreateCommand();
 					command.CommandText = @"
@@ -403,7 +403,7 @@ namespace FileFind.Meshwork.Filesystem
 								     UNIQUE (parent_id, name)
 					);
 					";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					// XXX: SQLite triggers are not recursive, so
 					// this leaves orphaned files and subdirectories.
@@ -414,7 +414,7 @@ namespace FileFind.Meshwork.Filesystem
 						DELETE FROM directoryitems WHERE parent_id = old.id;
 					END;
 					";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					command = connection.CreateCommand();
 					command.CommandText = @"
@@ -423,7 +423,7 @@ namespace FileFind.Meshwork.Filesystem
 								 piece_num  INTEGER,
 								 hash       TEXT);
 					";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					command = connection.CreateCommand();
 					command.CommandText = @"
@@ -431,19 +431,19 @@ namespace FileFind.Meshwork.Filesystem
 						DELETE FROM filepieces WHERE file_id = old.id;
 					END;
 					";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_parent_id ON directoryitems (parent_id);";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_local_path ON directoryitems (local_path);";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX filepieces_file_id ON filepieces (file_id);";
-					ExecuteNonQuery(command);;
+					ExecuteNonQuery(command);
 
 					transaction.Commit();
 				}
