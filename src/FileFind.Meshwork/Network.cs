@@ -920,20 +920,15 @@ namespace FileFind.Meshwork
 		
 		public void RequestDirectoryListing (RemoteDirectory directory)
 		{
-			// FIXME: This is not pretty
-			string path = "/" + String.Join("/", directory.FullPath.Split('/').Slice(3));
-
-			Message m = MessageBuilder.CreateRequestDirectoryMessage(directory.Node, path);
+			Message m = MessageBuilder.CreateRequestDirectoryMessage(directory.Node, directory.RemoteFullPath);
 			SendRoutedMessage(m);
 		}
 		
 		public void RequestFileDetails (RemoteFile file)
 		{
-			string path = "/" + String.Join("/", file.FullPath.Split('/').Slice(3));
-
 			var message = new Message(file.Network, MessageType.RequestFileDetails);
 			message.To = file.Node.NodeID;
-			message.Content = path;
+			message.Content = file.RemoteFullPath;
 			SendRoutedMessage(message);
 		}
 		

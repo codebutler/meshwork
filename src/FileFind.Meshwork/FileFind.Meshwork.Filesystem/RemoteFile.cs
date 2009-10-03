@@ -70,6 +70,12 @@ namespace FileFind.Meshwork.Filesystem
 		public Node Node {
 			get { return m_Parent.Node; }
 		}
+		
+		public string RemoteFullPath {
+			get {
+				return "/" + String.Join("/", this.FullPath.Split('/').Slice(3));
+			}
+		}
 
 		public override int PieceLength {
 			get {

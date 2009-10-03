@@ -41,6 +41,12 @@ namespace FileFind.Meshwork.Filesystem
 			get { return m_Node.Network; }
 		}
 
+		public string RemoteFullPath {
+			get {
+				return "/" + String.Join("/", this.FullPath.Split('/').Slice(3));
+			}
+		}
+		
 		public RemoteDirectoryState State {
 			get { return m_State; }
 		}

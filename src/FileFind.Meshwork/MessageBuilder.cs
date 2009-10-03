@@ -377,10 +377,10 @@ namespace FileFind.Meshwork
 
 		public Message CreateRequestFileMessage(Node node, IFileTransfer transfer)
 		{
-			string filePath = "/" + String.Join("/", transfer.File.FullPath.Split('/').Slice(3));
+			var remoteFile = (RemoteFile)transfer.File;
  			Message p = new Message(network, MessageType.RequestFile);
  			p.To = node.NodeID;
-			p.Content = new RequestFileInfo(filePath, transfer.Id);
+			p.Content = new RequestFileInfo(remoteFile.RemoteFullPath, transfer.Id);
  			return p;
 		}
 

@@ -20,5 +20,9 @@ namespace FileFind.Meshwork
 		Node Node {
 			get;
 		}
+		
+		string RemoteFullPath {
+			get;
+		}
 	}
 }

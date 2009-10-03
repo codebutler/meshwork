@@ -35,11 +35,19 @@ namespace FileFind.Meshwork.GtkClient
 
 			fileNameLabel.Text = file.Name;
 			fileTypeLabel.Text = file.Type;
-			fileFullPathLabel.Text = file.FullPath;
+			
+			if (file is RemoteFile)
+				fileFullPathLabel.Text = ((RemoteFile)file).RemoteFullPath;
+			else
+				fileFullPathLabel.Text = file.FullPath;
+			
 			infoHashLabel.Text = file.InfoHash;
 			
-			//XXX:
-			ownerLabel.Text = (file is RemoteFile) ? (file as RemoteFile).Node.NodeID : "You";
+			if (file is RemoteFile) {
+				var remoteFile = (RemoteFile)file;
+				ownerLabel.Text = String.Format("{0} ({1})", remoteFile.Node.NickName, remoteFile.Node.NodeID);
+			} else
+				ownerLabel.Text = "You";
 
 			sourcesListStore = new ListStore(typeof(Node));
 			sourcesTreeView.AppendColumn("NickName", new CellRendererText(), new TreeCellDataFunc(NodeNicknameFunc));
