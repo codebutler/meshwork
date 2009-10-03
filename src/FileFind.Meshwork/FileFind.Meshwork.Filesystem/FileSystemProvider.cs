@@ -198,7 +198,7 @@ namespace FileFind.Meshwork.Filesystem
 					string query = "SELECT count(*) FROM directoryitems WHERE type='D'";
 					IDbCommand command = connection.CreateCommand();
 					command.CommandText = query;
-					object result = command.ExecuteScalar();
+					object result = ExecuteScalar(command);
 					return (result == null) ? 0 : (long)result;
 				});
 			}
@@ -209,7 +209,7 @@ namespace FileFind.Meshwork.Filesystem
 					string query = "SELECT count(*) FROM directoryitems WHERE type='F'";
 					IDbCommand command = connection.CreateCommand();
 					command.CommandText = query;
-					object result = command.ExecuteScalar();
+					object result = ExecuteScalar(command);
 					return (result == null) ? 0 : (long)result;
 				});
 			}
@@ -221,7 +221,7 @@ namespace FileFind.Meshwork.Filesystem
 					string query = "SELECT sum(length) FROM directoryitems WHERE type='F'";
 					IDbCommand command = connection.CreateCommand();
 					command.CommandText = query;
-					object result = command.ExecuteScalar();
+					object result = ExecuteScalar(command);
 					return (result == null) ? 0 : (long)result;
 				});
 			}
@@ -236,7 +236,7 @@ namespace FileFind.Meshwork.Filesystem
 						string query = "SELECT count(*) FROM directoryitems WHERE type='F'";
 						IDbCommand command = connection.CreateCommand();
 						command.CommandText = query;
-						object result = command.ExecuteScalar();
+						object result = ExecuteScalar(command);
 						yourTotalFiles = (result == null) ? 0 : (long)result;
 						return yourTotalFiles;
 					});
@@ -253,7 +253,7 @@ namespace FileFind.Meshwork.Filesystem
 						string query = "SELECT sum(length) FROM directoryitems WHERE type='F'";
 						IDbCommand command = connection.CreateCommand();
 						command.CommandText = query;
-						object result = command.ExecuteScalar();
+						object result = ExecuteScalar(command);
 						yourTotalBytes = (result == null) ? 0 : (long)result;
 						return yourTotalBytes;
 					});
@@ -372,7 +372,7 @@ namespace FileFind.Meshwork.Filesystem
 					foreach (string tableName in tablesToDrop) {
 						IDbCommand dropCommand = connection.CreateCommand();
 						dropCommand.CommandText = String.Format("DROP TABLE IF EXISTS {0}", tableName);
-						dropCommand.ExecuteNonQuery();
+						ExecuteNonQuery(dropCommand);
 					}
 
 					IDbCommand command = connection.CreateCommand();
@@ -382,11 +382,11 @@ namespace FileFind.Meshwork.Filesystem
 								 name  TEXT,
 								 value TEXT);
 					";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					command.CommandText = "INSERT INTO properties (name, value) VALUES (\"version\", @version)";
 					AddParameter (command, "@version", SCHEMA_VERSION);
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					command = connection.CreateCommand();
 					command.CommandText = @"
@@ -403,7 +403,7 @@ namespace FileFind.Meshwork.Filesystem
 								     UNIQUE (parent_id, name)
 					);
 					";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					// XXX: SQLite triggers are not recursive, so
 					// this leaves orphaned files and subdirectories.
@@ -414,7 +414,7 @@ namespace FileFind.Meshwork.Filesystem
 						DELETE FROM directoryitems WHERE parent_id = old.id;
 					END;
 					";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					command = connection.CreateCommand();
 					command.CommandText = @"
@@ -423,7 +423,7 @@ namespace FileFind.Meshwork.Filesystem
 								 piece_num  INTEGER,
 								 hash       TEXT);
 					";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					command = connection.CreateCommand();
 					command.CommandText = @"
@@ -431,19 +431,19 @@ namespace FileFind.Meshwork.Filesystem
 						DELETE FROM filepieces WHERE file_id = old.id;
 					END;
 					";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_parent_id ON directoryitems (parent_id);";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_local_path ON directoryitems (local_path);";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX filepieces_file_id ON filepieces (file_id);";
-					command.ExecuteNonQuery();
+					ExecuteNonQuery(command);;
 
 					transaction.Commit();
 				}
@@ -460,6 +460,7 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public DataSet ExecuteDataSet (IDbCommand command)
 		{
+			LoggingService.LogDebug("ExecuteDataSet: {0}", command.CommandText);
 			IDbDataAdapter adapter = new SqliteDataAdapter((SqliteCommand)command);
 			DataSet ds = new DataSet();
 			adapter.Fill(ds);
@@ -472,9 +473,22 @@ namespace FileFind.Meshwork.Filesystem
 			UseConnection(delegate (IDbConnection connection) {
 				IDbCommand cmd = connection.CreateCommand();
 				cmd.CommandText = query;
+				LoggingService.LogDebug("ExecuteScalar: {0}", cmd.CommandText);
 				result = cmd.ExecuteScalar();
 			});
 			return result;
+		}
+		
+		public object ExecuteScalar (IDbCommand command)
+		{
+			LoggingService.LogDebug("ExecuteScalar: {0}", command.CommandText);
+			return command.ExecuteScalar();
+		}
+		
+		public int ExecuteNonQuery (IDbCommand command)
+		{
+			LoggingService.LogDebug("ExecuteNonQuery: {0}", command.CommandText);
+			return command.ExecuteNonQuery();
 		}
 
 		internal void PurgeMissing ()
@@ -513,7 +527,7 @@ namespace FileFind.Meshwork.Filesystem
 
 				command = connection.CreateCommand();
 				command.CommandText = String.Format("DELETE FROM directoryitems WHERE id IN ({0})", String.Join(",", idsToDelete.ToArray()));
-				command.ExecuteNonQuery();
+				ExecuteNonQuery(command);
 			});
 		}
 	}
