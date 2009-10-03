@@ -16,16 +16,16 @@ using System.Net.Sockets;
 namespace FileFind.Meshwork.Transport
 {
 	public class TcpTransport : TransportBase
-	{	                                              
+	{
 		public static readonly int DefaultPort = 7332;
 
-		Socket            socket           = null;
-		IPAddress         address          = IPAddress.Any;
-		int               port             = 0;
-		TransportCallback connectCallback  = null;
+		Socket socket = null;
+		IPAddress address = IPAddress.Any;
+		int port = 0;
+		TransportCallback connectCallback = null;
 
-                object sendLock = new object();
-                object receiveLock = new object();
+		object sendLock = new object();
+		object receiveLock = new object();
 
 		internal TcpTransport (Socket socket)
 		{
@@ -49,24 +49,24 @@ namespace FileFind.Meshwork.Transport
 		public override void Connect (TransportCallback callback)
 		{
 			if (socket != null)
-				throw new InvalidOperationException ("This socket is already connected.");
-
-			if (address.Equals (IPAddress.Any) || address.Equals (IPAddress.None) || port == 0)
-				throw new Exception ("Invalid IP Address/Port");
+				throw new InvalidOperationException("This socket is already connected.");
+			
+			if (address.Equals(IPAddress.Any) || address.Equals(IPAddress.None) || port == 0)
+				throw new Exception("Invalid IP Address/Port");
 			
 			base.transportState = TransportState.Connecting;
-
+			
 			connectCallback = callback;
 			
 			if (address.IsIPv6LinkLocal) {
 				address.ScopeId = Core.Settings.IPv6LinkLocalInterfaceIndex;
 			}
-
-			IPEndPoint remoteEndpoint = new IPEndPoint (address, port); 
-			socket = new Socket (address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-			socket.BeginConnect (remoteEndpoint, new AsyncCallback (OnConnected), null);
+			
+			IPEndPoint remoteEndpoint = new IPEndPoint(address, port);
+			socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+			socket.BeginConnect(remoteEndpoint, new AsyncCallback(OnConnected), null);
 		}
-		
+
 		public override int Send (byte[] buffer, int offset, int size)
 		{
 			lock (sendLock) {
@@ -90,24 +90,24 @@ namespace FileFind.Meshwork.Transport
 			if (size <= 0) {
 				throw new ArgumentException("Cannot receive <= 0 bytes");
 			}
-
+			
 			int totalReceived = 0;
 			while (totalReceived < size) {
 				int count = 0;
-			    	if (socket == null) {
+				if (socket == null) {
 					// We were disconnected!
 					return 0;
-			    	}
-                                lock (receiveLock) {
+				}
+				lock (receiveLock) {
 					count = socket.Receive(buffer, offset + totalReceived, size - totalReceived, SocketFlags.None);
-                                }
+				}
 				if (count == 0) {
 					// This means the connection was closed.
 					Disconnect();
 					return 0;
 				} else {
 					totalReceived += count;
-
+					
 					if (totalReceived > size) {
 						throw new Exception("Somehow received too much! This shouldn't ever happen!");
 					}
@@ -115,7 +115,7 @@ namespace FileFind.Meshwork.Transport
 			}
 			return totalReceived;
 		}
-		
+
 		public override EndPoint RemoteEndPoint {
 			get {
 				if (socket != null && socket.Connected) {
@@ -130,11 +130,10 @@ namespace FileFind.Meshwork.Transport
 				}
 			}
 		}
-		
-		public override string ToString () 
+
+		public override string ToString ()
 		{
 			if (socket != null) {
-				//return String.Format("Local: {0}   Remote: {1}", socket.LocalEndPoint, socket.RemoteEndPoint);
 				if (Incoming == true) {
 					return String.Format("TCP/INCOMING/{0}:{1}", (socket.RemoteEndPoint as IPEndPoint).Address, port);
 				} else {
@@ -151,16 +150,16 @@ namespace FileFind.Meshwork.Transport
 
 		public override void Disconnect ()
 		{
-			Disconnect (null);
+			Disconnect(null);
 		}
-		
+
 		public override void Disconnect (Exception ex)
 		{
 			if (base.transportState != TransportState.Disconnected) {
 				base.transportState = TransportState.Disconnected;
-
+				
 				if (socket != null) {
-					socket.Close ();
+					socket.Close();
 					socket = null;
 				}
 				
@@ -171,20 +170,20 @@ namespace FileFind.Meshwork.Transport
 						LoggingService.LogInfo("Transport {0} disconnected with error: {1}", this.ToString(), ex.ToString());
 				else
 					LoggingService.LogInfo("Transport {0} disconnected", this.ToString());
-
+				
 				base.RaiseDisconnected(ex);
 			}
 		}
 
-		private void OnConnected (IAsyncResult result) 
+		private void OnConnected (IAsyncResult result)
 		{
 			try {
-				socket.EndConnect (result);
+				socket.EndConnect(result);
 				base.transportState = TransportState.Connected;
 				base.RaiseConnected();
-				connectCallback (this);
+				connectCallback(this);
 			} catch (Exception ex) {
-				Disconnect (ex);
+				Disconnect(ex);
 			}
 		}
 	}

@@ -47,8 +47,7 @@ namespace FileFind.Meshwork.GtkClient
 					mnuConnectionsDisconnect.Visible = false;
 					mnuConnectionsConnect.Visible = true;
 					mnuConnectionsDelete.Sensitive = true;
-				}
-				else {
+				} else {
 					mnuConnectionsDisconnect.Visible = true;
 					mnuConnectionsConnect.Visible = false;
 

@@ -24,12 +24,19 @@ namespace FileFind.Meshwork.Transport
 		public event TransportEventHandler TransportRemoved;
 		public event TransportErrorEventHandler TransportError; 
 		
+		List<ITransport> transports = new List<ITransport>();
+		Dictionary<Type, string> friendlyNames = new Dictionary<Type, string>();
+		
 		public TransportManager ()
 		{
+			friendlyNames.Add(typeof(TcpTransport), "TCP");
 		}
 		
-		List<ITransport> transports = new List<ITransport>();
-
+		public string GetFriendlyName (Type type)
+		{
+			return friendlyNames[type];
+		}
+				
 		public ITransport[] Transports {
 			get {
 				return transports.ToArray();

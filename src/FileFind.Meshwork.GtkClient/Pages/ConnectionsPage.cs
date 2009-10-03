@@ -53,19 +53,19 @@ namespace FileFind.Meshwork.GtkClient
 			
 			TreeViewColumn column;
 			
-		       	column = connectionList.AppendColumn ("", new CellRendererPixbuf (), new TreeCellDataFunc (ConnectionListIconFunc));
+			column = connectionList.AppendColumn ("", new CellRendererPixbuf (), new TreeCellDataFunc (ConnectionListIconFunc));
 			column.MinWidth = 25;
 			
-		       	column = connectionList.AppendColumn ("Remote Address", new CellRendererText (), new TreeCellDataFunc (ConnectionListAddressFunc));
+		    column = connectionList.AppendColumn ("Remote Address", new CellRendererText (), new TreeCellDataFunc (ConnectionListAddressFunc));			
 			column.Resizable = true;
 
-		       	column = connectionList.AppendColumn ("Type", new CellRendererText (), new TreeCellDataFunc (ConnectionListTypeFunc));
+		    column = connectionList.AppendColumn ("Type", new CellRendererText (), new TreeCellDataFunc (ConnectionListTypeFunc));
 			column.Resizable = true;
 
-		       	column = connectionList.AppendColumn ("Status", new CellRendererText (), new TreeCellDataFunc (ConnectionListStatusFunc));
+		    column = connectionList.AppendColumn ("Status", new CellRendererText (), new TreeCellDataFunc (ConnectionListStatusFunc));			
 			column.Resizable = true;
 
-		       	column = connectionList.AppendColumn ("Information", new CellRendererText (), new TreeCellDataFunc (ConnectionListInformationFunc));
+			column = connectionList.AppendColumn ("Information", new CellRendererText (), new TreeCellDataFunc (ConnectionListInformationFunc));
 			column.Resizable = true;
 			
 			swindow.Add(connectionList);
@@ -82,16 +82,10 @@ namespace FileFind.Meshwork.GtkClient
 					new TransportEventHandler(OnTransportRemoved)
 				);
 
-			/*
-			foreach (Network network in Core.Networks) {
-				Core_NetworkAdded (network);
-			}
-
-			Core.NetworkAdded +=
-				(NetworkEventHandler)DispatchService.GuiDispatch(
-					new NetworkEventHandler(Core_NetworkAdded)
+			Core.TransportManager.TransportError += 
+				(TransportErrorEventHandler)DispatchService.GuiDispatch(
+				    new TransportErrorEventHandler(CoreTransportManagerTransportError)
 				);
-			*/
 		}
 
 		public bool UrgencyHint {
@@ -128,6 +122,11 @@ namespace FileFind.Meshwork.GtkClient
 				}  while (connectionListStore.IterNext(ref iter));
 			}
 		}
+		
+		void CoreTransportManagerTransportError (ITransport transport, Exception ex)
+		{
+			RefreshList();		
+		}
 
 		private void ConnectionListIconFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
@@ -149,7 +148,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void ConnectionListAddressFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			ITransport transport = (ITransport) model.GetValue (iter, 0);
-			(cell as CellRendererText).Text = transport.RemoteEndPoint.ToString ();
+			(cell as CellRendererText).Text = String.Format("{0} ({1})", transport.RemoteEndPoint.ToString(), Core.TransportManager.GetFriendlyName(transport.GetType()));
 			
 			SetConnectionListCellBackground ((CellRendererText)cell, transport);
 		}
