@@ -41,6 +41,14 @@ namespace FileFind.Meshwork.GtkClient
 			if (result == (int)ResponseType.Ok) { 
 				TrustedNodeInfo tni = w.TrustedNodeInfo;
 				if (tni != null) {
+					foreach (object[] row in trustedNodesListStore) {
+						var thisInfo = (TrustedNodeInfo)row[0];
+						if (thisInfo.NodeID == tni.NodeID) {
+							Gui.ShowErrorDialog("This node already exists!", base.Dialog);
+							return;
+						}
+					}
+					
 					trustedNodesListStore.AppendValues(tni);
 				}
 			}

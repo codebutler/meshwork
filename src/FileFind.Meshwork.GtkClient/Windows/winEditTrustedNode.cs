@@ -66,7 +66,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 			connectionsTreeView.Model = addressListStore;
 			
-			keyTextView.Buffer.Text = KeyFunctions.MakePublicKeyBlock (tni.Identifier, null, tni.Crypto.ToXmlString (false));
+			keyTextView.Buffer.Text = tni.PublicKey.ToArmoredString();
 				
 			this.tni = tni;
 		}

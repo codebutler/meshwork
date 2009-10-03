@@ -63,7 +63,7 @@ namespace FileFind.Meshwork
 			}
 			
 			if (nodeID.Length != 32) {
-				throw new ArgumentException("Invaid NodeID specified.");
+				throw new ArgumentException("Invalid NodeID specified.");
 			}
 
 			this.nodeID = nodeID;

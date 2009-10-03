@@ -210,14 +210,6 @@ namespace FileFind.Meshwork
 				os = value;
 			}
 		}
-
-		public static string PublicKeyBlock {
-			get {
-				return KeyFunctions.MakePublicKeyBlock(Core.Settings.NickName, 
-				                                       null,
-				                                       rsaProvider.ToXmlString(false));
-			}
-		}
 	
 		internal static RSACryptoServiceProvider CryptoProvider {
 			get {

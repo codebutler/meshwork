@@ -7,6 +7,10 @@ FILES =  \
 	AssemblyInfo.cs \
 	AutoconnectManager.cs \
 	ChatRoom.cs \
+	Classless.Hasher/CRC.cs \
+	Classless.Hasher/CRCParameters.cs \
+	Classless.Hasher/CRCStandard.cs \
+	Classless.Hasher/HashAlgorithmParameters.cs \
 	ConnectionState.cs \
 	ConnectionType.cs \
 	Core.cs \
@@ -99,7 +103,6 @@ FILES =  \
 	INodeConnection.cs \
 	IPlatform.cs \
 	ISettings.cs \
-	KeyFunctions.cs \
 	Linux.cs \
 	LocalNodeConnection.cs \
 	LoggingService.cs \

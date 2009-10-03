@@ -112,7 +112,6 @@
     <Compile Include="NearbyNode.cs" />
     <Compile Include="NetworkInfo.cs" />
     <Compile Include="Validator.cs" />
-    <Compile Include="KeyFunctions.cs" />
     <Compile Include="FileFind.Meshwork.Filesystem\FileSystemProvider.cs" />
     <Compile Include="FileFind.Meshwork.Protocol\MemoInfo.cs" />
     <Compile Include="FileFind.Meshwork.Protocol\MessageContentClasses.cs" />
@@ -196,6 +195,10 @@
     <Compile Include="FileFind.Meshwork.Logging\ILogger.cs" />
     <Compile Include="FileFind.Meshwork.Logging\LogLevel.cs" />
     <Compile Include="Errors.cs" />
+    <Compile Include="Classless.Hasher\CRC.cs" />
+    <Compile Include="Classless.Hasher\CRCParameters.cs" />
+    <Compile Include="Classless.Hasher\CRCStandard.cs" />
+    <Compile Include="Classless.Hasher\HashAlgorithmParameters.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -214,4 +217,7 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Classless.Hasher\" />
+  </ItemGroup>
 </Project>
