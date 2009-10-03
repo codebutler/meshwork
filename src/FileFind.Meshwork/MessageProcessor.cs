@@ -94,6 +94,7 @@ namespace FileFind.Meshwork
 			node.NickName = c.NickName;
 			
 			if (isReply == false) {
+				connection.ConnectionState = ConnectionState.Authenticating;
 				network.SendAuthReply (connection, messageFrom);
 			} else {
 				connection.SendReady ();

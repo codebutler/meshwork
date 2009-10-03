@@ -371,12 +371,7 @@ namespace FileFind.Meshwork
 						throw new Exception ("You cannot connect to yourself!");
 					}
 					
-					if (!transport.Network.TrustedNodes.ContainsKey(nodeID)) {
-
-						// XXX: Include this somewhere else. In fact, it might make sense to add
-						// a KeyReceived event to LocalNodeConnection instead of using Network's.
-						// key.Info = (transport.RemoteEndPoint as IPEndPoint).Address.ToString ();
-						
+					if (!transport.Network.TrustedNodes.ContainsKey(nodeID)) {						
 						bool acceptKey = transport.Network.RaiseReceivedKey (this, key);
 						if (acceptKey) {
 							TrustedNodeInfo trustedNode = new TrustedNodeInfo();
@@ -412,7 +407,7 @@ namespace FileFind.Meshwork
 					if (transport.Incoming == true) {
 						this.SendMessage(transport.Network.MessageBuilder.CreateMyKeyMessage (null));
 					} else {
-						//ConnectionState = ConnectionState.Authenticating;
+						ConnectionState = ConnectionState.Authenticating;
 						RaiseConnectionInfoChanged ();
 
 						Message m = transport.Network.MessageBuilder.CreateAuthMessage (this, RemoteNodeInfo);
