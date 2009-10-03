@@ -81,7 +81,7 @@ namespace FileFind.Meshwork.GtkClient
 			sidebar = new ExpanderBar ();
 			sidebar.WidthRequest = 190;
 			sidebar.AddItem (new ExpanderBarItem ("Users", AddScrolledWindow (userList), true));
-			this.Pack2(sidebar, false, false);
+			this.Pack2(sidebar, false, true);
 
 			foreach (Network network in Core.Networks) {
 				Core_NetworkAdded (network);
@@ -167,7 +167,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void AvatarManager_AvatarsChanged (object sender, EventArgs args)
 		{
-			userList.QueueDraw ();
+			RefreshUserList();
 			map.QueueDraw();
 		}
 
@@ -180,14 +180,15 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private Gtk.Widget AddScrolledWindow (Gtk.Widget widget)
 		{
-			Gtk.ScrolledWindow window = new Gtk.ScrolledWindow ();
+			Gtk.ScrolledWindow window = new Gtk.ScrolledWindow();
 			window.Add (widget);
 			return window;
 		}
 
 		public void RefreshUserList ()
 		{
-			userList.QueueDraw ();
+			userList.QueueDraw();
+			userList.ColumnsAutosize();
 		}
 
 		private void mnuFileQuit_Activate(object sender, EventArgs e)

@@ -18,27 +18,28 @@ namespace FileFind.Meshwork.GtkClient
 	{
 		TreeView userList;
 		TreeStore userListStore;
-
+		
 		private void CreateUserList ()
 		{
-			userList = new TreeView ();
+			userList = new TreeView();
 			userListStore = new TreeStore (typeof (object));
 			userList.Model = userListStore;
 			userList.RowActivated += OnUserListRowActivated;
 			userList.ButtonPressEvent += userList_ButtonPressEvent;
 			userList.HeadersVisible = false;
-
-			TreeViewColumn column = new TreeViewColumn ();
-
+			
+			TreeViewColumn column = new TreeViewColumn();
+						
 			CellRendererPixbuf imageCell = new CellRendererPixbuf ();
 			column.PackStart (imageCell, false);
 			column.SetCellDataFunc (imageCell, new TreeCellDataFunc (UserListIconFunc));
 
 			CellRendererText textCell = new CellRendererText ();
-			column.PackStart (textCell, false);
+			column.PackStart (textCell, true);
+			
 			column.SetCellDataFunc (textCell, new TreeCellDataFunc (UserListTextFunc));
-
-			userList.AppendColumn (column);
+						
+			userList.AppendColumn(column);
 
 			Runtime.BuiltinActions["ToggleMainUsers"].Activated += ToggleMainUsers_Activated;
 		}
@@ -188,7 +189,7 @@ namespace FileFind.Meshwork.GtkClient
 					}
 				}
 
-				userList.QueueDraw ();
+				RefreshUserList();
 				Gui.MainWindow.UpdateStatusText ();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
