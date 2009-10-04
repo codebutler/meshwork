@@ -60,14 +60,16 @@ namespace FileFind.Meshwork.GtkClient
 			/* Initialize the GTK application */
 			Gtk.Application.Init();
 			
-			/* If we crash, attempt to log the error */
-			GLib.ExceptionManager.UnhandledException += UnhandledExceptionHandler;
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(AppDomain_CurrentDomain_UnhandledException);;
+			if (!System.Diagnostics.Debugger.IsAttached) {
+				/* If we crash, attempt to log the error */
+				GLib.ExceptionManager.UnhandledException += UnhandledGLibExceptionHandler;
+				AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+			}
 			
 			//XXX: Implement Gunique code here!
 
-			splashWindow = new SplashWindow ();
-			splashWindow.Show ();
+			splashWindow = new SplashWindow();
+			splashWindow.Show();
 
 			/* Load settings */
 			if (options.ConfigPath != null) {
@@ -89,8 +91,7 @@ namespace FileFind.Meshwork.GtkClient
 			/* Load Icons */
 			Gtk.Window.DefaultIconList = new Gdk.Pixbuf[] {
 				new Gdk.Pixbuf(null, "FileFind.Meshwork.GtkClient.tray_icon.png")
-			};
-			
+			};			
 		
 			// Windows specific. Override stock icons to use embeded files.
 			var sizes = new [] { 16, 22, 24, 34 };
@@ -133,15 +134,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			/* Create the Tray Icon */
 			trayIcon = new TrayIcon();
-
-			/* Add default error handler */
-			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs e) {
-				// XXX: Can we pop up an error dialog too?
-				Console.ForegroundColor = ConsoleColor.White;
-				Console.BackgroundColor = ConsoleColor.Black;
-				Console.WriteLine(e.ExceptionObject.ToString()); Console.ResetColor();
-			};
-
+			
 			/* Start the event loop */
 			GLib.Idle.Add (new GLib.IdleHandler (FinishLoading));
 			Gtk.Application.Run ();
@@ -200,6 +193,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			Gdk.Screen screen = Gdk.Screen.Default;
 		
+			/*
 			if (Common.OSName == "Linux") {
 				Gdk.Colormap colormap = screen.RgbaColormap;
 				if (colormap != null) {
@@ -207,6 +201,7 @@ namespace FileFind.Meshwork.GtkClient
 					Gtk.Widget.PushColormap(colormap);
 				}
 			}
+			*/
 			
 			splashWindow.Close();
 
@@ -245,7 +240,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 		
-		private static void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs args)
+		private static void UnhandledExceptionHandler (object sender, UnhandledExceptionEventArgs args)
 		{
 			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + args.ExceptionObject.ToString());
 			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), String.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
@@ -253,7 +248,7 @@ namespace FileFind.Meshwork.GtkClient
 			FileFind.Common.WriteToFile(crashFileName, crashLog);
 		}
 		
-		private static void UnhandledExceptionHandler (GLib.UnhandledExceptionArgs args) 
+		private static void UnhandledGLibExceptionHandler (GLib.UnhandledExceptionArgs args) 
 		{
 			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + args.ExceptionObject.ToString());
 			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), String.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
