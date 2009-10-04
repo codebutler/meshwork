@@ -569,7 +569,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			string path = treeModel.GetValue (treeIter, 0).ToString ();
 			if (System.IO.Directory.Exists (path) == false)
-				(cellRenderer as Gtk.CellRendererText).Markup = "<span foreground=\"red\">" + path + "</span>";
+				(cellRenderer as Gtk.CellRendererText).Markup = "<span foreground=\"red\">" + path + " (Not Found)</span>";
 			else
 				(cellRenderer as Gtk.CellRendererText).Markup = path;
 		}
