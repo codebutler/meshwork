@@ -46,6 +46,7 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] Image firewallImage;
 		[Widget] Image computerImage;
 		[Widget] Image internetConnectionImage;
+		[Widget] Button redetectConnectionButton;
 
 		// File Sharing Tab
 		[Widget] TreeView          sharedFoldersList;
@@ -108,6 +109,11 @@ namespace FileFind.Meshwork.GtkClient
 		public PreferencesDialog () : base (null, "PreferencesDialog")
 		{
 			dialog = base.Dialog;
+			dialog.Shown += delegate {
+				if (settings.FirstRun) {
+					on_redetectConnectionButton_clicked(redetectConnectionButton, EventArgs.Empty);
+				}
+			};
 			
 			settings = Gui.Settings;
 
