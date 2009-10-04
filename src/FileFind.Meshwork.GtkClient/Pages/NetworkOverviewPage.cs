@@ -31,12 +31,8 @@ namespace FileFind.Meshwork.GtkClient
 {
 	public partial class NetworkOverviewPage : HPaned, IPage
 	{
-		/* mainbar */
-		ExpanderBar mainbar;
 		ZoomableNetworkMap map;
-
-		/* sidebar */
-		ExpanderBar sidebar;
+		EventBox sidebar;
 
 		public event EventHandler UrgencyHintChanged;
 
@@ -57,7 +53,6 @@ namespace FileFind.Meshwork.GtkClient
 			CreateUserList ();
 
 			/* Create mainbar */
-			mainbar = new ExpanderBar ();
 
 			Widget mapWidget = null;
 			try {
@@ -70,18 +65,30 @@ namespace FileFind.Meshwork.GtkClient
 				mapWidget = new Label("Error loading map.");
 			}
 
-			ExpanderBarItem mapitem = new ExpanderBarItem ("Network Map", mapWidget, true);
-			mapitem.ShowHeader = false;
-			mapitem.ShowBorder = false;
-			mainbar.AddItem (mapitem);
-
-			this.Pack1 (mainbar, true, true);
+			this.Pack1 (mapWidget, true, true);
 
 			/* Create sidebar */
-			sidebar = new ExpanderBar ();
+			sidebar = new EventBox();
 			sidebar.WidthRequest = 190;
-			sidebar.AddItem (new ExpanderBarItem ("Users", AddScrolledWindow (userList), true));
+			
+			var sidebarBox = new Gtk.VBox();			
+			sidebar.Add(sidebarBox);
+			
+			var headerAlign = new Banshee.Widgets.FadingAlignment();	
+			sidebarBox.PackStart(headerAlign, false, false, 0);			
+			
+			var headerLabel = new Gtk.Label();
+			headerLabel.Markup = "<b>Users</b>";			
+			headerLabel.Xalign = 0;
+			headerLabel.Ypad = 6;
+			headerLabel.Xpad = 6;
+			headerAlign.Add(headerLabel);		
+			
+			sidebarBox.PackStart(AddScrolledWindow(userList), true, true, 0);
+			
 			this.Pack2(sidebar, false, true);
+			
+			sidebar.ShowAll();
 
 			foreach (Network network in Core.Networks) {
 				Core_NetworkAdded (network);

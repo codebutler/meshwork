@@ -52,8 +52,6 @@ namespace FileFind.Meshwork.GtkClient
 			alignment.Add(new Label("Searches"));
 			this.PackStart(alignment, false, false, 0);
 			alignment.ShowAll();
-
-			this.PackStart(new HSeparator(), false, false, 0);
 			
 			// SEARCH ITEMS
 			
@@ -75,7 +73,6 @@ namespace FileFind.Meshwork.GtkClient
 			alignment.HeightRequest = 5;
 			this.PackStart(alignment, false, false, 0);
 			alignment.ShowAll();
-			this.PackStart(new HSeparator(), false, false, 0);
 
 			// BOTTOM ITEMS
 

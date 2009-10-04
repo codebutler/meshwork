@@ -35,20 +35,17 @@ namespace Banshee.Widgets
     public class FadingAlignment : Alignment
     {
         private LinearGradient bg_gradient;
-        private LinearGradient line_gradient;
         private Color fill_color_a;
         private Color fill_color_b;
-        private Color fill_color_c;
-        private Color fill_color_d;
         
         public FadingAlignment(float xalign, float yalign, float xpadding, float ypadding) 
             : base(xalign, yalign, xpadding, ypadding)
         {
+			AppPaintable = true;
         }
         
-        public FadingAlignment() : base(0.0f, 0.5f, 1.0f, 0.0f)
-        {
-            AppPaintable = true;
+        public FadingAlignment() : this(0.0f, 0.5f, 1.0f, 0.0f)
+        {            
         }
         
         protected override void OnStyleSet(Gtk.Style style)
@@ -56,23 +53,17 @@ namespace Banshee.Widgets
             base.OnStyleSet(style);
             
             fill_color_a = DrawingUtilities.GdkColorToCairoColor(Style.Background(StateType.Normal));
-            fill_color_b = DrawingUtilities.GdkColorToCairoColor(Style.Mid(StateType.Normal));
-            fill_color_b.A = 0.75;
-                
-            fill_color_c = DrawingUtilities.GdkColorToCairoColor(Style.Background(StateType.Normal));
-            fill_color_d = DrawingUtilities.GdkColorToCairoColor(Style.Dark(StateType.Normal));
+            
+			var c = FileFind.Meshwork.GtkClient.GtkHelper.DarkenColor(Style.Background(StateType.Normal), 1);
+			fill_color_b = DrawingUtilities.GdkColorToCairoColor(c);
         }
         
         protected override void OnSizeAllocated(Gdk.Rectangle rect)
         {
-            bg_gradient = new Cairo.LinearGradient(rect.X, rect.Y, rect.X, rect.Y + rect.Height);
+			bg_gradient = new Cairo.LinearGradient(rect.X, rect.Y, rect.X, rect.Y + rect.Height);
             bg_gradient.AddColorStop(0, fill_color_a);
             bg_gradient.AddColorStop(0.9, fill_color_b);
-            
-            line_gradient = new Cairo.LinearGradient(rect.X, rect.Y, rect.X, rect.Y + rect.Height);
-            line_gradient.AddColorStop(0.3, fill_color_c);
-            line_gradient.AddColorStop(1, fill_color_d);
-            
+			    
             base.OnSizeAllocated(rect);
         }
         
@@ -81,31 +72,19 @@ namespace Banshee.Widgets
             if(!IsRealized) {
                 return false;
             }
-            
-            Cairo.Context cr = Gdk.CairoHelper.Create(GdkWindow);
-            Draw(cr);
-            ((IDisposable)cr).Dispose();
+						
+			Gdk.Rectangle rect = this.Allocation;
+			
+            using (Cairo.Context cr = Gdk.CairoHelper.Create(GdkWindow)) {            			
+				cr.Pattern = bg_gradient;			
+				cr.Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
+				cr.Fill();
+			}			
+			
+			Gtk.Style.PaintHline(base.Style, base.GdkWindow, StateType.Normal, evnt.Area, this, 
+			                     "hseparator", rect.X, rect.X + rect.Width - 1, rect.Y + rect.Height - 1);			
 				
             return base.OnExposeEvent(evnt);
-        }
-        
-        private void Draw(Cairo.Context cr)
-        {
-            cr.Pattern = bg_gradient;
-            
-            cr.Rectangle(Allocation.X, Allocation.Y, Allocation.Width, Allocation.Height);
-            cr.Fill();
-            
-	    /*
-            cr.Antialias = Antialias.None;
-            cr.LineWidth = 1.0;
-         
-            cr.Pattern = line_gradient;
-            
-            cr.MoveTo(Allocation.X + 1, Allocation.Y);
-            cr.LineTo(Allocation.X + 1, Allocation.Y + Allocation.Height);
-            cr.Stroke();
-	    */
         }
     }
 }

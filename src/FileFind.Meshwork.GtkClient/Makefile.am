@@ -53,7 +53,6 @@ FILES =  \
 	TrayIcon.cs \
 	Widgets/Actor.cs \
 	Widgets/AnimatedImage.cs \
-	Widgets/ExpanderBar.cs \
 	Widgets/FadingAlignment.cs \
 	Widgets/FileSearchEntry.cs \
 	Widgets/FileSelector.cs \

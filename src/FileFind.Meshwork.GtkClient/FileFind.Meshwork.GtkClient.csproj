@@ -225,7 +225,6 @@
     <Compile Include="Menus\MemoMenu.cs" />
     <Compile Include="Menus\TransfersMenu.cs" />
     <Compile Include="Menus\UserMenu.cs" />
-    <Compile Include="Widgets\ExpanderBar.cs" />
     <Compile Include="Widgets\FadingAlignment.cs" />
     <Compile Include="Widgets\FileSelector.cs" />
     <Compile Include="Widgets\FolderDialog.cs" />
