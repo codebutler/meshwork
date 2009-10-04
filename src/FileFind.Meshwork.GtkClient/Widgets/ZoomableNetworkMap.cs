@@ -824,7 +824,7 @@ namespace FileFind.Meshwork.GtkClient
 						// only when things actually change!
 						CalculateNetworkSize(network, gc);
 						
-						if (network.GetLocalConnections().Length > 0) {
+						if (network.ReadyLocalConnections.Length > 0) {
 							RenderNetwork(network, gc);
 						}
 					}
@@ -840,7 +840,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			int yOffset = 0;
 			foreach (Network network in Core.Networks) {
-				if (network.GetLocalConnections().Length == 0) {
+				if (network.ReadyLocalConnections.Length == 0) {
 					yOffset += RenderNotice(String.Format("You are not connected to anybody on the <b>{0}</b> network.\n<span size=\"small\">Select \"Connect to a Friend\" above to get started.</span>", network.NetworkName), gc, yOffset);
 				}
 			}

@@ -118,7 +118,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void Core_NetworkAdded (Network network)
 		{
-			foreach (LocalNodeConnection connection in network.GetLocalConnections()) {
+			foreach (LocalNodeConnection connection in network.LocalConnections) {
 				AddConnectionEventHandlers(connection);
 			}
 
@@ -198,7 +198,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void ConnectionInfoChanged (LocalNodeConnection connection)
 		{
-			UpdateConnectionList ();
+			UpdateConnectionList();
 		}
 
 		private void network_ConnectingTo (Network network, LocalNodeConnection connection)
@@ -224,7 +224,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void network_ConnectionDown(INodeConnection c)
 		{
 			try {
-				UpdateConnectionList ();
+				UpdateConnectionList();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog (ex.ToString(), Gui.MainWindow.Window);
@@ -365,7 +365,8 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void UpdateConnectionList()
 		{
-			ConnectionsPage.Instance.RefreshList();
+			ConnectionsPage.Instance.RefreshList();			
+			Gui.MainWindow.UpdateStatusText();
 		}	
 
 		private void AddConnectionEventHandlers(LocalNodeConnection c)

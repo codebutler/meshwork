@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
@@ -308,7 +309,7 @@ namespace FileFind.Meshwork
 				this.trustedNodes.Remove(nodeId);
 			}
 
-			foreach (LocalNodeConnection connection in GetLocalConnections()) {
+			foreach (LocalNodeConnection connection in LocalConnections) {
 				if (connection.NodeRemote != null && toRemove.Contains(connection.NodeRemote.NodeID)) {
 					connection.Disconnect(new Exception("Remote node is no longer trusted."));
 				}
@@ -318,21 +319,6 @@ namespace FileFind.Meshwork
 				if (!this.trustedNodes.ContainsKey(pair.Key)) {
 					AddTrustedNode(pair.Value);
 				}
-			}
-		}
-
-		internal void RaiseConnectingTo (LocalNodeConnection connection)
-		{
-			if (ConnectingTo != null) {
-				ConnectingTo (this, connection);
-			}
-		}
-
-		internal void RaiseNewIncomingConnection (LocalNodeConnection connection)
-		{
-			LoggingService.LogInfo("New incoming connection from {0}.", connection.RemoteAddress);
-			if (NewIncomingConnection != null) {
-				NewIncomingConnection (this, connection);
 			}
 		}
 
@@ -352,7 +338,7 @@ namespace FileFind.Meshwork
 		{
 			autoConnect.Stop();
 
-			foreach (LocalNodeConnection connection in GetLocalConnections()) {
+			foreach (LocalNodeConnection connection in LocalConnections) {
 				connection.Disconnect();
 			}
 		}
@@ -374,32 +360,80 @@ namespace FileFind.Meshwork
 			}
 			return result;
 		}
-
-		/* XXX: I don't like publically returning writable connections. */
 		
-		public NodeConnectionCollection Connections {
-			get {
-				return connections;
+		internal void AddConnection (INodeConnection connection)
+		{
+			lock (connections)
+				connections.Add(connection);
+		
+			if (connection is LocalNodeConnection) {
+				var localConnection = (LocalNodeConnection)connection;
+				if (localConnection.Incoming) {
+					LoggingService.LogInfo("New incoming connection from {0}.", localConnection.RemoteAddress);
+					if (NewIncomingConnection != null)
+						NewIncomingConnection(this, localConnection);
+				} else {					
+					LoggingService.LogInfo("New outgoing connection to {0}.", localConnection.RemoteAddress);
+					if (ConnectingTo != null)
+						ConnectingTo(this, localConnection);
+				}
+			} else if (connection is RemoteNodeConnection) {
+				LoggingService.LogInfo("Added new connection between {0} and {1}.", connection.NodeLocal.NickName, connection.NodeRemote.NickName);
+				if (ConnectionUp != null)
+					ConnectionUp(connection);
 			}
 		}
-
-		/*
-		public LocalNodeConnection[] Connections {
+		
+		internal void RemoveConnection (INodeConnection connection)
+		{
+			lock (connections)
+				connections.Remove(connection);
+			
+			if (connection is RemoteNodeConnection) {
+				LoggingService.LogInfo("Removed connection between {0} and {1}.", connection.NodeLocal.NickName, connection.NodeRemote.NickName);			
+				if (ConnectionDown != null)
+					ConnectionDown(connection);
+			}
+		}
+		
+		public INodeConnection FindConnection (string firstNodeID, string secondNodeID)
+		{
+			lock (connections) {
+				foreach (INodeConnection connection in connections) {
+					if (connection.NodeLocal != null & connection.NodeRemote != null) {
+						if (connection.NodeLocal.NodeID == firstNodeID & connection.NodeRemote.NodeID == secondNodeID)
+							return connection;
+						else if (connection.NodeRemote.NodeID == firstNodeID & connection.NodeLocal.NodeID == secondNodeID)
+							return connection;
+					}
+				}
+			}
+			return null;
+		}
+		
+		public INodeConnection[] Connections {
 			get {
 				return connections.ToArray();
 			}
 		}
-		*/
 
-		public LocalNodeConnection[] GetLocalConnections()
-		{
-			List<LocalNodeConnection> result = new List<LocalNodeConnection>();
-			foreach (INodeConnection connection in Connections.ToArray()) { // XXX
-				if (connection is LocalNodeConnection) {
-					result.Add ((LocalNodeConnection)connection);
-				}
+		public LocalNodeConnection[] LocalConnections {
+			get {
+				return connections
+					.FindAll(c => c is LocalNodeConnection)
+					.Cast<LocalNodeConnection>()
+					.ToArray();
 			}
-			return result.ToArray();
+		}
+		
+		public LocalNodeConnection[] ReadyLocalConnections { 
+			get {
+				return connections
+					.FindAll(c => c is LocalNodeConnection &&
+					         ((LocalNodeConnection)c).ConnectionState == ConnectionState.Ready)
+					.Cast<LocalNodeConnection>()
+					.ToArray();
+			}
 		}
 
 		internal AutoconnectManager AutoconnectManager {
@@ -642,7 +676,7 @@ namespace FileFind.Meshwork
 				// Send LocalOnly message types regardless of ConnectionState
 				if (LocalOnlyMessageTypes.IndexOf(Message.Type) > -1) {
 
-					foreach (LocalNodeConnection connection in GetLocalConnections()) {
+					foreach (LocalNodeConnection connection in LocalConnections) {
 						if (connection.NodeRemote != null) {
 							if (connection.NodeRemote.NodeID == Message.To) {
 								connection.SendMessage(Message);
@@ -654,7 +688,7 @@ namespace FileFind.Meshwork
 
 				} else {
 					// If we're connected directly to this person, send it through that connection.
-					foreach (LocalNodeConnection c in GetLocalConnections ()) {
+					foreach (LocalNodeConnection c in LocalConnections) {
 						if (c.ConnectionState == ConnectionState.Ready && c.NodeRemote != null) {
 							if (c.NodeRemote.NodeID == Message.To) {
 								c.SendMessage(Message);
@@ -688,7 +722,7 @@ namespace FileFind.Meshwork
 				
 				int count = 0;
 
-				foreach (LocalNodeConnection c in GetLocalConnections ()) {
+				foreach (LocalNodeConnection c in LocalConnections) {
 					if (c.ConnectionState == ConnectionState.Ready && (nodeFrom == null || c.NodeRemote != nodeFrom)) {
 						c.SendMessage(message);
 						count ++;
@@ -1351,8 +1385,7 @@ namespace FileFind.Meshwork
 				// XXX: Refactor all this into a DeleteNode() method.
 				foreach (INodeConnection c in n.GetConnections ()) {
 					if (c != null && this.Connections.Contains(c)) {
-						RaiseConnectionDown(c);
-						this.Connections.Remove(c);
+						RemoveConnection(c);
 					}
 				}
 				if (this.Nodes.ContainsKey(n.NodeID)) {
@@ -1392,7 +1425,7 @@ namespace FileFind.Meshwork
 				if (DestNode != this.LocalNode & SourceNode != this.LocalNode) {
 					if (DestNode != SourceNode) {
 
-						if (Connections.FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
+						if (this.FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
 
 							if (SourceNode == null) {
 								SourceNode = new Node(this, connection.SourceNodeID);
@@ -1422,10 +1455,7 @@ namespace FileFind.Meshwork
 							c.NodeLocal = SourceNode;
 							c.NodeRemote = DestNode;
 							c.ConnectionState = ConnectionState.Remote;
-							this.Connections.Add(c);
-							LoggingService.LogInfo("Added new connection between " + c.NodeLocal.NickName + " and " + c.NodeRemote.NickName);
-							if (ConnectionUp != null)
-								ConnectionUp(c);
+							AddConnection(c);
 						} else {
 							// I am not really sure if this is actually useful...
 							SourceNode.NickName = connection.SourceNodeNickname;
@@ -1435,7 +1465,7 @@ namespace FileFind.Meshwork
 						LoggingService.LogWarning("Someone told me about an invalid connection - both sides are the same?! Thats no good!! " + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
 					}
 				} else {
-					if (Connections.FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
+					if (this.FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
 						LoggingService.LogWarning("THAT CONNECTION DOESNT EXIST!!!" + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
 						this.SendBroadcast(this.MessageBuilder.CreateConnectionDownMessage(connection.SourceNodeID, connection.DestNodeID), this.LocalNode);
 					}
@@ -1573,14 +1603,6 @@ namespace FileFind.Meshwork
 					LoggingService.LogWarning("Ignored invitation for non-existent chatroom: {0}", invitation.RoomName);
 				}
 			}
-		}
-
-		internal void RaiseConnectionDown (INodeConnection connection)
-		{
-			LoggingService.LogInfo("Removed connection between {0} and {1}.", connection.NodeLocal.NickName, connection.NodeRemote.NickName);
-			
-			if (ConnectionDown != null)
-				ConnectionDown(connection);
 		}
 
 		internal bool RaiseReceivedKey (LocalNodeConnection connection, KeyInfo key)

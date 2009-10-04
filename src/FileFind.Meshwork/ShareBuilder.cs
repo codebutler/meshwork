@@ -92,10 +92,11 @@ namespace FileFind.Meshwork
 			
 			LoggingService.LogInfo("Finished re-index of shared files...");
 			
+			thread = null;
+			
 			if (FinishedIndexing != null) {
 				FinishedIndexing (this, EventArgs.Empty);
 			}
-			thread = null;
 		}
 
 		internal void Stop ()

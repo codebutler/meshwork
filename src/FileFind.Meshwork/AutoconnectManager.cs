@@ -107,8 +107,7 @@ namespace FileFind.Meshwork
 
 		private void ConnectIfNeeded()
 		{
-			int totalConnections = network.GetLocalConnections ().Length;
-
+			int totalConnections = network.LocalConnections.Length;
 			if (totalConnections < connectionCount) {
 				for (int x = 0; x < (connectionCount - totalConnections); x ++) {
 					if (nodeList.Count != 0) {

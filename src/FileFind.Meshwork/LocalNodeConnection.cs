@@ -229,7 +229,7 @@ namespace FileFind.Meshwork
 				
 				this.ConnectionState = ConnectionState.Disconnected;
 
-				transport.Network.Connections.Remove(this);
+				transport.Network.RemoveConnection(this);
 			
 				if (ex != null) {					
 					LoggingService.LogError("Error in connection with " + this.RemoteAddress, ex);
@@ -387,11 +387,9 @@ namespace FileFind.Meshwork
 					if (transport.Network.TrustedNodes[nodeID].AllowConnect == false)
 						throw new ConnectNotAllowedException(nodeID);
 					
-					foreach (LocalNodeConnection connection in transport.Network.GetLocalConnections()) {
-						if (connection != this)
-							if (connection.NodeRemote != null) 
-								if (connection.NodeRemote.NodeID == nodeID)
-									throw new Exception ("Already connected!");
+					foreach (LocalNodeConnection connection in transport.Network.LocalConnections) {
+						if (connection != this && connection.NodeRemote != null && connection.NodeRemote.NodeID == nodeID)
+							throw new Exception ("Already connected!");
 					}
 
 					remoteNodeInfo = transport.Network.TrustedNodes[nodeID];

@@ -17,6 +17,7 @@ using FileFind.Meshwork;
 using FileFind.Meshwork.Protocol;
 using FileFind.Meshwork.Search;
 using Banshee.Widgets;
+using Hyena.Widgets;
 
 namespace FileFind.Meshwork.GtkClient
 {
@@ -26,11 +27,11 @@ namespace FileFind.Meshwork.GtkClient
 		MainSidebar sidebar;
 		Window    window;
 		Toolbar   toolbar;
-		Statusbar statusBar;
+		Toolbar   statusBar;
+		Label statusLabel;
 		VBox      mainVBox;
-		Image     rebuildingShareImage;
-		EventBox  rebuildingShareEventBox;
 		HPaned    mainPaned;
+		AnimatedImage taskStatusIcon;
 
 		Notebook pageNotebook;
 
@@ -168,32 +169,57 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void CreateStatusbar ()
 		{
-			statusBar = new Statusbar ();
-			mainVBox.PackStart (statusBar, false, false, 0);
-
-			// Create the 'Rescanning shared files' widget
-			rebuildingShareEventBox = new Gtk.EventBox ();
-			Gtk.HBox rebuildingShareBox = new Gtk.HBox ();
-			rebuildingShareImage = new Gtk.Image (Gui.LoadIcon(16, "view-refresh"));
-			rebuildingShareBox.PackStart (rebuildingShareImage, false, false, 0);
-			Gtk.Label rebuildingShareLabel = new Gtk.Label ();
-			rebuildingShareLabel.Markup = "<span size=\"small\">Rescanning shared files...</span>";
-			rebuildingShareBox.PackStart (rebuildingShareLabel, true, true, 0);
-			rebuildingShareEventBox.Add (rebuildingShareBox);
-			statusBar.PackEnd (rebuildingShareEventBox, false, false, 0);
-
-			Tooltips rebuildingShareTooltips = new Tooltips();
-
-			rebuildingShareEventBox.MotionNotifyEvent += delegate {
-				string text = null;
-				if (Core.ShareHasher.Going) {
-					text = String.Format("Scanning: {0}\nHashing: True ({1} remianing)", Core.ShareBuilder.Going.ToString(), Common.FormatNumber(Core.ShareHasher.FilesRemaining));
-				} else {
-					text = String.Format("Scanning: {0}\nHashing: False", Core.ShareBuilder.Going.ToString());
-				}
-
-				rebuildingShareTooltips.SetTip(rebuildingShareEventBox, text, String.Empty);
+			statusBar = new Toolbar();
+			statusBar.ShowArrow = false;
+			statusBar.ToolbarStyle = ToolbarStyle.BothHoriz;
+			statusBar.ExposeEvent +=  StatusBarExposeEvent;
+			
+			statusLabel = new Label();
+			statusLabel.Xalign = 0;
+			statusLabel.Xpad = 6;
+			
+			ToolItem statusLabelItem = new ToolItem();
+			Alignment statusAlign = new Alignment(0.5f, 0.5f, 1.0f, 1.0f);
+			statusLabelItem.Add(statusLabel);
+			statusLabelItem.Expand = true;			
+			statusBar.Insert(statusLabelItem, -1);
+			statusLabelItem.ShowAll();
+			
+			taskStatusIcon = new Hyena.Widgets.AnimatedImage();
+			taskStatusIcon.Pixbuf = Gtk.IconTheme.Default.LoadIcon("process-working", 22, IconLookupFlags.NoSvg); //Gui.LoadIcon(22, "process-working");
+			taskStatusIcon.FrameHeight = 22;
+			taskStatusIcon.FrameWidth = 22;
+			taskStatusIcon.Load();
+			
+			EventBox taskStatusIconBox = new EventBox();
+			taskStatusIconBox.SizeAllocated += delegate (object o, SizeAllocatedArgs args) {
+				statusAlign.LeftPadding = (uint)args.Allocation.Width;
 			};
+			taskStatusIconBox.SetSizeRequest(22, 22);
+			taskStatusIconBox.Add(taskStatusIcon);
+			taskStatusIconBox.Show();
+			
+			ToolItem taskStatusIconItem = new ToolItem();
+			taskStatusIconItem.Add(taskStatusIconBox);
+			statusBar.Insert(taskStatusIconItem, -1);
+			taskStatusIconItem.Show();
+			
+			mainVBox.PackStart(statusBar, false, false, 0);
+			
+			UpdateTaskStatusIcon();
+			UpdateStatusText();
+		}
+
+		void StatusBarExposeEvent (object o, ExposeEventArgs args)
+		{
+			Toolbar toolbar = (Toolbar)o;
+			window.Style.ApplyDefaultBackground(toolbar.GdkWindow, true, window.State, 
+				                                  args.Event.Area, toolbar.Allocation.X, toolbar.Allocation.Y, 
+				                                  toolbar.Allocation.Width, toolbar.Allocation.Height);
+
+				foreach (Widget child in toolbar.Children) {               
+					toolbar.PropagateExpose (child, args.Event);
+				}
 		}
 
 		public void Show ()
@@ -251,10 +277,8 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
-		public void UpdateStatusText()
+		public void UpdateStatusText ()
 		{
-			statusBar.Pop(0);
-			
 			string text = "";
 
 			int totalConnections = 0;
@@ -264,7 +288,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			List<string> countedNodes = new List<string>();
 			foreach (Network network in Core.Networks) {
-				totalConnections += network.GetLocalConnections().Length;
+				totalConnections += network.ReadyLocalConnections.Length;
 				foreach (Node node in network.Nodes.Values) {
 					if (node.IsMe || node.FinishedKeyExchange) {
 						if (!countedNodes.Contains(node.NodeID)) {
@@ -293,39 +317,52 @@ namespace FileFind.Meshwork.GtkClient
 				}
 			}
 
-			statusBar.Push(0, text);
+			statusLabel.Text = text;
 		}
 
 		private void sb_ErrorIndexing (object sender, Exception ex)
 		{
 			// FIXME: Do something here.
+			UpdateTaskStatusIcon();
 		}
 
 		private void sb_StoppedIndexing (object sender, EventArgs args)
 		{
-			rebuildingShareEventBox.Visible = false;
+			UpdateTaskStatusIcon();
 		}
 
 		private void sb_FinishedIndexing (object sender, EventArgs args)
 		{
-			UpdateStatusText ();
-			NetworkOverviewPage.Instance.RefreshUserList ();
-			
-			if (!Core.ShareHasher.Going) {
-				rebuildingShareEventBox.Visible = false;
-			}
+			UpdateStatusText();
+			NetworkOverviewPage.Instance.RefreshUserList();
+			UpdateTaskStatusIcon();
 		}
 
 		private void sb_StartedIndexing (object sender, EventArgs args)
 		{
-			rebuildingShareEventBox.ShowAll();
+			UpdateTaskStatusIcon();
 		}
 
 		private void sh_QueueFinished (object sender, EventArgs args)
 		{
-			rebuildingShareEventBox.Visible = false;
+			UpdateTaskStatusIcon();
 		}
 
+		void UpdateTaskStatusIcon ()
+		{
+			if (Core.ShareBuilder.Going || Core.ShareHasher.Going) {
+				if (Core.ShareHasher.Going) {
+					taskStatusIcon.TooltipMarkup = String.Format("<b>Updating Shared Files</b>\nFiles To Hash: {0}", 
+					                                             Common.FormatNumber(Core.ShareHasher.FilesRemaining));
+				} else {
+					taskStatusIcon.TooltipMarkup = "<b>Updating Shared Files</b>";
+				}
+				taskStatusIcon.Show();
+			} else {
+				taskStatusIcon.Hide();	
+			}			
+		}
+		
 		public bool IsVisible {
 			get {
 				return window.Visible;

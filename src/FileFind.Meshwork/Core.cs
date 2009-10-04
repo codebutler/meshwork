@@ -394,13 +394,10 @@ namespace FileFind.Meshwork
 				// XXX: This doesn't belong here. Have LocalNodeConnection set this up
 				// and call me with the proper callback.
 				LocalNodeConnection connection = new LocalNodeConnection(transport);
-				transport.Network.Connections.Add ((INodeConnection)connection);
 				transport.Operation = connection;
-				transport.Network.RaiseConnectingTo (connection);
-
-				transportManager.Add (transport, delegate (ITransport bleh) { 
-					connection.Start (); 
-
+				transport.Network.AddConnection(connection);
+				transportManager.Add(transport, delegate (ITransport bleh) { 
+					connection.Start();
 					if (connectCallback != null) {
 						connectCallback(transport);
 					}

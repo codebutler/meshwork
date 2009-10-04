@@ -296,6 +296,10 @@
     <Compile Include="Menus\ChatPageMenu.cs" />
     <Compile Include="SidebarItems\WhatsPopularSearchItem.cs" />
     <Compile Include="SidebarItems\WhatsNewSearchItem.cs" />
+    <Compile Include="Widgets\AnimatedImage.cs" />
+    <Compile Include="Widgets\Actor.cs" />
+    <Compile Include="Widgets\SingleActorStage.cs" />
+    <Compile Include="Widgets\Stage.cs" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio />

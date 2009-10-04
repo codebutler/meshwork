@@ -114,16 +114,11 @@ namespace FileFind.Meshwork.Transport
 					
 					transport.ConnectionType = connectionType;
 
-					if (connectionType == ConnectionType.NodeConnection) {
-						
+					if (connectionType == ConnectionType.NodeConnection) {						
 						LocalNodeConnection connection = new LocalNodeConnection(transport);
 						transport.Operation = connection;
-						transport.Network.Connections.Add(connection);
-						
-						transport.Network.RaiseNewIncomingConnection(connection);
-						
-						connection.Start();
-						
+						transport.Network.AddConnection(connection);						
+						connection.Start();						
 					} else if (connectionType == ConnectionType.TransferConnection) {
 						
 						Core.FileTransferManager.NewIncomingConnection(transport);

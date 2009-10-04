@@ -51,6 +51,8 @@ FILES =  \
 	SidebarItems/WhatsPopularSearchItem.cs \
 	SyncContext.cs \
 	TrayIcon.cs \
+	Widgets/Actor.cs \
+	Widgets/AnimatedImage.cs \
 	Widgets/ExpanderBar.cs \
 	Widgets/FadingAlignment.cs \
 	Widgets/FileSearchEntry.cs \
@@ -64,6 +66,8 @@ FILES =  \
 	Widgets/NavigationBar.cs \
 	Widgets/NetworkGroupedTreeStore.cs \
 	Widgets/SearchEntry.cs \
+	Widgets/SingleActorStage.cs \
+	Widgets/Stage.cs \
 	Widgets/ZoomableCairoArea.cs \
 	Widgets/ZoomableNetworkMap.cs \
 	Windows/AboutDialog.cs \
@@ -206,6 +210,9 @@ $(ASSEMBLY): $(FILES) $(RESOURCE_FILES)
 	$(MCS) $(CSC_FLAGS) -unsafe -nowarn:0169 -debug -out:$@ -target:exe $(REFERENCES) $(FILES) \
 	$(BUILD_RESOURCES)
 	cp $(ASSEMBLY_DLL).config $(BINDIR)
+
+run:
+	$(MONO) --debug $(top_builddir)/build/FileFind.Meshwork.GtkClient.exe
 
 CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
 EXTRA_DIST = $(FILES) $(RESOURCE_FILES)

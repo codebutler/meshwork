@@ -149,6 +149,8 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			userListStore.AppendValues (IterForNetwork (node.Network), node);
 			
+			Gui.MainWindow.UpdateStatusText();
+			
 			if (Gui.GetPrivateMessageWindow (node) != null) {
 				Gui.GetPrivateMessageWindow (node).SetUserOnline ();
 			}

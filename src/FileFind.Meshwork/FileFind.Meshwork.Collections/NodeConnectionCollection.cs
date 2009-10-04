@@ -38,18 +38,5 @@ namespace FileFind.Meshwork.Collections
 			}
 			base.Add(c);
 		}
-
-		public INodeConnection FindConnection (string firstNodeID, string secondNodeID)
-		{
-			foreach (INodeConnection connection in this) {
-				if (connection.NodeLocal != null & connection.NodeRemote != null) {
-					if (connection.NodeLocal.NodeID == firstNodeID & connection.NodeRemote.NodeID == secondNodeID)
-						return connection;
-					else if (connection.NodeRemote.NodeID == firstNodeID & connection.NodeLocal.NodeID == secondNodeID)
-						return connection;
-				}
-			}
-			return null;
-		}
 	}
 }

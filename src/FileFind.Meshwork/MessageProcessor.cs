@@ -380,10 +380,9 @@ namespace FileFind.Meshwork
 
 		internal void ProcessConnectionDownMessage (Node messageFrom, ConnectionInfo info)
 		{
-			INodeConnection c = network.Connections.FindConnection (info.SourceNodeID, info.DestNodeID);
+			INodeConnection c = network.FindConnection(info.SourceNodeID, info.DestNodeID);
 			if (c != null) {
-				network.Connections.Remove(c);
-				network.RaiseConnectionDown (c);
+				network.RemoveConnection(c);
 			} else {
 				LoggingService.LogWarning("MessageProcessor: ConnectionDown received from {0} for a non-existant connection!", messageFrom);
 			}
