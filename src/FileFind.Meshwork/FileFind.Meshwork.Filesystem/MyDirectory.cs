@@ -22,6 +22,11 @@ namespace FileFind.Meshwork.Filesystem
 			get {
 				return Core.FileSystem.RootDirectory;
 			}
-		}			
+		}
+		
+		public new void InvalidateCache ()
+		{
+			base.InvalidateCache();
+		}
 	}
 }
