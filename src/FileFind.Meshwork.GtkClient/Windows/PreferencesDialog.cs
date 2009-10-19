@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
@@ -216,23 +217,22 @@ namespace FileFind.Meshwork.GtkClient
 				natOptionsTable.Sensitive = false;
 			}
 
-			bool foundInternal = false;
-			bool foundExternal = false;
+			bool foundIPv6Internal = false;
+			bool foundIPv6External = false;
 			foreach (IDestination destination in Core.DestinationManager.Destinations) {
 				if (destination is IPv6Destination) {
 					if (((IPv6Destination)destination).IsExternal) {
-						foundExternal = true;
-						break;
+						foundIPv6External = true;
 					} else {
-						foundInternal = true;
+						foundIPv6Internal = true;
 					}
 				} else if (destination is IPv4Destination && destination.IsExternal) {
 					internetIPLabel.Text = ((IPDestination)destination).IPAddress.ToString();
 				}
 			}
-			if (foundExternal) {
+			if (foundIPv6External) {
 				supportsIPv6Label.Text = "Yes";
-			} else if (foundInternal) {
+			} else if (foundIPv6Internal) {
 				supportsIPv6Label.Text = "LAN Only";
 			} else {
 				supportsIPv6Label.Text = "No";
@@ -285,10 +285,15 @@ namespace FileFind.Meshwork.GtkClient
 
 			ipv6LocalInterfaceComboBox.Model = new ListStore(typeof(string), typeof(int));
 			((ListStore)ipv6LocalInterfaceComboBox.Model).AppendValues("Disabled", -1);
+			var interfaces = new Dictionary<string, int>();
 			foreach (InterfaceAddress addr in Core.OS.GetInterfaceAddresses()) {
 				if (addr.Address.AddressFamily == AddressFamily.InterNetworkV6 && (!IPAddress.IsLoopback(addr.Address))) {
-					((ListStore)ipv6LocalInterfaceComboBox.Model).AppendValues(addr.Name, addr.InterfaceIndex);
+					if (!interfaces.ContainsKey(addr.Name))
+						interfaces[addr.Name] = addr.InterfaceIndex;
 				}
+			}
+			foreach (string name in interfaces.Keys) {
+					((ListStore)ipv6LocalInterfaceComboBox.Model).AppendValues(name, interfaces[name]);
 			}
 
 			if (ipv6LocalInterfaceComboBox.Model.GetIterFirst(out iter)) {
