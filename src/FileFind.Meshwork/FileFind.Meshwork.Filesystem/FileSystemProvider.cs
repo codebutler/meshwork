@@ -31,8 +31,8 @@ namespace FileFind.Meshwork.Filesystem
 
 	public class FileSystemProvider
 	{
-		const string SCHEMA_VERSION = "9";
-
+		const string SCHEMA_VERSION = "10";
+		
 		string connectionString;
 		long yourTotalBytes = -1;
 		long yourTotalFiles = -1;
@@ -440,7 +440,15 @@ namespace FileFind.Meshwork.Filesystem
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_local_path ON directoryitems (local_path);";
 					ExecuteNonQuery(command);
-
+					
+					command = connection.CreateCommand();
+					command.CommandText = "CREATE INDEX directoryitems_type ON directoryitems (type);";
+					ExecuteNonQuery(command);
+					
+					command = connection.CreateCommand();
+					command.CommandText = "CREATE INDEX directoryitems_name ON directoryitems (name);";
+					ExecuteNonQuery(command);
+					
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX filepieces_file_id ON filepieces (file_id);";
 					ExecuteNonQuery(command);
@@ -460,7 +468,7 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public DataSet ExecuteDataSet (IDbCommand command)
 		{
-			LoggingService.LogDebug("ExecuteDataSet: {0}", command.CommandText);
+			LoggingService.LogDebug("ExecuteDataSet: {0}", GetCommandTextWithParameters(command));
 			IDbDataAdapter adapter = new SqliteDataAdapter((SqliteCommand)command);
 			DataSet ds = new DataSet();
 			adapter.Fill(ds);
@@ -473,7 +481,7 @@ namespace FileFind.Meshwork.Filesystem
 			UseConnection(delegate (IDbConnection connection) {
 				IDbCommand cmd = connection.CreateCommand();
 				cmd.CommandText = query;
-				LoggingService.LogDebug("ExecuteScalar: {0}", cmd.CommandText);
+				LoggingService.LogDebug("ExecuteScalar: {0}", GetCommandTextWithParameters(cmd));
 				result = cmd.ExecuteScalar();
 			});
 			return result;
@@ -481,13 +489,13 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public object ExecuteScalar (IDbCommand command)
 		{
-			LoggingService.LogDebug("ExecuteScalar: {0}", command.CommandText);
+			LoggingService.LogDebug("ExecuteScalar: {0}", GetCommandTextWithParameters(command));
 			return command.ExecuteScalar();
 		}
 		
 		public int ExecuteNonQuery (IDbCommand command)
 		{
-			LoggingService.LogDebug("ExecuteNonQuery: {0}", command.CommandText);
+			LoggingService.LogDebug("ExecuteNonQuery: {0}", GetCommandTextWithParameters(command));
 			return command.ExecuteNonQuery();
 		}
 
@@ -525,10 +533,28 @@ namespace FileFind.Meshwork.Filesystem
 					}
 				}
 
-				command = connection.CreateCommand();
-				command.CommandText = String.Format("DELETE FROM directoryitems WHERE id IN ({0})", String.Join(",", idsToDelete.ToArray()));
-				ExecuteNonQuery(command);
+				if (idsToDelete.Count > 0) {
+					command = connection.CreateCommand();
+					command.CommandText = String.Format("DELETE FROM directoryitems WHERE id IN ({0})", String.Join(",", idsToDelete.ToArray()));
+					ExecuteNonQuery(command);
+				}
 			});
+		}
+		
+		// This is intended *for display only*! 
+		string GetCommandTextWithParameters (IDbCommand command)
+		{
+			string text = command.CommandText;
+			foreach (IDbDataParameter parameter in command.Parameters) {
+				if (parameter.Value == null) {
+					text = text.Replace(parameter.ParameterName, "NULL");
+				} else if (parameter.Value is String) {
+					text = text.Replace(parameter.ParameterName, "'" + parameter.Value.ToString() + "'");
+				} else {
+					text = text.Replace(parameter.ParameterName, parameter.Value.ToString());
+				}
+			}
+			return text;
 		}
 	}
 }
