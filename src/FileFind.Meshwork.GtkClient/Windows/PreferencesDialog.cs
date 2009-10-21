@@ -131,8 +131,8 @@ namespace FileFind.Meshwork.GtkClient
 			var column = new TreeViewColumn();
 			column.PackStart(imageCell, false);
 			column.PackStart(textCell, true);
-			column.SetCellDataFunc(imageCell, showFolderIcon);
-			column.SetCellDataFunc(textCell, showFolderText);
+			column.SetCellDataFunc(imageCell, new TreeCellDataFunc(showFolderIcon));
+			column.SetCellDataFunc(textCell, new TreeCellDataFunc(showFolderText));
 			sharedFoldersList.AppendColumn(column);
 			sharedFoldersList.RulesHint = true;
 
