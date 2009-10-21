@@ -15,7 +15,7 @@ using System.Security.Cryptography;
 
 namespace FileFind.Meshwork.Security
 {
-	public class Encryption 
+	public static class Encryption 
 	{
 		public static byte[] Decrypt(ICryptoTransform transform, byte[] buffer)
 		{
