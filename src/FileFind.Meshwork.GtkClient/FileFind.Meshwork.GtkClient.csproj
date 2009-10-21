@@ -299,6 +299,7 @@
     <Compile Include="Widgets\Actor.cs" />
     <Compile Include="Widgets\SingleActorStage.cs" />
     <Compile Include="Widgets\Stage.cs" />
+    <Compile Include="Windows\IndexingStatusWindow.cs" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio />

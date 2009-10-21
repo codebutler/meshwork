@@ -89,7 +89,7 @@ namespace FileFind.Meshwork.GtkClient
 			return xml.GetWidget(name);
 		}
 		
-		private void window_DeleteEvent (object sender, DeleteEventArgs args)
+		protected virtual void window_DeleteEvent (object sender, DeleteEventArgs args)
 		{
 			args.RetVal = true;
 			Close();

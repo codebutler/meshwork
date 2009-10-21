@@ -142,15 +142,9 @@ namespace FileFind.Meshwork
 				}
 			}
 
-			TimeSpan lastScanAgo = (DateTime.Now - settings.LastShareScan);
-			if (Math.Abs(lastScanAgo.TotalHours) >= 1) {
-				LoggingService.LogDebug("Rescanning share! Last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
-				Core.RescanSharedDirectories();
-			} else {
-				LoggingService.LogDebug("Not rescanning share, last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
-			}
-
-			shareHasher.Start();
+			shareHasher.Start();			
+			RescanSharedDirectories();
+			
 			// XXX: This is blocking ! shareWatcher.Start();
 
 			started = true;
@@ -322,8 +316,6 @@ namespace FileFind.Meshwork
 		{
 			try {
 				Core.FileSystem.InvalidateCache();
-
-				Core.Settings.LastShareScan = DateTime.Now;
 
 				foreach (Network network in networks) {
 					network.SendInfoToTrustedNodes();

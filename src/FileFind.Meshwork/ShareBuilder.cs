@@ -18,6 +18,8 @@ using System.Data;
 
 namespace FileFind.Meshwork
 {
+	public delegate void ShareBuilderFileEventHandler (ShareBuilder builder, string filePath);
+	
 	public class ShareBuilder
 	{
 		Thread thread = null;
@@ -25,9 +27,8 @@ namespace FileFind.Meshwork
 		public event EventHandler StartedIndexing;
 		public event EventHandler FinishedIndexing;
 		public event EventHandler StoppedIndexing;
+		public event ShareBuilderFileEventHandler IndexingFile;
 		public event ErrorEventHandler ErrorIndexing;
-
-		List<LocalFile> filesToHash = new List<LocalFile>();
 
 		internal ShareBuilder ()
 		{
@@ -63,32 +64,32 @@ namespace FileFind.Meshwork
 			// are in the database, that are no longer in
 			// Core.Settings.SharedDirectories, and remove them.
 			
-			// Remove files/directories that no longer exist
+			// Remove files/directories from db that no longer exist on the filesystem.
 			Core.FileSystem.PurgeMissing();
 			
-			foreach (string directoryName in Core.Settings.SharedDirectories) {
-				IO.DirectoryInfo info = new IO.DirectoryInfo(directoryName);
-
-				if (IO.Directory.Exists(directoryName)) {
-					ProcessDirectory(myDirectory, info);
-				} else {
-					// XXX: Inform the user somehow
-					// that this is missing. Don't
-					// just remove it though, it
-					// could be a non-mounted
-					// removable drive.
+			// If any dirs were removed from the list in settings, remove them from db.
+			foreach (LocalDirectory dir in myDirectory.Directories) {
+				if (!Core.Settings.SharedDirectories.Contains(dir.LocalPath)) {
+					dir.Delete();
 				}
 			}
 			
-			LoggingService.LogInfo("We need to hash " + filesToHash.Count + " files.");
-
-			// XXX: This is here because right now HashFilesEventually gets
-			// called for the same files over and over if ShareBuilder gets
-			// restarted. Replace with some better intelligence.
-			Core.ShareHasher.ClearQueue();
-
-			Core.ShareHasher.HashFilesEventually(filesToHash);
-			filesToHash.Clear();
+			TimeSpan lastScanAgo = (DateTime.Now - Core.Settings.LastShareScan);
+			if (Math.Abs(lastScanAgo.TotalHours) >= 1) {
+				LoggingService.LogDebug("Starting directory scan. Last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));				
+				foreach (string directoryName in Core.Settings.SharedDirectories) {
+					IO.DirectoryInfo info = new IO.DirectoryInfo(directoryName);	
+					if (IO.Directory.Exists(directoryName)) {
+						ProcessDirectory(myDirectory, info);
+					} else {
+						LoggingService.LogWarning("Directory does not exist: {0}.", info.FullName);
+					}
+				}
+			} else {
+				LoggingService.LogDebug("Skipping directory scan because last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
+			}
+			
+			Core.Settings.LastShareScan = DateTime.Now;
 			
 			LoggingService.LogInfo("Finished re-index of shared files...");
 			
@@ -132,6 +133,10 @@ namespace FileFind.Meshwork
 
 					foreach (IO.FileInfo fileInfo in directoryInfo.GetFiles()) {
 						if (fileInfo.Name.StartsWith(".") == false) {
+							
+							if (IndexingFile != null)
+								IndexingFile(this, fileInfo.FullName);
+							
 							LocalFile file = null;
 							if (!directory.HasFile(fileInfo.Name)) {
 								file = directory.CreateFile(fileInfo);
@@ -140,7 +145,7 @@ namespace FileFind.Meshwork
 								// XXX: Update file info
 							}
 							if (file.InfoHash == null || file.InfoHash == String.Empty) {
-								filesToHash.Add(file);
+								Core.ShareHasher.HashFile(file);
 							}
 						}
 					}

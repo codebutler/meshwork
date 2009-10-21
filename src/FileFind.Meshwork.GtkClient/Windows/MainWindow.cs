@@ -156,7 +156,9 @@ namespace FileFind.Meshwork.GtkClient
 			Core.ShareBuilder.FinishedIndexing += (EventHandler)DispatchService.GuiDispatch(new EventHandler(sb_FinishedIndexing));
 			Core.ShareBuilder.StoppedIndexing  += (EventHandler)DispatchService.GuiDispatch(new EventHandler(sb_StoppedIndexing));
 			Core.ShareBuilder.ErrorIndexing    += (ErrorEventHandler)DispatchService.GuiDispatch(new ErrorEventHandler(sb_ErrorIndexing));
-			Core.ShareHasher.QueueFinished     += (EventHandler)DispatchService.GuiDispatch(new EventHandler(sh_QueueFinished));
+			Core.ShareHasher.StartedHashingFile += (ShareHasherTaskEventHandler)DispatchService.GuiDispatch(new ShareHasherTaskEventHandler(sh_StartedFinished));
+			Core.ShareHasher.FinishedHashingFile += (ShareHasherTaskEventHandler)DispatchService.GuiDispatch(new ShareHasherTaskEventHandler(sh_StartedFinished));
+			Core.ShareHasher.QueueChanged += (EventHandler)DispatchService.GuiDispatch(new EventHandler(sh_QueueChanged));
 
 			Core.FileSearchManager.SearchAdded   += (FileSearchEventHandler)DispatchService.GuiDispatch(new FileSearchEventHandler(FileSearchManager_SearchAdded));
 			Core.FileSearchManager.SearchRemoved += (FileSearchEventHandler)DispatchService.GuiDispatch(new FileSearchEventHandler(FileSearchManager_SearchRemoved));
@@ -192,6 +194,12 @@ namespace FileFind.Meshwork.GtkClient
 			taskStatusIcon.Load();
 			
 			EventBox taskStatusIconBox = new EventBox();
+			taskStatusIconBox.MotionNotifyEvent += delegate {
+				UpdateTaskStatusIcon();
+			};
+			taskStatusIconBox.ButtonReleaseEvent += delegate {
+				IndexingStatusWindow.Instance.Show();
+			};
 			taskStatusIconBox.SizeAllocated += delegate (object o, SizeAllocatedArgs args) {
 				statusAlign.LeftPadding = (uint)args.Allocation.Width;
 			};
@@ -343,7 +351,12 @@ namespace FileFind.Meshwork.GtkClient
 			UpdateTaskStatusIcon();
 		}
 
-		private void sh_QueueFinished (object sender, EventArgs args)
+		private void sh_QueueChanged (object sender, EventArgs args)
+		{
+			UpdateTaskStatusIcon();
+		}
+		
+		private void sh_StartedFinished (ShareHasherTask task)
 		{
 			UpdateTaskStatusIcon();
 		}

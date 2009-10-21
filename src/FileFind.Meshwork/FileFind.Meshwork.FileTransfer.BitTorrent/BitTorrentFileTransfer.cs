@@ -180,7 +180,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			if (file is LocalFile) {
 				if (file.Pieces.Length == 0) {
 					// Yep!
-					Core.ShareHasher.BeginHashFile((LocalFile)file, HashCallback, this);
+					Core.ShareHasher.HashFile((LocalFile)file, HashCallback);
 				} else {
 					// Nope, we're good! Just start!
 					DetailsReceived();
@@ -208,11 +208,8 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		private void HashCallback (IAsyncResult result)
 		{
 			try {
-				Core.ShareHasher.EndHashFile(result);
-
-				// Start the transfer
+				// Start the transfer				
 				DetailsReceived();
-
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in callback:", ex.ToString());
 			}

@@ -13,79 +13,88 @@ using System.Threading;
 using MonoTorrent.Common;
 using FileFind.Meshwork.Filesystem;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
+
+/* TODO
+ * 
+ * Replace Started/Finished/HashingFile events with just "Changed"
+ * Check to see if file is already in queue.
+ * Don't cache LocalFile object in ShareHasherTask. Store path instead and check that file still exists in share before hashing. If not, ignore.
+ * 
+ */
 
 namespace FileFind.Meshwork
 {
+	public delegate void ShareHasherTaskEventHandler (ShareHasherTask task);
+	
 	public class ShareHasher
 	{
-		List<Thread>		threads = new List<Thread>();
-		AutoResetEvent 		mutex = new AutoResetEvent(false);
-		List<ShareHasherTask>	queue = new List<ShareHasherTask>();
-		ShareHasherTaskComparer comparer = new ShareHasherTaskComparer();
-
-		public event EventHandler QueueFinished;
+		// Keeps track of worker threads and what their current task is, if any.
+		Dictionary<Thread, ShareHasherTask> threads = new Dictionary<Thread, ShareHasherTask>();
 		
-		delegate void HashCaller (ShareHasherTask task);
+		AutoResetEvent mutex = new AutoResetEvent(false);
+		List<ShareHasherTask> queue = new List<ShareHasherTask>();
+		ShareHasherTaskComparer comparer = new ShareHasherTaskComparer();
+		
+		int threadCount;
+		
+		public event EventHandler QueueChanged;
+		public event ShareHasherTaskEventHandler StartedHashingFile;
+		public event ShareHasherTaskEventHandler FinishedHashingFile;
 
 		internal ShareHasher ()
 		{
-
+			threadCount = System.Environment.ProcessorCount;
+		}
+		
+		internal void HashFile (LocalFile file)
+		{
+			HashFile(file, null);
 		}
 
-		internal IAsyncResult BeginHashFile (LocalFile file, AsyncCallback callback, object state)
+		internal void HashFile (LocalFile file, AsyncCallback callback)
 		{
-			if (file.LocalPath == null || file.LocalPath == String.Empty) {
-				throw new ArgumentException("Can only hash files with a local path", "file");
+			if (file.LocalPath == null)
+				throw new ArgumentNullException("file");
+			
+			if (!System.IO.File.Exists(file.LocalPath))
+				throw new ArgumentException("File does not exist");
+			
+			lock (queue) {
+				// Check to see if this file is already queued.
+				foreach (ShareHasherTask existingTask in queue) {
+					if (existingTask.File.LocalPath == file.LocalPath)
+						return;
+				}				
+				// If not, add it!
+				var task = new ShareHasherTask(file, callback);
+				queue.Add(task);
+				queue.Sort(comparer);
+				
+				if (QueueChanged != null)
+					QueueChanged(this, EventArgs.Empty);
 			}
-
-			HashCaller caller = new HashCaller(Hash);
-			return caller.BeginInvoke(new ShareHasherTask(file), callback, state);
-		}
-
-		internal void EndHashFile (IAsyncResult asyncResult)
-		{
-			((HashCaller)((AsyncResult)asyncResult).AsyncDelegate).EndInvoke(asyncResult);
-		}
-
-		internal void HashFilesEventually (List<LocalFile> files)
-		{
-			if (files.Count == 0) {
-				return;
-			}
-
-			foreach (LocalFile file in files) {
-				if (file.LocalPath == null || file.LocalPath == String.Empty) {
-					throw new ArgumentException("Can only hash files with a local path", "file");
-				}
-
-				queue.Add(new ShareHasherTask(file));
-			}
-
-			queue.Sort(comparer); // <-- XXX: This gets called way too often!
 			mutex.Set();
-		}
-
-		internal void ClearQueue ()
-		{
-			queue.Clear();
 		}
 
 		internal void Start ()
 		{
-			if (threads.Count == 0) {
-				// Just create one for now.
-				Thread thread = new Thread(DoHashing);
-				thread.Start();
-				threads.Add(thread);
+			lock (threads) {
+				while (threads.Count < threadCount) {
+					Thread thread = new Thread(DoHashing);
+					thread.Start();
+					threads.Add(thread, null);
+				}
 			}
 		}
 
 		internal void Stop ()
 		{
-			while (threads.Count > 0) {
-				Thread thread = threads[0];
-				thread.Abort();
-				threads.Remove(thread);
+			lock (threads) {
+				foreach (Thread thread in threads.Keys) {
+					thread.Abort();
+				}
+				threads.Clear();
 			}
 		}
 
@@ -98,24 +107,29 @@ namespace FileFind.Meshwork
 					ShareHasherTask task;
 
 					lock (queue) {
+						if (queue.Count == 0)
+							continue;
+						
 						task = queue[0];
 						queue.RemoveAt(0);
+						
+						if (QueueChanged != null)
+							QueueChanged(this, EventArgs.Empty);
+					}
+					
+					lock (threads) {
+						threads[Thread.CurrentThread] = task;
 					}
 
 					try {
 						Hash(task);
-
-						lock (queue) {
-							if (queue.Count == 0) {
-								if (QueueFinished != null) {
-									QueueFinished(this, EventArgs.Empty);
-								}
-							}
-						}
-
 					} catch (Exception ex) {
 						// XXX: Do something here!
 						LoggingService.LogError("Problem while hashing file.", ex);
+					}
+					
+					lock (threads) {
+						threads[Thread.CurrentThread] = null;
 					}
 				}
 			} catch (ThreadAbortException) {
@@ -140,9 +154,41 @@ namespace FileFind.Meshwork
 				return (queue.Count > 0 && threads.Count > 0);
 			}
 		}
+		
+		public int CurrentFileCount {
+			get {
+				int r = 0;
+				lock (threads) {
+					foreach (Thread thread in threads.Keys) {
+						ShareHasherTask task = threads[thread];
+						if (task != null)
+							r++;
+					}
+				}
+				return r;
+			}
+		}
+		
+		public string CurrentFiles {
+			get {
+				var builder = new StringBuilder();
+				lock (threads) {
+					foreach (Thread thread in threads.Keys) {
+						ShareHasherTask task = threads[thread];
+						if (task != null) {
+							builder.AppendLine(task.File.LocalPath);
+						}
+					}
+				}
+				return builder.ToString();
+			}
+		}				
 
 		private void Hash(ShareHasherTask task)
 		{
+			if (StartedHashingFile != null)
+				StartedHashingFile(task);
+			
 			/* Create the torrent */
 			TorrentCreator creator = new TorrentCreator();
 			// Have to put something bogus here, otherwise MonoTorrent crashes!
@@ -164,6 +210,12 @@ namespace FileFind.Meshwork
 			task.File.PieceLength = torrent.PieceLength;
 			task.File.SHA1 = Common.BytesToString(torrent.Files[0].SHA1);
 			task.File.Save();
+			
+			if (FinishedHashingFile != null)
+				FinishedHashingFile(task);
+			
+			if (task.Callback != null)
+				task.Callback(null);
 		}
 
 		private void WaitUntilAvaliable ()
@@ -179,55 +231,42 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		private class ShareHasherTask
-		{
-			public LocalFile File;
-
-			public ShareHasherTask(LocalFile file)
-			{
-				this.File = file;
-			}
-		}
-
 		private class ShareHasherTaskComparer : Comparer<ShareHasherTask>
 		{
 			public override int Compare (ShareHasherTask first, ShareHasherTask second)
 			{
+				// FIXME: Anything that has a callback should be sorted first!
 				return first.File.Size.CompareTo(second.File.Size);
 			}
 		}
 	}
-
-	internal class HasherAsyncResult : IAsyncResult
+	
+	
+	public class ShareHasherTask
 	{
-		object state;
-
-		public HasherAsyncResult(object state)
+		LocalFile m_File;
+		AsyncCallback m_Callback;
+		
+		public ShareHasherTask(LocalFile file)
 		{
-			this.state = state;
+			m_File = file;
 		}
-
-		public object AsyncState {
+		
+		public ShareHasherTask(LocalFile file, AsyncCallback callback)
+		{
+			m_File = file;
+			m_Callback = callback;
+		}
+		
+		public LocalFile File {
 			get {
-				return state;
+				return m_File;
 			}
 		}
 
-		public WaitHandle AsyncWaitHandle {
+		public AsyncCallback Callback {
 			get {
-				throw new NotImplementedException();
-			}
-		}
-
-		public bool CompletedSynchronously {
-			get {
-				throw new NotImplementedException();
-			}
-		}
-
-		public bool IsCompleted {
-			get {
-				throw new NotImplementedException();
+				return m_Callback;
 			}
 		}
 	}

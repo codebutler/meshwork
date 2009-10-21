@@ -85,6 +85,7 @@ FILES =  \
 	Windows/GenerateKeyDialog.cs \
 	Windows/GladeDialog.cs \
 	Windows/GladeWindow.cs \
+	Windows/IndexingStatusWindow.cs \
 	Windows/InviteToChatDialog.cs \
 	Windows/JoinChatroomDialog.cs \
 	Windows/MainWindow.cs \
