@@ -17,12 +17,9 @@ namespace FileFind.Meshwork.Filesystem
 		int              id;
 		int              parentId;
 		string           name;
-		string           localPath;		
-		LocalFile[]      files;
-		LocalDirectory[] directories;
-		int              fileCount;
-		int              directoryCount;
-		LocalDirectory   parent;
+		string           localPath;
+		int              fileCount = -1;
+		int              directoryCount = -1;
 		
 		#region Constructors
 		
@@ -51,21 +48,17 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public override IDirectory Parent {
 			get {
-				if (parent == null) {
-					if (parentId != 0) {
-						Core.FileSystem.UseConnection(delegate(IDbConnection connection) {
-							parent = LocalDirectory.ById(parentId);
-						});
-				
-						if (parent == null)
-							throw new Exception(String.Format("Parent not found! Name: {0} Id: {1} ParentId: {2}", Name, Id, parentId));
-				
-					} else {
-						parent = Core.FileSystem.RootDirectory.MyDirectory;
-					}
+				if (parentId != 0) {
+					LocalDirectory parent = null;
+					Core.FileSystem.UseConnection(delegate(IDbConnection connection) {
+						parent = LocalDirectory.ById(parentId);
+					});						
+					if (parent == null)
+						throw new Exception(String.Format("Parent not found! Name: {0} Id: {1} ParentId: {2}", Name, Id, parentId));
+					return parent;
+				} else {
+					return Core.FileSystem.RootDirectory.MyDirectory;
 				}
-				
-				return parent;
 			}
 		}
 
@@ -77,29 +70,19 @@ namespace FileFind.Meshwork.Filesystem
 			
 		public override IFile[] Files {
 			get {
-				if (files == null) {
-					files = LocalFile.ListByParentId(this.id);
-				}
-				return files;
+				return LocalFile.ListByParentId(this.id);
 			}
 		}		
 		
 		public override IDirectory[] Directories {
 			get {
-				if (directories == null) {
-					directories = LocalDirectory.ListByParentId(this.id);
-				}
-				return directories;
+				return LocalDirectory.ListByParentId(this.id);
 			}
 		}
 		
 		public override int FileCount {
 			get {
-				if (files != null) {
-					return files.Length;
-				}
-
-				if (fileCount.Equals(null)) {
+				if (fileCount == -1) {
 					fileCount = (int)LocalFile.CountByParentId(this.id);
 				}
 				return fileCount;
@@ -108,11 +91,7 @@ namespace FileFind.Meshwork.Filesystem
 
 		public override int DirectoryCount {
 			get {
-				if (directories != null) {
-					return directories.Length;
-				}
-
-				if (directoryCount.Equals(null)) {
+				if (directoryCount == -1) {
 					directoryCount = (int)LocalDirectory.CountByParentId(this.id);
 				}
 				return directoryCount;
@@ -135,14 +114,6 @@ namespace FileFind.Meshwork.Filesystem
 		#endregion
 		
 		#region Public Methods
-		public void InvalidateCache ()
-		{
-			files = null;
-			directories = null;
-			fileCount = 0;
-			directoryCount = 0;
-		}
-		
 		public void Delete ()
 		{
 			foreach (LocalDirectory subDir in Directories) {
@@ -157,14 +128,19 @@ namespace FileFind.Meshwork.Filesystem
 				IDbCommand cmd = connection.CreateCommand();
 				cmd.CommandText = "DELETE FROM directoryitems WHERE id = @directory_id AND type='D'";
 				Core.FileSystem.AddParameter(cmd, "@directory_id", id); 
-				cmd.ExecuteNonQuery();
+				Core.FileSystem.ExecuteNonQuery(cmd);
 			}, true);
 
-			if (parent != null) {
-				parent.InvalidateCache();
-			}
 			this.InvalidateCache();
 		}
+		#endregion
+		
+		#region Protected Methods		
+		protected void InvalidateCache ()
+		{
+			fileCount = -1;
+			directoryCount = -1;
+		}		
 		#endregion
 		
 		#region Static methods		
@@ -231,7 +207,7 @@ namespace FileFind.Meshwork.Filesystem
 				} else {
 					Core.FileSystem.AddParameter(cmd, "@parent_id", (int)parent.Id);
 				}
-				cmd.ExecuteNonQuery();
+				Core.FileSystem.ExecuteNonQuery(cmd);
 
 				cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT last_insert_rowid()";
@@ -259,7 +235,7 @@ namespace FileFind.Meshwork.Filesystem
 					Core.FileSystem.AddParameter(command, "@parent_id", (int)parent_id);
 				}
 				command.CommandText = query;
-				return (long) command.ExecuteScalar();
+				return (long) Core.FileSystem.ExecuteScalar(command);
 			});
 		}
 
@@ -292,7 +268,7 @@ namespace FileFind.Meshwork.Filesystem
 				cmd.CommandText = "DELETE FROM directoryitems WHERE parent_id = @parent_id AND name = @name AND type='F'";
 				Core.FileSystem.AddParameter(cmd, "@parent_id", id); 
 				Core.FileSystem.AddParameter(cmd, "@name", name);
-				cmd.ExecuteNonQuery();
+				Core.FileSystem.ExecuteNonQuery(cmd);
 			}, true);
 
 			this.InvalidateCache();

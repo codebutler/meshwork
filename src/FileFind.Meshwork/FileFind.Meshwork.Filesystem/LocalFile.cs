@@ -20,7 +20,6 @@ namespace FileFind.Meshwork.Filesystem
 		private string sha1;
 		private string localPath;
 		private long fileSize;
-		private LocalDirectory parent;
 		private int id;
 		private int parentId;
 		private int pieceLength;
@@ -35,13 +34,12 @@ namespace FileFind.Meshwork.Filesystem
 
 		public override IDirectory Parent {
 			get {
-				if (parent == null) {
-					Core.FileSystem.UseConnection(delegate(IDbConnection connection) {
-						parent = LocalDirectory.ById(parentId);
-					});	
+				LocalDirectory parent = null;
+				Core.FileSystem.UseConnection(delegate(IDbConnection connection) {
+					parent = LocalDirectory.ById(parentId);	
 					if (parent == null)
 						throw new Exception(String.Format("Parent not found! Name: {0} Id: {1} ParentId: {2}", Name, Id, parentId));
-				}
+				});	
 				return parent;
 			}
 		}
@@ -149,7 +147,7 @@ namespace FileFind.Meshwork.Filesystem
 					Core.FileSystem.AddParameter(command, "@parent_id", parent_id);
 				}
 				command.CommandText = query;
-				return (long)command.ExecuteScalar();
+				return (long)Core.FileSystem.ExecuteScalar(command);
 			});
 		}
 
@@ -192,12 +190,12 @@ namespace FileFind.Meshwork.Filesystem
 					Core.FileSystem.AddParameter(cmd, "@info_hash", infoHash);
 					Core.FileSystem.AddParameter(cmd, "@piece_length", pieceLength);
 					Core.FileSystem.AddParameter(cmd, "@id", id);
-					cmd.ExecuteNonQuery();
+					Core.FileSystem.ExecuteNonQuery(cmd);
 					
 					cmd = connection.CreateCommand();
 					cmd.CommandText = "DELETE FROM filepieces WHERE file_id = @file_id";
 					Core.FileSystem.AddParameter(cmd, "@file_id", id);
-					cmd.ExecuteNonQuery();
+					Core.FileSystem.ExecuteNonQuery(cmd);
 					
 					cmd = connection.CreateCommand();
 					cmd.CommandText = "INSERT INTO filepieces (file_id, piece_num, hash) VALUES (@file_id, @piece_num, @hash)";
@@ -214,7 +212,7 @@ namespace FileFind.Meshwork.Filesystem
 					for (int x = 0; x < pieces.Length; x++) {
 						pieceNumParam.Value = x;
 						hashParam.Value = pieces[x];
-						cmd.ExecuteNonQuery();
+						Core.FileSystem.ExecuteNonQuery(cmd);
 					}
 					
 					transaction.Commit();
@@ -242,7 +240,7 @@ namespace FileFind.Meshwork.Filesystem
 				Core.FileSystem.AddParameter(cmd, "@parent_id", parentDirectory.Id);
 				Core.FileSystem.AddParameter(cmd, "@length", length);
 				
-				cmd.ExecuteNonQuery();
+				Core.FileSystem.ExecuteNonQuery(cmd);
 				
 				cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT last_insert_rowid()";
