@@ -232,6 +232,11 @@ namespace FileFind.Meshwork
 		internal void AddNode (Node node)
 		{
 			nodes.Add(node.NodeID, node);
+			
+			LoggingService.LogInfo("User online: " + node.NickName);
+					
+			if (UserOnline != null)
+				UserOnline (this, node);
 		}
 
 		internal void RemoveNode (Node node)
@@ -1163,7 +1168,6 @@ namespace FileFind.Meshwork
 							node.NickName = trustedNode.Identifier;
 							node.Verified = true;
 							AddNode(node);
-							RaiseUserOnline (node);
 							messageFrom = node;
 							
 							node.CreateNewSessionKey();
@@ -1178,7 +1182,6 @@ namespace FileFind.Meshwork
 							Node node = new Node (this, message.From);
 							node.NickName = "[" + message.From + "]";
 							AddNode(node);
-							RaiseUserOnline (node);
 							messageFrom = node;
 						}
 					}
@@ -1431,7 +1434,6 @@ namespace FileFind.Meshwork
 								SourceNode = new Node(this, connection.SourceNodeID);
 								SourceNode.NickName = connection.SourceNodeNickname;
 								AddNode(SourceNode);
-								RaiseUserOnline(SourceNode);
 								if (this.TrustedNodes.ContainsKey(SourceNode.NodeID)) {
 									SourceNode.CreateNewSessionKey();
 								}
@@ -1443,7 +1445,6 @@ namespace FileFind.Meshwork
 								DestNode = new Node(this, connection.DestNodeID);
 								DestNode.NickName = connection.DestNodeNickname;
 								AddNode(DestNode);
-								RaiseUserOnline (DestNode);
 								if (this.TrustedNodes.ContainsKey(DestNode.NodeID)) {
 									DestNode.CreateNewSessionKey();
 								}
@@ -1511,14 +1512,6 @@ namespace FileFind.Meshwork
 		{
 			if (ReceivedFileDetails != null)
 				ReceivedFileDetails(this, file);
-		}
-
-		internal void RaiseUserOnline (Node node)
-		{
-			LoggingService.LogInfo("User online: " + node.NickName);
-					
-			if (UserOnline != null)
-				UserOnline (this, node);
 		}
 	       
 		internal void RaiseLeftChat (Node node, ChatRoom room)

@@ -398,7 +398,6 @@ namespace FileFind.Meshwork
 						node.NickName = RemoteNodeInfo.Identifier;
 						node.Verified = true;
 						transport.Network.AddNode(node);
-						transport.Network.RaiseUserOnline(node);
 					}
 					this.NodeRemote = transport.Network.Nodes[RemoteNodeInfo.NodeID];
 
