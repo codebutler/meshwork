@@ -113,6 +113,8 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			dialog.Shown += delegate {
 				if (settings.FirstRun) {
 					on_redetectConnectionButton_clicked(redetectConnectionButton, EventArgs.Empty);
+					base.Dialog.SkipPagerHint = false;
+					base.Dialog.SkipTaskbarHint = false;
 				}
 			};
 			
@@ -720,7 +722,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			settings.GlobalUploadSpeedLimit = Convert.ToInt32(limitUpSpeedSpinButton.Value);
 
 			// Save and go!
-			Core.Settings = Gui.Settings;
+			Core.ReloadSettings();
 			dialog.Respond ((int)Gtk.ResponseType.Ok);
 		}
 

@@ -184,7 +184,7 @@ namespace FileFind.Meshwork.GtkClient
 					Environment.Exit(1);
 					return false;
 				}
-				Core.Settings = Settings.ReadSettings();
+				Core.ReloadSettings();
 			} else {
 				/* Init the core */
 				
