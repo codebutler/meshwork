@@ -314,7 +314,7 @@ namespace FileFind.Meshwork
 					string messageText = message.Message;
 					if (c.HasPassword) {
 						try {
-							byte[] saltBytes = System.Text.Encoding.UTF8.GetBytes(c.Name);
+							byte[] saltBytes = System.Text.Encoding.UTF8.GetBytes(c.Id);
 							messageText = Security.Encryption.PasswordDecrypt(c.Password, messageText, saltBytes);
 						} catch (Exception) {
 							messageText = "<UNABLE TO DECRYPT MESSAGE>";

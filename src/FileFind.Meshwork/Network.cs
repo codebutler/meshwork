@@ -488,7 +488,7 @@ namespace FileFind.Meshwork
 		{
 			if (room.InRoom == true) {
 				if (room.HasPassword) {
-					byte[] saltBytes = System.Text.Encoding.UTF8.GetBytes(room.Name);
+					byte[] saltBytes = System.Text.Encoding.UTF8.GetBytes(room.Id);
 					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, Security.Encryption.PasswordEncrypt(room.Password, messageText, saltBytes)), LocalNode);
 				} else {
 					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, messageText), LocalNode);
