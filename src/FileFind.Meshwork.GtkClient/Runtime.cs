@@ -31,8 +31,8 @@ using System.Collections;
 using System.Linq;
 using System.Threading;
 using System.IO;
-
 using Mono.Unix;
+using FileFind.Meshwork.GtkClient.Windows;
 
 namespace FileFind.Meshwork.GtkClient
 {
@@ -79,19 +79,19 @@ namespace FileFind.Meshwork.GtkClient
 			tmpSettings = Settings.ReadSettings();
 
 			// First run, create initial settings.
-			if (tmpSettings == null) {
+			if (tmpSettings == null || !tmpSettings.HasKey) {
 				tmpSettings = new Settings();
 				tmpSettings.NickName = Core.OS.UserName;
 				tmpSettings.RealName = Core.OS.RealName;
 				tmpSettings.IncompleteDownloadDir = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 				tmpSettings.CompletedDownloadDir  = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-				tmpSettings.FirstRun = true;
+				tmpSettings.SetFirstRun(true);
 			}
 		
 			/* Load Icons */
 			Gtk.Window.DefaultIconList = new Gdk.Pixbuf[] {
 				new Gdk.Pixbuf(null, "FileFind.Meshwork.GtkClient.tray_icon.png")
-			};			
+			};
 		
 			// Windows specific. Override stock icons to use embeded files.
 			var sizes = new [] { 16, 22, 24, 34 };
@@ -160,28 +160,46 @@ namespace FileFind.Meshwork.GtkClient
 				LoggingService.LogDebug("First run");
 
 				// Generate key
-				if (tmpSettings.EncryptionParameters.Modulus == null) {
+				if (!tmpSettings.HasKey) {
 					GenerateKeyDialog keyDialog = new GenerateKeyDialog (null);
 					keyDialog.Run();
-					tmpSettings.EncryptionParameters = keyDialog.KeyParameters;
+					tmpSettings.SetKey(keyDialog.Key);
 				}
-
+				
 				/* Init the core */
-				Core.Init(tmpSettings);
-
+				if (!Core.Init(tmpSettings)) {
+					throw new Exception("Core failed to init on first run!");
+				}
+				
+				/* Show change password dialog */
+				var dialog = new ChangeKeyPasswordDialog(splashWindow.Window);
+				dialog.Run();
+				
 				splashWindow.Close();
 
 				PreferencesDialog preferences = new PreferencesDialog ();
 				if (preferences.Run () != (int)ResponseType.Ok) {
 					// Abort !!
-					Gtk.Application.Quit ();
+					Gtk.Application.Quit();
 					Environment.Exit(1);
 					return false;
 				}
 				Core.Settings = Settings.ReadSettings();
 			} else {
 				/* Init the core */
-				Core.Init(tmpSettings);
+				
+				Core.PasswordPrompt += delegate {
+					var dialog = new FileFind.Meshwork.GtkClient.Windows.UnlockKeyDialog(splashWindow.Window);
+					dialog.Run();
+				};
+
+				bool didInit = Core.Init(tmpSettings);
+				if (!didInit) {
+					// Right now this means the password dialog was aborted.
+					Gtk.Application.Quit();
+					Environment.Exit(1);
+					return false;					
+				}
 			}
 
 			tmpSettings = null;
@@ -250,14 +268,16 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private static void UnhandledGLibExceptionHandler (GLib.UnhandledExceptionArgs args) 
 		{
-			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + args.ExceptionObject.ToString());
+			string exceptionText = args.ExceptionObject.ToString();
+			
+			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + exceptionText);
 			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), String.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
-			string crashLog = args.ExceptionObject.ToString();
+			string crashLog = exceptionText;
 			FileFind.Common.WriteToFile(crashFileName, crashLog);
 			
-			args.ExitApplication = true;
+			Gui.ShowErrorDialog("Meshwork has encountered an unhandled error and must be closed.\n\nAn error report has been created on your desktop, please file a bug.\n\n" + exceptionText);
 			
-			Gui.ShowErrorDialog("Meshwork has encountered an unhandled error and must be closed.\n\nAn error report has been created on your desktop, please file a bug.\n\n" + args.ExceptionObject.ToString());
+			args.ExitApplication = true;			
 		}
 
 		private static void Core_Started (object sender, EventArgs args)

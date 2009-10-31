@@ -74,6 +74,7 @@ FILES =  \
 	Windows/AddNetworkDialog.cs \
 	Windows/AddTrustedNodeDialog.cs \
 	Windows/BadOptionsDialog.cs \
+	Windows/ChangeKeyPasswordDialog.cs \
 	Windows/ChatRoomInvitationDialog.cs \
 	Windows/ChatRoomPasswordDialog.cs \
 	Windows/ConnectDialog.cs \
@@ -93,6 +94,7 @@ FILES =  \
 	Windows/PreferencesDialog.cs \
 	Windows/SplashWindow.cs \
 	Windows/StartupProblemsDialog.cs \
+	Windows/UnlockKeyDialog.cs \
 	Windows/UserInfoDialog.cs \
 	Windows/winEditTrustedNode.cs
 

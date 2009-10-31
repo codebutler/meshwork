@@ -23,7 +23,9 @@ using FileFind.Meshwork.Destination;
 namespace FileFind.Meshwork
 {
 	public delegate void MessageInfoEventHandler (MessageInfo info);
-
+	
+	public delegate string PasswordPromptEventHandler();
+	
 	public static class Core
 	{
 		static List<Network> networks = new List<Network>();
@@ -52,6 +54,7 @@ namespace FileFind.Meshwork
 		public static event MessageInfoEventHandler MessageSent;
 		public static event NetworkEventHandler NetworkAdded;
 		public static event NetworkEventHandler NetworkRemoved;
+		public static event EventHandler PasswordPrompt;
 		
 		public static readonly int ProtocolVersion = 247;
 
@@ -70,7 +73,7 @@ namespace FileFind.Meshwork
 			}
 		}
 
-		public static void Init (ISettings settings)
+		public static bool Init (ISettings settings)
 		{
 			if (loaded == true) {
 				throw new Exception ("Please only call this method once.");
@@ -81,10 +84,18 @@ namespace FileFind.Meshwork
 			}
 
 			Core.Settings = settings;
-
-			rsaProvider = new RSACryptoServiceProvider();
-			rsaProvider.ImportParameters (settings.EncryptionParameters);
-			nodeID = Common.MD5 (rsaProvider.ToXmlString (false)).ToLower();
+			
+			if (settings.KeyEncrypted) {
+				PasswordPrompt(null, EventArgs.Empty);
+				if (!settings.KeyUnlocked) {
+					// Quit!
+					return false;
+				}	
+			}			
+			
+			rsaProvider = new RSACryptoServiceProvider();			
+			rsaProvider.ImportParameters(settings.EncryptionParameters);
+			nodeID = Common.MD5(rsaProvider.ToXmlString(false)).ToLower();
 
 			fileSystem = new FileSystemProvider();
 
@@ -117,6 +128,8 @@ namespace FileFind.Meshwork
 			if (FinishedLoading != null) {
 				FinishedLoading(null, EventArgs.Empty);
 			}
+			
+			return true;
 		}
 
 		public static void Start ()

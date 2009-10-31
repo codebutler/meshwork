@@ -18,15 +18,15 @@ namespace FileFind.Meshwork
 {
 	public interface ISettings
 	{
+		bool FirstRun {
+			get;
+		}
+		
 		string CompletedDownloadDir {
 			get;
 		}
 		
 		string IncompleteDownloadDir {
-			get;
-		}
-		
-		RSAParameters EncryptionParameters {
 			get;
 		}
 
@@ -126,7 +126,23 @@ namespace FileFind.Meshwork
 			get;
 			set;
 		}
-
+		
+		bool KeyEncrypted {
+			get;
+		}
+		
+		bool KeyUnlocked {
+			get;
+		}
+				
+		RSAParameters EncryptionParameters {
+			get;
+		}
+		
+		bool CheckKeyPassword (string password);
+		bool UnlockKey (string password);
+		void ChangeKeyPassword (string newPassword);
+		
 		void SaveSettings ();
 		void SyncNetworkInfo ();
 		void SyncNetworkInfoAndSave ();

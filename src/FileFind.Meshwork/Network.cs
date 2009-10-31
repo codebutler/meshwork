@@ -484,13 +484,14 @@ namespace FileFind.Meshwork
 			SendBroadcast(m, null);
 		}
 
-		public void SendChatMessage(ChatRoom room, string MessageText)
+		public void SendChatMessage(ChatRoom room, string messageText)
 		{
 			if (room.InRoom == true) {
 				if (room.HasPassword) {
-					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, Security.Encryption.PasswordEncrypt(room.Password, MessageText)), LocalNode);
+					byte[] saltBytes = System.Text.Encoding.UTF8.GetBytes(room.Name);
+					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, Security.Encryption.PasswordEncrypt(room.Password, messageText, saltBytes)), LocalNode);
 				} else {
-					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, MessageText), LocalNode);
+					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, messageText), LocalNode);
 				}
 			} else {
 				throw new Exception("You cannot send messages to chatrooms that you are not in");

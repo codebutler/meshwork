@@ -22,7 +22,7 @@ using FileFind;
 using FileFind.Meshwork;
 using FileFind.Meshwork.Destination;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {	
 	public class PreferencesDialog : GladeDialog
 	{
@@ -480,6 +480,12 @@ namespace FileFind.Meshwork.GtkClient
 			selector.Destroy();
 		}
 		
+		void on_changeKeyPasswordButton_clicked (object o, EventArgs args)
+		{
+			var dialog = new ChangeKeyPasswordDialog(base.Window);
+			dialog.Run();
+		}
+		
 		private void on_addSharedFolderButton_clicked(object o, EventArgs args)
 		{
 			FolderDialog selectFolderDialog = new FolderDialog ("Select Folder");
@@ -700,7 +706,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 
 			
-			settings.FirstRun = false;
+			settings.SetFirstRun(false);
 			settings.SaveSettings();
 			
 			if (Core.AvatarManager != null)

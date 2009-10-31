@@ -88,13 +88,15 @@ namespace FileFind.Meshwork.GtkClient
 		}
 
 		[XmlIgnore]
-		public bool FirstRun { 
+		public override bool FirstRun { 
 			get {
 				return firstRun;
 			}
-			set {
-				firstRun = value;
-			}
+		}
+		
+		internal void SetFirstRun(bool firstRun)
+		{
+			this.firstRun = firstRun;
 		}
 
 		private static string FileName {

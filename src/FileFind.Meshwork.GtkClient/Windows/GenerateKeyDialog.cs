@@ -21,7 +21,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		[Widget] ProgressBar generateKeyProgress;
 
-		RSAParameters keyParameters;
+		string key;
 
 		public GenerateKeyDialog (Gtk.Window parent) : base (parent, "GenerateKeyDialog")
 		{
@@ -39,10 +39,10 @@ namespace FileFind.Meshwork.GtkClient
 			return base.Run();
 		}
 
-		public RSAParameters KeyParameters {
+		public string Key {
 			get {
 				if (keyGenerated == true)
-					return keyParameters;
+					return key;
 				else
 					throw new InvalidOperationException ();
 			}
@@ -59,8 +59,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			System.Security.Cryptography.RSACryptoServiceProvider newKey;
 			newKey = new System.Security.Cryptography.RSACryptoServiceProvider (2048);
-
-			keyParameters = newKey.ExportParameters (true);
+			key = newKey.ToXmlString(true);
 			keyGenerated = true;
 
 			Gtk.Application.Invoke(delegate {
