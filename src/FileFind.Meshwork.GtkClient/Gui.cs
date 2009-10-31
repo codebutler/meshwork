@@ -124,6 +124,9 @@ namespace FileFind.Meshwork.GtkClient
 			text = text.Replace (">", "&lt;");
 			text = text.Replace ("<", "&gt;");
 			text = text.Replace ("&", "&amp;");
+			
+			if (win == null && Gui.MainWindow != null)
+				win = Gui.MainWindow.Window;
 
 			MessageDialog md = new MessageDialog (win, Gtk.DialogFlags.DestroyWithParent, type, buttons, String.Empty);
 			md.Title = "Meshwork";
@@ -142,7 +145,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public static int ShowMessageDialog (string text)
 		{
-			return ShowMessageDialog (text, Gui.MainWindow.Window, Gtk.MessageType.Info, ButtonsType.Ok);
+			return ShowMessageDialog (text, null, Gtk.MessageType.Info, ButtonsType.Ok);
 		}
 
 		public static int ShowErrorDialog (string text, Gtk.Window window)
@@ -152,7 +155,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public static int ShowErrorDialog (string text)
 		{
-			return ShowErrorDialog (text, Gui.MainWindow.Window);
+			return ShowErrorDialog (text, null);
 		}
 		
 		static Imendio.MacIntegration.AttentionRequest lastDockAttentionRequest = null;
