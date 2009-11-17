@@ -268,7 +268,7 @@ namespace FileFind.Meshwork.Filesystem
 			DataSet          ds;
 			int              x;
 			SearchResultInfo result;
-			Dictionary<int, SharedDirListing> directories;
+			Dictionary<int, SharedDirectoryInfo> directories;
 			Dictionary<int, List<SharedFileListing>> directoryFiles;
 
 			result = new SearchResultInfo();
@@ -287,11 +287,11 @@ namespace FileFind.Meshwork.Filesystem
 				
 				List<string> directoryIds = new List<string>();
 				
-				directories = new Dictionary<int, SharedDirListing>();
+				directories = new Dictionary<int, SharedDirectoryInfo>();
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
 					DataRow row = ds.Tables[0].Rows[x];
 					LocalDirectory localDir = LocalDirectory.FromDataRow(row);
-					directories.Add(localDir.Id, new SharedDirListing(localDir));
+					directories.Add(localDir.Id, new SharedDirectoryInfo(localDir));
 					directoryIds.Add(localDir.Id.ToString());
 				}
 
@@ -320,8 +320,8 @@ namespace FileFind.Meshwork.Filesystem
 				// Remove directories that have no files
 				// XXX: Dont use two extra loops for this!
 				List<int> toRemove = new List<int>();
-				foreach (KeyValuePair<int,SharedDirListing> pair in directories) {
-					SharedDirListing dir = pair.Value;
+				foreach (KeyValuePair<int,SharedDirectoryInfo> pair in directories) {
+					SharedDirectoryInfo dir = pair.Value;
 					if (dir.Files == null || dir.Files.Length == 0) {
 						toRemove.Add(pair.Key);
 					}
@@ -330,9 +330,9 @@ namespace FileFind.Meshwork.Filesystem
 					directories.Remove(id);
 				}
 
-				result.Directories = new SharedDirListing[directories.Count];
+				result.Directories = new SharedDirectoryInfo[directories.Count];
 				x = 0;
-				foreach (SharedDirListing dir in directories.Values) {
+				foreach (SharedDirectoryInfo dir in directories.Values) {
 					result.Directories[x] = dir;
 					x ++;
 				}

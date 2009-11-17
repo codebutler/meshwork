@@ -75,12 +75,40 @@ namespace FileFind.Meshwork.Protocol
 	}
 
 	[Serializable]
-	public struct SharedDirectoryInfo
+	public class SharedDirectoryInfo : ISharedListing
 	{
-		public string Name;
-		public string FullPath;
-		public string[] Directories;
-		public SharedFileListing[] Files;
+		public string Name {
+			get; set;
+		}
+		
+		public string FullPath {
+			get; set;
+		}
+		
+		public string[] Directories {
+			get; set;
+		}
+		
+		public SharedFileListing[] Files {
+			get; set;
+		}
+		
+		public long Size {
+			get {
+				return this.Files == null ? 0 : this.Files.Length;
+			}
+		}
+		
+		public SharedDirectoryInfo ()
+		{
+			
+		}
+		
+		public SharedDirectoryInfo (LocalDirectory dir)
+		{
+			this.Name = dir.Name;
+			this.FullPath = "/" + String.Join("/", dir.FullPath.Split('/').Slice(2));
+		}
 	}
 
 	[Serializable]
@@ -102,7 +130,7 @@ namespace FileFind.Meshwork.Protocol
 	public struct SearchResultInfo
 	{
 		public int SearchId;
-		public SharedDirListing[] Directories;
+		public SharedDirectoryInfo[] Directories;
 		public SharedFileListing[] Files;
 		public bool ExeededLimit;
 		public int Page;
@@ -218,65 +246,6 @@ namespace FileFind.Meshwork.Protocol
 	}
 
 	[Serializable]
-	public class SharedDirListing : ISharedListing
-	{
-		string name;
-		string fullPath;
-		SharedFileListing[] files;
-
-		public SharedDirListing ()
-		{
-
-		}
-
-		public SharedDirListing (IDirectory dir)
-		{
-			this.name = dir.Name;
-			this.fullPath = "/" + String.Join("/", dir.FullPath.Split('/').Slice(2));
-		}
-
-		public SharedDirListing (string name, string fullPath)
-		{
-			this.name = name;
-			this.fullPath = fullPath;
-		}
-
-		public string Name {
-			get {
-				return name;
-			}
-			set {
-				name = value;
-			}
-		}
-
-		public string FullPath {
-			get {
-				return fullPath;
-			}
-		}
-		
-		public long Size {
-			get {
-				if (files != null) {
-					return files.Length;
-				} else {
-					return 0;
-				}
-			}
-		}
-
-		public SharedFileListing[] Files {
-			get {
-				return files;
-			}
-			set {
-				files = value;
-			}
-		}
-	}
-
-	[Serializable]
 	public struct ConnectionInfo
 	{
 		public ConnectionInfo(string SourceNodeID, string SourceNodeNickname, string DestNodeID, string DestNodeNickname) {
@@ -290,7 +259,7 @@ namespace FileFind.Meshwork.Protocol
 		public string DestNodeID;
 		public string DestNodeNickname;
 	}
-
+	
 	[Serializable]
 	public struct ChatInviteInfo
 	{

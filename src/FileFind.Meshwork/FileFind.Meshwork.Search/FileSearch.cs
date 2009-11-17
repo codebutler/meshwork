@@ -135,7 +135,7 @@ namespace FileFind.Meshwork.Search
 				throw new ArgumentException("Results are for a different search.");
 			}
 
-			foreach (SharedDirListing dir in resultInfo.Directories) {
+			foreach (SharedDirectoryInfo dir in resultInfo.Directories) {
 				SearchResult directoryResult = new SearchResult(SearchResultType.Directory, node, dir);
 
 				// Create a random key for directories, we never look them up.
