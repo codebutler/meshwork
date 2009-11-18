@@ -94,6 +94,7 @@ FILES =  \
 	FileFind/Extensions.cs \
 	FileFind/IPAddressExtensions.cs \
 	FileFind/IPv6Util.cs \
+	FileFind/JSONFormatter.cs \
 	FileFind/ReadOnlyDictionary.cs \
 	FileFind/SerializableDictionary.cs \
 	FileFind/Serialization.cs \
@@ -135,6 +136,7 @@ REFERENCES = \
 	-r:$(top_builddir)/build/DiffieHellman.dll \
 	-r:$(top_builddir)/build/MonoTorrent.dll \
 	-r:System.Web.Services \
+	-r:System.Web.Extensions \
 	-r:System.Web \
 	-r:System.Data \
 	-r:Mono.Data \

@@ -198,7 +198,11 @@ namespace FileFind.Meshwork.DebugPlugin
 					timestampLabel.Text = Common.ParseUnixTimestamp(info.Message.Timestamp).ToString();
 
 					object content = info.Message.Content;
-					messageTextView.Buffer.Text = FileFind.Serialization.Xml.Serialize(content);
+					string typeName = (content != null) ? content.GetType().ToString() : "null";
+					string json = FileFind.Serialization.JSON.Serialize(content);
+					json = FileFind.JSONFormatter.FormatJSON(json);
+					json = json.Replace("\t", "  ");
+					messageTextView.Buffer.Text = "// " + typeName + Environment.NewLine + json;
 				} catch (Exception ex) {
 					messageTextView.Buffer.Text = "Unable to display message content:\n" + ex.ToString();
 				}

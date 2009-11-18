@@ -16,10 +16,11 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.InteropServices;
+using System.Web.Script.Serialization;
 
 namespace FileFind.Serialization
 {
-	public class Xml
+	public static class Xml
 	{
 		public static string Serialize(object Obj) {
 			StringBuilder sb = new StringBuilder();
@@ -41,7 +42,7 @@ namespace FileFind.Serialization
 		}
 	}
 
-	public class Binary
+	public static class Binary
 	{
 		private static BinaryFormatter formatter = new BinaryFormatter();
 
@@ -63,7 +64,7 @@ namespace FileFind.Serialization
 
 	// This is based on code from
 	// http://groups.google.com/group/microsoft.public.dotnet.languages.csharp/msg/7e43c0f0613adce1
-	public class Raw
+	public static class Raw
 	{
 		public static byte[] Serialize (object obj)
 		{
@@ -87,6 +88,21 @@ namespace FileFind.Serialization
 			object retobj = Marshal.PtrToStructure (buffer, type);
 			handle.Free ();
 			return retobj;
+		}
+	}
+	
+	public static class JSON
+	{
+		public static string Serialize (object obj)
+		{
+			var serializer = new JavaScriptSerializer();
+			return serializer.Serialize(obj);
+		}
+		
+		public static object Deserialize (string json)
+		{
+			var serializer = new JavaScriptSerializer();
+			return serializer.DeserializeObject(json);
 		}
 	}
 }

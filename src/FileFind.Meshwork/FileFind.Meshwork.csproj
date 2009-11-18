@@ -72,6 +72,9 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AckMethod.cs" />
@@ -199,6 +202,7 @@
     <Compile Include="Classless.Hasher\CRCParameters.cs" />
     <Compile Include="Classless.Hasher\CRCStandard.cs" />
     <Compile Include="Classless.Hasher\HashAlgorithmParameters.cs" />
+    <Compile Include="FileFind\JSONFormatter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -12,6 +12,7 @@ using System.Xml.Serialization;
  
 namespace FileFind.Collections
 {
+	[Serializable]
 	[XmlRoot("dictionary")]
 	public class SerializableDictionary<TKey, TValue>
 		: Dictionary<TKey, TValue>, IXmlSerializable
