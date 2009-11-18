@@ -36,7 +36,13 @@ namespace FileFind.Meshwork.Filesystem
 			m_Type = listing.Type;
 			m_Size = listing.Size;
 			
-			m_Pieces = new string[0];
+			m_PieceLength = listing.PieceLength;
+			
+			if (listing.Pieces != null) {
+				m_Pieces = listing.Pieces;
+			} else {
+				m_Pieces = new string[0];
+			}
 		}
 
 		public override string InfoHash {

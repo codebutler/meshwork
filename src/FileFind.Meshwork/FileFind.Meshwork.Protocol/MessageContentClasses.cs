@@ -229,7 +229,7 @@ namespace FileFind.Meshwork.Protocol
 			}
 		}
 		
-		public SharedFileListing(LocalFile file)
+		public SharedFileListing(LocalFile file, bool includePieces)
 		{
 			if (file.InfoHash == null) {
 				throw new ArgumentException("File must have InfoHash");
@@ -241,7 +241,9 @@ namespace FileFind.Meshwork.Protocol
 			this.infoHash = file.InfoHash;
 			this.type = FileType.Other; // FIXME: Use real file type.
 			this.pieceLength = file.PieceLength;
-			this.pieces = file.Pieces;
+			
+			if (includePieces)
+				this.pieces = file.Pieces;
 		}
 	}
 

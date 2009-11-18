@@ -356,7 +356,7 @@ namespace FileFind.Meshwork
 			
 			List<SharedFileListing> files = new List<SharedFileListing>();
 			foreach (IFile file in directory.Files) {
-				SharedFileListing fileInfo = new SharedFileListing((LocalFile)file);
+				SharedFileListing fileInfo = new SharedFileListing((LocalFile)file, false);
 				files.Add(fileInfo);
 			}
 			info.Files = files.ToArray();
@@ -415,7 +415,7 @@ namespace FileFind.Meshwork
 		{
 			Message message = new Message(network, MessageType.FileDetails);
 			message.To = sendTo.NodeID;
-			message.Content = new SharedFileListing(file);
+			message.Content = new SharedFileListing(file, true);
 			return message;
 		}
 

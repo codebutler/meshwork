@@ -310,7 +310,7 @@ namespace FileFind.Meshwork.Filesystem
 					if (!directoryFiles.ContainsKey(file.ParentId)) {
 						directoryFiles[file.ParentId] = new List<SharedFileListing>();
 					}
-					directoryFiles[file.ParentId].Add(new SharedFileListing(file));
+					directoryFiles[file.ParentId].Add(new SharedFileListing(file, false));
 				}
 
 				foreach (int id in directoryFiles.Keys) {
@@ -349,7 +349,7 @@ namespace FileFind.Meshwork.Filesystem
 				
 				result.Files = new SharedFileListing[ds.Tables[0].Rows.Count];
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
-					result.Files[x] = new SharedFileListing(LocalFile.FromDataRow(ds.Tables[0].Rows[x]));
+					result.Files[x] = new SharedFileListing(LocalFile.FromDataRow(ds.Tables[0].Rows[x]), false);
 				}
 			});
 
