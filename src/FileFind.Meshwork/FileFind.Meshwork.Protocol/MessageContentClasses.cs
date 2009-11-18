@@ -9,7 +9,7 @@
 
 using System;
 using System.Collections;
-using System.Xml.Serialization;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.FileTransfer.BitTorrent;
@@ -77,20 +77,41 @@ namespace FileFind.Meshwork.Protocol
 	[Serializable]
 	public class SharedDirectoryInfo : ISharedListing
 	{
+		string m_Name;
+		string m_FullPath;
+		string[] m_Directories;
+		SharedFileListing[] m_Files;
+		
 		public string Name {
-			get; set;
+			get {
+				return m_Name;
+			}
 		}
 		
 		public string FullPath {
-			get; set;
+			get {
+				return m_FullPath;
+			}
 		}
 		
 		public string[] Directories {
-			get; set;
+			get {
+				return m_Directories;
+			}
+			// FIXME: Remove this setter.
+			set {
+				m_Directories = value;
+			}
 		}
 		
 		public SharedFileListing[] Files {
-			get; set;
+			get {
+				return m_Files;
+			}
+			// FIXME: Remove this setter.
+			set {
+				m_Files = value;
+			}
 		}
 		
 		public long Size {
@@ -99,15 +120,12 @@ namespace FileFind.Meshwork.Protocol
 			}
 		}
 		
-		public SharedDirectoryInfo ()
-		{
-			
-		}
-		
 		public SharedDirectoryInfo (LocalDirectory dir)
 		{
-			this.Name = dir.Name;
-			this.FullPath = "/" + String.Join("/", dir.FullPath.Split('/').Slice(2));
+			m_Name = dir.Name;
+			
+			// FIXME: Ugly: Remove '/local' from begining of path
+			m_FullPath = "/" + String.Join("/", dir.FullPath.Split('/').Slice(2));
 		}
 	}
 
@@ -136,33 +154,6 @@ namespace FileFind.Meshwork.Protocol
 		public int Page;
 	}
 
-	[Serializable]
-	public struct SharedFileDetails
-	{
-		public string Name;
-		public long Size;
-		public string InfoHash;
-
-		public string DirPath;
-
-		public int PieceLength;
-		public string[] Pieces;
-
-		public SharedFileDetails(IFile file)
-		{
-			if (file == null)
-				throw new ArgumentNullException("file");
-			
-			this.Name = file.Name;
-			this.Size = file.Size;
-			this.InfoHash = file.InfoHash;
-			this.DirPath = "/" + String.Join("/", file.Parent.FullPath.Split('/').Slice(2));
-			this.PieceLength = file.PieceLength;
-			this.Pieces = file.Pieces;
-		}
-	}
-	
-		
 	public interface ISharedListing
 	{
 		string Name {
@@ -186,6 +177,9 @@ namespace FileFind.Meshwork.Protocol
 		long     size;
 		FileType type;
 		string   infoHash;
+		int      pieceLength;
+		string[] pieces;
+		FileFind.Collections.SerializableDictionary<string, string> metadata;
 		
 		public string Name {
 			get {
@@ -217,21 +211,25 @@ namespace FileFind.Meshwork.Protocol
 			}
 		}
 		
-		public SharedFileListing()
-		{
-
+		public int PieceLength {
+			get {
+				return pieceLength;
+			}
 		}
-
-		public SharedFileListing(string name, string fullpath, string infoHash, long size, FileType type)
-		{
-			this.name = name;
-			this.fullPath = fullpath;
-			this.infoHash = infoHash;
-			this.size = size;
-			this.type = type;
+		
+		public string[] Pieces {
+			get {
+				return pieces;
+			}
 		}
-
-		public SharedFileListing(IFile file)
+		
+		public FileFind.Collections.SerializableDictionary<string, string> Metadata {
+			get {
+				return metadata;
+			}
+		}
+		
+		public SharedFileListing(LocalFile file)
 		{
 			if (file.InfoHash == null) {
 				throw new ArgumentException("File must have InfoHash");
@@ -241,7 +239,9 @@ namespace FileFind.Meshwork.Protocol
 			this.fullPath =  "/" + String.Join("/", file.FullPath.Split('/').Slice(2));
 			this.size = file.Size;
 			this.infoHash = file.InfoHash;
-			this.type = FileType.Other; // XXX: <<-
+			this.type = FileType.Other; // FIXME: Use real file type.
+			this.pieceLength = file.PieceLength;
+			this.pieces = file.Pieces;
 		}
 	}
 

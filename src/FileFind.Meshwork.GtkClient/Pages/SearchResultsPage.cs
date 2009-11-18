@@ -24,7 +24,10 @@ namespace FileFind.Meshwork.GtkClient
 		Gdk.Pixbuf      folderPixbuf;
 		Gdk.Pixbuf      unknownPixbuf;
 		ToggleButton    filterButton;
-		Menu            filePopupMenu;
+		Menu            resultPopupMenu;
+		ImageMenuItem 	downloadResultMenuItem;
+		ImageMenuItem	resultPropertiesMenuItem;
+		ImageMenuItem	browseResultMenuItem;
 		ToolButton      downloadToolButton;
 		ToolButton      browseToolButton;
 
@@ -284,16 +287,21 @@ namespace FileFind.Meshwork.GtkClient
 			search.NewResults += (NewResultsEventHandler)DispatchService.GuiDispatch(new NewResultsEventHandler(search_NewResults));
 			search.ClearedResults += (EventHandler)DispatchService.GuiDispatch(new EventHandler(search_ClearedResults));
 
-			filePopupMenu = new Menu();
+			resultPopupMenu = new Menu();
 			
-			ImageMenuItem item = new ImageMenuItem("Download");
-			item.Image = new Image(Gui.LoadIcon(16, "go-down"));
-			//item.Activated += on_mnuFileDownload_activate;
-			filePopupMenu.Append(item);
+			browseResultMenuItem = new ImageMenuItem("Browse");
+			browseResultMenuItem.Image = new Image(Gui.LoadIcon(16, "document-open"));
+			browseResultMenuItem.Activated += BrowseToolButtonClicked;
+			resultPopupMenu.Append(browseResultMenuItem);
+			
+			downloadResultMenuItem = new ImageMenuItem("Download");
+			downloadResultMenuItem.Image = new Image(Gui.LoadIcon(16, "go-down"));
+			downloadResultMenuItem.Activated += DownloadToolButtonClicked;
+			resultPopupMenu.Append(downloadResultMenuItem);
 
-			item = new ImageMenuItem(Gtk.Stock.Properties, null);
-			//item.Activated += filePropertiesMenuItem_Activated;
-			filePopupMenu.Append(item);
+			resultPropertiesMenuItem = new ImageMenuItem(Gtk.Stock.Properties, null);
+			resultPropertiesMenuItem.Activated += FilePropertiesButtonClicked;
+			resultPopupMenu.Append(resultPropertiesMenuItem);
 		}
 
 		void SearchAgainToolButtonClicked (object sender, EventArgs e)
@@ -329,12 +337,30 @@ namespace FileFind.Meshwork.GtkClient
 				TreeIter iter;
 				if (resultsTree.Selection.GetSelected(out iter)) {
 					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;					
-					if (selectedResult.Type == SearchResultType.File) { 
+					if (selectedResult != null && selectedResult.Type == SearchResultType.File) { 
 						// XXX: Request from all sources, not just the first! (Refactor out of UI)
 						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
 						result.Node.Network.DownloadFile(result.Node, (SharedFileListing)result.Listing);
 					}			
 				}					
+			} catch (Exception ex) {
+				LoggingService.LogError(ex);
+				Gui.ShowErrorDialog(ex.Message);
+			}
+		}
+		
+		void FilePropertiesButtonClicked (object sender, EventArgs args)
+		{
+			try {
+				TreeIter iter;
+				if (resultsTree.Selection.GetSelected(out iter)) {
+					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;
+					if (selectedResult != null && selectedResult.Type == SearchResultType.File) {
+						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
+						var win = new FilePropertiesWindow(result.Node, (SharedFileListing)result.Listing);
+						win.Show();
+					}
+				}
 			} catch (Exception ex) {
 				LoggingService.LogError(ex);
 				Gui.ShowErrorDialog(ex.Message);
@@ -726,18 +752,37 @@ namespace FileFind.Meshwork.GtkClient
 			}
 		}
 
+		[GLib.ConnectBefore]
 		private void resultsTree_ButtonPressEvent (object sender, ButtonPressEventArgs args)
 		{
+			TreePath path;
 			TreeIter iter;
-			if (resultsTree.Selection.GetSelected(out iter)) {
-				SearchResult selectedResult = (SearchResult)resultsTree.Model.GetValue(iter, 0);
 
-				if (args.Event.Button == 3) {
+			if (resultsTree.GetPathAtPos((int)args.Event.X, (int)args.Event.Y, out path)) {
+				resultsTree.Selection.SelectPath(path);
+			} else {
+				resultsTree.Selection.UnselectAll();
+			}
+
+			if (args.Event.Button == 3) {
+				if (resultsTree.Selection.GetSelected(out iter)) {
+					SearchResult selectedResult = (SearchResult)resultsTree.Model.GetValue(iter, 0);
 					if (selectedResult.Type == SearchResultType.File) { 
-						filePopupMenu.ShowAll();
-						filePopupMenu.Popup();
+						downloadResultMenuItem.Sensitive = true;
+						resultPropertiesMenuItem.Sensitive = true;
+						browseResultMenuItem.Sensitive = false;
+					} else {
+						downloadResultMenuItem.Sensitive = false;
+						resultPropertiesMenuItem.Sensitive = false;
+						browseResultMenuItem.Sensitive = true;
 					}
+				} else {
+						downloadResultMenuItem.Sensitive = false;
+						resultPropertiesMenuItem.Sensitive = false;
+						browseResultMenuItem.Sensitive = false;
 				}
+				resultPopupMenu.ShowAll();
+				resultPopupMenu.Popup();
 			}
 		}
 	}

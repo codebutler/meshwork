@@ -9,10 +9,11 @@
 
 using System;
 using System.Collections.Generic;
+using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork.Filesystem
 {
-	public interface IDirectoryItem
+	public interface IDirectoryItem : ISharedListing
 	{
 		string Name {
 			get; 

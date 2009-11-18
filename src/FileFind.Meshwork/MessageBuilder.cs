@@ -351,13 +351,12 @@ namespace FileFind.Meshwork
 		public Message CreateRespondDirListingMessage (Node messageTo, string dirPath)
 		{
 			LocalDirectory directory = (LocalDirectory)Core.FileSystem.GetDirectory(dirPath);
-			SharedDirectoryInfo info = new SharedDirectoryInfo ();
-			// FIXME: Ugly: Remove '/local' from begining of path
-			info.FullPath = "/" + String.Join("/", dirPath.Split('/').Slice(2));
+			
+			SharedDirectoryInfo info = new SharedDirectoryInfo(directory);
 			
 			List<SharedFileListing> files = new List<SharedFileListing>();
 			foreach (IFile file in directory.Files) {
-				SharedFileListing fileInfo = new SharedFileListing(file);
+				SharedFileListing fileInfo = new SharedFileListing((LocalFile)file);
 				files.Add(fileInfo);
 			}
 			info.Files = files.ToArray();
@@ -412,11 +411,11 @@ namespace FileFind.Meshwork
 			return p;
 		}
 
-		public Message CreateFileDetailsMessage (Node sendTo, IFile file)
+		public Message CreateFileDetailsMessage (Node sendTo, LocalFile file)
 		{
 			Message message = new Message(network, MessageType.FileDetails);
 			message.To = sendTo.NodeID;
-			message.Content = new SharedFileDetails(file);
+			message.Content = new SharedFileListing(file);
 			return message;
 		}
 

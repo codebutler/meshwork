@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace FileFind.Meshwork.Filesystem
 {
@@ -44,10 +45,12 @@ namespace FileFind.Meshwork.Filesystem
 			get;
 		}
 		
-		public abstract IDirectory Parent {
+		public abstract Dictionary<string, string> Metadata {
 			get;
 		}
 		
-		public abstract void Reload();	
+		public abstract IDirectory Parent {
+			get;
+		}
 	}
 }

@@ -174,8 +174,6 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			isCanceled = false;
 			startCalled = true;
 
-			file.Reload();
-
 			// UPLOAD: Do we need to hash the file?
 			if (file is LocalFile) {
 				if (file.Pieces.Length == 0) {
@@ -226,8 +224,6 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				manager.Start();
 				return;
 			}
-
-			file.Reload();
 
 			if (file.Pieces.Length == 0) {
 				throw new InvalidOperationException("No pieces");

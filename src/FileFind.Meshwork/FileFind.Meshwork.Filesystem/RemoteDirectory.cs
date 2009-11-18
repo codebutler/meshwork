@@ -29,8 +29,13 @@ namespace FileFind.Meshwork.Filesystem
 			m_Parent = parent;
 			m_Name = name;
 			m_Node = node;
+			
+			this.Network.ReceivedDirListing += HandleNetworkReceivedDirListing;
 
-			UpdateFromCache();
+			// FIXME: Check for cache
+			m_SubDirectories = new RemoteDirectory[0];
+			m_Files = new RemoteFile[0];
+			m_State = RemoteDirectoryState.ContentsUnrequested;
 		}
 
 		public Node Node {
@@ -87,12 +92,12 @@ namespace FileFind.Meshwork.Filesystem
 			}
 		}
 
-		public void Update()
+		public void RequestContents()
 		{
 			m_State = RemoteDirectoryState.ContentsRequested;
 			m_Node.Network.RequestDirectoryListing(this);
 		}
-
+		
 		// FIXME: Get rid of this once cache works
 		internal void UpdateFromInfo (SharedDirectoryInfo info)
 		{
@@ -109,17 +114,20 @@ namespace FileFind.Meshwork.Filesystem
 				newFiles[x] = new RemoteFile(this, info.Files[x]);
 			}
 			m_Files = newFiles;
-
+			
 			m_State = RemoteDirectoryState.ContentsReceived;
 		}
 
-		internal void UpdateFromCache()
+		// This is here because there could be multiple RemoteDirectory instances for the same path,
+		// and the above method won't update the others.
+		void HandleNetworkReceivedDirListing (Network network, Node node, RemoteDirectory directory)
 		{
-			// FIXME: Check for cache
-
-			m_SubDirectories = new RemoteDirectory[0];
-			m_Files = new RemoteFile[0];
-			m_State = RemoteDirectoryState.ContentsUnrequested;
+			if (directory.FullPath == this.FullPath) {
+				m_SubDirectories = (RemoteDirectory[])directory.Directories;
+				m_Files = (RemoteFile[])directory.Files;
+	
+				m_State = RemoteDirectoryState.ContentsReceived;
+			}
 		}
 	}
 

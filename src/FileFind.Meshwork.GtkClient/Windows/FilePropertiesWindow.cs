@@ -10,6 +10,7 @@ namespace FileFind.Meshwork.GtkClient
 		// Basic Tab
 		[Widget] Label fileNameLabel;
 		[Widget] Label fileTypeLabel;
+		[Widget] Label fileSizeLabel;
 		[Widget] Label fileFullPathLabel;
 		[Widget] Label ownerLabel;
 		[Widget] Label infoHashLabel;
@@ -27,14 +28,42 @@ namespace FileFind.Meshwork.GtkClient
 		ListStore sourcesListStore;
 		ListStore piecesListStore;
 
-		public FilePropertiesWindow (IFile file) : base("FilePropertiesWindow")
+		FilePropertiesWindow () : base ("FilePropertiesWindow")
+		{
+			fetchPiecesButton.Clicked += fetchPiecesButton_Clicked;
+
+			sourcesListStore = new ListStore(typeof(Node));
+			sourcesTreeView.AppendColumn("NickName", new CellRendererText(), new TreeCellDataFunc(NodeNicknameFunc));
+
+			piecesListStore = new ListStore(typeof(string));
+			piecesTreeView.AppendColumn("Hash", new CellRendererText(), new TreeCellDataFunc(PieceFunc));
+			
+			base.Window.TransientFor = Gui.MainWindow.Window;
+			piecesTreeView.GrabFocus();
+		}
+		
+		public FilePropertiesWindow (Node node, FileFind.Meshwork.Protocol.SharedFileListing listing) : this ()
+		{
+			string filePath = PathUtil.Join(node.Directory.FullPath, listing.FullPath);
+			RemoteFile file = Core.FileSystem.GetFile(filePath) as RemoteFile;			
+			if (file != null)
+				LoadFile(file);
+			else
+				throw new Exception("File not found");
+		}
+		
+		public FilePropertiesWindow (IFile file) : this ()
+		{
+			LoadFile(file);
+		}
+		
+		void LoadFile (IFile file)
 		{
 			this.file = file;
-			
-			fetchPiecesButton.Clicked += fetchPiecesButton_Clicked;
 
 			fileNameLabel.Text = file.Name;
 			fileTypeLabel.Text = file.Type;
+			fileSizeLabel.Text = Common.FormatBytes(file.Size);
 			
 			if (file is RemoteFile)
 				fileFullPathLabel.Text = ((RemoteFile)file).RemoteFullPath;
@@ -48,12 +77,6 @@ namespace FileFind.Meshwork.GtkClient
 				ownerLabel.Text = String.Format("{0} ({1})", remoteFile.Node.NickName, remoteFile.Node.NodeID);
 			} else
 				ownerLabel.Text = "You";
-
-			sourcesListStore = new ListStore(typeof(Node));
-			sourcesTreeView.AppendColumn("NickName", new CellRendererText(), new TreeCellDataFunc(NodeNicknameFunc));
-
-			piecesListStore = new ListStore(typeof(string));
-			piecesTreeView.AppendColumn("Hash", new CellRendererText(), new TreeCellDataFunc(PieceFunc));
 				
 			if (file.Pieces.Length > 0) {
 				foreach (string piece in file.Pieces) {
@@ -68,13 +91,15 @@ namespace FileFind.Meshwork.GtkClient
 					fetchPiecesButton.Sensitive = false;
 				} else if (file is RemoteFile) {
 					// User can click fetch button.
-					((RemoteFile)file).Network.ReceivedFileDetails += delegate {
-						Application.Invoke(delegate {
-							piecesListStore.Clear();
-							foreach (string piece in file.Pieces) {
-								piecesListStore.AppendValues(piece);
-							}
-						});
+					((RemoteFile)file).Network.ReceivedFileDetails += delegate(Network network, RemoteFile remoteFile) {
+						if (remoteFile.FullPath == file.FullPath) {
+							Application.Invoke(delegate {
+								piecesListStore.Clear();
+								foreach (string piece in file.Pieces) {
+									piecesListStore.AppendValues(piece);
+								}
+							});
+						}
 					};					
 				}
 			}
@@ -82,10 +107,7 @@ namespace FileFind.Meshwork.GtkClient
 			sourcesTreeView.Model = sourcesListStore;
 			piecesTreeView.Model = piecesListStore;
 
-			base.Window.TransientFor = Gui.MainWindow.Window;
 			base.Window.Title = file.Name;
-
-			piecesTreeView.GrabFocus();
 		}
 		
 		private void NodeNicknameFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)

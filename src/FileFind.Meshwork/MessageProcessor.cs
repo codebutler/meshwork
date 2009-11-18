@@ -352,30 +352,24 @@ namespace FileFind.Meshwork
 				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new FileNotFoundError()));
 		}
 		
-		internal void ProcessFileDetailsMessage (Node messageFrom, SharedFileDetails info)
+		internal void ProcessFileDetailsMessage (Node messageFrom, SharedFileListing info)
 		{
-			string filePath = PathUtil.Join(messageFrom.Directory.FullPath, PathUtil.Join(info.DirPath, info.Name));			
-			RemoteFile file = (RemoteFile)Core.FileSystem.GetFile(filePath);
+			// FIXME: Update file cache. GetFile() will then always return something.
+			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
+			RemoteFile file = (RemoteFile)Core.FileSystem.GetFile(fullPath);
 			if (file != null) {
+				file.PieceLength = info.PieceLength;
+				file.Pieces = info.Pieces;
+				file.InfoHash = info.InfoHash;
+				network.RaiseReceivedFileDetails(file);
 				
-				// FIXME: Update cache!
-				
-				// If there is a file transfer that was waiting for
-				// piece data, start it up!
-				// FIXME: Can't call UpdateWithInfo before checking transfer status, otherwise
-				// it will be Connecting instead of WaitingForInfo! Same file reference!
-				// Need to improve logic in BitTorrentFileTransfer.Status method.
+				// FIXME: Get rid of all this, just listen for above network.ReceivedFileDetails event!
 				IFileTransfer transfer = Core.FileTransferManager.GetTransfer(file);
 				if (transfer != null && transfer.Status == FileTransferStatus.WaitingForInfo) {
-					file.UpdateWithInfo(info);
-					((IFileTransferInternal)transfer).DetailsReceived();					
-				} else {
-					file.UpdateWithInfo(info);
+					((IFileTransferInternal)transfer).DetailsReceived();
 				}
-							
-				network.RaiseReceivedFileDetails(file);
 			} else {
-				LoggingService.LogError("Received file details for unknown file: " + filePath);
+				LoggingService.LogError("Received file details for unknown file: " + info.FullPath);
 			}
 		}
 
@@ -491,10 +485,11 @@ namespace FileFind.Meshwork
 		
 		internal void ProcessRespondDirListingMessage (Node messageFrom, SharedDirectoryInfo info)
 		{
+			// FIXME: Update cache! GetDirectory will then always return something!
 			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
 			RemoteDirectory directory = Core.FileSystem.GetDirectory(fullPath) as RemoteDirectory;
 			if (directory != null) {
-				directory.UpdateFromInfo(info);
+				directory.UpdateFromInfo(info);			
 				network.RaiseReceivedDirListing(messageFrom, directory);
 			} else {
 				LoggingService.LogWarning("Unwanted directory listing from " + messageFrom.ToString() + " for " + info.FullPath);

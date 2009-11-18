@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace FileFind.Meshwork.Filesystem
 {
@@ -25,7 +26,9 @@ namespace FileFind.Meshwork.Filesystem
 			get;
 		}
 		
-		void Reload();
+		Dictionary<string, string> Metadata {
+			get;
+		}
 	}
 	
 	public enum FileType

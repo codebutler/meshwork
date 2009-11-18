@@ -46,7 +46,7 @@ namespace FileFind.Meshwork.GtkClient
 		Label waitLabel;
 		ProgressBar waitProgressBar;
 
-		Menu filePopupMenu;
+		Menu resultPopupMenu;
 
 		public event EventHandler UrgencyHintChanged;
 
@@ -139,16 +139,16 @@ namespace FileFind.Meshwork.GtkClient
 				Core_NetworkAdded (network);
 			}
 
-			filePopupMenu = new Menu();
+			resultPopupMenu = new Menu();
 			
 			ImageMenuItem item = new ImageMenuItem("Download");
 			item.Image = new Image(Gui.LoadIcon(16, "go-down"));
 			item.Activated += on_mnuFileDownload_activate;
-			filePopupMenu.Append(item);
+			resultPopupMenu.Append(item);
 
 			item = new ImageMenuItem(Gtk.Stock.Properties, null);
 			item.Activated += filePropertiesMenuItem_Activated;
-			filePopupMenu.Append(item);
+			resultPopupMenu.Append(item);
 
 			NavigateTo ("/");
 		}
@@ -383,8 +383,8 @@ namespace FileFind.Meshwork.GtkClient
 
 			if (args.Event.Button == 3) {
 				if (item is IFile) {
-					filePopupMenu.ShowAll();
-					filePopupMenu.Popup();
+					resultPopupMenu.ShowAll();
+					resultPopupMenu.Popup();
 				}
 			}
 		}
@@ -432,7 +432,7 @@ namespace FileFind.Meshwork.GtkClient
 						waitingBoxAlignment.ShowAll();
 						GLib.Timeout.Add (50, new GLib.TimeoutHandler (PulseProgressBar));
 
-						((RemoteDirectory)directory).Update();
+						((RemoteDirectory)directory).RequestContents();
 					}
 					else
 					{

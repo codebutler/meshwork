@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork.Filesystem
@@ -23,9 +24,12 @@ namespace FileFind.Meshwork.Filesystem
 		int m_PieceLength = 0;
 		string[] m_Pieces;
 		
+		Dictionary<string, string> m_Metadata;
+		
 		internal RemoteFile (RemoteDirectory parent, SharedFileListing listing)
 		{
 			m_Parent = parent;
+			m_Parent.Network.ReceivedFileDetails += HandleNetworkReceivedFileDetails;
 			
 			m_Name = listing.Name;
 			m_InfoHash = listing.InfoHash;
@@ -56,11 +60,6 @@ namespace FileFind.Meshwork.Filesystem
 
 		public override string Type {
 			get { return m_Type.ToString(); }
-		}
-		
-		public override void Reload ()
-		{
-			// FIXME: Reload from disk cache!
 		}
 		
 		public Network Network {
@@ -95,13 +94,17 @@ namespace FileFind.Meshwork.Filesystem
 			}
 		}
 		
-		public void UpdateWithInfo (SharedFileDetails details)
+		public override Dictionary<string, string> Metadata {
+			get { return m_Metadata; }
+		}
+
+		void HandleNetworkReceivedFileDetails (Network network, RemoteFile remoteFile)
 		{
-			m_PieceLength = details.PieceLength;
-			m_Pieces = details.Pieces;	
-			m_InfoHash = details.InfoHash;
-			
-			// FIXME: Update cache!!
+			if (remoteFile.FullPath == this.FullPath) {
+				m_PieceLength = remoteFile.PieceLength;
+				m_Pieces = remoteFile.Pieces;
+				m_InfoHash = remoteFile.InfoHash;
+			}
 		}
 	}
 }

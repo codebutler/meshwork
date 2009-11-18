@@ -43,7 +43,7 @@ namespace FileFind.Meshwork
 	public delegate void ConnectionUpDownEventHandler (INodeConnection c);
 	public delegate void ReceivedChatInviteEventHandler (Network network, Node inviteFrom, ChatRoom room, ChatInviteInfo invitation);
 	public delegate void ChatMessageEventHandler (ChatRoom room, Node messageFromNode, string messageText);
-	public delegate void ReceivedDirListingEventHandler (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directoryListing);
+	public delegate void ReceivedDirListingEventHandler (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directory);
 	public delegate void ReceivedSearchResultEventHandler (Network network, SearchResultInfoEventArgs args);
 	public delegate void ReceivedNonCriticalErrorEventHandler (Network network, Node from, MeshworkError error);
 	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkError error);
@@ -1311,7 +1311,7 @@ namespace FileFind.Meshwork
 						processor.ProcessRequestFileDetails(messageFrom, (string)content);					
 						break;
 					case MessageType.FileDetails:
-						processor.ProcessFileDetailsMessage (messageFrom, (SharedFileDetails)content);
+						processor.ProcessFileDetailsMessage(messageFrom, (SharedFileListing)content);
 						break;
 					case MessageType.RequestAvatar:
 						processor.ProcessRequestAvatarMessage(messageFrom);

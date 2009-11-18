@@ -9,6 +9,7 @@
 
 using System;
 using System.Data;
+using System.Collections.Generic;
 
 namespace FileFind.Meshwork.Filesystem
 {
@@ -24,6 +25,7 @@ namespace FileFind.Meshwork.Filesystem
 		private int parentId;
 		private int pieceLength;
 		private string[] pieces;
+		private Dictionary<string, string> metadata;
 
 		private LocalFile (DataRow row)
 		{
@@ -101,8 +103,12 @@ namespace FileFind.Meshwork.Filesystem
 		public override string Type {
 			get { return fileType; }
 		}
+		
+		public override Dictionary<string, string> Metadata {
+			get { return metadata; }
+		}
 
-		public override void Reload ()
+		void Reload ()
 		{
 			DataRow row = null;
 			
@@ -117,7 +123,7 @@ namespace FileFind.Meshwork.Filesystem
 			Reload(row);
 		}
 
-		private void Reload (DataRow row)
+		void Reload (DataRow row)
 		{
 			pieces = null;
 			
@@ -216,6 +222,11 @@ namespace FileFind.Meshwork.Filesystem
 					}
 					
 					transaction.Commit();
+					
+					// FIXME: Fire off a global FileChanged event!!! 
+					// There may be other File instances that need to update.
+					// I suppose a WeakRef cache may be another option though!!
+					
 				} catch (Exception ex) {
 					transaction.Rollback();
 					throw ex;
