@@ -1,6 +1,7 @@
 using System;
 using Gtk;
 using Glade;
+using FileFind.Meshwork.Protocol;
 using FileFind.Meshwork.Filesystem;
 
 namespace FileFind.Meshwork.GtkClient
@@ -42,7 +43,7 @@ namespace FileFind.Meshwork.GtkClient
 			piecesTreeView.GrabFocus();
 		}
 		
-		public FilePropertiesWindow (Node node, FileFind.Meshwork.Protocol.SharedFileListing listing) : this ()
+		public FilePropertiesWindow (Node node, SharedFileListing listing) : this ()
 		{
 			string filePath = PathUtil.Join(node.Directory.FullPath, listing.FullPath);
 			RemoteFile file = Core.FileSystem.GetFile(filePath) as RemoteFile;			

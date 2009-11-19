@@ -648,15 +648,17 @@ namespace FileFind.Meshwork.GtkClient.Windows
 				settings.Networks.Add((NetworkInfo)row[0]);
 			}
 
-			settings.SharedDirectories.Clear();
+			var newSharedDirectories = new List<string>();
 
 			TreeIter iter;
 			sharedFoldersListStore.GetIterFirst(out iter);
 			if (sharedFoldersListStore.IterIsValid(iter)) {
 				foreach (object[] currentRow in sharedFoldersListStore) {
-					settings.SharedDirectories.Add((string)currentRow[0]);
+					newSharedDirectories.Add((string)currentRow[0]);
 				}
 			}
+			
+			settings.SharedDirectories = newSharedDirectories.ToArray();
 
 			settings.CompletedDownloadDir = completedDownloadsChooser.CurrentFolder;
 			settings.IncompleteDownloadDir = downloadsChooser.CurrentFolder;

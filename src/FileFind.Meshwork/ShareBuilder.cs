@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
@@ -85,11 +86,12 @@ namespace FileFind.Meshwork
 						LoggingService.LogWarning("Directory does not exist: {0}.", info.FullName);
 					}
 				}
+				
+				Core.Settings.LastShareScan = DateTime.Now;
+				
 			} else {
 				LoggingService.LogDebug("Skipping directory scan because last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
 			}
-			
-			Core.Settings.LastShareScan = DateTime.Now;
 			
 			LoggingService.LogInfo("Finished re-index of shared files...");
 			

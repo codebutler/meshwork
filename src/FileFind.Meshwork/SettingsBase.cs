@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Xml.Serialization;
 using System.Security.Cryptography;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace FileFind.Meshwork
 		bool                  tcpListenPortOpen           = false;
 		bool                  detectInternetIPOnStart     = true;
 		int                   ipv6LinkLocalInterfaceIndex = -1;		
-		List<string>          sharedDirectories           = new List<string>();
+		string[]              sharedDirectories           = null;
 		string                key                            = null;
 		string                keyData                        = null;
 		byte[]                salt                           = null;
@@ -326,11 +327,18 @@ namespace FileFind.Meshwork
 			}
 		}
 	
-		public List<string> SharedDirectories {
+		public string[] SharedDirectories {
 			get {
 				return sharedDirectories;
 			}
 			set {
+				if (value == null)
+					throw new ArgumentNullException("value");
+				
+				if (sharedDirectories != null && !sharedDirectories.SequenceEqual(value)) {
+					lastShareScan = DateTime.MinValue;
+				}
+				
 				sharedDirectories = value;
 			}
 		}

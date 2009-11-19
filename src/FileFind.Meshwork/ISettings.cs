@@ -66,7 +66,7 @@ namespace FileFind.Meshwork
 			get;
 		}
 
-		List<string> SharedDirectories {
+		string[] SharedDirectories {
 			get;
 		}
 

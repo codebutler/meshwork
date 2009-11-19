@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using FileFind.Collections;
 using FileFind.Meshwork.Filesystem;
 using FileFind.Meshwork.FileTransfer.BitTorrent;
 using FileFind.Meshwork.Destination;
@@ -179,7 +180,7 @@ namespace FileFind.Meshwork.Protocol
 		string   infoHash;
 		int      pieceLength;
 		string[] pieces;
-		FileFind.Collections.SerializableDictionary<string, string> metadata;
+		SerializableDictionary<string, string> metadata;
 		
 		public string Name {
 			get {
@@ -223,13 +224,13 @@ namespace FileFind.Meshwork.Protocol
 			}
 		}
 		
-		public FileFind.Collections.SerializableDictionary<string, string> Metadata {
+		public SerializableDictionary<string, string> Metadata {
 			get {
 				return metadata;
 			}
 		}
 		
-		public SharedFileListing(LocalFile file, bool includePieces)
+		public SharedFileListing (LocalFile file, bool includePieces)
 		{
 			if (file.InfoHash == null) {
 				throw new ArgumentException("File must have InfoHash");
