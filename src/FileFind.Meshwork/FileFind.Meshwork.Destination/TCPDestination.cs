@@ -108,7 +108,9 @@ namespace FileFind.Meshwork.Destination
 				IDestination destination = null;
 
 				if (this is TCPIPv6DestinationSource) {
-					destination = (IDestination)Activator.CreateInstance(this.DestinationType, new object[] {address.IPv6PrefixLength, address.Address, (uint)listenPort, isOpenExternally});
+					var ip =  address.Address;
+					ip.ScopeId = 0;
+					destination = (IDestination)Activator.CreateInstance(this.DestinationType, new object[] {address.IPv6PrefixLength, ip, (uint)listenPort, isOpenExternally});
 				} else {
 					destination = (IDestination)Activator.CreateInstance(this.DestinationType, new object[] {address.Address, (uint)listenPort, isOpenExternally});
 				}

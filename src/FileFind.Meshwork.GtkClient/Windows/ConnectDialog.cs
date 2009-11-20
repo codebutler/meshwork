@@ -184,10 +184,10 @@ namespace FileFind.Meshwork.GtkClient
 				IPAddress ip = IPAddress.Any;
 				
 				if (!IPAddress.TryParse(address, out ip)) {
-					
-					// XXX: Support IPv6 w/ port syntax: "[address]:port"
-					
-					if (address.IndexOf(":") > -1) {
+					if (address.StartsWith("[")) {
+						port = Convert.ToInt32(address.Substring(address.LastIndexOf(":") + 1));
+						address = address.Substring(1, address.LastIndexOf("]") - 1);
+					} else if (address.IndexOf(":") > -1 && address.IndexOf(":") == address.LastIndexOf(":")) {
 						port = Convert.ToInt32(address.Substring(address.LastIndexOf(":") + 1));
 						address = address.Substring(0, address.LastIndexOf(":"));
 					}
