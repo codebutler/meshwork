@@ -26,6 +26,7 @@ using FileFind;
 using FileFind.Meshwork;
 using FileFind.Meshwork.Collections;
 using FileFind.Meshwork.Exceptions;
+using FileFind.Meshwork.Destination;
 
 namespace FileFind
 {
@@ -78,6 +79,18 @@ namespace FileFind
 				}
 			}
 		}
+		
+		public static bool HasExternalIPv6 {
+			get {
+				foreach (IDestination destination in Core.DestinationManager.Destinations) {
+					if (destination is IPv6Destination && ((IPv6Destination)destination).IsExternal) {
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+		
 		public static void WriteToFile(string FileName, string Text) {
 			using (StreamWriter tw = new StreamWriter(FileName)) {
 				tw.Write(Text);

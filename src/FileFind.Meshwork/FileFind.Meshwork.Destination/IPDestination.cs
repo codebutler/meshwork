@@ -47,12 +47,12 @@ namespace FileFind.Meshwork.Destination
 
 		public override bool CanConnect {
 			get {
+				if (!Common.SupportsIPv6) {
+					return false;
+				}
+				
 				if (IsExternal) {
-					if (Common.SupportsIPv6) { // XXX: Only if supports ipv6 and has a public ip. see preferences dialog.
-						return base.IsOpenExternally;
-					} else {
-						return false;
-					}
+					return base.IsOpenExternally && Common.HasExternalIPv6;
 				} else {
 					// Can't connect to link-local addresses if no interface is set.
 					if (Core.Settings.IPv6LinkLocalInterfaceIndex == -1) {
