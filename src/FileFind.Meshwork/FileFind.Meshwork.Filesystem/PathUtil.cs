@@ -18,6 +18,19 @@ namespace FileFind.Meshwork.Filesystem
 				return path;
 			}
 		}
+		
+		public static string GetBaseName (string path)
+		{
+			int i = path.LastIndexOf("/");
+			return path.Substring(i + 1);
+		}
+		
+		public static string GetParentPath (string path)
+		{
+			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
+			int i = path.LastIndexOf("/");
+			return path.Substring(0, i);
+		}
 
 		public static string Join (string path1, string path2)
 		{
@@ -41,6 +54,25 @@ namespace FileFind.Meshwork.Filesystem
 			}
 
 			return (path1 == path2);
+		}
+		
+		public static Network GetNetwork (string path)
+		{
+			string[] parts = path.Split('/');
+			Network network = Core.GetNetwork(parts[1]);
+			if (network == null)
+				throw new Exception("Network not found! " + path + " " + parts[1]);
+			return network;
+		}
+		
+		public static Node GetNode (string path)
+		{
+			string[] parts = path.Split('/');
+			Network network = Core.GetNetwork(parts[1]);
+			Node node = network.GetNode(parts[2]);
+			if (node == null)
+				throw new Exception("Not not found! " + path + " " + parts[2]);
+			return node;
 		}
 	}
 }

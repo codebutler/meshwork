@@ -29,6 +29,8 @@ namespace FileFind.Meshwork.Filesystem
 	public delegate T DbMethod<T> (IDbConnection connection);
 	public delegate void DbMethod (IDbConnection connection);
 
+	public delegate void DirectoryCallback (IDirectory directory);
+	
 	public class FileSystemProvider
 	{
 		const string SCHEMA_VERSION = "10";
@@ -39,6 +41,9 @@ namespace FileFind.Meshwork.Filesystem
 
 		List<IDbConnection> connections = new List<IDbConnection>();
 		List<IDbConnection> workingConnections = new List<IDbConnection>();
+		
+		Dictionary<string, RemoteDirectory> remoteDirectoryCache = new Dictionary<string, RemoteDirectory>();
+		Dictionary<string, List<DirectoryCallback>> remoteDirectoryCallbacks = new Dictionary<string, List<DirectoryCallback>>();
 
 		public FileSystemProvider ()
 		{
@@ -91,8 +96,52 @@ namespace FileFind.Meshwork.Filesystem
 				Core.Settings.LastShareScan = DateTime.MinValue;
 			}
 		}
+		
+		public bool BeginGetDirectory (string path, DirectoryCallback callback)
+		{
+			// FIXME: BARGH
+			if (!path.StartsWith("/")) path = "/" + path;		
+			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
+			
+			// LocalDirectory and NetworkDirectory objects can always be returned immediately.
+			string[] parts = path.Split('/');
+			if ((parts.Length > 1 && parts[1] == "local") || parts.Length < 3) {
+				var directory = GetDirectory(path);
+				callback(directory);
+				return true;
+			} else {
+				// First check the cache
+				lock (remoteDirectoryCache) {
+					if (remoteDirectoryCache.ContainsKey(path)) {
+						var directory = remoteDirectoryCache[path];
+						if (directory.State != RemoteDirectoryState.ContentsUnrequested) {
+							callback(directory);
+							return true;
+						}
+					}
+				}
+				
+				// If not in cache or not requested, we need to request it.
+				lock (remoteDirectoryCallbacks) {
+					if (!remoteDirectoryCallbacks.ContainsKey(path)) {
+						remoteDirectoryCallbacks.Add(path, new List<DirectoryCallback>());
+					}
+					var list = remoteDirectoryCallbacks[path];
+					list.Add(callback);
+				}
+				var network = PathUtil.GetNetwork(path);
+				network.RequestDirectoryListing(path);
+				return false;
+			}
+		}
 
-		public IDirectory GetDirectory (string path)
+		internal LocalDirectory GetLocalDirectory (string path)
+		{
+			return (LocalDirectory)GetDirectory(path);
+		}
+		
+		// FIXME: Eventually, this method should become private.
+		internal IDirectory GetDirectory (string path)
 		{
 			if (!path.StartsWith("/")) path = "/" + path;		
 			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
@@ -555,6 +604,50 @@ namespace FileFind.Meshwork.Filesystem
 				}
 			}
 			return text;
+		}
+	
+		internal void ProcessRespondDirListingMessage (Network network, Node messageFrom, SharedDirectoryInfo info)
+		{
+			RemoteDirectory remoteDirectory = null;
+			
+			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
+			
+			// FIXME: ARRGGH!!!
+			if (fullPath.EndsWith("/")) fullPath = fullPath.Substring(0, fullPath.Length - 1);
+			
+			lock (remoteDirectoryCache) {
+				if (remoteDirectoryCache.ContainsKey(fullPath)) {
+					remoteDirectory = remoteDirectoryCache[fullPath];
+				} else {
+					remoteDirectory = new RemoteDirectory(fullPath);
+					remoteDirectoryCache.Add(fullPath, remoteDirectory);
+				}
+				remoteDirectory.UpdateFromInfo(info);
+			}
+			
+			lock (remoteDirectoryCallbacks) {
+				if (remoteDirectoryCallbacks.ContainsKey(fullPath)) {
+					foreach (var callback in remoteDirectoryCallbacks[fullPath]) {
+						callback(remoteDirectory);
+					}
+					remoteDirectoryCallbacks.Remove(fullPath);
+				}
+			}
+			
+			network.RaiseReceivedDirListing(messageFrom, remoteDirectory);
+		}
+		
+		internal RemoteDirectory GetOrCreateRemoteDirectory (string fullPath)
+		{
+			lock (remoteDirectoryCache) {
+				if (remoteDirectoryCache.ContainsKey(fullPath)) {
+					return remoteDirectoryCache[fullPath];
+				} else {
+					RemoteDirectory directory = new RemoteDirectory(fullPath);
+					remoteDirectoryCache.Add(fullPath, directory);
+					return directory;
+				}
+			}
 		}
 	}
 }

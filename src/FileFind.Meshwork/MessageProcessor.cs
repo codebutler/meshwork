@@ -469,7 +469,7 @@ namespace FileFind.Meshwork
 				string directoryPath = PathUtil.Join(Core.MyDirectory.FullPath, requestedPath);
 				
 				if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
-					if (Core.FileSystem.GetDirectory(directoryPath) != null) {
+					if (Core.FileSystem.GetLocalDirectory(directoryPath) != null) {
 						network.SendRoutedMessage(network.MessageBuilder.CreateRespondDirListingMessage(messageFrom, directoryPath));
 					} else {
 						network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundError(requestedPath)));
@@ -480,19 +480,6 @@ namespace FileFind.Meshwork
 			} catch (Exception ex) {
 				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundError(requestedPath)));
 				throw ex;
-			}
-		}
-		
-		internal void ProcessRespondDirListingMessage (Node messageFrom, SharedDirectoryInfo info)
-		{
-			// FIXME: Update cache! GetDirectory will then always return something!
-			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
-			RemoteDirectory directory = Core.FileSystem.GetDirectory(fullPath) as RemoteDirectory;
-			if (directory != null) {
-				directory.UpdateFromInfo(info);			
-				network.RaiseReceivedDirListing(messageFrom, directory);
-			} else {
-				LoggingService.LogWarning("Unwanted directory listing from " + messageFrom.ToString() + " for " + info.FullPath);
 			}
 		}
 

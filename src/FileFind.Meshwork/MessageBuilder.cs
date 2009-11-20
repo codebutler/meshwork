@@ -350,7 +350,7 @@ namespace FileFind.Meshwork
 
 		public Message CreateRespondDirListingMessage (Node messageTo, string dirPath)
 		{
-			LocalDirectory directory = (LocalDirectory)Core.FileSystem.GetDirectory(dirPath);
+			LocalDirectory directory = Core.FileSystem.GetLocalDirectory(dirPath);
 			
 			SharedDirectoryInfo info = new SharedDirectoryInfo(directory);
 			

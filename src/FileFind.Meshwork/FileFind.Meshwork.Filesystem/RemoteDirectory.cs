@@ -17,33 +17,28 @@ namespace FileFind.Meshwork.Filesystem
 		IDirectory m_Parent;
 		Node m_Node;
 		
-		string m_Name;
+		string m_FullPath;
 
-		RemoteDirectory[] m_SubDirectories;
-		RemoteFile[]      m_Files;
+		RemoteDirectory[] m_SubDirectories = new RemoteDirectory[0];
+		RemoteFile[]      m_Files          = new RemoteFile[0];
 
-		RemoteDirectoryState m_State;
-
-		public RemoteDirectory (IDirectory parent, string name, Node node)
+		RemoteDirectoryState m_State = RemoteDirectoryState.ContentsUnrequested;
+		
+		internal RemoteDirectory (string fullPath)
 		{
-			m_Parent = parent;
-			m_Name = name;
-			m_Node = node;
-			
-			this.Network.ReceivedDirListing += HandleNetworkReceivedDirListing;
-
-			// FIXME: Check for cache
-			m_SubDirectories = new RemoteDirectory[0];
-			m_Files = new RemoteFile[0];
-			m_State = RemoteDirectoryState.ContentsUnrequested;
+			m_FullPath = fullPath;
 		}
-
-		public Node Node {
-			get { return m_Node; }
+		
+		public virtual Node Node {
+			get { 
+				if (m_Node == null)
+					m_Node = PathUtil.GetNode(m_FullPath);
+				return m_Node; 
+			}
 		}
 		
 		public Network Network {
-			get { return m_Node.Network; }
+			get { return this.Node.Network; }
 		}
 
 		public string RemoteFullPath {
@@ -82,29 +77,30 @@ namespace FileFind.Meshwork.Filesystem
 
 		public override string Name {
 			get {
-				return m_Name;
+				return PathUtil.GetBaseName(m_FullPath);
+			}
+		}
+		
+		public override string FullPath {
+			get {
+				return m_FullPath;
 			}
 		}
 		
 		public override IDirectory Parent {
 			get {
+				if (m_Parent == null)
+					m_Parent = Core.FileSystem.GetDirectory(PathUtil.GetParentPath(this.FullPath));
 				return m_Parent;
 			}
 		}
 
-		public void RequestContents()
-		{
-			m_State = RemoteDirectoryState.ContentsRequested;
-			m_Node.Network.RequestDirectoryListing(this);
-		}
-		
-		// FIXME: Get rid of this once cache works
 		internal void UpdateFromInfo (SharedDirectoryInfo info)
 		{
 			var newDirectories = new RemoteDirectory[info.Directories.Length];
 			for (int x = 0; x < info.Directories.Length; x++)
 			{
-				newDirectories[x] = new RemoteDirectory(this, info.Directories[x], m_Node);
+				newDirectories[x] = Core.FileSystem.GetOrCreateRemoteDirectory(PathUtil.Join(m_FullPath, info.Directories[x]));
 			}
 			m_SubDirectories = newDirectories;
 
@@ -116,18 +112,6 @@ namespace FileFind.Meshwork.Filesystem
 			m_Files = newFiles;
 			
 			m_State = RemoteDirectoryState.ContentsReceived;
-		}
-
-		// This is here because there could be multiple RemoteDirectory instances for the same path,
-		// and the above method won't update the others.
-		void HandleNetworkReceivedDirListing (Network network, Node node, RemoteDirectory directory)
-		{
-			if (directory.FullPath == this.FullPath) {
-				m_SubDirectories = (RemoteDirectory[])directory.Directories;
-				m_Files = (RemoteFile[])directory.Files;
-	
-				m_State = RemoteDirectoryState.ContentsReceived;
-			}
 		}
 	}
 

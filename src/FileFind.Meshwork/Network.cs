@@ -43,7 +43,7 @@ namespace FileFind.Meshwork
 	public delegate void ConnectionUpDownEventHandler (INodeConnection c);
 	public delegate void ReceivedChatInviteEventHandler (Network network, Node inviteFrom, ChatRoom room, ChatInviteInfo invitation);
 	public delegate void ChatMessageEventHandler (ChatRoom room, Node messageFromNode, string messageText);
-	public delegate void ReceivedDirListingEventHandler (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directory);
+	public delegate void ReceivedDirListingEventHandler (Network network, Node node, RemoteDirectory directory);
 	public delegate void ReceivedSearchResultEventHandler (Network network, SearchResultInfoEventArgs args);
 	public delegate void ReceivedNonCriticalErrorEventHandler (Network network, Node from, MeshworkError error);
 	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkError error);
@@ -252,17 +252,6 @@ namespace FileFind.Meshwork
 				return nodes[nodeId];
 			}
 		}
-
-		/*
-		public Directory Directory {
-			get {
-				if (directory == null) {
-					directory = Directory.GetDirectory(Core.FileSystem, "/" + networkId);
-				}
-				return directory;
-			}
-		}
-		*/
 
 		public IDictionary<string, TrustedNodeInfo> TrustedNodes {
 			get {
@@ -962,10 +951,12 @@ namespace FileFind.Meshwork
 			SendRoutedMessage(m);
 		}
 		
-		public void RequestDirectoryListing (RemoteDirectory directory)
+		internal void RequestDirectoryListing (string path)
 		{
-			Message m = MessageBuilder.CreateRequestDirectoryMessage(directory.Node, directory.RemoteFullPath);
-			SendRoutedMessage(m);
+			var node = PathUtil.GetNode(path);
+			var remotePath = "/" + String.Join("/", path.Split('/').Slice(3));
+			var message = MessageBuilder.CreateRequestDirectoryMessage(node, remotePath);
+			SendRoutedMessage(message);
 		}
 		
 		public void RequestFileDetails (RemoteFile file)
@@ -1295,7 +1286,7 @@ namespace FileFind.Meshwork
 						processor.ProcessRequestDirListingMessage (messageFrom, content.ToString());
 						break;
 					case MessageType.RespondDirListing:
-						processor.ProcessRespondDirListingMessage (messageFrom, (SharedDirectoryInfo)content);
+						Core.FileSystem.ProcessRespondDirListingMessage (this, messageFrom, (SharedDirectoryInfo)content);
 						break;
 					case MessageType.Ack:
 						processor.ProcessAckMessage(messageFrom, content.ToString());

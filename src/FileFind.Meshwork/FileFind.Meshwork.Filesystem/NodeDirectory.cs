@@ -13,9 +13,17 @@ namespace FileFind.Meshwork.Filesystem
 {
 	public class NodeDirectory : RemoteDirectory
 	{
-		public NodeDirectory (Node node) : base(node.Network.Directory, node.NodeID, node)
+		Node m_Node;
+		
+		public NodeDirectory (Node node) : base (PathUtil.Join(node.Network.Directory.FullPath, node.NodeID))
 		{
-			
+			m_Node = node;
+		}
+				
+		public override Node Node {
+			get {
+				return m_Node;
+			}
 		}
 	}
 }

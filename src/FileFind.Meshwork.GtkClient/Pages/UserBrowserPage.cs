@@ -161,7 +161,6 @@ namespace FileFind.Meshwork.GtkClient
 
 		private void Core_NetworkAdded (Network network)
 		{
-			network.ReceivedDirListing += (ReceivedDirListingEventHandler)DispatchService.GuiDispatch(new ReceivedDirListingEventHandler(network_ReceivedDirListing));
 			network.ReceivedNonCriticalError += (ReceivedNonCriticalErrorEventHandler)DispatchService.GuiDispatch(new ReceivedNonCriticalErrorEventHandler(network_ReceivedNonCriticalError));
 			
 			network.UserOnline += network_UserOnlineOffline;
@@ -181,17 +180,6 @@ namespace FileFind.Meshwork.GtkClient
 					Refresh();
 				});
 			}			
-		}
-
-		private void network_ReceivedDirListing (Network network, Node node, FileFind.Meshwork.Filesystem.RemoteDirectory directory)
-		{
-			if (navigating == true) {
-				if (PathUtil.AreEqual(navigatingTo, directory.FullPath)) {
-					NavigateTo(directory.FullPath);
-				} else {
-					LoggingService.LogWarning("Ignored mismatched dir listing. Got: {0}, Expected: {1}", directory.FullPath, navigatingTo);
-				}
-			}
 		}
 
 		private void network_ReceivedNonCriticalError (Network network, Node from, MeshworkError error)
@@ -410,71 +398,66 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public void NavigateTo (string path)
 		{
-			if (String.IsNullOrEmpty (path)) 
-			{
+			if (String.IsNullOrEmpty (path)) {
 				throw new ArgumentNullException("path");
 			}
-
+			
 			try {				
-				IDirectory directory = Core.FileSystem.GetDirectory(path);
-				if (directory != null)
-				{
-					if (directory is RemoteDirectory && ((RemoteDirectory)directory).State != RemoteDirectoryState.ContentsReceived)
-					{
-						if (selectedRows.ContainsKey(navigatingTo))
-							selectedRows.Remove(navigatingTo);
-
-						navigatingTo = directory.FullPath;
-
-						navigating = true;
-						waitLabel.Text = String.Format("Waiting for directory contents from {0}...", ((RemoteDirectory)directory).Node.ToString());
-						filesList.Parent.Visible = false;
-						waitingBoxAlignment.ShowAll();
-						GLib.Timeout.Add (50, new GLib.TimeoutHandler (PulseProgressBar));
-
-						((RemoteDirectory)directory).RequestContents();
-					}
-					else
-					{
-						currentDirectory = directory;
-						currentPath = directory.FullPath;
+				if (selectedRows.ContainsKey(navigatingTo))
+						selectedRows.Remove(navigatingTo);
 						
-						navigationBar.SetLocation(currentPath);
-						
-						filesListStore.Clear();
-
-						foreach (IDirectory currentSubDirectory in directory.Directories) 
-						{
-							filesListStore.AppendValues(currentSubDirectory);
-						}
-						
-						foreach (IFile currentFile in directory.Files)
-						{
-							filesListStore.AppendValues(currentFile);
-						}
+				navigatingTo = path;
+				navigating = true;
+				
+				waitLabel.Text = "Loading Directory...";
+				filesList.Parent.Visible = false;
+				waitingBoxAlignment.ShowAll();
+				GLib.Timeout.Add (50, new GLib.TimeoutHandler (PulseProgressBar));
+				
+				Core.FileSystem.BeginGetDirectory(path, delegate (IDirectory directory) {
+					Application.Invoke(delegate {
+						GotDirectory(path, directory);
+					});
+				});
+				
+			} catch (Exception ex) {
+				LoggingService.LogError(ex.ToString());
+				Gui.ShowErrorDialog(ex.Message);
+			}
+		}
+		
+		void GotDirectory (string path, IDirectory directory)
+		{
+			try {		
+				if (directory != null) {
+					currentDirectory = directory;
+					currentPath = directory.FullPath;
 					
-						if (selectedRows.ContainsKey(path)) 
-						{
-							filesList.Selection.Changed -= filesList_Selection_Changed;
-							
-							TreePath treePath = new TreePath(selectedRows[path].ToString());
-							filesList.Selection.SelectPath(treePath);
-							filesList.ScrollToCell(treePath, null, true, 0.5f, 0);
-							filesList.Selection.Changed += filesList_Selection_Changed;
-						}
+					navigationBar.SetLocation(currentPath);
+					
+					filesListStore.Clear();
 
-						StopNavigating();
-
-						filesList.QueueDraw();
-						filesList.GrabFocus();
-
-						navigationBar.SetLocation(currentPath);
+					foreach (IDirectory currentSubDirectory in directory.Directories) 
+						filesListStore.AppendValues(currentSubDirectory);
+					
+					foreach (IFile currentFile in directory.Files)
+						filesListStore.AppendValues(currentFile);
+				
+					if (selectedRows.ContainsKey(path)) {
+						filesList.Selection.Changed -= filesList_Selection_Changed;
+						
+						TreePath treePath = new TreePath(selectedRows[path].ToString());
+						filesList.Selection.SelectPath(treePath);
+						filesList.ScrollToCell(treePath, null, true, 0.5f, 0);
+						filesList.Selection.Changed += filesList_Selection_Changed;
 					}
-				} 
-				else 
-				{
+				} else {
 					Gui.ShowErrorDialog(String.Format("Directory not found: {0}.", path));
 				}
+				
+				StopNavigating();
+				filesList.QueueDraw();
+				filesList.GrabFocus();
 			} catch (Exception ex) {
 				LoggingService.LogError(ex.ToString());
 				Gui.ShowErrorDialog(ex.Message);
@@ -483,13 +466,13 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private bool PulseProgressBar ()
 		{
-			waitProgressBar.Pulse ();
+			waitProgressBar.Pulse();
 			return waitingBoxAlignment.Visible;
 		}
 
 		private void on_navigationBar_PathButtonClicked (string path)
 		{
-			NavigateTo (path);
+			NavigateTo(path);
 		}
 
 		private void filePropertiesMenuItem_Activated (object sender, EventArgs args)

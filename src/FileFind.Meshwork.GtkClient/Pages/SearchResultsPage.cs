@@ -770,12 +770,11 @@ namespace FileFind.Meshwork.GtkClient
 					if (selectedResult.Type == SearchResultType.File) { 
 						downloadResultMenuItem.Sensitive = true;
 						resultPropertiesMenuItem.Sensitive = true;
-						browseResultMenuItem.Sensitive = false;
 					} else {
 						downloadResultMenuItem.Sensitive = false;
 						resultPropertiesMenuItem.Sensitive = false;
-						browseResultMenuItem.Sensitive = true;
 					}
+					browseResultMenuItem.Sensitive = true;
 				} else {
 						downloadResultMenuItem.Sensitive = false;
 						resultPropertiesMenuItem.Sensitive = false;
