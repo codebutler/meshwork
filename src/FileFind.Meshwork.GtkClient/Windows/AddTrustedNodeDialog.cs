@@ -44,7 +44,7 @@ namespace FileFind.Meshwork.GtkClient
 			FileSelector f = new FileSelector("Select Public Key");
 			try {
 				if (f.Run() == (int)ResponseType.Ok) {
-					txtPublicKey.Buffer.Text = FileFind.Common.ReadAllText(f.Filename);
+					txtPublicKey.Buffer.Text = File.ReadAllText(f.Filename);
 				}
 				f.Destroy();
 			}

@@ -90,26 +90,6 @@ namespace FileFind
 				return false;
 			}
 		}
-		
-		public static void WriteToFile(string FileName, string Text) {
-			using (StreamWriter tw = new StreamWriter(FileName)) {
-				tw.Write(Text);
-				tw.Close();
-			}
-		}
-
-		public static string ReadAllText(string FileName) {
-			using (StreamReader tr = new StreamReader(FileName)) {
-				string retVal = tr.ReadToEnd();
-				return retVal;
-			}
-		}
-
-		public static string GetLocalIP() {
-			string sHostName = System.Net.Dns.GetHostName();
-			System.Net.IPHostEntry ipE = System.Net.Dns.GetHostEntry(sHostName);
-			return ipE.AddressList[0].ToString();
-		}
 
 		public static string BytesToString(byte[] b) {
 			string tmpstr = null;
@@ -155,16 +135,6 @@ namespace FileFind
 			string strOut = BitConverter.ToString(bytesOut).Replace("-","");
 			return strOut.ToLower ();
 		}
-
-		/*
-		public static string SHA(string strIn) {
-			SHA1 SHAObj = SHA1.Create();
-			byte[] bytesIn = System.Text.Encoding.UTF8.GetBytes(strIn);
-			byte[] bytesOut = SHAObj.ComputeHash(bytesIn);
-			string strOut = System.Text.Encoding.UTF8.GetString(bytesOut);
-			return strOut.ToLower ();
-		}
-		*/
 
 		public static byte[] SHA512 (string stringIn) 
 		{

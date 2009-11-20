@@ -14,6 +14,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Globalization;
+using System.IO;
 
 namespace FileFind.Meshwork
 {
@@ -151,7 +152,7 @@ namespace FileFind.Meshwork
 		// There is a way to get this using netlink, but I cant figure it out.
 		private int GetPrefixLength(string interfaceName, IPAddress address)
 		{
-			string text = Common.ReadAllText("/proc/net/if_inet6");
+			string text = File.ReadAllText("/proc/net/if_inet6");
 			foreach (string line in text.Split('\n')) {
 				if (line.Length == 53) {
 					IPAddress ip = new IPAddress(Common.StringToBytes(line.Substring(0, 32)));

@@ -263,7 +263,7 @@ namespace FileFind.Meshwork.GtkClient
 			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + args.ExceptionObject.ToString());
 			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), String.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
 			string crashLog = args.ExceptionObject.ToString();
-			FileFind.Common.WriteToFile(crashFileName, crashLog);
+			File.WriteAllText(crashFileName, crashLog);
 		}
 		
 		private static void UnhandledGLibExceptionHandler (GLib.UnhandledExceptionArgs args) 
@@ -273,7 +273,7 @@ namespace FileFind.Meshwork.GtkClient
 			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + exceptionText);
 			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), String.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
 			string crashLog = exceptionText;
-			FileFind.Common.WriteToFile(crashFileName, crashLog);
+			File.WriteAllText(crashFileName, crashLog);
 			
 			Gui.ShowErrorDialog("Meshwork has encountered an unhandled error and must be closed.\n\nAn error report has been created on your desktop, please file a bug.\n\n" + exceptionText);
 			

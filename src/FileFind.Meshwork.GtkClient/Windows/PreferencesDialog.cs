@@ -477,7 +477,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			selector.CurrentName = nicknameEntry.Text + ".mpk";
 			if (selector.Run() == (int)ResponseType.Ok) {
 				string publicKey = new PublicKey(nicknameEntry.Text, provider.ToXmlString(false)).ToArmoredString();
-				FileFind.Common.WriteToFile(selector.Filename,publicKey);
+				File.WriteAllText(selector.Filename, publicKey);
 			}
 			selector.Destroy();
 		}

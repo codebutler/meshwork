@@ -68,7 +68,7 @@ namespace FileFind.Meshwork.GtkClient
 		public static Settings ReadSettings ()
 		{
 			if (File.Exists(FileName) == true) {
-				string settingsText = FileFind.Common.ReadAllText (FileName);
+				string settingsText = File.ReadAllText(FileName);
 				Settings result = (Settings)Xml.DeSerialize (settingsText, typeof(Settings));
 				
 				foreach (var networkInfo in result.Networks) {
@@ -169,7 +169,7 @@ namespace FileFind.Meshwork.GtkClient
 				throw new InvalidOperationException("Cannot save if FirstRun is true");
 			}
 			lock (saveLock) {
-				FileFind.Common.WriteToFile(FileName, Xml.Serialize(this));
+				File.WriteAllText(FileName, Xml.Serialize(this));
 			}
 		}
 	}
