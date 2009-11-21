@@ -217,9 +217,11 @@ namespace FileFind.Meshwork.Destination
 				return DestinationTypeFriendlyNames.GetFriendlyName(this.GetType().ToString());
 			}
 		}
+		
+		public abstract int CompareTo (IDestination other);
 	}
 
-	public interface IDestination
+	public interface IDestination : IComparable<IDestination>
 	{
 		DestinationInfo CreateDestinationInfo();
 

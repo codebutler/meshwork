@@ -100,6 +100,22 @@ namespace FileFind.Meshwork.Destination
 			};
 			return info;
 		}
+		
+		public override int CompareTo (IDestination other)
+		{
+			if (other is IPv6Destination) {
+				// Prefer internal IP addresses
+				if (this.IsExternal && !other.IsExternal) {
+					return 1;
+				} else if (!this.IsExternal && other.IsExternal) {
+					return -1;
+				}
+			} else if (other is IPv4Destination) {
+				// Prefer IPv6 to IPv4
+				return 1;
+			}
+			return 0;
+		}
 	}
 
 	public abstract class IPv4Destination : IPDestination
@@ -168,8 +184,6 @@ namespace FileFind.Meshwork.Destination
 						}
 					}
 
-					
-					
 					return false;
 				}
 			}
@@ -192,6 +206,22 @@ namespace FileFind.Meshwork.Destination
 			info.TypeName = this.GetType().ToString();
 			info.Data = new string[] { ip.ToString(), port.ToString() };
 			return info;
+		}
+		
+		public override int CompareTo (IDestination other)
+		{
+			if (other is IPv4Destination) {
+				// Prefer internal IP addresses
+				if (this.IsExternal && !other.IsExternal) {
+					return 1;
+				} else if (!this.IsExternal && other.IsExternal) {
+					return -1;
+				}
+			} else if (other is IPv6Destination) {
+				// Prefer IPv6 to IPv4
+				return -1;
+			}
+			return 0;
 		}
 	}
 

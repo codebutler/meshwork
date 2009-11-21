@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FileFind.Meshwork.Destination
 {
@@ -76,6 +77,12 @@ namespace FileFind.Meshwork.Destination
 		private void source_DestinationRemoved (IDestination destination)
 		{
 
+		}
+		
+		internal static IDestination[] GetConnectableDestinations (IDestination[] destinations)
+		{
+			var result = destinations.Where(d => d.CanConnect).OrderByDescending(d => d).ToArray();
+			return result;
 		}
 
 		public void SyncFromSettings ()

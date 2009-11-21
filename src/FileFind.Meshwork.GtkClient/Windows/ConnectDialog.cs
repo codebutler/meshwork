@@ -94,7 +94,7 @@ namespace FileFind.Meshwork.GtkClient
 						if (!IsNearby(node)) {
 							IDestination destination = node.FirstConnectableDestination;
 							if (destination != null) {
-								store.AppendValues(node, node.FirstConnectableDestination.ToString());
+								store.AppendValues(node, destination.ToString());
 							}
 						}
 					}

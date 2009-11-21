@@ -464,25 +464,7 @@ namespace FileFind.Meshwork
 		[XmlIgnore]
 		public IDestination[] ConnectableDestinations {
 			get {
-				List<IDestination> result = new List<IDestination>();
-
-				foreach (IDestination d in this.Destinations) {
-					if (d.CanConnect) {
-						result.Add(d);
-					}
-				}
-
-				result.Sort(delegate (IDestination a, IDestination b) {
-					if (a.IsExternal && !b.IsExternal) {
-						return 1;
-					} else if (!a.IsExternal && b.IsExternal) {
-						return -1;
-					} else {
-						return 0;
-					}
-				});
-				
-				return result.ToArray();
+				return DestinationManager.GetConnectableDestinations(this.Destinations);
 			}
 		}
 	}
