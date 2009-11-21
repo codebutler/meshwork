@@ -195,7 +195,7 @@ namespace FileFind.Meshwork.GtkClient
 
 				bool didInit = Core.Init(tmpSettings);
 				if (!didInit) {
-					// Right now this means the password dialog was aborted.
+					// Right now this means the password dialog was aborted, or already running.
 					Gtk.Application.Quit();
 					Environment.Exit(1);
 					return false;					

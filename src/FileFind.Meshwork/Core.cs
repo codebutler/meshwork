@@ -8,6 +8,9 @@
 //
 
 using System;
+using System.IO;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Collections;
 using System.Collections.Generic;
@@ -84,6 +87,18 @@ namespace FileFind.Meshwork
 			}
 
 			Core.Settings = settings;
+			
+			string pidFilePath = Path.Combine(Core.Settings.DataPath, "meshwork.pid");
+			if (File.Exists(pidFilePath)) {
+				int processId = -1;
+				if (Int32.TryParse(File.ReadAllText(pidFilePath), out processId) && Process.GetProcesses().FirstOrDefault(p => p.Id == processId) != null) {
+					Console.Error.WriteLine("Meshwork is already running (PID {0})!", processId);
+					return false;
+				} else {
+					File.Delete(pidFilePath);
+				}
+			}
+			File.WriteAllText(pidFilePath, Process.GetCurrentProcess().Id.ToString());
 			
 			if (settings.KeyEncrypted) {
 				PasswordPrompt(null, EventArgs.Empty);
