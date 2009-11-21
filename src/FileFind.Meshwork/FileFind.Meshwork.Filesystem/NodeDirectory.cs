@@ -15,7 +15,7 @@ namespace FileFind.Meshwork.Filesystem
 	{
 		Node m_Node;
 		
-		public NodeDirectory (Node node) : base (PathUtil.Join(node.Network.Directory.FullPath, node.NodeID))
+		internal NodeDirectory (Node node) : base (PathUtil.Join(node.Network.Directory.FullPath, node.NodeID))
 		{
 			m_Node = node;
 		}

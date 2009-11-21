@@ -649,5 +649,14 @@ namespace FileFind.Meshwork.Filesystem
 				}
 			}
 		}
+		
+		internal NodeDirectory CreateNodeDirectory (Node node)
+		{
+			lock (remoteDirectoryCache) {
+				NodeDirectory directory = new NodeDirectory(node);
+				remoteDirectoryCache.Add(directory.FullPath, directory);
+				return directory;
+			}
+		}
 	}
 }

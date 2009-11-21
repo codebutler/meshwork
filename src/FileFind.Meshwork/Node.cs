@@ -73,7 +73,7 @@ namespace FileFind.Meshwork
 			diffieHellman = new DiffieHellmanManaged();
 			
 			if (nodeID != Core.MyNodeID) {
-				directory = new NodeDirectory(this);
+				directory = Core.FileSystem.CreateNodeDirectory(this);
 			}
 		}
 
