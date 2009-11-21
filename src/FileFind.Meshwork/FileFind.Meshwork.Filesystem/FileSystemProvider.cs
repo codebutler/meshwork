@@ -15,6 +15,7 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Linq;
 using FileFind;
 using FileFind.Meshwork;
 using FileFind.Meshwork.Collections;
@@ -95,6 +96,11 @@ namespace FileFind.Meshwork.Filesystem
 				// Force a scan.
 				Core.Settings.LastShareScan = DateTime.MinValue;
 			}
+			
+			Core.NetworkAdded += HandleCoreNetworkAdded;
+			Core.NetworkRemoved += HandleCoreNetworkRemoved;
+			foreach (Network network in Core.Networks)
+				HandleCoreNetworkAdded(network);
 		}
 		
 		public bool BeginGetDirectory (string path, DirectoryCallback callback)
@@ -656,6 +662,39 @@ namespace FileFind.Meshwork.Filesystem
 				NodeDirectory directory = new NodeDirectory(node);
 				remoteDirectoryCache.Add(directory.FullPath, directory);
 				return directory;
+			}
+		}
+		
+		void HandleCoreNetworkAdded (Network network)
+		{
+			network.UserOffline += HandleNetworkUserOffline;
+			network.UpdateNodeInfo += HandleNetworkUpdateNodeInfo;
+		}
+
+		void HandleCoreNetworkRemoved (Network network)
+		{
+			network.UserOffline -= HandleNetworkUserOffline;
+			network.UpdateNodeInfo -= HandleNetworkUpdateNodeInfo;
+		}
+		
+		void HandleNetworkUpdateNodeInfo (Network network, string oldNick, Node theNode)
+		{
+			RemoveCacheForNode(theNode);
+		}
+
+		void HandleNetworkUserOffline (Network network, Node theNode)
+		{
+			RemoveCacheForNode(theNode);
+		}
+		
+		void RemoveCacheForNode (Node node)
+		{
+			lock (remoteDirectoryCache) {
+				foreach (string path in remoteDirectoryCache.Keys.ToArray()) {
+					if (path.StartsWith(node.Directory.FullPath)) {
+						remoteDirectoryCache.Remove(path);
+					}
+				}
 			}
 		}
 	}
