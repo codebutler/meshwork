@@ -149,7 +149,7 @@ namespace FileFind.Meshwork.Protocol
 	public struct SearchResultInfo
 	{
 		public int SearchId;
-		public SharedDirectoryInfo[] Directories;
+		public string[] Directories;
 		public SharedFileListing[] Files;
 		public bool ExeededLimit;
 		public int Page;

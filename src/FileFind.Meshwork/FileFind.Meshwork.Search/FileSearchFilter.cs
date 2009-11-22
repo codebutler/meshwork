@@ -10,6 +10,7 @@
 using System;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+using System.Linq;
 using System.Collections;
 using FileFind.Meshwork.Protocol;
 using FileFind.Meshwork.Filesystem;
@@ -21,6 +22,15 @@ namespace FileFind.Meshwork.Search
 		FileSearchFilterComparison comparison;
 		FileSearchFilterField field;
 		string text = String.Empty;
+
+		Dictionary<FilterType, FileSearchFilterField[]> fileTypeFilterFields = new Dictionary<FilterType, FileSearchFilterField[]> {
+			{ FilterType.Video,    new [] { FileSearchFilterField.Resolution } },
+			{ FilterType.Audio,    new [] { FileSearchFilterField.Artist, FileSearchFilterField.Album, FileSearchFilterField.Bitrate } },
+			{ FilterType.Image,    new [] { FileSearchFilterField.Dimentions } },
+			{ FilterType.Document, new [] { FileSearchFilterField.Title, FileSearchFilterField.Author } },
+			{ FilterType.Other,    new [] { FileSearchFilterField.FileName, FileSearchFilterField.Size } },
+			{ FilterType.Folder,   new [] { FileSearchFilterField.FileName } }
+		};
 
 		public FileSearchFilterField Field {
 			get {
@@ -62,23 +72,16 @@ namespace FileFind.Meshwork.Search
 			}
 		}
 
-		public bool Check (SharedFileListing result)
+		public bool Check (SearchResult result)
 		{
 			if (!FilterValid) {
 				return true;
 			}
+			
+			FilterType resultFilterType = (result.Type == SearchResultType.Directory) ? FilterType.Folder : FileTypeToFilterType(result.FileListing.Type);
 
-			// I hate C# sometimes
-			Dictionary<FileType, FileSearchFilterField[]> fileTypeFilterFields;
-			fileTypeFilterFields = new Dictionary<FileType, FileSearchFilterField[]>();
-			fileTypeFilterFields[FileType.Video] = new FileSearchFilterField[] { FileSearchFilterField.Resolution };
-			fileTypeFilterFields[FileType.Audio] = new FileSearchFilterField[] { FileSearchFilterField.Artist, FileSearchFilterField.Album, FileSearchFilterField.Bitrate };
-			fileTypeFilterFields[FileType.Image] = new FileSearchFilterField[] { FileSearchFilterField.Dimentions };
-			fileTypeFilterFields[FileType.Document] = new FileSearchFilterField[] { FileSearchFilterField.Title, FileSearchFilterField.Author };
-			fileTypeFilterFields[FileType.Other] = new FileSearchFilterField[] { FileSearchFilterField.FileName, FileSearchFilterField.Size };
-
-			if ((fileTypeFilterFields[result.Type] as IList).IndexOf(this.Field) > -1 ||
-			    (fileTypeFilterFields[FileType.Other] as IList).IndexOf(this.Field) > -1)
+			if (fileTypeFilterFields[resultFilterType].Contains(this.Field) ||
+			    fileTypeFilterFields[FilterType.Other].Contains(this.Field))
 			{
 				switch (this.Field) {
 					case FileSearchFilterField.FileName:
@@ -105,11 +108,28 @@ namespace FileFind.Meshwork.Search
 						}
 				}
 			} else {
-				// We don't care about this filter
+				// Ignore this filter for this result
 				return true;
 			}
 			return true;
 		}
+		
+		public static FilterType FileTypeToFilterType (FileType fileType)
+		{
+			switch (fileType) {
+			case FileType.Audio:
+				return FilterType.Audio;
+			case FileType.Document:
+				return FilterType.Document;
+			case FileType.Image:
+				return FilterType.Image;
+			case FileType.Video:
+				return FilterType.Video;
+			default:
+				return FilterType.Other;
+			}
+		}
+
 	}
 
 	public enum FileSearchFilterField
@@ -143,5 +163,16 @@ namespace FileFind.Meshwork.Search
 		Equals,
 		LessThanOrEqualTo,
 		GreaterOrEqualTo
+	}
+	
+	public enum FilterType
+	{
+		All,
+		Audio,
+		Video,
+		Image,
+		Document,
+		Folder,
+		Other
 	}
 }

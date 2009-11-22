@@ -323,8 +323,9 @@ namespace FileFind.Meshwork.Filesystem
 			DataSet          ds;
 			int              x;
 			SearchResultInfo result;
-			Dictionary<int, SharedDirectoryInfo> directories;
-			Dictionary<int, List<SharedFileListing>> directoryFiles;
+			
+			var directories = new List<string>();
+			var files = new List<SharedFileListing>();
 
 			result = new SearchResultInfo();
 
@@ -333,80 +334,27 @@ namespace FileFind.Meshwork.Filesystem
 			query = query.Replace(@"\", @"\\");
 
 			UseConnection(delegate (IDbConnection connection) {
-				// First, find all matching directories.
-				sql = @"SELECT * FROM directoryitems WHERE type = 'D' AND name LIKE @name ESCAPE '\'";
+				sql = @"SELECT * FROM directoryitems WHERE name LIKE @name";
 				command = connection.CreateCommand();
 				command.CommandText = sql;
 				AddParameter(command, "@name", "%" + query + "%");
-				ds = ExecuteDataSet(command);
-				
-				List<string> directoryIds = new List<string>();
-				
-				directories = new Dictionary<int, SharedDirectoryInfo>();
-				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
-					DataRow row = ds.Tables[0].Rows[x];
-					LocalDirectory localDir = LocalDirectory.FromDataRow(row);
-					directories.Add(localDir.Id, new SharedDirectoryInfo(localDir));
-					directoryIds.Add(localDir.Id.ToString());
-				}
-
-				// Next, find all files within matching directories.
-				string directoryIdsStr = String.Join(",", directoryIds.ToArray());
-				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND parent_id IN (" + directoryIdsStr + ")";
-				command = connection.CreateCommand();
-				command.CommandText = sql;
-				//AddParameter(command, "@ids", directoryIds.ToString());
 
 				ds = ExecuteDataSet(command);
 				
-				directoryFiles = new Dictionary<int, List<SharedFileListing>>();
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
-					LocalFile file = LocalFile.FromDataRow(ds.Tables[0].Rows[x]);
-					if (!directoryFiles.ContainsKey(file.ParentId)) {
-						directoryFiles[file.ParentId] = new List<SharedFileListing>();
+					if (ds.Tables[0].Rows[x]["type"].ToString() == "F") {
+						files.Add(new SharedFileListing(LocalFile.FromDataRow(ds.Tables[0].Rows[x]), false));
+					} else {
+						LocalDirectory dir = LocalDirectory.FromDataRow(ds.Tables[0].Rows[x]);
+						// FIXME: Ugly: Remove '/local' from begining of path
+						string path = "/" + String.Join("/", dir.FullPath.Split('/').Slice(2));
+						directories.Add(path);
 					}
-					directoryFiles[file.ParentId].Add(new SharedFileListing(file, false));
-				}
-
-				foreach (int id in directoryFiles.Keys) {
-					directories[id].Files = directoryFiles[id].ToArray();
-				}
-
-				// Remove directories that have no files
-				// XXX: Dont use two extra loops for this!
-				List<int> toRemove = new List<int>();
-				foreach (KeyValuePair<int,SharedDirectoryInfo> pair in directories) {
-					SharedDirectoryInfo dir = pair.Value;
-					if (dir.Files == null || dir.Files.Length == 0) {
-						toRemove.Add(pair.Key);
-					}
-				}
-				foreach (int id in toRemove) {
-					directories.Remove(id);
-				}
-
-				result.Directories = new SharedDirectoryInfo[directories.Count];
-				x = 0;
-				foreach (SharedDirectoryInfo dir in directories.Values) {
-					result.Directories[x] = dir;
-					x ++;
-				}
-
-				// Now find all other files.
-				// XXX: Why doesn't ESCAPE work?!
-				sql = @"SELECT * FROM directoryitems WHERE type = 'F' AND name LIKE @name AND parent_id NOT IN (" + directoryIdsStr + ")";// ESCAPE '\'";
-				command = connection.CreateCommand();
-				command.CommandText = sql;
-				//AddParameter(command, "@ids", directoryIds.ToString());
-				AddParameter(command, "@name", "%" + query + "%");
-
-				ds = ExecuteDataSet(command);
-				
-				result.Files = new SharedFileListing[ds.Tables[0].Rows.Count];
-				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
-					result.Files[x] = new SharedFileListing(LocalFile.FromDataRow(ds.Tables[0].Rows[x]), false);
 				}
 			});
+			
+			result.Files = files.ToArray();
+			result.Directories = directories.ToArray();
 
 			return result;
 		}

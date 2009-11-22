@@ -11,147 +11,117 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using FileFind.Meshwork.Protocol;
+using FileFind.Meshwork.Filesystem;
 
 namespace FileFind.Meshwork.Search
 {
 	public class SearchResult
 	{
-		SearchResult       parent;
-		bool               visible = true;
-		ISharedListing     listing;
-		SearchResultType   type;
-		string             infoHash;
-		List<SearchResult> children;
-		Node               node;
+		FileSearch     m_Search;
+		bool           m_Visible = true;
+		Node           m_Node;
 		
-		public SearchResult (SearchResultType type, Node node, string infoHash)
-		{
-			if (type == null)
-				throw new ArgumentNullException("type");
-			
-			if (node == null)
-				throw new ArgumentNullException("node");
-			
-			if (infoHash == null)
-				throw new ArgumentNullException("infoHash");
-					
-			this.node = node;
-			this.type = type;
-			this.infoHash = infoHash;
-			
-			children = new List<SearchResult>();
-		}
-			
+		SharedFileListing m_Listing;
 		
-		public SearchResult (SearchResultType type, Node node, ISharedListing listing) 
+		string         m_FullPath;
+		string         m_InfoHash;
+		
+		public SearchResult (FileSearch search, Node node, SharedFileListing listing) : this (search, node)
 		{
-			if (type == null)
-				throw new ArgumentNullException("type");
-			
-			if (node == null)
-				throw new ArgumentNullException("node");
-			
 			if (listing == null)
 				throw new ArgumentNullException("listing");
 					
-			this.node = node;
-			this.type = type;
-			this.listing = listing;
+			m_Listing = listing;
+		}
+		
+		public SearchResult (FileSearch search, Node node, string directoryFullPath) : this (search, node)
+		{
+			m_FullPath = directoryFullPath;
 			
-			children = new List<SearchResult>();
+			/* The InfoHash property is used as a key elsewhere, so just
+			 * set it to something unique for directories */
+			m_InfoHash = Common.SHA512Str(directoryFullPath);
+		}
+		
+		SearchResult (FileSearch search, Node node)
+		{
+			if (search == null)
+				throw new ArgumentNullException("search");
+			
+			if (node == null)
+				throw new ArgumentNullException("node");
+				
+			m_Search = search;
+			m_Node = node;
 		}
 
 		public string InfoHash {
 			get {
-				if (type == SearchResultType.File) {
-					if (listing != null)
-						return ((SharedFileListing)listing).InfoHash;
-					else
-						return infoHash;
+				if (m_Listing is SharedFileListing) {
+					return ((SharedFileListing)m_Listing).InfoHash;
 				} else {
-					return null;
+					return m_InfoHash;
 				}
 			}
 		}
 		
 		public SearchResultType Type {
 			get {
-				return type;
+				return (m_Listing == null) ? SearchResultType.Directory : SearchResultType.File;
 			}
 		}
 		
-		public ISharedListing Listing {
+		public SharedFileListing FileListing {
 			get {
-				return listing;
+				return m_Listing;
 			}
 		}
-
-		public SearchResult[] Children {
+		
+		public string Name {
 			get {
-				return children.ToArray();
+				return (m_Listing != null) ? m_Listing.Name : PathUtil.GetBaseName(m_FullPath);
+			}
+		}
+		
+		public string FullPath {
+			get {
+				return (m_Listing != null) ? m_Listing.FullPath : m_FullPath;
+			}
+		}
+		
+		public long Size {
+			get {
+				return (m_Listing != null) ? m_Listing.Size : -1;
 			}
 		}
 
 		public Node Node {
 			get {
-				return node;
+				return m_Node;
 			}
 		}
 		
-		public void Add (SearchResult result)
-		{
-			children.Add(result);
-			result.Parent = this;
-		}
-
 		public bool Visible {
 			get {
-				if (listing == null) {
-					return !children.TrueForAll(delegate (SearchResult result) {
-						return !result.Visible;
-					});
-				} else {
-					return visible;
-				}
+				return m_Visible;
 			}
 			set {
-				visible = value;
+				m_Visible = value;
 			}
 		}
-
-		// This is just a shortcut
-		public SearchResult FirstChild {
-			get {
-				if (children.Count > 0) {
-					return children[0];
-				} else {
-					return null;
-				}
-			}
-		}
-
-		public SearchResult FirstVisibleChild {
-			get {
-				foreach (SearchResult child in children) {
-					if (child.Visible) {
-						return child;
-					}
-				}
-				return null;
-			}
-		}
-
-		public SearchResult Parent {
-			get {
-				return parent;
-			}
-			private set {
-				parent = value;
+		
+		public void Download ()
+		{
+			if (Type == SearchResultType.File) {
+				// FIXME: Find other sources for file!
+				m_Node.Network.DownloadFile(m_Node, m_Listing);
+			} else {
+				throw new InvalidOperationException("Cannot download directories");
 			}
 		}
 	}
 	
-	public enum SearchResultType 
+	public enum SearchResultType
 	{
 		File,
 		Directory

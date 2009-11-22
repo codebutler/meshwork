@@ -16,7 +16,7 @@ namespace FileFind.Meshwork.GtkClient
 		TreeView        resultsTree;
 		TreeModelFilter resultsFilter;
 		TreeModelSort   resultsSort;
-		TreeStore       resultsStore;
+		ListStore       resultsStore;
 		ListStore       typeStore;
 		TreeView        typeTree;
 		FilterWidget    filterWidget;
@@ -34,11 +34,13 @@ namespace FileFind.Meshwork.GtkClient
 		List<TreeViewColumn> audioColumns;
 		List<TreeViewColumn> videoColumns;
 		List<TreeViewColumn> imageColumns;
+		List<TreeViewColumn> fileOnlyColumns;
+		List<TreeViewColumn> folderOnlyColumns;
 
 		public event EventHandler UrgencyHintChanged;
 
 		// For performance.
-		Dictionary<FileType, int> resultCountByTypeCache;
+		Dictionary<FilterType, int> resultCountByTypeCache;
 		int resultTotalCountCache = 0;
 
 		public SearchResultsPage (FileSearch search)
@@ -93,7 +95,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			this.PackStart(toolbar, false, false, 0);
 
-			resultCountByTypeCache = new Dictionary<FileType, int>();
+			resultCountByTypeCache = new Dictionary<FilterType, int>();
 
 			Gdk.Pixbuf audioPixbuf = Gui.LoadIcon(16, "audio-x-generic");
 			Gdk.Pixbuf videoPixbuf = Gui.LoadIcon(16, "video-x-generic");
@@ -102,15 +104,16 @@ namespace FileFind.Meshwork.GtkClient
 			unknownPixbuf = Gui.LoadIcon(16, "text-x-generic");
 			folderPixbuf = Gui.LoadIcon(16, "folder");
 			
-			typeStore = new ListStore(typeof(Gdk.Pixbuf), typeof(string), typeof(FileType));
-			typeStore.AppendValues(null, "All Results");
+			typeStore = new ListStore(typeof(Gdk.Pixbuf), typeof(string), typeof(FilterType));
+			typeStore.AppendValues(null, "All Results", FilterType.All);
 			typeStore.AppendValues(null, "-");
-			typeStore.AppendValues(audioPixbuf, "Audio", FileType.Audio);
-			typeStore.AppendValues(videoPixbuf, "Video", FileType.Video);
-			typeStore.AppendValues(imagePixbuf, "Images", FileType.Image);
-			typeStore.AppendValues(docPixbuf, "Documents", FileType.Document);
-			typeStore.AppendValues(unknownPixbuf, "Other", FileType.Other);
-
+			typeStore.AppendValues(audioPixbuf, "Audio", FilterType.Audio);
+			typeStore.AppendValues(videoPixbuf, "Video", FilterType.Video);
+			typeStore.AppendValues(imagePixbuf, "Images", FilterType.Image);
+			typeStore.AppendValues(docPixbuf, "Documents", FilterType.Document);
+			typeStore.AppendValues(folderPixbuf, "Folders", FilterType.Folder);
+			typeStore.AppendValues(unknownPixbuf, "Other", FilterType.Other);
+			
 			typeTree = new TreeView();
 			typeTree.HeadersVisible = false;
 			typeTree.RowSeparatorFunc = delegate (TreeModel m, TreeIter i) {
@@ -150,7 +153,7 @@ namespace FileFind.Meshwork.GtkClient
 			topBox.PackStart(Gui.AddScrolledWindow(albumTree), true, true, 0);
 			topBox.Homogeneous = true;
 
-			resultsStore = new TreeStore(typeof(SearchResult));
+			resultsStore = new ListStore(typeof(SearchResult));
 			resultsStore.RowInserted += delegate {
 				Refilter();
 			};
@@ -165,6 +168,8 @@ namespace FileFind.Meshwork.GtkClient
 			imageColumns = new List<TreeViewColumn>();
 			audioColumns = new List<TreeViewColumn>();
 			videoColumns = new List<TreeViewColumn>();
+			fileOnlyColumns = new List<TreeViewColumn>();
+			folderOnlyColumns = new List<TreeViewColumn>();
 
 			column = new TreeViewColumn();
 			column.Title = "File Name";
@@ -239,6 +244,7 @@ namespace FileFind.Meshwork.GtkClient
 			column.FixedWidth = 70;
 			column.SortColumnId = 7;
 			column.Resizable = true;
+			fileOnlyColumns.Add(column);
 
 			column = resultsTree.AppendColumn("Sources", new CellRendererText(), new TreeCellDataFunc(SourcesFunc));
 			column.Clickable = true;
@@ -246,7 +252,16 @@ namespace FileFind.Meshwork.GtkClient
 			column.FixedWidth = 85;
 			column.SortColumnId = 8;
 			column.Resizable = true;
-
+			fileOnlyColumns.Add(column);
+			
+			column = resultsTree.AppendColumn("User", new CellRendererText(), new TreeCellDataFunc(UserFunc));
+			column.Clickable = true;
+			column.Sizing = TreeViewColumnSizing.Fixed;
+			column.FixedWidth = 85;
+			column.SortColumnId = 8;
+			column.Resizable = true;
+			folderOnlyColumns.Add(column);
+			
 			column = resultsTree.AppendColumn("Full Path", new CellRendererText(), new TreeCellDataFunc(FullPathFunc));
 			column.Clickable = true;
 			column.Resizable = true;
@@ -256,6 +271,7 @@ namespace FileFind.Meshwork.GtkClient
 			column.Clickable = true;
 			column.Resizable = true;
 			column.SortColumnId = 10;
+			fileOnlyColumns.Add(column);
 
 			resultsFilter = new TreeModelFilter(resultsStore, null);
 			resultsFilter.VisibleFunc = resultsFilterFunc;
@@ -316,10 +332,8 @@ namespace FileFind.Meshwork.GtkClient
 				if (resultsTree.Selection.GetSelected(out iter)) {
 					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;	
 					if (selectedResult != null) {
-						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
-											
 						string path = PathUtil.Join(selectedResult.Node.Directory.FullPath, 
-						                            String.Join("/", result.Listing.FullPath.Split('/').Slice(0, -2)));
+						                            String.Join("/", selectedResult.FullPath.Split('/').Slice(0, -2)));
 						
 						UserBrowserPage.Instance.NavigateTo(path);
 						Gui.MainWindow.SelectedPage = UserBrowserPage.Instance;					
@@ -338,9 +352,7 @@ namespace FileFind.Meshwork.GtkClient
 				if (resultsTree.Selection.GetSelected(out iter)) {
 					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;					
 					if (selectedResult != null && selectedResult.Type == SearchResultType.File) { 
-						// XXX: Request from all sources, not just the first! (Refactor out of UI)
-						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
-						result.Node.Network.DownloadFile(result.Node, (SharedFileListing)result.Listing);
+						selectedResult.Download();
 					}			
 				}					
 			} catch (Exception ex) {
@@ -356,8 +368,7 @@ namespace FileFind.Meshwork.GtkClient
 				if (resultsTree.Selection.GetSelected(out iter)) {
 					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;
 					if (selectedResult != null && selectedResult.Type == SearchResultType.File) {
-						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
-						var win = new FilePropertiesWindow(result.Node, (SharedFileListing)result.Listing);
+						var win = new FilePropertiesWindow(selectedResult.Node, (SharedFileListing)selectedResult.FileListing);
 						win.Show();
 					}
 				}
@@ -390,7 +401,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public void search_NewResults (FileSearch sender, SearchResult[] newResults)
 		{
-			AppendResults(TreeIter.Zero, newResults);
+			AppendResults(newResults);
 
 			RecountTypes();
 			Gui.MainWindow.RefreshCounts();
@@ -401,27 +412,11 @@ namespace FileFind.Meshwork.GtkClient
 			resultsStore.Clear();
 		}
 
-		private void AppendResults (TreeIter parent, SearchResult[] results)
+		private void AppendResults (SearchResult[] results)
 		{
 			// XXX: This won't group same files from multiple nodes!
-
 			foreach (SearchResult result in results) {
-
-				TreeIter oldParent = parent;
-
-				if (parent.Equals(TreeIter.Zero)) {
-					parent = resultsStore.AppendValues(result);
-				} else {
-					parent = resultsStore.AppendValues(parent, result);
-				}
-
-				if (result.Children.Length > 0) {
-					if (result.Type == SearchResultType.Directory) {
-						AppendResults(parent, result.Children);
-					}
-				}
-
-				parent = oldParent;
+				resultsStore.AppendValues(result);
 			}
 		}
 
@@ -466,68 +461,54 @@ namespace FileFind.Meshwork.GtkClient
 			SearchResult first = (SearchResult)model.GetValue(a, 0);
 			SearchResult second = (SearchResult)model.GetValue(b, 0);
 			
-			ISharedListing listing1 = (first.Listing == null) ? first.FirstChild.Listing : first.Listing;
-			ISharedListing listing2 = (second.Listing == null) ? second.FirstChild.Listing : second.Listing;
-
 			int columnId;
 			SortType order;
 			if (resultsSort.GetSortColumnId(out columnId, out order)) {
 				switch (columnId) {
 					case 0: // File Name
-						return StringComparer.CurrentCulture.Compare(listing1.Name, listing2.Name);
+						return StringComparer.CurrentCulture.Compare(first.Name, second.Name);
 					case 7: // Size
-						return listing1.Size.CompareTo(listing2.Size);
+						return first.Size.CompareTo(second.Size);
 					case 8: // Sources
-						// XXX: Always sort directories above files!
-						return first.Children.Length.CompareTo(second.Children.Length);
-					case 9: // File Name
-						return StringComparer.CurrentCulture.Compare(listing1.FullPath, listing2.FullPath);
+						int numberOfSourcesOne = (first.Type == SearchResultType.File) ? search.AllFileResults[first.InfoHash].Count : -1;
+						int numberOfSourcesTwo = (second.Type == SearchResultType.File) ? search.AllFileResults[second.InfoHash].Count : -1;
+						return numberOfSourcesOne.CompareTo(numberOfSourcesTwo);
+					case 9: // Full Path
+						return StringComparer.CurrentCulture.Compare(first.FullPath, second.FullPath);
 				}
 			}
 			return 0;
 		}
 
-		delegate void Foo (IEnumerable<SearchResult> results);
-
 		private void Refilter ()
 		{
-			Nullable<FileType> selectedFilterType = null;
+			FilterType selectedFilterType = FilterType.All;
 
 			TreeIter i;
 			if (typeTree.Selection.GetSelected(out i)) {
-				if (typeTree.Model.GetValue(i, 2) != null) {
-					selectedFilterType = (FileType)typeTree.Model.GetValue(i, 2);
-				}
+				selectedFilterType = (FilterType)typeTree.Model.GetValue(i, 2);
 			}
 
-			Foo filterResults = null;
-			filterResults = delegate (IEnumerable<SearchResult> results) {
-				foreach (SearchResult result in results) {
-					if (result.Type == SearchResultType.File) {
-						if (result.Listing != null) {
-							if (selectedFilterType != null) {
-								result.Visible = (((SharedFileListing)result.Listing).Type == selectedFilterType);
-							} else {
-								result.Visible = true;
-							}
-							
-							if (result.Visible) {
-								if (search.FiltersEnabled) {
-									result.Visible = search.CheckAllFilters((SharedFileListing)result.Listing);
-								} else {
-									result.Visible = true;
-								}
-							}
-						} else {
-							filterResults(result.Children);
-						}
+			foreach (SearchResult result in search.Results) {
+				if (result.Type == SearchResultType.File) {
+					if (selectedFilterType != FilterType.All) {
+						var filterType = FileSearchFilter.FileTypeToFilterType(result.FileListing.Type);
+						result.Visible = (filterType == selectedFilterType);
 					} else {
-						// XXX: Filter directories!
+						result.Visible = true;
+					}
+				} else if (result.Type == SearchResultType.Directory) {
+					result.Visible = (selectedFilterType == FilterType.All || selectedFilterType == FilterType.Folder);
+				}
+
+				if (result.Visible) {
+					if (search.FiltersEnabled) {
+						result.Visible = search.CheckAllFilters(result);
+					} else {
+						result.Visible = true;
 					}
 				}
-			};
-
-			filterResults(search.Results.Values);
+			}
 			
 			if (resultsFilter != null) {
 				resultsFilter.Refilter();
@@ -539,32 +520,21 @@ namespace FileFind.Meshwork.GtkClient
 			resultCountByTypeCache.Clear();
 			resultTotalCountCache = 0;
 
-			RecountTypes(search.Results.Values);
-		}
-
-		// Only to be called by above
-		private void RecountTypes(IEnumerable<SearchResult> results)
-		{
-			foreach (SearchResult result in results) {
-				if (result.Type == SearchResultType.File) {
-					SharedFileListing file = (SharedFileListing)result.FirstChild.Listing;
-					if (!resultCountByTypeCache.ContainsKey(file.Type)) {
-						resultCountByTypeCache[file.Type] = 0;
-					}
-					if (search.FiltersEnabled) {
-						if (search.CheckAllFiltersMatchesOne(result)) {
-							resultCountByTypeCache[file.Type] += 1;
-							resultTotalCountCache += 1;
-						}
-					} else {
-						resultCountByTypeCache[file.Type] += 1;
+			foreach (SearchResult result in search.Results) {
+				var filterType = (result.Type == SearchResultType.File) ? FileSearchFilter.FileTypeToFilterType(result.FileListing.Type) : FilterType.Folder;
+				if (!resultCountByTypeCache.ContainsKey(filterType)) {
+					resultCountByTypeCache[filterType] = 0;
+				}
+				if (search.FiltersEnabled) {
+					if (search.CheckAllFilters(result)) {
+						resultCountByTypeCache[filterType] += 1;
 						resultTotalCountCache += 1;
 					}
-				} else if (result.Type == SearchResultType.Directory) {
-					// XXX: TODO
+				} else {
+					resultCountByTypeCache[filterType] += 1;
+					resultTotalCountCache += 1;
 				}
 			}
-
 			typeTree.QueueDraw();
 		}
 
@@ -572,8 +542,12 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			CellRendererText textCell = (CellRendererText)cell;
 
-			if (model.GetValue(iter, 2) != null) {
-				FileType type = (FileType)model.GetValue(iter, 2);
+			if (model.GetValue(iter, 2) == null)
+				return;
+			
+			FilterType filterType = (FilterType)model.GetValue(iter, 2);
+			if (filterType != FilterType.All) {
+				FilterType type = (FilterType)model.GetValue(iter, 2);
 				if (resultCountByTypeCache.ContainsKey(type)) {
 					textCell.Text = resultCountByTypeCache[type].ToString();
 				} else {
@@ -597,11 +571,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void FileNameFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			if (result.Listing == null) {
-				(cell as CellRendererText).Text = result.FirstVisibleChild.Listing.Name;
-			} else {
-				(cell as CellRendererText).Text = result.Listing.Name;
-			}
+			(cell as CellRendererText).Text = result.Name;
 		}
 
 		private void CodecFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
@@ -643,11 +613,10 @@ namespace FileFind.Meshwork.GtkClient
 		private void SizeFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			long size = (result.Listing == null) ? result.FirstChild.Listing.Size : result.Listing.Size;
 			if (result.Type == SearchResultType.File) {
-				(cell as CellRendererText).Text = Common.FormatBytes(size);
+				(cell as CellRendererText).Text = Common.FormatBytes(result.Size);
 			} else  {
-				(cell as CellRendererText).Text = Common.FormatNumber(size) + " files";
+				(cell as CellRendererText).Text = String.Empty;
 			}
 		}
 
@@ -666,6 +635,12 @@ namespace FileFind.Meshwork.GtkClient
 				(cell as CellRendererText).Text = String.Empty;
 			}
 		}
+		
+		private void UserFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
+		{
+			SearchResult result = (SearchResult)model.GetValue(iter, 0);
+			(cell as CellRendererText).Text = result.Node.ToString();
+		}
 
 		private void InfoHashFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
@@ -680,8 +655,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void FullPathFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			string path = (result.Listing == null) ? result.FirstChild.Listing.FullPath : result.Listing.FullPath;
-			(cell as CellRendererText).Text = path;
+			(cell as CellRendererText).Text = result.FullPath;
 		}
 
 		private void filterWidget_Hidden (object sender, EventArgs args)
@@ -707,28 +681,43 @@ namespace FileFind.Meshwork.GtkClient
 
 			TreeIter iter;
 			if (typeTree.Selection.GetSelected(out iter)) {
-				string text = (string)typeTree.Model.GetValue(iter, 1);
-				switch (text) {
-					case "Audio":
+				FilterType filterType = (FilterType)typeTree.Model.GetValue(iter, 2);
+				switch (filterType) {
+					case FilterType.Audio:
 						ToggleColumns(imageColumns, false);
 						ToggleColumns(videoColumns, false);
 						ToggleColumns(audioColumns, true);
+						ToggleColumns(fileOnlyColumns, true);			
+						ToggleColumns(folderOnlyColumns, false);
 						return;
-					case "Video":
+					case FilterType.Video:
 						ToggleColumns(imageColumns, false);
 						ToggleColumns(audioColumns, false);
 						ToggleColumns(videoColumns, true);
+						ToggleColumns(fileOnlyColumns, true);			
+						ToggleColumns(folderOnlyColumns, false);
 						return;
-					case "Images":
+					case FilterType.Image:
 						ToggleColumns(audioColumns, false);
 						ToggleColumns(videoColumns, false);
 						ToggleColumns(imageColumns, true);
+						ToggleColumns(fileOnlyColumns, true);			
+						ToggleColumns(folderOnlyColumns, false);
+						return;
+					case FilterType.Folder:
+						ToggleColumns(audioColumns, false);
+						ToggleColumns(videoColumns, false);
+						ToggleColumns(imageColumns, false);
+						ToggleColumns(fileOnlyColumns, false);			
+						ToggleColumns(folderOnlyColumns, true);
 						return;
 				}
 			} 
 			ToggleColumns(audioColumns, false);
 			ToggleColumns(videoColumns, false);
 			ToggleColumns(imageColumns, false);
+			ToggleColumns(fileOnlyColumns, true);			
+			ToggleColumns(folderOnlyColumns, false);
 		}
 
 		private void resultsTree_RowActivated (object sender, RowActivatedArgs args)
@@ -737,13 +726,8 @@ namespace FileFind.Meshwork.GtkClient
 				TreeIter iter;
 				if (resultsTree.Model.GetIter(out iter, args.Path)) {
 					SearchResult selectedResult = (SearchResult)resultsTree.Model.GetValue(iter, 0);
-					
 					if (selectedResult.Type == SearchResultType.File) { 
-
-						// XXX: Request from all sources, not just the first! (Refactor out of UI)
-
-						SearchResult result = (selectedResult.Listing == null) ? selectedResult.FirstVisibleChild : selectedResult;
-						result.Node.Network.DownloadFile(result.Node, (SharedFileListing)result.Listing);
+						selectedResult.Download();
 					}
 				}
 			} catch (Exception ex) {

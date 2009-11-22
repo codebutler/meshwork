@@ -26,8 +26,8 @@ namespace FileFind.Meshwork.Search
 		bool filtersEnabled = false;
 		List<FileSearchFilter> filters;
 		List<string> networkIds;
-		[NonSerialized] Dictionary<string,SearchResult> results;
-		[NonSerialized] Dictionary<string,List<SearchResult>> allFileResults;
+		[NonSerialized] List<SearchResult> results;
+		[NonSerialized] Dictionary<string, List<SearchResult>> allFileResults;
 
 		int id;
 
@@ -39,7 +39,7 @@ namespace FileFind.Meshwork.Search
 			filters = new List<FileSearchFilter>();
 			networkIds = new List<string>();
 
-			results = new Dictionary<string, SearchResult>();
+			results = new List<SearchResult>();
 			allFileResults = new Dictionary<string, List<SearchResult>>();
 
 			id = new Random().Next();
@@ -113,9 +113,9 @@ namespace FileFind.Meshwork.Search
 		}
 
 		[XmlIgnore]
-		public ReadOnlyDictionary<string,SearchResult> Results {
+		public IList<SearchResult> Results {
 			get {
-				return new ReadOnlyDictionary<string,SearchResult>(results);
+				return results.AsReadOnly();
 			}
 		}
 
@@ -135,45 +135,16 @@ namespace FileFind.Meshwork.Search
 				throw new ArgumentException("Results are for a different search.");
 			}
 
-			foreach (SharedDirectoryInfo dir in resultInfo.Directories) {
-				SearchResult directoryResult = new SearchResult(SearchResultType.Directory, node, dir);
-
-				// Create a random key for directories, we never look them up.
-				Random random = new Random();
-				string key = random.Next().ToString();
-				results[key] = directoryResult;
-
-				if (dir.Files != null) {
-					foreach (SharedFileListing file in dir.Files) {
-
-						SearchResult fileResult = new SearchResult(SearchResultType.File, node, file);
-						directoryResult.Add(fileResult);
-
-						if (!allFileResults.ContainsKey(file.InfoHash)) {
-							allFileResults[file.InfoHash] = new List<SearchResult>();
-						}
-						allFileResults[file.InfoHash].Add(fileResult);
-					}
-				}
-					
+			foreach (string dir in resultInfo.Directories) {
+				SearchResult directoryResult = new SearchResult(this, node, dir);
+				results.Add(directoryResult);
 				newResults.Add(directoryResult);
 			}
 
 			foreach (SharedFileListing file in resultInfo.Files) {
-
-				SearchResult result = new SearchResult(SearchResultType.File, node, file);
-
-				if (!results.ContainsKey(file.InfoHash)) {
-					SearchResult resultGroup = new SearchResult(SearchResultType.File, node, file.InfoHash);
-					resultGroup.Add(result);
-
-					results[file.InfoHash] = resultGroup;
-
-					newResults.Add(resultGroup);
-				} else {
-					SearchResult existingResult = results[file.InfoHash];
-					existingResult.Add(result);
-				}
+				SearchResult result = new SearchResult(this, node, file);
+				results.Add(result);
+				newResults.Add(result);
 
 				if (!allFileResults.ContainsKey(file.InfoHash)) {
 					allFileResults[file.InfoHash] = new List<SearchResult>();
@@ -186,20 +157,10 @@ namespace FileFind.Meshwork.Search
 			}
 		}
 
-		public bool CheckAllFiltersMatchesOne (SearchResult result)
-		{
-			foreach (SearchResult child in result.Children) {
-				if (CheckAllFilters((SharedFileListing)child.Listing)) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public bool CheckAllFilters (SharedFileListing listing)
+		public bool CheckAllFilters (SearchResult result)
 		{
 			foreach (FileSearchFilter filter in filters) {
-				if (!filter.Check(listing)) {
+				if (!filter.Check(result)) {
 					return false;
 				}
 			}
