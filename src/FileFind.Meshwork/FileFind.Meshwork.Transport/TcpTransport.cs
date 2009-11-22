@@ -133,19 +133,26 @@ namespace FileFind.Meshwork.Transport
 
 		public override string ToString ()
 		{
-			if (socket != null) {
-				if (Incoming == true) {
-					return String.Format("TCP/INCOMING/{0}:{1}", (socket.RemoteEndPoint as IPEndPoint).Address, port);
-				} else {
-					return String.Format("TCP/OUTGOING/{0}:{1}", (socket.RemoteEndPoint as IPEndPoint).Address, port);
-				}
-			} else {
-				if (Incoming == true) {
-					return String.Format("TCP/INCOMING/{0}:{1}", address, port);
-				} else {
-					return String.Format("TCP/OUTGOING/{0}:{1}", address, port);
-				}
-			}
+			var builder = new StringBuilder();
+			builder.Append("TCP/");
+
+			if (Incoming)
+				builder.Append("INCOMING/");
+			else
+				builder.Append("OUTGOING/");
+
+			var addr = (socket != null) ? (socket.RemoteEndPoint as IPEndPoint).Address : address;
+			if (addr.AddressFamily == AddressFamily.InterNetworkV6) {
+				builder.Append("[");
+				builder.Append(addr.ToString());
+				builder.Append("]");
+			} else
+				builder.Append(addr.ToString());
+
+			builder.Append(":");
+			builder.Append(port.ToString());
+
+			return builder.ToString();
 		}
 
 		public override void Disconnect ()
