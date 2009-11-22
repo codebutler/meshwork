@@ -121,7 +121,7 @@ namespace FileFind.Meshwork.GtkClient
 				textCell = new CellRendererText();
 				store = new ListStore(typeof(string), typeof(FilterEntryMode), typeof(FileSearchFilterField));
 
-				filterTextEntry = new FilterEntry();
+				filterTextEntry = new FilterEntry(filter);
 				filterTextEntry.Changed += FilterTextChanged;
 
 				fieldComboBox = new ComboBox();
@@ -284,10 +284,13 @@ namespace FileFind.Meshwork.GtkClient
 			private class FilterEntry : Entry 
 			{
 				FakeTooltip tooltip;
+				FileSearchFilter filter;
 				FilterEntryMode mode;
 
-				public FilterEntry () 
+				public FilterEntry (FileSearchFilter filter) 
 				{
+					this.filter = filter;
+					
 					tooltip = new FakeTooltip(this);
 					this.FocusInEvent += this_FocusChangeEvent;
 					this.FocusOutEvent += this_FocusChangeEvent;
@@ -328,7 +331,11 @@ namespace FileFind.Meshwork.GtkClient
 				private void HideShowTooltip ()
 				{
 					UpdateTooltipText();
-					if (this.HasFocus && mode != FilterEntryMode.String && this.Text.Length > 0) {
+					if (this.HasFocus && !String.IsNullOrEmpty(tooltip.Text) && this.Text.Length > 0 && 
+					    (mode != FilterEntryMode.String || 
+					     (mode == FilterWidget.FilterWidgetRow.FilterEntryMode.String && 
+					      filter.Comparison == FileSearchFilterComparison.Regexp )))
+					{
 						tooltip.Show();
 						return;
 					}
@@ -349,7 +356,15 @@ namespace FileFind.Meshwork.GtkClient
 				{
 					string entryText = this.Text;
 					
-					if (mode == FilterEntryMode.Size || mode == FilterEntryMode.Speed) {
+					if (mode == FilterEntryMode.String && filter.Comparison == FileSearchFilterComparison.Regexp) {
+						try {
+							new Regex(entryText);
+							tooltip.Text = String.Empty;
+						} catch (ArgumentException ex) {
+							tooltip.Text = ex.Message;
+						}
+						return;
+					} else if (mode == FilterEntryMode.Size || mode == FilterEntryMode.Speed) {
 
 						ulong  num;
 						string unitName;

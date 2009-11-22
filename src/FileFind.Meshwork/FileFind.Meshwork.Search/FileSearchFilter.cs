@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +66,15 @@ namespace FileFind.Meshwork.Search
 					case FileSearchFilterField.Size:
 						return Common.ValidateSizeStr(this.text);
 					case FileSearchFilterField.FileName:
-						return (this.Text.Trim().Length > 0);
+						if (comparison == FileSearchFilterComparison.Regexp) {
+							try {
+								new Regex(this.text);
+								return true;
+							} catch (ArgumentException) {
+								return false;
+							}
+						} else
+							return (this.Text.Trim().Length > 0);
 					default:
 						return true;
 				}
@@ -91,7 +100,7 @@ namespace FileFind.Meshwork.Search
 							case FileSearchFilterComparison.DoesntContain:
 								return (result.Name.ToLower().IndexOf(this.Text.ToLower()) == -1);
 							case FileSearchFilterComparison.Regexp:
-								return true;
+								return Regex.IsMatch(result.Name, this.text);
 						}
 						break;
 					case FileSearchFilterField.Size:
