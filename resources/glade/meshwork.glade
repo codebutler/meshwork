@@ -512,6 +512,7 @@ To manually add a new trusted friend, paste their public key below, select to im
   <widget class="GtkDialog" id="EditFriendDialog">
     <property name="visible">True</property>
     <property name="title" translatable="yes">View/Edit Trusted Friend</property>
+    <property name="default_height">450</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
@@ -531,6 +532,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                 <child>
                   <widget class="GtkImage" id="image71">
                     <property name="visible">True</property>
+                    <property name="yalign">0</property>
                     <property name="icon_name">stock_person</property>
                     <property name="icon-size">5</property>
                   </widget>
@@ -2572,14 +2574,16 @@ To manually add a new trusted friend, paste their public key below, select to im
                     <child>
                       <widget class="GtkAlignment" id="alignment140">
                         <property name="visible">True</property>
+                        <property name="yalign">0</property>
+                        <property name="yscale">0</property>
                         <property name="left_padding">15</property>
                         <child>
-                          <widget class="GtkHBox" id="hbox234">
+                          <widget class="GtkHBox" id="hbox1">
                             <property name="visible">True</property>
                             <child>
                               <widget class="GtkTable" id="table47">
                                 <property name="visible">True</property>
-                                <property name="n_rows">4</property>
+                                <property name="n_rows">3</property>
                                 <property name="n_columns">2</property>
                                 <property name="column_spacing">5</property>
                                 <property name="row_spacing">5</property>
@@ -2587,6 +2591,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                                   <widget class="GtkEntry" id="emailEntry">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x2022;</property>
                                     <signal name="changed" handler="on_emailEntry_changed"/>
                                   </widget>
                                   <packing>
@@ -2594,6 +2599,7 @@ To manually add a new trusted friend, paste their public key below, select to im
                                     <property name="right_attach">2</property>
                                     <property name="top_attach">2</property>
                                     <property name="bottom_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
@@ -2601,12 +2607,14 @@ To manually add a new trusted friend, paste their public key below, select to im
                                   <widget class="GtkEntry" id="nameEntry">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x2022;</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
@@ -2640,63 +2648,11 @@ To manually add a new trusted friend, paste their public key below, select to im
                                   <widget class="GtkEntry" id="nicknameEntry">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="has_focus">True</property>
+                                    <property name="invisible_char">&#x2022;</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkHBox" id="hbox176">
-                                    <property name="visible">True</property>
-                                    <child>
-                                      <widget class="GtkButton" id="avatarButton">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <signal name="button_press_event" handler="on_avatarButton_button_press_event"/>
-                                        <signal name="clicked" handler="on_avatarButton_clicked"/>
-                                        <signal name="drag_data_received" handler="on_avatarButton_drag_data_received"/>
-                                        <child>
-                                          <widget class="GtkImage" id="avatarImage">
-                                            <property name="visible">True</property>
-                                            <property name="icon-size">3</property>
-                                          </widget>
-                                        </child>
-                                      </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options">GTK_FILL</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label514">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                    <property name="label" translatable="yes">Avatar:</property>
-                                    <property name="justify">right</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">3</property>
-                                    <property name="bottom_attach">4</property>
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
@@ -2714,12 +2670,28 @@ To manually add a new trusted friend, paste their public key below, select to im
                                 </child>
                               </widget>
                               <packing>
-                                <property name="expand">False</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <widget class="GtkButton" id="avatarButton">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <signal name="button_press_event" handler="on_avatarButton_button_press_event"/>
+                                <signal name="clicked" handler="on_avatarButton_clicked"/>
+                                <signal name="drag_data_received" handler="on_avatarButton_drag_data_received"/>
+                                <child>
+                                  <widget class="GtkImage" id="avatarImage">
+                                    <property name="visible">True</property>
+                                    <property name="icon-size">3</property>
+                                  </widget>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
                           </widget>
                         </child>
@@ -2762,7 +2734,6 @@ To manually add a new trusted friend, paste their public key below, select to im
                             <property name="spacing">5</property>
                             <child>
                               <widget class="GtkLabel" id="label545">
-                                <property name="width_request">490</property>
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Your Meshwork key has two parts. The "secret key", which must be protected and not leave this computer, and the "public key", which is exchanged with all trusted friends.</property>
@@ -2849,24 +2820,27 @@ To manually add a new trusted friend, paste their public key below, select to im
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">AA-BB-CC-DD-EE-FF-GG-HH-II-JJ</property>
+                                    <property name="xpad">3</property>
+                                    <property name="label" translatable="yes">&lt;span font="monospace"&gt;C33825CE CDCC3D23 BE9E8040 4EF88A0C 6B0C813C 86167D16 9CD98A74
+448D687F 374FAB4B C9EFF05E 39A62D42 B0F7B610 04E34FDA 4D3E5ACB 
+12D98452 5BD3A83A&lt;/span&gt;</property>
+                                    <property name="use_markup">True</property>
                                     <property name="selectable">True</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="y_options"></property>
                                   </packing>
                                 </child>
                                 <child>
                                   <widget class="GtkLabel" id="label548">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Key Identifier:</property>
+                                    <property name="yalign">0</property>
+                                    <property name="label" translatable="yes">Fingerprint:</property>
                                   </widget>
                                   <packing>
                                     <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
                                   </packing>
                                 </child>
                               </widget>
@@ -2911,13 +2885,11 @@ To manually add a new trusted friend, paste their public key below, select to im
                 <property name="spacing">5</property>
                 <child>
                   <widget class="GtkLabel" id="label542">
-                    <property name="width_request">510</property>
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="yalign">0</property>
                     <property name="label" translatable="yes">These are your networks:</property>
                     <property name="use_markup">True</property>
-                    <property name="wrap">True</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -3047,12 +3019,10 @@ To manually add a new trusted friend, paste their public key below, select to im
                             <property name="spacing">5</property>
                             <child>
                               <widget class="GtkLabel" id="label529">
-                                <property name="width_request">480</property>
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="yalign">0</property>
                                 <property name="label" translatable="yes">Files in these folders are avaliable for download by all trusted friends:</property>
-                                <property name="wrap">True</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -3359,7 +3329,6 @@ To manually add a new trusted friend, paste their public key below, select to im
                         </child>
                         <child>
                           <widget class="GtkLabel" id="firewallStatusLabel">
-                            <property name="width_request">415</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="xalign">0</property>
@@ -3570,7 +3539,6 @@ To manually add a new trusted friend, paste their public key below, select to im
                     </child>
                     <child>
                       <widget class="GtkLabel" id="label572">
-                        <property name="width_request">400</property>
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">These settings have been automatically detected. 
@@ -3982,7 +3950,6 @@ To make manual changes, select &lt;i&gt;Advanced -&gt; Connection&lt;/i&gt;.</pr
                               <widget class="GtkTreeView" id="autoConnectList">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="headers_visible">False</property>
                                 <property name="reorderable">True</property>
                                 <property name="rules_hint">True</property>
                               </widget>
@@ -7339,6 +7306,7 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;User&lt;/span&gt;</property>
                     <property name="use_markup">True</property>
+                    <property name="selectable">True</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -7480,7 +7448,6 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="hscrollbar_policy">automatic</property>
                     <property name="vscrollbar_policy">automatic</property>
-                    <property name="shadow_type">in</property>
                     <child>
                       <widget class="GtkTreeView" id="addressesTreeView">
                         <property name="visible">True</property>
@@ -7509,38 +7476,10 @@ If you are joining an existing network, ask your friend for the &lt;i&gt;exact&l
                   <widget class="GtkTable" id="table9">
                     <property name="visible">True</property>
                     <property name="border_width">12</property>
-                    <property name="n_rows">4</property>
+                    <property name="n_rows">3</property>
                     <property name="n_columns">2</property>
                     <property name="column_spacing">12</property>
                     <property name="row_spacing">12</property>
-                    <child>
-                      <widget class="GtkLabel" id="nodeIdLabel">
-                        <property name="visible">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="xalign">0</property>
-                      </widget>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">3</property>
-                        <property name="bottom_attach">4</property>
-                        <property name="y_options">GTK_FILL</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkLabel" id="label42">
-                        <property name="visible">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Node ID:</property>
-                      </widget>
-                      <packing>
-                        <property name="top_attach">3</property>
-                        <property name="bottom_attach">4</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options">GTK_FILL</property>
-                      </packing>
-                    </child>
                     <child>
                       <widget class="GtkLabel" id="label52">
                         <property name="visible">True</property>

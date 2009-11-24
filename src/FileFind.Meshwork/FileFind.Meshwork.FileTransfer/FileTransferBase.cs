@@ -27,7 +27,11 @@ namespace FileFind.Meshwork.FileTransfer
 		public event FileTransferPeerEventHandler PeerRemoved;
 
 		public event FileTransferErrorEventHandler Error;
-
+		
+		protected FileTransferBase ()
+		{
+			id = Guid.NewGuid().ToString();
+		}
 
 		public abstract FileTransferDirection Direction {
 			get;

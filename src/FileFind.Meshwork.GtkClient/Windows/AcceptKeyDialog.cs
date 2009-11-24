@@ -39,7 +39,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			var publicKey = new PublicKey(args.Key.Info, args.Key.Key);
 			keyTextView.Buffer.Text = publicKey.ToArmoredString();
-			string nodeID = FileFind.Common.MD5(publicKey.Key);
+			string nodeID = FileFind.Common.SHA512Str(publicKey.Key);
 			nodeIdLabel.Text = nodeID;
 
 			if (args.Node != null)  {

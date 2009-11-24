@@ -68,7 +68,7 @@ namespace FileFind.Meshwork
 				if (value != null) {
 					var crypto = new RSACryptoServiceProvider(new CspParameters());
 					crypto.FromXmlString(value.Key);
-					string nodeId = Common.MD5(value.Key);
+					string nodeId = Common.SHA512Str(value.Key);
 					m_PublicKey = value;
 					m_PublicKey.Nickname = m_Identifier;
 					m_Crypto = crypto;

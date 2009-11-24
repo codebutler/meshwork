@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Linq;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -167,14 +168,15 @@ namespace FileFind.Meshwork.GtkClient.Windows
 
 			provider = new RSACryptoServiceProvider();
 			provider.ImportParameters(settings.EncryptionParameters);
-			nodeid = Common.MD5(provider.ToXmlString(false));
+			nodeid = Common.SHA512Str(provider.ToXmlString(false));
+			nodeid = Common.FormatFingerprint(nodeid, 7);
 
 			/**** Load options ****/
 	
 			// General Tab		
 			nicknameEntry.Text = settings.NickName;
 			nameEntry.Text = settings.RealName;
-			nodeIdLabel.Text = nodeid;
+			nodeIdLabel.Markup = "<span font=\"monospace\">" + nodeid + "</span>";
 			emailEntry.Text = settings.Email;
 
 			string avatarDirectory = Path.Combine (Settings.ConfigurationDirectory, "avatars");

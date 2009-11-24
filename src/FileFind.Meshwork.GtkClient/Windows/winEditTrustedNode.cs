@@ -40,7 +40,7 @@ namespace FileFind.Meshwork.GtkClient
 				tni.Identifier = tni.NodeID;
 			}
 
-			nodeIdLabel.Text = tni.NodeID;
+			nodeIdLabel.Markup = "<span font=\"monospace\">" + Common.FormatFingerprint(tni.NodeID, 8) + "</span>";
 			
 			chkAllowProfile.Active = tni.AllowProfile;
 			chkAllowNetworkInfo.Active = tni.AllowNetworkInfo;

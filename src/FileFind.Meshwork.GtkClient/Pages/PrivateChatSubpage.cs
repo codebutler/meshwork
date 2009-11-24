@@ -39,7 +39,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			base.SendMessage += base_SendMessage;
 
-			AddToChat(null, String.Format("Now talking with {0} ({1}).", trustedNodeInfo.Identifier, trustedNodeInfo.NodeID));
+			AddToChat(null, String.Format("Now talking with {0} ({1}).", trustedNodeInfo.Identifier, Common.FormatFingerprint(trustedNodeInfo.NodeID)));
 			AddToChat(null, "This conversation is secure.");
 		}
 	

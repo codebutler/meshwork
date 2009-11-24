@@ -67,7 +67,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			try {
 				PublicKey result = PublicKey.Parse(txtPublicKey.Buffer.Text);
-				if (Common.MD5(result.Key) == Core.MyNodeID)
+				if (Common.SHA512Str(result.Key) == Core.MyNodeID)
 					throw new Exception("Cannot add your own key!");
 				
 				tni = new TrustedNodeInfo(result);

@@ -44,18 +44,24 @@ namespace FileFind.Meshwork
 			Buffer.BlockCopy(data, offset, signature, 0, (int)signatureLength);
 			offset += (int)signatureLength;
 
-			from = System.Text.Encoding.ASCII.GetString(data, offset, 32);
+			byte[] fromBuffer = new byte[64];
+			Buffer.BlockCopy(data, offset, fromBuffer, 0, fromBuffer.Length);
+			from = BitConverter.ToString(fromBuffer).Replace("-", String.Empty);
 			messageFrom = from;
-			offset += 32;
+			offset += 64;
 			
-			to = System.Text.Encoding.ASCII.GetString(data, offset, 32);
-			offset += 32;
+			byte[] toBuffer = new byte[64];
+			Buffer.BlockCopy(data, offset, toBuffer, 0, toBuffer.Length);
+			to = BitConverter.ToString(toBuffer).Replace("-", String.Empty);
+			offset += 64;
 
 			type = (MessageType)data[offset];
 			offset += 1;
 			
-			id = System.Text.Encoding.ASCII.GetString(data, offset, 32);
-			offset += 32;
+			byte[] idBytes = new byte[16];
+			Buffer.BlockCopy(data, offset, idBytes, 0, 16);
+			id = new Guid(idBytes).ToString();
+			offset += 16;
 			
 			timestamp = EndianBitConverter.ToUInt64(data, offset);
 			offset += 8;
@@ -67,7 +73,7 @@ namespace FileFind.Meshwork
 			if (remainingLength != contentLength) {
 				throw new Exception(String.Format("Message size mismatch! Content length should be {0}, was {1}", contentLength, remainingLength));
 			}
-
+			
 			// If this message isn't for us, ignore the content.
 			if (to == Core.MyNodeID || to == Network.BroadcastNodeID) {
 				
@@ -135,16 +141,16 @@ namespace FileFind.Meshwork
 		// Messages use the order as layed out:
 
 		ulong signatureLength;
-		byte[] signature;				// Cryptographic signature of everything below (8 bytes)
+		byte[] signature;						// Cryptographic signature of everything below (8 bytes)
 
-		string from;					// MD5(PublicKey) of sender (32 bytes)
-		string to = Network.BroadcastNodeID;		// MD5(PublicKey) of recepient
-		MessageType type; 				// MessageTypes enum (1 byte)
-		string id;					// Message ID - Randomly generated
-		ulong timestamp;				// Unix timestamp of message creation time (8 bytes)
-		int contentLength;				// Size of content (4 bytes)
+		string from;							// SHA512(PublicKey) of sender (128 bytes)
+		string to = Network.BroadcastNodeID;	// SHA512(PublicKey) of recepient
+		MessageType type; 						// MessageTypes enum (1 byte)
+		string id;								// Message ID - Randomly generated (16 bytes over wire)
+		ulong timestamp;						// Unix timestamp of message creation time (8 bytes)
+		int contentLength;						// Size of content (4 bytes)
 		
-		object content;					// Message content (represented as a byte[])
+		object content;							// Message content (represented as a byte[])
 
 		// --
 
@@ -204,10 +210,10 @@ namespace FileFind.Meshwork
 				if (data != null)
 					throw new InvalidOperationException("Message has already been signed");
 				
-				if (value.Length == 32)
+				if (value.Length == 16)
 					this.id = value;
 				else
-					throw new InvalidOperationException("`MessageID' must be 32 characters.");
+					throw new InvalidOperationException("MessageID must be 16 bytes.");
 			}
 			get {
 				return id;
@@ -268,19 +274,22 @@ namespace FileFind.Meshwork
 			signatureLength = (ulong)signature.Length;
 			contentLength = contentBytes.Length;
 			
-			buffer = new byte[8 + (int)signatureLength + 32 + 32 + 1 + 32 + 8 + 4 + contentBytes.Length];
-			//buffer = new byte[(int)signatureLength + 32 + 32 + 1 + 32 + 8 + 8 + contentBytes.Length];
+			buffer = new byte[8 + (int)signatureLength + 64 + 64 + 1 + 16 + 8 + 4 + contentBytes.Length];
 
 			AppendULongToBuffer(signatureLength, ref buffer, ref index);	// 8
-			AppendBytesToBuffer(signature, ref buffer, ref index);		// ?
+			AppendBytesToBuffer(signature, ref buffer, ref index);			// ?
 
-			AppendStringToBuffer(from, ref buffer, ref index);		// 32
-			AppendStringToBuffer(to, ref buffer, ref index);		// 32
-			AppendByteToBuffer((byte)type, ref buffer, ref index);		// 1
-			AppendStringToBuffer(id, ref buffer, ref index);		// 32
+			AppendStringToBuffer(from, ref buffer, ref index); 				// 64
+			AppendStringToBuffer(to, ref buffer, ref index); 				// 64
+			
+			AppendByteToBuffer((byte)type, ref buffer, ref index);			// 1
+			
+			byte[] idBytes = new Guid(id).ToByteArray();
+			Console.WriteLine("ID: " + idBytes.Length);
+			AppendBytesToBuffer(idBytes, ref buffer, ref index); 			// 16
 
-			AppendULongToBuffer(timestamp, ref buffer, ref index);		// 8
-			AppendIntToBuffer(contentLength, ref buffer, ref index);	// 4
+			AppendULongToBuffer(timestamp, ref buffer, ref index);			// 8
+			AppendIntToBuffer(contentLength, ref buffer, ref index);		// 4
 
 			AppendBytesToBuffer(contentBytes, ref buffer, ref index);		// ?
 
@@ -312,9 +321,9 @@ namespace FileFind.Meshwork
 		
 		private static void AppendStringToBuffer (string data, ref byte[] buffer, ref int index)
 		{
-			byte[] bytes = System.Text.Encoding.ASCII.GetBytes(data);
-			Buffer.BlockCopy(bytes, 0, buffer, index, data.Length);
-			index += data.Length;
+			byte[] bytes = Common.StringToBytes(data);
+			Buffer.BlockCopy(bytes, 0, buffer, index, bytes.Length);
+			index += bytes.Length;
 		}
 		
 		private static void AppendBytesToBuffer (byte[] data, ref byte[] buffer, ref int index)

@@ -365,7 +365,7 @@ namespace FileFind.Meshwork
 					
 					RSACryptoServiceProvider provider = new RSACryptoServiceProvider ();
 					provider.FromXmlString (key.Key);
-					string nodeID = FileFind.Common.MD5 (provider.ToXmlString (false));
+					string nodeID = FileFind.Common.SHA512Str(provider.ToXmlString (false));
 				
 					if (nodeID.ToLower () == transport.Network.LocalNode.NodeID.ToLower ()) {
 						throw new Exception ("You cannot connect to yourself!");

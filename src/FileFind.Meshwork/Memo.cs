@@ -109,7 +109,7 @@ namespace FileFind.Meshwork
 		public void Sign ()
 		{
 			if (id == null) {
-				id = Common.MD5 (network.CreateMessageID());
+				id = Guid.NewGuid().ToString();
 			}
 			byte[] buf = System.Text.Encoding.UTF8.GetBytes (CreateSignString());
 			signature = Core.CryptoProvider.SignData (buf, new SHA1CryptoServiceProvider());

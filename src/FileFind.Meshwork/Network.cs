@@ -55,7 +55,7 @@ namespace FileFind.Meshwork
 	public class Network : FileFind.Meshwork.Object
 	{
 		// Public variables
-		public readonly static string BroadcastNodeID = "00000000000000000000000000000000";
+		public readonly static string BroadcastNodeID = new string('0', 128);
 		public bool AllowUploading = true;
 		public int MaxSimltaniousUploads = 2;
 		public int MaxSimltaniousUploadsPerUser = 1;
@@ -642,63 +642,63 @@ namespace FileFind.Meshwork
 		}
 
 		//XXX: This method is a huge mess.
-		public void SendRoutedMessage(Message Message)
+		public void SendRoutedMessage(Message message)
 		{
-			if (nodes.ContainsKey(Message.To)) {
-				if (UnencryptedMessageTypes.IndexOf(Message.Type) == -1 && 
-				    InsecureMessageTypes.IndexOf(Message.Type) == -1 &&
-				    LocalOnlyMessageTypes.IndexOf(Message.Type) == -1 && 
-				    Nodes[Message.To].FinishedKeyExchange == false) 
+			if (nodes.ContainsKey(message.To)) {
+				if (UnencryptedMessageTypes.IndexOf(message.Type) == -1 && 
+				    InsecureMessageTypes.IndexOf(message.Type) == -1 &&
+				    LocalOnlyMessageTypes.IndexOf(message.Type) == -1 && 
+				    Nodes[message.To].FinishedKeyExchange == false) 
 				{
-					throw new KeyNotAvaliableException(Nodes[Message.To], Message.Type);
+					throw new KeyNotAvaliableException(Nodes[message.To], message.Type);
 				}
 
 				// Don't route the same message twice.
-				if (routedMessages.ContainsKey(Message.MessageID) == false) {
-					routedMessages.Add(Message.MessageID);
+				if (routedMessages.ContainsKey(message.MessageID) == false) {
+					routedMessages.Add(message.MessageID);
 				} else {
 					return;
 				}
 
-				if (Message.To == LocalNode.NodeID) {
+				if (message.To == LocalNode.NodeID) {
 					throw new Exception("you cannot send messages to yourself!");
 				}
 
-				if (Message.To == BroadcastNodeID) {
+				if (message.To == BroadcastNodeID) {
 					throw new Exception("Invalid To");
 				}
 				
 				// Send LocalOnly message types regardless of ConnectionState
-				if (LocalOnlyMessageTypes.IndexOf(Message.Type) > -1) {
+				if (LocalOnlyMessageTypes.IndexOf(message.Type) > -1) {
 
 					foreach (LocalNodeConnection connection in LocalConnections) {
 						if (connection.NodeRemote != null) {
-							if (connection.NodeRemote.NodeID == Message.To) {
-								connection.SendMessage(Message);
+							if (connection.NodeRemote.NodeID == message.To) {
+								connection.SendMessage(message);
 								return;
 							}
 						}
 					}
-					throw new Exception("No connection to " + Nodes[Message.To].ToString());
+					throw new Exception("No connection to " + Nodes[message.To].ToString());
 
 				} else {
 					// If we're connected directly to this person, send it through that connection.
 					foreach (LocalNodeConnection c in LocalConnections) {
 						if (c.ConnectionState == ConnectionState.Ready && c.NodeRemote != null) {
-							if (c.NodeRemote.NodeID == Message.To) {
-								c.SendMessage(Message);
+							if (c.NodeRemote.NodeID == message.To) {
+								c.SendMessage(message);
 								return;
 							}
 						}
 					}
 
 					// Otherwise, broadcast it (this will go away once we have real routing).
-					routedMessages.Remove(Message.MessageID);
-					SendBroadcast(Message, null);
+					routedMessages.Remove(message.MessageID);
+					SendBroadcast(message, null);
 					return;
 				} 
 			} else {
-				throw new Exception("Node " + Message.To + " does not exist on the network!");
+				throw new Exception("Node " + message.To + " does not exist on the network!");
 			}
 			
 			//throw new Exception("Message was not sent for some reason :( " + Message.Type);
@@ -711,7 +711,7 @@ namespace FileFind.Meshwork
 
 		internal void SendBroadcast(Message message, Node nodeFrom)
 		{
-			string messageID = message.MessageID;
+			var messageID = message.MessageID;
 			if (routedMessages.ContainsKey(messageID) == false) {
 				routedMessages.Add(messageID);
 				
@@ -998,15 +998,9 @@ namespace FileFind.Meshwork
 		internal string CreateMessageID()
 		{
 			while (true) {
-				Random rnd = new Random();
-				rnd.Next(); rnd.Next();
-				
-				string str = Common.MD5(rnd.Next().ToString() +
-				             DateTime.Now.Ticks.ToString() +
-					     rnd.Next().ToString()).ToLower();
-
-				if ((!routedMessages.ContainsKey(str)) && (!processedMessages.ContainsKey(str))) {
-					return str;
+				string id = Guid.NewGuid().ToString();
+				if ((!routedMessages.ContainsKey(id)) && (!processedMessages.ContainsKey(id))) {
+					return id;
 				}
 			}
 		}

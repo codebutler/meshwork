@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -147,7 +148,13 @@ namespace FileFind
 		{
 			return BitConverter.ToString(SHA512(stringIn)).Replace("-","");
 		}
-
+		
+		public static string SHA512Str (byte[] bytesIn)
+		{
+			SHA512 shaManaged = new SHA512Managed();
+			return BitConverter.ToString(shaManaged.ComputeHash(bytesIn));
+		}
+		
 		public static string AddLineBreaks(string strIn)
 		{
 			string strOut = "";
@@ -177,6 +184,17 @@ namespace FileFind
 			}
 		}
 
+		public static string FormatFingerprint (string fingerprint)
+		{
+			return fingerprint.CutIntoSetsOf(8).Join(" ");
+		}
+		
+		public static string FormatFingerprint (string fingerprint, int sectionsPerLine)
+		{
+			return fingerprint.CutIntoSetsOf(8).EnumSlice(sectionsPerLine).Select(x => x.Join(" ")).Join("\n");
+		}
+		                                        
+		
 		public static string FormatBytes (decimal bytes)
 		{
 			if (bytes >= 1099511627776)

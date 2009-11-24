@@ -59,7 +59,7 @@ namespace FileFind.Meshwork
 		public static event NetworkEventHandler NetworkRemoved;
 		public static event EventHandler PasswordPrompt;
 		
-		public static readonly int ProtocolVersion = 248;
+		public static readonly int ProtocolVersion = 249;
 
 		static Core ()
 		{
@@ -110,7 +110,7 @@ namespace FileFind.Meshwork
 			
 			rsaProvider = new RSACryptoServiceProvider();			
 			rsaProvider.ImportParameters(settings.EncryptionParameters);
-			nodeID = Common.MD5(rsaProvider.ToXmlString(false)).ToLower();
+			nodeID = Common.SHA512Str(rsaProvider.ToXmlString(false));
 
 			fileSystem = new FileSystemProvider();
 

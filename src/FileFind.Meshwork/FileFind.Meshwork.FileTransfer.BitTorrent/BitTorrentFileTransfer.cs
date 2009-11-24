@@ -30,14 +30,12 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		double hashingPercent = 0;
 		bool isCanceled = false;
 		bool startCalled = false;
-		//string transferId;
 		int maxUploadSpeed = 0;
 		int maxDownloadSpeed = 0;
 		
-		public BitTorrentFileTransfer(IFile file)
+		public BitTorrentFileTransfer(IFile file) : base ()
 		{
 			this.file = file;
-			base.id = Common.MD5(new Random().Next().ToString());
 		}
 
 		public override FileTransferDirection Direction {

@@ -10,6 +10,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Net;
 using FileFind;
@@ -130,7 +131,7 @@ namespace FileFind.Meshwork
 
 		internal void ProcessNewSessionKeyMessage (Node messageFrom, byte[] key)
 		{
-			string keyHash = FileFind.Common.MD5(key);
+			string keyHash = FileFind.Common.SHA512Str(key);
 			
 			// This lets us create a brand new session key
 			// if someone wants that for whatever reason.

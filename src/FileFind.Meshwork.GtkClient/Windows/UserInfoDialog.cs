@@ -34,7 +34,6 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] Label clientNameLabel;
 		[Widget] Label clientVersionLabel;
 		[Widget] Label operatingSystemLabel;
-		[Widget] Label nodeIdLabel;
 
 		ListStore addressListStore;
 			
@@ -47,7 +46,8 @@ namespace FileFind.Meshwork.GtkClient
 
 			avatarImage.Pixbuf = Gui.AvatarManager.GetAvatar(node);
 
-			nickNameLabel.Markup = String.Format("<span weight=\"bold\" size=\"x-large\">{0}</span> on <i>{1}</i>", node.NickName, network.NetworkName);
+			nickNameLabel.Markup = String.Format("<span weight=\"bold\" size=\"x-large\">{0}</span> on <i>{1}</i>\n<span font=\"monospace\" size=\"small\">{2}</span>",
+			                                     node.NickName, network.NetworkName, Common.FormatFingerprint(node.NodeID, 4));
 			
 			realNameLabel.Text = node.RealName;
 			emailLabel.Text    = node.Email;
@@ -95,8 +95,6 @@ namespace FileFind.Meshwork.GtkClient
 			clientNameLabel.Text      = node.ClientName;
 			clientVersionLabel.Text   = node.ClientVersion;
 			operatingSystemLabel.Text = node.OperatingSystem;
-
-			nodeIdLabel.Text = node.NodeID;
 		}
 		
 		void HandleActionsButtonClicked (object sender, EventArgs args)

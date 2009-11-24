@@ -62,7 +62,7 @@ namespace FileFind.Meshwork
 				throw new ArgumentNullException("network");
 			}
 			
-			if (nodeID.Length != 32) {
+			if (nodeID.Length != 128) {
 				throw new ArgumentException("Invalid NodeID specified.");
 			}
 
