@@ -13,7 +13,7 @@ namespace FileFind.Meshwork.Filesystem
 {
 	public class MyDirectory : LocalDirectory
 	{
-		public MyDirectory () : base(0, 0, "local", null)
+		public MyDirectory () : base(0, 0, "local", null, "/local")
 		{
 		
 		}

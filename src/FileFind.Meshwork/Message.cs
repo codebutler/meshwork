@@ -285,7 +285,6 @@ namespace FileFind.Meshwork
 			AppendByteToBuffer((byte)type, ref buffer, ref index);			// 1
 			
 			byte[] idBytes = new Guid(id).ToByteArray();
-			Console.WriteLine("ID: " + idBytes.Length);
 			AppendBytesToBuffer(idBytes, ref buffer, ref index); 			// 16
 
 			AppendULongToBuffer(timestamp, ref buffer, ref index);			// 8

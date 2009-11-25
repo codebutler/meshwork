@@ -14,21 +14,23 @@ namespace FileFind.Meshwork.Filesystem
 {
 	public class LocalDirectory : AbstractDirectory, ILocalDirectoryItem
 	{
-		int              id;
-		int              parentId;
-		string           name;
-		string           localPath;
-		int              fileCount = -1;
-		int              directoryCount = -1;
-		
+		int    id;
+		int    parentId;
+		string name;
+		string localPath;
+		int    fileCount = -1;
+		int    directoryCount = -1;
+		string fullPath;
+			
 		#region Constructors
 		
-		protected LocalDirectory (int id, int parentId, string name, string localPath)
+		protected LocalDirectory (int id, int parentId, string name, string localPath, string fullPath)
 		{
 			this.id        = id;
 			this.parentId  = parentId;
 			this.name      = name;
 			this.localPath = localPath;
+			this.fullPath  = fullPath;
 		}
 		#endregion
 		
@@ -61,7 +63,13 @@ namespace FileFind.Meshwork.Filesystem
 				}
 			}
 		}
-
+		
+		public override string FullPath {
+			get {
+				return fullPath;
+			}
+		}
+		
 		public override string Name {
 			get {
 				return name;
@@ -169,8 +177,9 @@ namespace FileFind.Meshwork.Filesystem
 
 			string name = row["name"].ToString();
 			string localPath = row["local_path"].ToString();
+			string fullPath = row["full_path"].ToString();
 
-			return new LocalDirectory(id, parent_id, name, localPath);
+			return new LocalDirectory(id, parent_id, name, localPath, fullPath);
 		}
 		
 		private static LocalDirectory CreateDirectory (LocalDirectory parent, string name, string local_path)
@@ -198,9 +207,11 @@ namespace FileFind.Meshwork.Filesystem
 
 			Core.FileSystem.UseConnection(delegate (IDbConnection connection) {
 				IDbCommand cmd = connection.CreateCommand();
-				cmd.CommandText = "INSERT INTO directoryitems (type, parent_id, name, local_path) VALUES ('D', @parent_id, @name, @local_path);";
+				cmd.CommandText = @"INSERT INTO directoryitems (type, parent_id, name, local_path, full_path)
+					VALUES ('D', @parent_id, @name, @local_path, @full_path);";
 				Core.FileSystem.AddParameter(cmd, "@name", name);
 				Core.FileSystem.AddParameter(cmd, "@local_path", local_path);
+				Core.FileSystem.AddParameter(cmd, "@full_path", fullPath);
 
 				if (parent == null) {
 					Core.FileSystem.AddParameter(cmd, "@parent_id", null);
@@ -220,7 +231,7 @@ namespace FileFind.Meshwork.Filesystem
 			}
 
 			int parentId = (parent == null) ? -1 : parent.Id;
-			return new LocalDirectory(last_id, parentId, name, local_path);
+			return new LocalDirectory(last_id, parentId, name, local_path, fullPath);
 		}
 
 		internal static long CountByParentId (Nullable<int> parent_id)

@@ -205,12 +205,10 @@ namespace FileFind.Meshwork
 				pieces[x] = Common.BytesToString(hash);
 			}
 
-			task.File.InfoHash = Common.BytesToString(torrent.InfoHash); 
-			task.File.Pieces = pieces;
-			task.File.PieceLength = torrent.PieceLength;
-			task.File.SHA1 = Common.BytesToString(torrent.Files[0].SHA1);
-			task.File.Save();
-			
+			task.File.Update(Common.BytesToString(torrent.InfoHash),
+			                 Common.BytesToString(torrent.Files[0].SHA1), 
+			                 torrent.PieceLength, pieces);
+					
 			if (FinishedHashingFile != null)
 				FinishedHashingFile(task);
 			

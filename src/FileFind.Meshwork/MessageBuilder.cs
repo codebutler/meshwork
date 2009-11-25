@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -348,25 +349,12 @@ namespace FileFind.Meshwork
 			return p;
 		}
 
-		public Message CreateRespondDirListingMessage (Node messageTo, string dirPath)
-		{
-			LocalDirectory directory = Core.FileSystem.GetLocalDirectory(dirPath);
-			
+		public Message CreateRespondDirListingMessage (Node messageTo, LocalDirectory directory)
+		{			
 			SharedDirectoryInfo info = new SharedDirectoryInfo(directory);
 			
-			List<SharedFileListing> files = new List<SharedFileListing>();
-			foreach (IFile file in directory.Files) {
-				SharedFileListing fileInfo = new SharedFileListing((LocalFile)file, false);
-				files.Add(fileInfo);
-			}
-			info.Files = files.ToArray();
-
-			string[] directories = new string[directory.Directories.Length];
-			for (int x = 0; x < directory.Directories.Length; x++) {
-				IDirectory subDirectory = directory.Directories[x];
-				directories[x] = subDirectory.Name;
-			}
-			info.Directories = directories;
+			info.Files = directory.Files.Select(f => new SharedFileListing((LocalFile)f, false)).ToArray();
+			info.Directories = directory.Directories.Select(d => d.Name).ToArray();
 
 			Message message = new Message (network, MessageType.RespondDirListing);
 			message.To = messageTo.NodeID;

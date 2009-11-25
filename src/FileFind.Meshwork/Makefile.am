@@ -99,6 +99,33 @@ FILES =  \
 	FileFind/SerializableDictionary.cs \
 	FileFind/Serialization.cs \
 	FileFind/StringWriterWithEncoding.cs \
+	Hyena.Data.Sqlite/DatabaseColumnAttribute.cs \
+	Hyena.Data.Sqlite/SqliteUtils.cs \
+	Hyena.Query/AliasedObjectSet.cs \
+	Hyena.Query/DateQueryValue.cs \
+	Hyena.Query/ExactStringQueryValue.cs \
+	Hyena.Query/FileSizeQueryValue.cs \
+	Hyena.Query/IntegerKeyedObjectQueryValue.cs \
+	Hyena.Query/IntegerQueryValue.cs \
+	Hyena.Query/NullQueryValue.cs \
+	Hyena.Query/QueryField.cs \
+	Hyena.Query/QueryFieldSet.cs \
+	Hyena.Query/QueryLimit.cs \
+	Hyena.Query/QueryListNode.cs \
+	Hyena.Query/QueryNode.cs \
+	Hyena.Query/QueryOperator.cs \
+	Hyena.Query/QueryOrder.cs \
+	Hyena.Query/QueryParser.cs \
+	Hyena.Query/QueryTermNode.cs \
+	Hyena.Query/QueryToken.cs \
+	Hyena.Query/QueryValue.cs \
+	Hyena.Query/RelativeTimeSpanQueryValue.cs \
+	Hyena.Query/StringQueryValue.cs \
+	Hyena.Query/TimeSpanQueryValue.cs \
+	Hyena.Query/UserQueryParser.cs \
+	Hyena.Query/XmlQueryParser.cs \
+	Hyena/DateTimeUtil.cs \
+	Hyena/StringUtil.cs \
 	IAvatarManager.cs \
 	IMeshworkPlugin.cs \
 	INodeConnection.cs \
@@ -127,6 +154,7 @@ FILES =  \
 	ShareWatcher.cs \
 	TextCatalog.cs \
 	TrustedNodeInfo.cs \
+	FileTypeQueryValue.cs \
 	Validator.cs \
 	Windows.cs                             
 
@@ -140,7 +168,7 @@ REFERENCES = \
 	-r:System.Web \
 	-r:System.Data \
 	-r:Mono.Data \
-	-r:Mono.Data.SqliteClient.dll \
+	-r:Mono.Data.Sqlite \
 	-r:Mono.Posix
 
 all: $(ASSEMBLY)

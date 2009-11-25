@@ -34,6 +34,11 @@ namespace FileFind.Meshwork.Filesystem
 
 		public static string Join (string path1, string path2)
 		{
+			if (path1 == null)
+				throw new ArgumentNullException("path1");
+			if (path2 == null)
+				throw new ArgumentNullException("path2");
+			
 			if (path1.EndsWith("/") ^ path2.StartsWith("/")) {
 				return String.Format("{0}{1}", path1, path2);
 			} else if (path1.EndsWith("/") && path2.StartsWith("/")) {

@@ -151,8 +151,6 @@ namespace FileFind.Meshwork.Protocol
 		public int SearchId;
 		public string[] Directories;
 		public SharedFileListing[] Files;
-		public bool ExeededLimit;
-		public int Page;
 	}
 
 	public interface ISharedListing
@@ -178,6 +176,7 @@ namespace FileFind.Meshwork.Protocol
 		long     size;
 		FileType type;
 		string   infoHash;
+		string   sha1;
 		int      pieceLength;
 		string[] pieces;
 		SerializableDictionary<string, string> metadata;
@@ -203,6 +202,12 @@ namespace FileFind.Meshwork.Protocol
 		public string InfoHash {
 			get {
 				return infoHash;
+			}
+		}
+		
+		public string SHA1 {
+			get {
+				return sha1;
 			}
 		}
 
@@ -240,6 +245,7 @@ namespace FileFind.Meshwork.Protocol
 			this.fullPath =  "/" + String.Join("/", file.FullPath.Split('/').Slice(2));
 			this.size = file.Size;
 			this.infoHash = file.InfoHash;
+			this.sha1 = file.SHA1;
 			this.type = FileType.Other; // FIXME: Use real file type.
 			this.pieceLength = file.PieceLength;
 			

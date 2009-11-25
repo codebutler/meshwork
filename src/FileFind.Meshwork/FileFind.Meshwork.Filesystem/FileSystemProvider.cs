@@ -21,9 +21,10 @@ using FileFind.Meshwork;
 using FileFind.Meshwork.Collections;
 using FileFind.Meshwork.Exceptions;
 using FileFind.Meshwork.Protocol;
-using Mono.Data.SqliteClient;
+using Mono.Data.Sqlite;
 using Mono.Data;
 using System.Data;
+using Hyena.Query;
 
 namespace FileFind.Meshwork.Filesystem
 {
@@ -34,7 +35,7 @@ namespace FileFind.Meshwork.Filesystem
 	
 	public class FileSystemProvider
 	{
-		const string SCHEMA_VERSION = "10";
+		const string SCHEMA_VERSION = "11";
 		
 		string connectionString;
 		long yourTotalBytes = -1;
@@ -46,6 +47,43 @@ namespace FileFind.Meshwork.Filesystem
 		Dictionary<string, RemoteDirectory> remoteDirectoryCache = new Dictionary<string, RemoteDirectory>();
 		Dictionary<string, List<DirectoryCallback>> remoteDirectoryCallbacks = new Dictionary<string, List<DirectoryCallback>>();
 
+		public static readonly int MAX_RESULTS = 300;
+
+		public static QueryField FileNameField = new QueryField(
+			"name", "Name", 
+			"File Name", "directoryitems.name", true,
+			"name", "filename"
+		);
+		
+		public static QueryField FileTypeField = new QueryField(
+			"type", "Type",
+			"Type", "directoryitems.type", typeof(FileTypeQueryValue),
+			"type", "filetype"
+		);
+		
+		public static QueryField FileSizeField = new QueryField(
+			"length", "Length",
+			"File Size", "directoryitems.length", typeof(IntegerQueryValue), 
+		    "size", "filesize", "length"
+		);
+		 
+		public static QueryField FileSHA1Field = new QueryField(
+			"sha1", "SHA1", 
+			"SHA1", "directoryitems.sha1", typeof(ExactStringQueryValue),
+			"sha1", "sha"
+		);
+		
+		public static QueryField FileInfoHashField = new QueryField(
+			"infohash", "InfoHash", 
+			"Info Hash", "directoryitems.info_hash", typeof(ExactStringQueryValue),
+			"infohash"
+		);
+		
+        public static QueryFieldSet FieldSet = new QueryFieldSet (
+	        FileNameField, FileTypeField, FileSizeField, FileSHA1Field , FileInfoHashField
+	    );
+		
+		
 		public FileSystemProvider ()
 		{
 			string path = Path.Combine(Core.Settings.DataPath, "shares.db");
@@ -56,7 +94,7 @@ namespace FileFind.Meshwork.Filesystem
 				create = true;
 			}
 
-			connectionString = String.Format("URI=file:{0},version=3", path);
+			connectionString = String.Format("URI=file:{0},version=3;busy_timeout=300000", path);
 
 			if (!create) {
 				try {
@@ -143,7 +181,25 @@ namespace FileFind.Meshwork.Filesystem
 
 		internal LocalDirectory GetLocalDirectory (string path)
 		{
-			return (LocalDirectory)GetDirectory(path);
+			if (path.Length > 1 && path.EndsWith("/"))
+				path = path.Substring(0, path.Length - 1);
+			
+			string[] parts = path.Split('/');
+			if (parts.Length < 2) {
+				return (LocalDirectory)GetDirectory(path);
+			} else {			
+				return Core.FileSystem.UseConnection<LocalDirectory>(delegate (IDbConnection connection) {
+					string query = "SELECT * FROM directoryitems WHERE type = 'D' AND full_path = @full_path LIMIT 1";
+					IDbCommand command = connection.CreateCommand();
+					command.CommandText = query;
+					Core.FileSystem.AddParameter(command, "@full_path", path);
+					DataSet data = Core.FileSystem.ExecuteDataSet(command);
+					if (data.Tables[0].Rows.Count > 0)
+						return LocalDirectory.FromDataRow(data.Tables[0].Rows[0]);
+					else
+						return null;
+				});
+			}
 		}
 		
 		// FIXME: Eventually, this method should become private.
@@ -236,7 +292,6 @@ namespace FileFind.Meshwork.Filesystem
 		private IDbConnection CreateDbConnection ()
 		{
 			SqliteConnection connection = new SqliteConnection(connectionString);
-			connection.BusyTimeout = 300000; // SQLite is stupid
 			connection.Open ();
 			return (IDbConnection)connection;
 		}
@@ -292,7 +347,7 @@ namespace FileFind.Meshwork.Filesystem
 						IDbCommand command = connection.CreateCommand();
 						command.CommandText = query;
 						object result = ExecuteScalar(command);
-						yourTotalFiles = (result == null) ? 0 : (long)result;
+						yourTotalFiles = (result is DBNull) ? 0 : (long)result;
 						return yourTotalFiles;
 					});
 				}
@@ -309,7 +364,7 @@ namespace FileFind.Meshwork.Filesystem
 						IDbCommand command = connection.CreateCommand();
 						command.CommandText = query;
 						object result = ExecuteScalar(command);
-						yourTotalBytes = (result == null) ? 0 : (long)result;
+						yourTotalBytes = (result is DBNull) ? 0 : (long)result;
 						return yourTotalBytes;
 					});
 				}
@@ -323,22 +378,24 @@ namespace FileFind.Meshwork.Filesystem
 			DataSet          ds;
 			int              x;
 			SearchResultInfo result;
-			
+						
 			var directories = new List<string>();
 			var files = new List<SharedFileListing>();
 
 			result = new SearchResultInfo();
-
-			// XXX: Anything else?
-			query = query.Replace(@"%", @"\%");
-			query = query.Replace(@"\", @"\\");
-
-			UseConnection(delegate (IDbConnection connection) {
-				sql = @"SELECT * FROM directoryitems WHERE name LIKE @name";
+			
+			var queryNode = Hyena.Query.UserQueryParser.Parse(query, FileSystemProvider.FieldSet);
+			var queryFragment = queryNode.ToSql(FileSystemProvider.FieldSet);
+					
+			var sb = new StringBuilder();
+			sb.Append("SELECT * FROM directoryitems WHERE ");
+			sb.Append(queryFragment);
+			sb.AppendFormat(" LIMIT {0}", MAX_RESULTS.ToString());
+						
+			UseConnection(delegate (IDbConnection connection) {				
 				command = connection.CreateCommand();
-				command.CommandText = sql;
-				AddParameter(command, "@name", "%" + query + "%");
-
+				command.CommandText = sb.ToString();
+				
 				ds = ExecuteDataSet(command);
 				
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
@@ -393,18 +450,20 @@ namespace FileFind.Meshwork.Filesystem
 
 					command = connection.CreateCommand();
 					command.CommandText = @"
-					CREATE TABLE directoryitems (id           INTEGER PRIMARY KEY AUTOINCREMENT,
-								     type         TEXT(1),
-								     name         TEXT NOT NULL,
-								     parent_id    INTEGER,
-								     length       INTEGER,
-								     piece_length INTEGER,
-								     local_path   TEXT,
-								     info_hash    TEXT,
-								     sha1         TEXT,
-								     requested    BOOL,
-								     UNIQUE (parent_id, name)
-					);
+						CREATE TABLE directoryitems (
+							id           INTEGER PRIMARY KEY AUTOINCREMENT,
+							type         TEXT(1),
+							name         TEXT NOT NULL,
+							parent_id    INTEGER,
+							length       INTEGER,
+							piece_length INTEGER,
+							local_path   TEXT,
+							info_hash    TEXT,
+							sha1         TEXT,
+							requested    BOOL,
+							full_path    TEXT,
+							UNIQUE (parent_id, name)
+						);
 					";
 					ExecuteNonQuery(command);
 
@@ -453,9 +512,13 @@ namespace FileFind.Meshwork.Filesystem
 					ExecuteNonQuery(command);
 					
 					command = connection.CreateCommand();
+					command.CommandText = "CREATE INDEX directoryitems_full_path ON directoryitems (full_path);";
+					ExecuteNonQuery(command);
+					
+					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX filepieces_file_id ON filepieces (file_id);";
 					ExecuteNonQuery(command);
-
+					
 					transaction.Commit();
 				}
 			}
@@ -517,7 +580,7 @@ namespace FileFind.Meshwork.Filesystem
 					reader = command.ExecuteReader();
 
 					while (reader.Read()) {
-						string id = reader.GetString(0);
+						string id = reader.GetInt32(0).ToString();
 						string path = reader.GetString(1);
 						string type = reader.GetString(2);
 						if (type == "D") {

@@ -359,9 +359,6 @@ namespace FileFind.Meshwork
 			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
 			RemoteFile file = (RemoteFile)Core.FileSystem.GetFile(fullPath);
 			if (file != null) {
-				file.PieceLength = info.PieceLength;
-				file.Pieces = info.Pieces;
-				file.InfoHash = info.InfoHash;
 				network.RaiseReceivedFileDetails(file);
 				
 				// FIXME: Get rid of all this, just listen for above network.ReceivedFileDetails event!
@@ -370,7 +367,7 @@ namespace FileFind.Meshwork
 					((IFileTransferInternal)transfer).DetailsReceived();
 				}
 			} else {
-				LoggingService.LogError("Received file details for unknown file: " + info.FullPath);
+				LoggingService.LogError("Received file details for unknown file: " + fullPath);
 			}
 		}
 
@@ -470,8 +467,9 @@ namespace FileFind.Meshwork
 				string directoryPath = PathUtil.Join(Core.MyDirectory.FullPath, requestedPath);
 				
 				if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
-					if (Core.FileSystem.GetLocalDirectory(directoryPath) != null) {
-						network.SendRoutedMessage(network.MessageBuilder.CreateRespondDirListingMessage(messageFrom, directoryPath));
+					var directory = Core.FileSystem.GetLocalDirectory(directoryPath);
+					if (directory != null) {
+						network.SendRoutedMessage(network.MessageBuilder.CreateRespondDirListingMessage(messageFrom, directory));
 					} else {
 						network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new DirectoryNotFoundError(requestedPath)));
 					}

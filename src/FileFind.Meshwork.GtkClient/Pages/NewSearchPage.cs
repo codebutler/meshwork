@@ -50,12 +50,7 @@ namespace FileFind.Meshwork.GtkClient
 			searchEntry.WidthRequest = 400;
 			mainVBox.PackStart(searchEntry, false, false, 6);
 			searchEntry.Show();
-
-			Expander expander = new Expander("_Advanced");
-			mainVBox.PackStart(expander, false, false, 0);
-			expander.Sensitive = false;
-			expander.ShowAll();
-
+			
 			searchButton = new Button("_Search");
 			searchButton.Image = new Image(Stock.Find, IconSize.Button);
 			searchButton.Clicked += searchButton_Clicked;

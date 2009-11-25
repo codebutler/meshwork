@@ -16,17 +16,18 @@ namespace FileFind.Meshwork.Filesystem
 	{
 		public abstract string InfoHash {
 			get;
-			internal set;
+		}
+		
+		public abstract string SHA1 {
+			get;
 		}
 		
 		public abstract string[] Pieces {
 			get;
-			internal set;
 		}
 		
 		public abstract int PieceLength {
 			get;
-			internal set;
 		}
 		
 		public virtual string FullPath {

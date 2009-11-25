@@ -18,6 +18,10 @@ namespace FileFind.Meshwork.Filesystem
 			get;
 		}
 		
+		string SHA1 {
+			get;
+		}
+		
 		string[] Pieces {
 			get;
 		}

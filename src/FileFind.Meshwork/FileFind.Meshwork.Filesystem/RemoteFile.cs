@@ -18,6 +18,7 @@ namespace FileFind.Meshwork.Filesystem
 		RemoteDirectory m_Parent;
 		string m_Name;
 		string m_InfoHash;
+		string m_SHA1;
 		FileType m_Type;
 		long m_Size;
 
@@ -33,6 +34,7 @@ namespace FileFind.Meshwork.Filesystem
 			
 			m_Name = listing.Name;
 			m_InfoHash = listing.InfoHash;
+			m_SHA1 = listing.SHA1;
 			m_Type = listing.Type;
 			m_Size = listing.Size;
 			
@@ -47,9 +49,10 @@ namespace FileFind.Meshwork.Filesystem
 
 		public override string InfoHash {
 			get { return m_InfoHash; }
-			internal set {
-				m_InfoHash = value;
-			}
+		}
+		
+		public override string SHA1 {
+			get { return m_SHA1; }
 		}
 
 		public override string Name {
@@ -86,17 +89,11 @@ namespace FileFind.Meshwork.Filesystem
 			get {
 				return m_PieceLength;
 			}
-			internal set {
-				m_PieceLength = value;
-			}
 		}
 
 		public override string[] Pieces {
 			get {
 				return m_Pieces;
-			}
-			internal set {
-				m_Pieces = value;
 			}
 		}
 		
@@ -110,6 +107,7 @@ namespace FileFind.Meshwork.Filesystem
 				m_PieceLength = remoteFile.PieceLength;
 				m_Pieces = remoteFile.Pieces;
 				m_InfoHash = remoteFile.InfoHash;
+				m_SHA1 = remoteFile.SHA1;
 			}
 		}
 	}

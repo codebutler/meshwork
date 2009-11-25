@@ -63,7 +63,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
-    <Reference Include="Mono.Data.SqliteClient" />
     <Reference Include="Mono.Posix" />
     <Reference Include="MonoTorrent, Version=0.3.0.0, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
@@ -75,6 +74,9 @@
     <Reference Include="System.Web.Extensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="Mono.Posix" />
+    <Reference Include="Mono.Posix" />
+    <Reference Include="Mono.Posix" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AckMethod.cs" />
@@ -203,6 +205,34 @@
     <Compile Include="Classless.Hasher\CRCStandard.cs" />
     <Compile Include="Classless.Hasher\HashAlgorithmParameters.cs" />
     <Compile Include="FileFind\JSONFormatter.cs" />
+    <Compile Include="Hyena.Query\IntegerKeyedObjectQueryValue.cs" />
+    <Compile Include="Hyena.Query\IntegerQueryValue.cs" />
+    <Compile Include="Hyena.Query\NullQueryValue.cs" />
+    <Compile Include="Hyena.Query\QueryField.cs" />
+    <Compile Include="Hyena.Query\QueryFieldSet.cs" />
+    <Compile Include="Hyena.Query\QueryLimit.cs" />
+    <Compile Include="Hyena.Query\QueryListNode.cs" />
+    <Compile Include="Hyena.Query\QueryNode.cs" />
+    <Compile Include="Hyena.Query\QueryOperator.cs" />
+    <Compile Include="Hyena.Query\QueryOrder.cs" />
+    <Compile Include="Hyena.Query\QueryParser.cs" />
+    <Compile Include="Hyena.Query\QueryTermNode.cs" />
+    <Compile Include="Hyena.Query\QueryToken.cs" />
+    <Compile Include="Hyena.Query\QueryValue.cs" />
+    <Compile Include="Hyena.Query\RelativeTimeSpanQueryValue.cs" />
+    <Compile Include="Hyena.Query\StringQueryValue.cs" />
+    <Compile Include="Hyena.Query\TimeSpanQueryValue.cs" />
+    <Compile Include="Hyena.Query\UserQueryParser.cs" />
+    <Compile Include="Hyena.Query\XmlQueryParser.cs" />
+    <Compile Include="Hyena.Query\AliasedObjectSet.cs" />
+    <Compile Include="Hyena.Query\DateQueryValue.cs" />
+    <Compile Include="Hyena.Query\ExactStringQueryValue.cs" />
+    <Compile Include="Hyena.Query\FileSizeQueryValue.cs" />
+    <Compile Include="Hyena\DateTimeUtil.cs" />
+    <Compile Include="Hyena\StringUtil.cs" />
+    <Compile Include="Hyena.Data.Sqlite\DatabaseColumnAttribute.cs" />
+    <Compile Include="Hyena.Data.Sqlite\SqliteUtils.cs" />
+    <Compile Include="TypeQueryValue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -223,5 +253,8 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="Classless.Hasher\" />
+    <Folder Include="Hyena.Query\" />
+    <Folder Include="Hyena\" />
+    <Folder Include="Hyena.Data.Sqlite\" />
   </ItemGroup>
 </Project>

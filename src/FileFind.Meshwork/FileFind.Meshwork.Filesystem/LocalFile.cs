@@ -17,6 +17,7 @@ namespace FileFind.Meshwork.Filesystem
 	{
 		private string fileName;
 		private string fileType = "File";
+		private string fullPath;
 		private string infoHash;
 		private string sha1;
 		private string localPath;
@@ -58,14 +59,12 @@ namespace FileFind.Meshwork.Filesystem
 			get { return id; }
 		}
 
-		public string SHA1 {
+		public override string SHA1 {
 			get { return sha1; }
-			internal set { sha1 = value; }
 		}
 
 		public override string InfoHash {
 			get { return infoHash; }
-			internal set { infoHash = value; }
 		}
 
 		public override string[] Pieces {
@@ -84,12 +83,10 @@ namespace FileFind.Meshwork.Filesystem
 				}
 				return pieces;
 			}
-			internal set { pieces = value; }
 		}
 
 		public override int PieceLength {
 			get { return pieceLength; }
-			internal set { pieceLength = value; }
 		}
 
 		public string LocalPath {
@@ -106,6 +103,12 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public override Dictionary<string, string> Metadata {
 			get { return metadata; }
+		}
+		
+		public override string FullPath {
+			get {
+				return fullPath;
+			}
 		}
 
 		void Reload ()
@@ -133,7 +136,7 @@ namespace FileFind.Meshwork.Filesystem
 			this.localPath = row["local_path"].ToString();
 			this.fileSize = Convert.ToInt64(row["length"]);
 			this.pieceLength = (!(row["piece_length"] is DBNull)) ? Convert.ToInt32(row["piece_length"]) : 0;
-			//XXX: Add other columns here!
+			this.fullPath = row["full_path"].ToString();
 		}
 
 		public void Delete ()
@@ -179,10 +182,18 @@ namespace FileFind.Meshwork.Filesystem
 			});
 		}
 
-
 		public static LocalFile FromDataRow (DataRow row)
 		{
 			return new LocalFile(row);
+		}
+		
+		internal void Update (string infoHash, string sha1, int pieceLength, string[] pieces)
+		{
+			this.infoHash = infoHash;
+			this.sha1 = sha1;
+			this.pieceLength = pieceLength;
+			this.pieces = pieces;
+			this.Save();
 		}
 
 		internal void Save ()
@@ -243,13 +254,20 @@ namespace FileFind.Meshwork.Filesystem
 		{
 			int last_id = -1;
 			
+			string fullPath = PathUtil.Join(parentDirectory.FullPath, name);			
+			if (fullPath.Length > 1 && fullPath.EndsWith("/")) {
+				fullPath = fullPath.Substring(0, fullPath.Length - 1);
+			}
+			
 			Core.FileSystem.UseConnection(delegate(IDbConnection connection) {
 				IDbCommand cmd = connection.CreateCommand();
-				cmd.CommandText = "INSERT INTO directoryitems (type, name, local_path, parent_id, length) VALUES ('F', @name, @local_path, @parent_id, @length);";
+				cmd.CommandText = @"INSERT INTO directoryitems (type, name, local_path, parent_id, length, full_path) 
+					VALUES ('F', @name, @local_path, @parent_id, @length, @full_path);";
 				Core.FileSystem.AddParameter(cmd, "@name", name);
 				Core.FileSystem.AddParameter(cmd, "@local_path", localpath);
 				Core.FileSystem.AddParameter(cmd, "@parent_id", parentDirectory.Id);
 				Core.FileSystem.AddParameter(cmd, "@length", length);
+				Core.FileSystem.AddParameter(cmd, "@full_path", fullPath);
 				
 				Core.FileSystem.ExecuteNonQuery(cmd);
 				

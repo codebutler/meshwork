@@ -14,6 +14,7 @@ namespace FileFind.Meshwork.GtkClient
 		[Widget] Label fileSizeLabel;
 		[Widget] Label fileFullPathLabel;
 		[Widget] Label ownerLabel;
+		[Widget] Label sha1Label;
 		[Widget] Label infoHashLabel;
 
 		// Sources Tab
@@ -71,11 +72,13 @@ namespace FileFind.Meshwork.GtkClient
 			else
 				fileFullPathLabel.Text = file.FullPath;
 			
+			sha1Label.Text = file.SHA1;
 			infoHashLabel.Text = file.InfoHash;
 			
 			if (file is RemoteFile) {
 				var remoteFile = (RemoteFile)file;
-				ownerLabel.Text = String.Format("{0} ({1})", remoteFile.Node.NickName, remoteFile.Node.NodeID);
+				ownerLabel.Text = String.Format("{0} ({1})", remoteFile.Node.NickName, 
+				                                Common.FormatFingerprint(remoteFile.Node.NodeID));
 			} else
 				ownerLabel.Text = "You";
 				
