@@ -14,8 +14,7 @@ namespace FileFind.Meshwork.Transport
 {
 	public class AESTransportEncryptor : ITransportEncryptor
 	{
-		//TODO: This should be configurable.
-		int keySize = 16;
+		int keySize = 32;
 		int ivSize = 16;
 		
 		RijndaelManaged algorithm;
@@ -53,7 +52,7 @@ namespace FileFind.Meshwork.Transport
 			this.ivBytes = ivBytes;
 			
 			this.algorithm = new RijndaelManaged();
-		}		
+		}
 		
 		public byte[] Encrypt (byte[] buffer)
 		{

@@ -59,7 +59,7 @@ namespace FileFind.Meshwork
 		public static event NetworkEventHandler NetworkRemoved;
 		public static event EventHandler PasswordPrompt;
 		
-		public static readonly int ProtocolVersion = 249;
+		public static readonly int ProtocolVersion = 250;
 
 		static Core ()
 		{

@@ -26,10 +26,7 @@ namespace FileFind.Meshwork
 {
 	public class Node : FileFind.Meshwork.Object
 	{
-		//TODO: This needs to all be dynamic..
-
-		// 256-bit aes:
-		const int keySize = 16;
+		const int keySize = 32;
 		const int ivSize = 16;
 		byte[] keyBytes;
 		byte[] ivBytes;
