@@ -185,7 +185,7 @@ namespace FileFind.Meshwork.Filesystem
 				path = path.Substring(0, path.Length - 1);
 			
 			string[] parts = path.Split('/');
-			if (parts.Length < 2) {
+			if (parts.Length < 3) {
 				return (LocalDirectory)GetDirectory(path);
 			} else {			
 				return Core.FileSystem.UseConnection<LocalDirectory>(delegate (IDbConnection connection) {
