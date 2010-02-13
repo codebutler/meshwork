@@ -37,6 +37,22 @@ namespace FileFind.Meshwork.Destination
 				source_DestinationAdded(destination);
 			}
 		}
+		
+		public void UnregisterSource (IDestinationSource source)
+		{
+			source.DestinationAdded -= source_DestinationAdded;
+			source.DestinationRemoved -= source_DestinationRemoved;
+			foreach (IDestination destination in source.Destinations) {
+				source_DestinationRemoved(destination);
+			}
+			sources.Remove(source.DestinationType.ToString());
+		}
+		
+		public IDestinationSource[] Sources {
+			get {
+				return sources.Values.ToArray();
+			}
+		}
 
 		public bool SupportsDestinationType (string typeName)
 		{
