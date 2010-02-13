@@ -60,10 +60,6 @@ namespace FileFind.Meshwork
 			}
 
 			LocalDirectory myDirectory = Core.FileSystem.RootDirectory.MyDirectory;
-
-			// XXX: Figure out what top-level directories
-			// are in the database, that are no longer in
-			// Core.Settings.SharedDirectories, and remove them.
 			
 			// Remove files/directories from db that no longer exist on the filesystem.
 			Core.FileSystem.PurgeMissing();
@@ -139,14 +135,13 @@ namespace FileFind.Meshwork
 							if (IndexingFile != null)
 								IndexingFile(this, fileInfo.FullName);
 							
-							LocalFile file = null;
-							if (!directory.HasFile(fileInfo.Name)) {
+							LocalFile file = (LocalFile)directory.GetFile(fileInfo.Name);
+							if (file == null) {
 								file = directory.CreateFile(fileInfo);
-							} else {
-								file = (LocalFile)directory.GetFile(fileInfo.Name);
+							} else {								
 								// XXX: Update file info
 							}
-							if (file.InfoHash == null || file.InfoHash == String.Empty) {
+							if (String.IsNullOrEmpty(file.InfoHash)) {
 								Core.ShareHasher.HashFile(file);
 							}
 						}
@@ -155,10 +150,6 @@ namespace FileFind.Meshwork
 					foreach (IO.DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories()) {
 						ProcessDirectory(directory, subDirectoryInfo);
 					}
-
-					// XXX: Now enumerate through every dir/file that's
-					// already in our share, and check that it still exists
-					// on the filesystem.
 				}
 			} catch (ThreadAbortException) {
 				// Canceled, ignore error.
