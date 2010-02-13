@@ -36,6 +36,10 @@ namespace FileFind.Meshwork.GtkClient
 		public static void OverrideConfigPath(string newPath) 
 		{
 			configPath = newPath;
+			
+			if (Directory.Exists(configPath) == false) {
+				Directory.CreateDirectory(configPath);
+			}
 		}
 
 		public static string ConfigurationDirectory {
