@@ -128,8 +128,6 @@ namespace FileFind.Meshwork.Filesystem
 						connections.RemoveAt(0);
 					}
 				}
-				
-				RootDirectory.MyDirectory.InvalidateCache();
 
 				// Force a scan.
 				Core.Settings.LastShareScan = DateTime.MinValue;

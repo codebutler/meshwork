@@ -13,8 +13,20 @@ namespace FileFind.Meshwork.Filesystem
 {
 	public class MyDirectory : LocalDirectory
 	{
-		public MyDirectory () : base(0, 0, "local", null, "/local")
+		public MyDirectory () : base (0, 0, "local", null, "/local")
 		{
+		}
+		
+		public override int FileCount {
+			get {
+				return (int)LocalFile.CountByParentId(0);
+			}
+		}
+
+		public override int DirectoryCount {
+			get {
+				return (int)LocalDirectory.CountByParentId(0);
+			}
 		
 		}
 		
@@ -26,7 +38,12 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public new void InvalidateCache ()
 		{
-			base.InvalidateCache();
+			/* Don't need to do anything */
+		}
+		
+		public new void Delete ()
+		{
+			/* Don't allow this */
 		}
 	}
 }
