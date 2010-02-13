@@ -35,7 +35,7 @@ namespace FileFind.Meshwork.Filesystem
 	
 	public class FileSystemProvider
 	{
-		const string SCHEMA_VERSION = "11";
+		const string SCHEMA_VERSION = "12";
 		
 		string connectionString;
 		long yourTotalBytes = -1;
@@ -513,6 +513,10 @@ namespace FileFind.Meshwork.Filesystem
 					
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_full_path ON directoryitems (full_path);";
+					ExecuteNonQuery(command);
+					
+					command = connection.CreateCommand();
+					command.CommandText = "CREATE INDEX directoryitems_length ON directoryitems (length);";
 					ExecuteNonQuery(command);
 					
 					command = connection.CreateCommand();
