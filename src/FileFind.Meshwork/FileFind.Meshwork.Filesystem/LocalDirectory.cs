@@ -117,7 +117,9 @@ namespace FileFind.Meshwork.Filesystem
 		
 		internal LocalFile CreateFile (System.IO.FileInfo info)
 		{
-			return LocalFile.CreateFile(this, info);
+			var file = LocalFile.CreateFile(this, info);
+			this.InvalidateCache();
+			return file;
 		}
 		#endregion
 		
@@ -223,7 +225,7 @@ namespace FileFind.Meshwork.Filesystem
 				cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT last_insert_rowid()";
 
-				last_id = Convert.ToInt32(cmd.ExecuteScalar());
+				last_id = Convert.ToInt32(Core.FileSystem.ExecuteScalar(cmd));
 			}, true);
 
 			if (parent != null) {

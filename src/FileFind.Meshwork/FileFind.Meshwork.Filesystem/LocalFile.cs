@@ -34,6 +34,16 @@ namespace FileFind.Meshwork.Filesystem
 			this.parentId = Convert.ToInt32(row["parent_id"]);
 			Reload(row);
 		}
+		
+		private LocalFile (int id, int parentId, string name, string localPath, long length, string fullPath)
+		{
+			this.id = id;
+			this.parentId = parentId;
+			this.fileName = name;
+			this.localPath = localPath;
+			this.fileSize = length;
+			this.fullPath = fullPath;
+		}
 
 		public override IDirectory Parent {
 			get {
@@ -202,7 +212,13 @@ namespace FileFind.Meshwork.Filesystem
 				IDbTransaction transaction = connection.BeginTransaction();
 				try {
 					IDbCommand cmd = connection.CreateCommand();
-					cmd.CommandText = "\r\n\t\t\t\t\t\tUPDATE directoryitems \r\n\t\t\t\t\t\tSET \r\n\t\t\t\t\t\t\tsha1         = @sha1,\r\n\t\t\t\t\t\t\tinfo_hash    = @info_hash,\r\n\t\t\t\t\t\t\tpiece_length = @piece_length\r\n\t\t\t\t\t\tWHERE id = @id";
+					cmd.CommandText = @"
+						UPDATE directoryitems 
+						SET 
+							sha1         = @sha1,
+							info_hash    = @info_hash,
+							piece_length = @piece_length
+						WHERE id = @id";
 					Core.FileSystem.AddParameter(cmd, "@sha1", sha1);
 					Core.FileSystem.AddParameter(cmd, "@info_hash", infoHash);
 					Core.FileSystem.AddParameter(cmd, "@piece_length", pieceLength);
@@ -250,7 +266,7 @@ namespace FileFind.Meshwork.Filesystem
 			return CreateFile(parentDirectory, info.Name, info.FullName, info.Length);
 		}
 
-		static internal LocalFile CreateFile (LocalDirectory parentDirectory, string name, string localpath, long length)
+		static LocalFile CreateFile (LocalDirectory parentDirectory, string name, string localpath, long length)
 		{
 			int last_id = -1;
 			
@@ -274,10 +290,10 @@ namespace FileFind.Meshwork.Filesystem
 				cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT last_insert_rowid()";
 				
-				last_id = Convert.ToInt32(cmd.ExecuteScalar());
+				last_id = Convert.ToInt32(Core.FileSystem.ExecuteScalar(cmd));
 			}, true);
 			
-			return LocalFile.ById(last_id);
+			return new LocalFile(last_id, parentDirectory.Id, name, localpath, length, fullPath);
 		}
 
 		static internal LocalFile ById (int id)
