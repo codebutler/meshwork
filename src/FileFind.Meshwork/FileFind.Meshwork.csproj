@@ -57,26 +57,22 @@
     <Reference Include="Mono.Data.Sqlite" />
     <Reference Include="Mono.Data.SqliteClient" />
     <Reference Include="Mono.GetOptions" />
-    <Reference Include="Mono.Posix" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
     <Reference Include="Mono.Posix" />
-    <Reference Include="MonoTorrent, Version=0.3.0.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
-    </Reference>
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Web.Extensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="Mono.Posix" />
-    <Reference Include="Mono.Posix" />
-    <Reference Include="Mono.Posix" />
+    <Reference Include="MonoTorrent, Version=0.80.0.0, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AckMethod.cs" />
@@ -232,14 +228,14 @@
     <Compile Include="Hyena\StringUtil.cs" />
     <Compile Include="Hyena.Data.Sqlite\DatabaseColumnAttribute.cs" />
     <Compile Include="Hyena.Data.Sqlite\SqliteUtils.cs" />
-    <Compile Include="TypeQueryValue.cs" />
+    <Compile Include="FileTypeQueryValue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio />
     <MonoDevelop>
       <Properties>
-        <MonoDevelop.Autotools.MakefileInfo IntegrationEnabled="true" RelativeMakefileName="Makefile.am" IsAutotoolsProject="true" RelativeConfigureInPath="../..">
+        <MonoDevelop.Autotools.MakefileInfo RelativeMakefileName="Makefile.am" IsAutotoolsProject="true" RelativeConfigureInPath="../..">
           <BuildFilesVar Sync="true" Name="FILES" />
           <DeployFilesVar />
           <ResourcesVar />
