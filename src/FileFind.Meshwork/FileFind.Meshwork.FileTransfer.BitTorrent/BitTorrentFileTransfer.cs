@@ -207,7 +207,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				// Start the transfer				
 				DetailsReceived();
 			} catch (Exception ex) {
-				LoggingService.LogError("Error in callback:", ex.ToString());
+				LoggingService.LogError("Error in callback:", ex);
 			}
 		}
 

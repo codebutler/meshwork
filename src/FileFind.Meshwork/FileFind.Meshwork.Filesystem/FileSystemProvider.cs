@@ -702,6 +702,9 @@ namespace FileFind.Meshwork.Filesystem
 		
 		void RemoveCacheForNode (Node node)
 		{
+			if (node.IsMe)
+				return;
+			
 			lock (remoteDirectoryCache) {
 				foreach (string path in remoteDirectoryCache.Keys.ToArray()) {
 					if (path.StartsWith(node.Directory.FullPath)) {
