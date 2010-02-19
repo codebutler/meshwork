@@ -99,6 +99,7 @@ FILES =  \
 	FileFind/SerializableDictionary.cs \
 	FileFind/Serialization.cs \
 	FileFind/StringWriterWithEncoding.cs \
+	FileTypeQueryValue.cs \
 	Hyena.Data.Sqlite/DatabaseColumnAttribute.cs \
 	Hyena.Data.Sqlite/SqliteUtils.cs \
 	Hyena.Query/AliasedObjectSet.cs \
@@ -154,7 +155,6 @@ FILES =  \
 	ShareWatcher.cs \
 	TextCatalog.cs \
 	TrustedNodeInfo.cs \
-	FileTypeQueryValue.cs \
 	Validator.cs \
 	Windows.cs                             
 

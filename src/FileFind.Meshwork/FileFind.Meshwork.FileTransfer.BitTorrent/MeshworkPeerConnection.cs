@@ -18,7 +18,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 {
 	internal class TorrentConnection : IConnection
 	{
-		public  ITransport transport;
+		ITransport transport;
 		
 		public ITransport Transport
 		{
@@ -53,6 +53,12 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		public System.Net.EndPoint EndPoint
 		{
 			get { return transport.RemoteEndPoint; }
+		}
+
+		public Uri Uri {
+			get {
+				return null;
+			}
 		}
 
 		public void Dispose ()

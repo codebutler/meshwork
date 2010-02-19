@@ -23,7 +23,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				List<PeerId> removeMe = new List<PeerId>();
 				PeerId returnMe = null;
 				foreach (PeerId p in peers) {
-					if (p.IsValid) {
+					if (p.IsConnected) {
 						if (returnMe != null) {
 							LoggingService.LogWarning("!!! Found more than one valid peer!!");
 						}
@@ -67,7 +67,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		public override double Progress {
 			get {
 				if (Peer != null) {
-					return Peer.Bitfield.PercentComplete;
+					return Peer.BitField.PercentComplete;
 				} else {
 					return 0;
 				}
@@ -80,7 +80,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 					// XXX: This could also mean hashing.
 					return FileTransferPeerStatus.WaitingForInfo;
 				} else {
-					if (Peer.IsValid) {
+					if (Peer.IsConnected) {
 						return FileTransferPeerStatus.Transfering;
 					} else {
 						// XXX: It may be possible that this sometimes means 'connecting'

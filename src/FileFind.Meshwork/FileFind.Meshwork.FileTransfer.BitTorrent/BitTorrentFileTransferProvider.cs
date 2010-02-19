@@ -32,7 +32,6 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			EngineSettings settings = new EngineSettings (downloadPath, 1);
 			
 			torrentDefaults = new TorrentSettings (4, 60, 0, 0);
-			torrentDefaults.FastResumeEnabled = false;
 			
 			listener = new MeshworkPeerConnectionListener ();
 			engine = new ClientEngine(settings, listener);

@@ -12,21 +12,22 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 {
 	public class MeshworkTracker : MonoTorrent.Client.Tracker.Tracker
 	{
-		//IFileTransfer transfer;
-		
 		public MeshworkTracker(Uri announceUrl)
+			: base (announceUrl)
 		{
 			CanScrape = false;
 		}
 		
-		public override WaitHandle Scrape (byte[] infohash, TrackerConnectionID id)
+
+		public override void Scrape (ScrapeParameters parameters, object state)
 		{
-			return null;  // Scrape is unsupported, no need to implement
+			throw new NotSupportedException();
 		}
-		
-		public override WaitHandle Announce (AnnounceParameters parameters)
+
+		public override void Announce (AnnounceParameters parameters, object state)
 		{
-			return null; // Announcing does nothing as we will only be loading active connections
+			AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, state, true);
+			RaiseAnnounceComplete(e);
 		}
 	}
 }

@@ -194,7 +194,7 @@ namespace FileFind.Meshwork
 			// Have to put something bogus here, otherwise MonoTorrent crashes!
 			creator.Announces.Add(new MonoTorrentCollection<string>());
 			creator.Announces[0].Add(String.Empty);
-
+			
 			creator.Path = task.File.LocalPath;
 			Torrent torrent = Torrent.Load(creator.Create());
 
@@ -205,7 +205,7 @@ namespace FileFind.Meshwork
 				pieces[x] = Common.BytesToString(hash);
 			}
 
-			task.File.Update(Common.BytesToString(torrent.InfoHash),
+			task.File.Update(Common.BytesToString(torrent.InfoHash.ToArray()),
 			                 Common.BytesToString(torrent.Files[0].SHA1), 
 			                 torrent.PieceLength, pieces);
 					

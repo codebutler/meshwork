@@ -6,11 +6,12 @@ using FileFind.Meshwork.Transport;
 
 namespace FileFind.Meshwork.FileTransfer.BitTorrent
 {
-	internal class MeshworkPeerConnectionListener  : ConnectionListenerBase
+	internal class MeshworkPeerConnectionListener : PeerListener
 	{
 		int connectionID = 0;
 
 		public MeshworkPeerConnectionListener ()
+			: base (new System.Net.IPEndPoint (System.Net.IPAddress.Loopback, 0))
 		{
 			// Nothing
 		}
@@ -23,14 +24,8 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		public override void Stop()
 		{
 			// Nothing
-		}
-			
+		}			
 		
-		public override void Dispose()
-		{
-			// Nothing
-		}
-
 		public void AddConnection (TorrentConnection connection, TorrentManager manager)
 		{
 			string remoteId = String.Empty;
@@ -57,10 +52,10 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 			}
 
 			LoggingService.LogDebug("Pushing connection to engine: {0} - {1}", connection.IsIncoming ? "Incoming" : "Outgoing",
-			                  ((Meshwork.Transport.TcpTransport)connection.transport).RemoteEndPoint.ToString());
+			                  ((Meshwork.Transport.TcpTransport)connection.Transport).RemoteEndPoint.ToString());
 
 			connectionID++;
-			Peer p = new Peer("", new Uri("meshwork://" + remoteId + "/" + connectionID.ToString()), new NoEncryption());
+			Peer p = new Peer("", new Uri("meshwork://" + remoteId + "/" + connectionID.ToString()), EncryptionTypes.PlainText);
 			RaiseConnectionReceived(p, connection, manager);
 
 			LoggingService.LogDebug("AddConnection(): End");

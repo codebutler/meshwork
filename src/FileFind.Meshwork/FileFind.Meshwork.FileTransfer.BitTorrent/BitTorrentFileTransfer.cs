@@ -441,7 +441,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		private void manager_PeerConnected (object sender, PeerConnectionEventArgs args)
 		{
 			try {
-				LoggingService.LogDebug("PEER CONNECTED: {0} {1}", args.PeerID.Location, args.PeerID.GetHashCode());
+				LoggingService.LogDebug("PEER CONNECTED: {0} {1}", args.PeerID.Uri, args.PeerID.GetHashCode());
 			
 				// XXX: This check can probably be removed.
 				if (args.TorrentManager != this.manager) {
@@ -451,7 +451,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				// Now, match the peer to the internal BittorrentFileTransferPeer.
 				lock (this.peers) {
 					foreach (BitTorrentFileTransferPeer peer in this.peers) {
-						string nodeID = args.PeerID.Location.Host;
+						string nodeID = args.PeerID.Uri.Host;
 						if (nodeID == peer.Node.NodeID) {
 							ITransport transport = ((TorrentConnection)args.PeerID.Connection).Transport;
 							transport.Operation = new FileTransferOperation(transport, this, peer);
@@ -463,7 +463,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				}
 
 				// If we got here, then we were not expecting this peer.
-				throw new Exception("Unexpected peer!!!! - " + args.PeerID.Location);
+				throw new Exception("Unexpected peer!!!! - " + args.PeerID.Uri.ToString());
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in manager_PeerConnected.", ex);
 				args.PeerID.CloseConnection();
@@ -473,12 +473,12 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		private void manager_PeerDisconnected (object sender, PeerConnectionEventArgs args)
 		{
 			try {
-				LoggingService.LogDebug("Disconnected: {0}", args.PeerID.Location);
+				LoggingService.LogDebug("Disconnected: {0}", args.PeerID.Uri);
 
 				// Find the matching peer
 				bool found = false;
 
-				string nodeID = args.PeerID.Location.Host;
+				string nodeID = args.PeerID.Uri.Host;
 				lock (this.peers) {
 					foreach (BitTorrentFileTransferPeer peer in this.peers) {
 						if (nodeID == peer.Node.NodeID) {
