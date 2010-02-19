@@ -37,7 +37,7 @@ namespace FileFind.Meshwork
 		bool                  tcpListenPortOpen           = false;
 		bool                  detectInternetIPOnStart     = true;
 		int                   ipv6LinkLocalInterfaceIndex = -1;		
-		string[]              sharedDirectories           = null;
+		string[]              sharedDirectories           = new string [0];
 		string                key                            = null;
 		string                keyData                        = null;
 		byte[]                salt                           = null;
