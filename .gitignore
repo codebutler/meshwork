@@ -11,8 +11,8 @@ config.status
 configure
 mkinstalldirs
 *~
-config.guess
-config.sub
+config.guess*
+config.sub*
 install-sh
 meshwork
 meshwork.pc
@@ -29,3 +29,6 @@ Thumbs.db
 obj/
 meshwork-gtk.pc
 *~.cs
+tests/
+debian/changelog
+debian/stamp*
