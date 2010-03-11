@@ -57,12 +57,12 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				if (!startCalled) {
 					return FileTransferStatus.Queued;
 				}
-
+				
+				if (isCanceled) {
+					return FileTransferStatus.Canceled;
+				}
+				
 				if (manager == null) {
-					if (isCanceled) {
-						return FileTransferStatus.Canceled;
-					}
-
 					if (file.Pieces.Length == 0) {
 						if (!(file is LocalFile)) {
 							return FileTransferStatus.WaitingForInfo;
@@ -70,7 +70,8 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 							return FileTransferStatus.Hashing;
 						}
 					} else {
-						return FileTransferStatus.Connecting;
+						// File was updated, but DetailsReceived() not yet called
+						return FileTransferStatus.WaitingForInfo;
 					}
 				} else {
 					switch (manager.State) {
@@ -451,7 +452,7 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 				// Now, match the peer to the internal BittorrentFileTransferPeer.
 				lock (this.peers) {
 					foreach (BitTorrentFileTransferPeer peer in this.peers) {
-						string nodeID = args.PeerID.Uri.Host;
+						string nodeID = args.PeerID.Uri.AbsolutePath;
 						if (nodeID == peer.Node.NodeID) {
 							ITransport transport = ((TorrentConnection)args.PeerID.Connection).Transport;
 							transport.Operation = new FileTransferOperation(transport, this, peer);
@@ -473,12 +474,12 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 		private void manager_PeerDisconnected (object sender, PeerConnectionEventArgs args)
 		{
 			try {
-				LoggingService.LogDebug("Disconnected: {0}", args.PeerID.Uri);
+				LoggingService.LogDebug("Peer Disconnected: {0}", args.PeerID.Uri);
 
 				// Find the matching peer
 				bool found = false;
 
-				string nodeID = args.PeerID.Uri.Host;
+				string nodeID = args.PeerID.Uri.AbsolutePath;
 				lock (this.peers) {
 					foreach (BitTorrentFileTransferPeer peer in this.peers) {
 						if (nodeID == peer.Node.NodeID) {
@@ -493,10 +494,15 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 					LoggingService.LogWarning("PeerDisconnected: Unknown peer!");
 				}
 
-				// No more peers, stop the torrent!
 				if (base.peers.Count == 0) {
-					LoggingService.LogWarning("No more peers - canceling torrent!");
-					this.Cancel();
+					if (manager.Progress != 100) {
+						// Transfer didn't finish, cancel!
+						LoggingService.LogWarning("No more peers - canceling torrent!");
+						this.Cancel();
+					} else {	
+						// Transfer was complete (or an upload), just stop normally.
+						manager.Stop();
+					}
 				}
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in manager_PeerDisconnected:", ex);
@@ -558,7 +564,11 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 
 					if (Direction == FileTransferDirection.Download) {
 						if (Core.Settings.IncompleteDownloadDir != Core.Settings.CompletedDownloadDir) {
-							IO.File.Move(IO.Path.Combine(Core.Settings.IncompleteDownloadDir, file.Name), IO.Path.Combine(Core.Settings.CompletedDownloadDir, file.Name));
+							// Ensure torrent is stopped before attempting to move file, to avoid access violation.
+							manager.Stop();
+							
+							IO.File.Move(IO.Path.Combine(Core.Settings.IncompleteDownloadDir, file.Name), 
+							             IO.Path.Combine(Core.Settings.CompletedDownloadDir, file.Name));
 						}
 					}
 
@@ -568,9 +578,15 @@ namespace FileFind.Meshwork.FileTransfer.BitTorrent
 							return;
 						}
 					}
-					// If we got here, then everyone is a seeder.
-					// No need to keep the transfer active.
-					this.Cancel();
+					
+					if (manager == null || manager.Progress != 100) {
+						// If we got here, then everyone is a seeder.
+						// No need to keep the transfer active.
+						this.Cancel();
+					} else {
+						// Success! Ensure torrent is stopped.
+						manager.Stop();
+					}
 				}
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in manager_TorrentStateChanged.", ex);

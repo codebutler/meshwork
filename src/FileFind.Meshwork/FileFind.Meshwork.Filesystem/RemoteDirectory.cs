@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork.Filesystem
@@ -98,18 +99,25 @@ namespace FileFind.Meshwork.Filesystem
 		internal void UpdateFromInfo (SharedDirectoryInfo info)
 		{
 			var newDirectories = new RemoteDirectory[info.Directories.Length];
-			for (int x = 0; x < info.Directories.Length; x++)
-			{
-				newDirectories[x] = Core.FileSystem.GetOrCreateRemoteDirectory(PathUtil.Join(m_FullPath, info.Directories[x]));
+			for (int x = 0; x < info.Directories.Length; x++) {
+				RemoteDirectory dir = (RemoteDirectory) GetSubdirectory(info.Directories[x]);
+				if (dir == null)
+					dir = new RemoteDirectory(PathUtil.Join(m_FullPath, info.Directories[x]));
+				newDirectories[x] = dir;
 			}
-			m_SubDirectories = newDirectories;
 
 			var newFiles = new RemoteFile[info.Files.Length];
-			for (int x = 0; x < info.Files.Length; x++)
-			{
-				newFiles[x] = new RemoteFile(this, info.Files[x]);
+			for (int x = 0; x < info.Files.Length; x++) {
+				RemoteFile file = (RemoteFile) GetFile(info.Files[x].Name);
+				if (file == null)
+					file = new RemoteFile(this, info.Files[x]);
+				else
+					file.UpdateFromInfo(info.Files[x]);
+				newFiles[x] = file;
 			}
-			m_Files = newFiles;
+			
+			m_SubDirectories = newDirectories;
+			m_Files          = newFiles;
 			
 			m_State = RemoteDirectoryState.ContentsReceived;
 		}

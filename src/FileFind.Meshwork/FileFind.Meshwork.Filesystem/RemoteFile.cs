@@ -30,7 +30,6 @@ namespace FileFind.Meshwork.Filesystem
 		internal RemoteFile (RemoteDirectory parent, SharedFileListing listing)
 		{
 			m_Parent = parent;
-			m_Parent.Network.ReceivedFileDetails += HandleNetworkReceivedFileDetails;
 			
 			m_Name = listing.Name;
 			m_InfoHash = listing.InfoHash;
@@ -101,14 +100,12 @@ namespace FileFind.Meshwork.Filesystem
 			get { return m_Metadata; }
 		}
 
-		void HandleNetworkReceivedFileDetails (Network network, RemoteFile remoteFile)
+		internal void UpdateFromInfo (SharedFileListing listing)
 		{
-			if (remoteFile.FullPath == this.FullPath) {
-				m_PieceLength = remoteFile.PieceLength;
-				m_Pieces = remoteFile.Pieces;
-				m_InfoHash = remoteFile.InfoHash;
-				m_SHA1 = remoteFile.SHA1;
-			}
+			m_PieceLength = listing.PieceLength;
+			m_Pieces      = listing.Pieces;
+			m_InfoHash    = listing.InfoHash;
+			m_SHA1        = listing.SHA1;
 		}
 	}
 }

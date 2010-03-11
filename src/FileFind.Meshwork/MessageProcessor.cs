@@ -358,7 +358,9 @@ namespace FileFind.Meshwork
 			// FIXME: Update file cache. GetFile() will then always return something.
 			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
 			RemoteFile file = (RemoteFile)Core.FileSystem.GetFile(fullPath);
-			if (file != null) {
+			if (file != null) {	
+				file.UpdateFromInfo(info);
+				
 				network.RaiseReceivedFileDetails(file);
 				
 				// FIXME: Get rid of all this, just listen for above network.ReceivedFileDetails event!

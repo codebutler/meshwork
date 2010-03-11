@@ -44,7 +44,6 @@ namespace FileFind.Meshwork.Filesystem
 		List<IDbConnection> connections = new List<IDbConnection>();
 		List<IDbConnection> workingConnections = new List<IDbConnection>();
 		
-		Dictionary<string, RemoteDirectory> remoteDirectoryCache = new Dictionary<string, RemoteDirectory>();
 		Dictionary<string, List<DirectoryCallback>> remoteDirectoryCallbacks = new Dictionary<string, List<DirectoryCallback>>();
 
 		public static readonly int MAX_RESULTS = 300;
@@ -132,11 +131,6 @@ namespace FileFind.Meshwork.Filesystem
 				// Force a scan.
 				Core.Settings.LastShareScan = DateTime.MinValue;
 			}
-			
-			Core.NetworkAdded += HandleCoreNetworkAdded;
-			Core.NetworkRemoved += HandleCoreNetworkRemoved;
-			foreach (Network network in Core.Networks)
-				HandleCoreNetworkAdded(network);
 		}
 		
 		public bool BeginGetDirectory (string path, DirectoryCallback callback)
@@ -152,25 +146,22 @@ namespace FileFind.Meshwork.Filesystem
 				callback(directory);
 				return true;
 			} else {
-				// First check the cache
-				lock (remoteDirectoryCache) {
-					if (remoteDirectoryCache.ContainsKey(path)) {
-						var directory = remoteDirectoryCache[path];
-						if (directory.State != RemoteDirectoryState.ContentsUnrequested) {
-							callback(directory);
-							return true;
-						}
+				RemoteDirectory directory = (RemoteDirectory) GetDirectory(path);
+				if (directory != null) {
+					 if (directory.State != RemoteDirectoryState.ContentsUnrequested) {
+						callback(directory);
+						return true;
 					}
 				}
 				
-				// If not in cache or not requested, we need to request it.
 				lock (remoteDirectoryCallbacks) {
 					if (!remoteDirectoryCallbacks.ContainsKey(path)) {
 						remoteDirectoryCallbacks.Add(path, new List<DirectoryCallback>());
 					}
 					var list = remoteDirectoryCallbacks[path];
 					list.Add(callback);
-				}
+				}				
+				
 				var network = PathUtil.GetNetwork(path);
 				network.RequestDirectoryListing(path);
 				return false;
@@ -626,23 +617,15 @@ namespace FileFind.Meshwork.Filesystem
 		}
 	
 		internal void ProcessRespondDirListingMessage (Network network, Node messageFrom, SharedDirectoryInfo info)
-		{
-			RemoteDirectory remoteDirectory = null;
-			
+		{			
 			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
 			
-			// FIXME: ARRGGH!!!
+			// FIXME: BARGH
+			if (!fullPath.StartsWith("/")) fullPath = "/" + fullPath;		
 			if (fullPath.EndsWith("/")) fullPath = fullPath.Substring(0, fullPath.Length - 1);
 			
-			lock (remoteDirectoryCache) {
-				if (remoteDirectoryCache.ContainsKey(fullPath)) {
-					remoteDirectory = remoteDirectoryCache[fullPath];
-				} else {
-					remoteDirectory = new RemoteDirectory(fullPath);
-					remoteDirectoryCache.Add(fullPath, remoteDirectory);
-				}
-				remoteDirectory.UpdateFromInfo(info);
-			}
+			RemoteDirectory remoteDirectory = (RemoteDirectory) GetDirectory(fullPath);
+			remoteDirectory.UpdateFromInfo(info);
 			
 			lock (remoteDirectoryCallbacks) {
 				if (remoteDirectoryCallbacks.ContainsKey(fullPath)) {
@@ -654,64 +637,6 @@ namespace FileFind.Meshwork.Filesystem
 			}
 			
 			network.RaiseReceivedDirListing(messageFrom, remoteDirectory);
-		}
-		
-		internal RemoteDirectory GetOrCreateRemoteDirectory (string fullPath)
-		{
-			lock (remoteDirectoryCache) {
-				if (remoteDirectoryCache.ContainsKey(fullPath)) {
-					return remoteDirectoryCache[fullPath];
-				} else {
-					RemoteDirectory directory = new RemoteDirectory(fullPath);
-					remoteDirectoryCache.Add(fullPath, directory);
-					return directory;
-				}
-			}
-		}
-		
-		internal NodeDirectory CreateNodeDirectory (Node node)
-		{
-			lock (remoteDirectoryCache) {
-				NodeDirectory directory = new NodeDirectory(node);
-				remoteDirectoryCache.Add(directory.FullPath, directory);
-				return directory;
-			}
-		}
-		
-		void HandleCoreNetworkAdded (Network network)
-		{
-			network.UserOffline += HandleNetworkUserOffline;
-			network.UpdateNodeInfo += HandleNetworkUpdateNodeInfo;
-		}
-
-		void HandleCoreNetworkRemoved (Network network)
-		{
-			network.UserOffline -= HandleNetworkUserOffline;
-			network.UpdateNodeInfo -= HandleNetworkUpdateNodeInfo;
-		}
-		
-		void HandleNetworkUpdateNodeInfo (Network network, string oldNick, Node theNode)
-		{
-			RemoveCacheForNode(theNode);
-		}
-
-		void HandleNetworkUserOffline (Network network, Node theNode)
-		{
-			RemoveCacheForNode(theNode);
-		}
-		
-		void RemoveCacheForNode (Node node)
-		{
-			if (node.IsMe)
-				return;
-			
-			lock (remoteDirectoryCache) {
-				foreach (string path in remoteDirectoryCache.Keys.ToArray()) {
-					if (path.StartsWith(node.Directory.FullPath)) {
-						remoteDirectoryCache.Remove(path);
-					}
-				}
-			}
 		}
 	}
 }
