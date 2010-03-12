@@ -959,28 +959,13 @@ namespace FileFind.Meshwork
 			SendRoutedMessage(message);
 		}
 		
-		public void RequestFileDetails (RemoteFile file)
+		internal void RequestFileDetails (string path)
 		{
-			var message = new Message(file.Network, MessageType.RequestFileDetails);
-			message.To = file.Node.NodeID;
-			message.Content = file.RemoteFullPath;
+			var remotePath = "/" + String.Join("/", path.Split('/').Slice(3));
+			var message = new Message(this, MessageType.RequestFileDetails);
+			message.To = PathUtil.GetNode(path).NodeID;
+			message.Content = remotePath;
 			SendRoutedMessage(message);
-		}
-		
-		public IFileTransfer DownloadFile (Node node, SharedFileListing listing)
-		{
-			if (node == null)
-				throw new ArgumentNullException("node");
-			if (listing == null)
-				throw new ArgumentNullException("listing");
-			
-			// FIXME: When attempting to download a search result, the file won't likely exist.
-			string filePath = PathUtil.Join(node.Directory.FullPath, listing.FullPath);
-			RemoteFile file = Core.FileSystem.GetFile(filePath) as RemoteFile;			
-			if (file != null)
-				return DownloadFile(node, file);
-			else
-				throw new Exception("File not found");
 		}
 
 		public IFileTransfer DownloadFile (Node node, RemoteFile file)
@@ -990,9 +975,7 @@ namespace FileFind.Meshwork
 			if (file == null)
 				throw new ArgumentNullException("file");
 
-			IFileTransfer transfer = Core.FileTransferManager.StartTransfer(this, node, file);
-
-			return transfer;
+			return Core.FileTransferManager.StartTransfer(this, node, file);
 		}
 
 		internal string CreateMessageID()
@@ -1296,7 +1279,7 @@ namespace FileFind.Meshwork
 						processor.ProcessRequestFileDetails(messageFrom, (string)content);					
 						break;
 					case MessageType.FileDetails:
-						processor.ProcessFileDetailsMessage(messageFrom, (SharedFileListing)content);
+						Core.FileSystem.ProcessFileDetailsMessage(this, messageFrom, (SharedFileListing)content);
 						break;
 					case MessageType.RequestAvatar:
 						processor.ProcessRequestAvatarMessage(messageFrom);

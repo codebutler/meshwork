@@ -43,23 +43,8 @@ namespace FileFind.Meshwork.GtkClient
 			base.Window.TransientFor = Gui.MainWindow.Window;
 			piecesTreeView.GrabFocus();
 		}
-		
-		public FilePropertiesWindow (Node node, SharedFileListing listing) : this ()
-		{
-			string filePath = PathUtil.Join(node.Directory.FullPath, listing.FullPath);
-			RemoteFile file = Core.FileSystem.GetFile(filePath) as RemoteFile;			
-			if (file != null)
-				LoadFile(file);
-			else
-				throw new Exception("File not found");
-		}
-		
+
 		public FilePropertiesWindow (IFile file) : this ()
-		{
-			LoadFile(file);
-		}
-		
-		void LoadFile (IFile file)
 		{
 			this.file = file;
 
@@ -93,18 +78,6 @@ namespace FileFind.Meshwork.GtkClient
 					// XXX: Hook into ShareHasher's finished event and automatically update UI.
 					piecesListStore.AppendValues("Hashing, please wait...");
 					fetchPiecesButton.Sensitive = false;
-				} else if (file is RemoteFile) {
-					// User can click fetch button.
-					((RemoteFile)file).Network.ReceivedFileDetails += delegate(Network network, RemoteFile remoteFile) {
-						if (remoteFile.FullPath == file.FullPath) {
-							Application.Invoke(delegate {
-								piecesListStore.Clear();
-								foreach (string piece in file.Pieces) {
-									piecesListStore.AppendValues(piece);
-								}
-							});
-						}
-					};					
 				}
 			}
 
@@ -133,8 +106,14 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void fetchPiecesButton_Clicked (object sender, EventArgs args)
 		{
-			RemoteFile remoteFile = (RemoteFile)file;
-			remoteFile.Network.RequestFileDetails(remoteFile);
+			Core.FileSystem.BeginGetFileDetails(file.FullPath, delegate (IFile aFile) {
+				Application.Invoke(delegate {
+					piecesListStore.Clear();
+					foreach (string piece in aFile.Pieces) {
+						piecesListStore.AppendValues(piece);
+					}
+				});
+			});
 		}
 	}
 }

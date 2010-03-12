@@ -114,7 +114,11 @@ namespace FileFind.Meshwork.Search
 		{
 			if (Type == SearchResultType.File) {
 				// FIXME: Find other sources for file!
-				m_Node.Network.DownloadFile(m_Node, m_Listing);
+				
+				var path = PathUtil.Join(m_Node.Directory.FullPath, m_Listing.FullPath);
+				Core.FileSystem.BeginGetFileDetails(path, delegate (IFile file) {
+					m_Node.Network.DownloadFile(m_Node, (RemoteFile)file);
+				});				
 			} else {
 				throw new InvalidOperationException("Cannot download directories");
 			}

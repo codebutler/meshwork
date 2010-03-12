@@ -165,24 +165,26 @@ namespace FileFind.Meshwork.Errors
 	[Serializable]
 	public class FileNotFoundError : FileTransferError
 	{
-		string filePath;
-
 		public string FilePath {
-			get { return filePath; }
-			set { filePath = value; }
+			get; set;
 		}
 
 		public FileNotFoundError ()
 		{
 		}
+		
+		public FileNotFoundError (string filePath)
+		{
+			this.FilePath = filePath;
+		}
 
 		public FileNotFoundError (string filePath, string transferId) : base(transferId)
 		{
-			this.filePath = filePath;
+			this.FilePath = filePath;
 		}
 
 		public override string Message {
-			get { return String.Format("The specified file does not exist ({0}).", filePath); }
+			get { return String.Format("The specified file does not exist ({0}).", FilePath); }
 		}
 	}
 

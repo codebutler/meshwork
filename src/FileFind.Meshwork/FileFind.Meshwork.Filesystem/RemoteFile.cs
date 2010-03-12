@@ -32,18 +32,7 @@ namespace FileFind.Meshwork.Filesystem
 			m_Parent = parent;
 			
 			m_Name = listing.Name;
-			m_InfoHash = listing.InfoHash;
-			m_SHA1 = listing.SHA1;
-			m_Type = listing.Type;
-			m_Size = listing.Size;
-			
-			m_PieceLength = listing.PieceLength;
-			
-			if (listing.Pieces != null) {
-				m_Pieces = listing.Pieces;
-			} else {
-				m_Pieces = new string[0];
-			}
+			UpdateFromInfo(listing);
 		}
 
 		public override string InfoHash {
@@ -103,9 +92,11 @@ namespace FileFind.Meshwork.Filesystem
 		internal void UpdateFromInfo (SharedFileListing listing)
 		{
 			m_PieceLength = listing.PieceLength;
-			m_Pieces      = listing.Pieces;
+			m_Pieces      = (listing.Pieces == null) ? new string[0] : listing.Pieces;
 			m_InfoHash    = listing.InfoHash;
 			m_SHA1        = listing.SHA1;
+			m_Type        = listing.Type;
+			m_Size        = listing.Size;
 		}
 	}
 }

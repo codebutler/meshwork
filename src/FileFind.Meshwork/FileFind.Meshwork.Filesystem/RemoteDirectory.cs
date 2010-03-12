@@ -121,6 +121,32 @@ namespace FileFind.Meshwork.Filesystem
 			
 			m_State = RemoteDirectoryState.ContentsReceived;
 		}
+		
+		internal RemoteDirectory CreateSubdirectory (string name)
+		{
+			var dir = new RemoteDirectory(PathUtil.Join(m_FullPath, name));	
+			
+			var newDirectories = new RemoteDirectory[m_SubDirectories.Length + 1];
+			Array.Copy(m_SubDirectories, newDirectories, m_SubDirectories.Length);
+			newDirectories[newDirectories.Length - 1] = dir;
+			
+			m_SubDirectories = newDirectories;
+			
+			return dir;
+		}
+		
+		internal RemoteFile CreateFile (SharedFileListing listing)
+		{
+			var file = new RemoteFile(this, listing);
+			
+			var newFiles = new RemoteFile[m_Files.Length + 1];
+			Array.Copy(m_Files, newFiles, m_Files.Length);
+			newFiles[newFiles.Length - 1] = file;
+			
+			m_Files = newFiles;
+			
+			return file;
+		}
 	}
 
 	public enum RemoteDirectoryState

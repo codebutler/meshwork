@@ -368,8 +368,13 @@ namespace FileFind.Meshwork.GtkClient
 				if (resultsTree.Selection.GetSelected(out iter)) {
 					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;
 					if (selectedResult != null && selectedResult.Type == SearchResultType.File) {
-						var win = new FilePropertiesWindow(selectedResult.Node, (SharedFileListing)selectedResult.FileListing);
-						win.Show();
+						var path = PathUtil.Join(selectedResult.Node.Directory.FullPath, selectedResult.FileListing.FullPath);
+						Core.FileSystem.BeginGetFileDetails(path, delegate (IFile file) {
+							Application.Invoke(delegate {
+								var win = new FilePropertiesWindow(file);
+								win.Show();
+							});
+						});
 					}
 				}
 			} catch (Exception ex) {

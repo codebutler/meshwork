@@ -350,27 +350,7 @@ namespace FileFind.Meshwork
 			if (file != null)
 				network.SendFileDetails(messageFrom, file);
 			else
-				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new FileNotFoundError()));
-		}
-		
-		internal void ProcessFileDetailsMessage (Node messageFrom, SharedFileListing info)
-		{
-			// FIXME: Update file cache. GetFile() will then always return something.
-			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
-			RemoteFile file = (RemoteFile)Core.FileSystem.GetFile(fullPath);
-			if (file != null) {	
-				file.UpdateFromInfo(info);
-				
-				network.RaiseReceivedFileDetails(file);
-				
-				// FIXME: Get rid of all this, just listen for above network.ReceivedFileDetails event!
-				IFileTransfer transfer = Core.FileTransferManager.GetTransfer(file);
-				if (transfer != null && transfer.Status == FileTransferStatus.WaitingForInfo) {
-					((IFileTransferInternal)transfer).DetailsReceived();
-				}
-			} else {
-				LoggingService.LogError("Received file details for unknown file: " + fullPath);
-			}
+				network.SendRoutedMessage(network.MessageBuilder.CreateNonCriticalErrorMessage(messageFrom, new FileNotFoundError(path)));
 		}
 
 		internal void ProcessConnectionDownMessage (Node messageFrom, ConnectionInfo info)

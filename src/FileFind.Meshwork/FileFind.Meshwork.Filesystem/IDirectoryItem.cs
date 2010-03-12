@@ -13,7 +13,7 @@ using FileFind.Meshwork.Protocol;
 
 namespace FileFind.Meshwork.Filesystem
 {
-	public interface IDirectoryItem : ISharedListing
+	public interface IDirectoryItem
 	{
 		string Name {
 			get; 

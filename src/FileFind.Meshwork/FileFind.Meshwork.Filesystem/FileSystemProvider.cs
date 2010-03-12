@@ -32,6 +32,7 @@ namespace FileFind.Meshwork.Filesystem
 	public delegate void DbMethod (IDbConnection connection);
 
 	public delegate void DirectoryCallback (IDirectory directory);
+	public delegate void FileCallback (IFile file);
 	
 	public class FileSystemProvider
 	{
@@ -45,7 +46,8 @@ namespace FileFind.Meshwork.Filesystem
 		List<IDbConnection> workingConnections = new List<IDbConnection>();
 		
 		Dictionary<string, List<DirectoryCallback>> remoteDirectoryCallbacks = new Dictionary<string, List<DirectoryCallback>>();
-
+		Dictionary<string, List<FileCallback>> remoteFileCallbacks = new Dictionary<string, List<FileCallback>>();
+		
 		public static readonly int MAX_RESULTS = 300;
 
 		public static QueryField FileNameField = new QueryField(
@@ -135,9 +137,7 @@ namespace FileFind.Meshwork.Filesystem
 		
 		public bool BeginGetDirectory (string path, DirectoryCallback callback)
 		{
-			// FIXME: BARGH
-			if (!path.StartsWith("/")) path = "/" + path;		
-			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
+			path = PathUtil.CleanPath(path);
 			
 			// LocalDirectory and NetworkDirectory objects can always be returned immediately.
 			string[] parts = path.Split('/');
@@ -167,7 +167,37 @@ namespace FileFind.Meshwork.Filesystem
 				return false;
 			}
 		}
-
+		
+		public bool BeginGetFileDetails (string path, FileCallback callback)
+		{
+			path = PathUtil.CleanPath(path);
+			
+			IFile file = GetFile(path);
+			if (file != null) {
+				callback(file);
+				return true;
+			}
+			
+			// If file is local and wasn't found, throw error.
+			string[] parts = path.Split('/');
+			if (parts.Length > 1 && parts[1] == "local") {
+				throw new Exception("File does not exist");
+			}
+			
+			// If remote file, request it!
+			
+			lock (remoteFileCallbacks) {
+				if (!remoteFileCallbacks.ContainsKey(path))
+					remoteFileCallbacks.Add(path, new List<FileCallback>());
+				var list = remoteFileCallbacks[path];
+				list.Add(callback);
+			}
+			
+			var network = PathUtil.GetNetwork(path);
+			network.RequestFileDetails(path);
+			return false;		
+		}
+		
 		internal LocalDirectory GetLocalDirectory (string path)
 		{
 			if (path.Length > 1 && path.EndsWith("/"))
@@ -207,6 +237,41 @@ namespace FileFind.Meshwork.Filesystem
 				}
 			}
 			return directory;
+		}
+		
+		RemoteDirectory GetOrCreateRemoteDirectory (string path)
+		{
+			IDirectory directory = GetDirectory(path) as RemoteDirectory;
+			if (directory != null)
+				return (RemoteDirectory) directory;
+						
+			directory = Core.FileSystem.RootDirectory;
+			var pathParts = path.Substring(1).Split('/');
+			foreach (string dirName in pathParts) {
+				var curDir = directory;
+				directory = directory.GetSubdirectory(dirName);
+				if (directory == null) {
+					directory = ((RemoteDirectory)curDir).CreateSubdirectory(dirName);
+				}
+			}
+			return (RemoteDirectory) directory;
+		}
+		
+		RemoteFile GetOrCreateRemoteFile (string path, SharedFileListing listing, out bool created)
+		{
+			created = false;
+			
+			IFile file = GetFile(path) as RemoteFile;
+			if (file != null)
+				return (RemoteFile) file;
+			
+			created = true;
+			
+			var dirPath = String.Join("/", path.Split('/').Slice(0, -2));
+			var directory = GetOrCreateRemoteDirectory(dirPath);
+			file = directory.CreateFile(listing);
+						
+			return (RemoteFile) file;
 		}
 		
 		public IFile GetFile (string path)
@@ -380,7 +445,7 @@ namespace FileFind.Meshwork.Filesystem
 			sb.Append("SELECT * FROM directoryitems WHERE ");
 			sb.Append(queryFragment);
 			sb.AppendFormat(" LIMIT {0}", MAX_RESULTS.ToString());
-						
+			
 			UseConnection(delegate (IDbConnection connection) {				
 				command = connection.CreateCommand();
 				command.CommandText = sb.ToString();
@@ -620,11 +685,11 @@ namespace FileFind.Meshwork.Filesystem
 		{			
 			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
 			
-			// FIXME: BARGH
-			if (!fullPath.StartsWith("/")) fullPath = "/" + fullPath;		
-			if (fullPath.EndsWith("/")) fullPath = fullPath.Substring(0, fullPath.Length - 1);
+			var node = PathUtil.GetNode(fullPath);
+			if (node != messageFrom)
+				throw new Exception("Directory was for a different node");
 			
-			RemoteDirectory remoteDirectory = (RemoteDirectory) GetDirectory(fullPath);
+			RemoteDirectory remoteDirectory = GetOrCreateRemoteDirectory(fullPath);
 			remoteDirectory.UpdateFromInfo(info);
 			
 			lock (remoteDirectoryCallbacks) {
@@ -637,6 +702,37 @@ namespace FileFind.Meshwork.Filesystem
 			}
 			
 			network.RaiseReceivedDirListing(messageFrom, remoteDirectory);
+		}
+		
+		internal void ProcessFileDetailsMessage (Network network, Node messageFrom, SharedFileListing info)
+		{
+			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
+			
+			var node = PathUtil.GetNode(fullPath);
+			if (node != messageFrom)
+				throw new Exception("Directory was for a different node");
+			
+			bool created = false;
+			RemoteFile remoteFile = GetOrCreateRemoteFile(fullPath, info, out created);
+			if (!created)
+				remoteFile.UpdateFromInfo(info);
+			
+			lock (remoteFileCallbacks) {
+				if (remoteFileCallbacks.ContainsKey(fullPath)) {
+					foreach (var callback in remoteFileCallbacks[fullPath]) {
+						callback(remoteFile);
+					}
+				}
+				remoteFileCallbacks.Remove(fullPath);
+			}
+			
+			network.RaiseReceivedFileDetails(remoteFile);
+				
+			// FIXME: Get rid of all this, just listen for above network.ReceivedFileDetails event!
+			FileFind.Meshwork.FileTransfer.IFileTransfer transfer = Core.FileTransferManager.GetTransfer(remoteFile);
+			if (transfer != null && transfer.Status == FileFind.Meshwork.FileTransfer.FileTransferStatus.WaitingForInfo) {
+				((FileFind.Meshwork.FileTransfer.IFileTransferInternal)transfer).DetailsReceived();
+			}
 		}
 	}
 }
