@@ -91,10 +91,12 @@ namespace FileFind.Meshwork
 			string pidFilePath = Path.Combine(Core.Settings.DataPath, "meshwork.pid");
 			if (File.Exists(pidFilePath)) {
 				int processId = -1;
-				if (Int32.TryParse(File.ReadAllText(pidFilePath), out processId) && Process.GetProcesses().FirstOrDefault(p => p.Id == processId) != null) {
+				Int32.TryParse(File.ReadAllText(pidFilePath), out processId);
+				try {
+					Process.GetProcessById(processId);
 					Console.Error.WriteLine("Meshwork is already running (PID {0})!", processId);
 					return false;
-				} else {
+				} catch (ArgumentException) {
 					File.Delete(pidFilePath);
 				}
 			}

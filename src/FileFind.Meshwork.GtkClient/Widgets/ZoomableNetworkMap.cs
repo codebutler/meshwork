@@ -485,13 +485,13 @@ namespace FileFind.Meshwork.GtkClient
 
 		private SizeD CalculateNodeGroupTitleTextSize (NodeGroup ng, Cairo.Context gc)
 		{
-			gc.Save();
-			gc.SelectFontFace("sans", Cairo.FontSlant.Normal, Cairo.FontWeight.Normal);
-			gc.SetFontSize(NodegroupNameFontSize);
-			TextExtents te = gc.TextExtents(ng.Name);
-			SizeD size = new SizeD(te.Width, te.Height);
-			gc.Restore();
-			return size;
+			Pango.Layout layout = new Pango.Layout(this.PangoContext);
+			layout.FontDescription = this.PangoContext.FontDescription.Copy();
+			layout.FontDescription.Size = Pango.Units.FromDouble(NodegroupNameFontSize);
+			layout.SetText(ng.Name);
+			
+			Gdk.Size size = GetTextSize(layout);
+			return new SizeD(size.Width, size.Height);
 		}
 
 		private SizeD CalculateNodeGroupSize (NodeGroup ng, Cairo.Context gc)
@@ -535,9 +535,13 @@ namespace FileFind.Meshwork.GtkClient
 			
 			double hostTextX = ng.Position.X + (titleSize.Width / 2.0) - (titleTextSize.Width / 2.0);
 			double hostTextY = ng.Position.Y + (titleSize.Height / 2.0) - (titleTextSize.Height / 2.0);
-			gc.MoveTo(hostTextX, hostTextY + titleTextSize.Height);
-			gc.SetFontSize(NodegroupNameFontSize);
-			gc.ShowText(ng.Name);
+			gc.MoveTo(hostTextX, hostTextY /* + titleTextSize.Height */);
+			
+			Pango.Layout layout = new Pango.Layout(this.PangoContext);
+			layout.FontDescription = this.PangoContext.FontDescription.Copy();
+			layout.FontDescription.Size = Pango.Units.FromDouble(NodegroupNameFontSize);
+			layout.SetText(ng.Name);
+			Pango.CairoHelper.ShowLayout(gc, layout);
 					
 			SizeD nodesSize = CalculateNodeGroupSize(ng, gc);
 			
@@ -576,12 +580,10 @@ namespace FileFind.Meshwork.GtkClient
 
 		private SizeD CalculateNetworkTitleSize (Network network, Cairo.Context gc)
 		{
-			gc.Save();
-			gc.SelectFontFace("sans", Cairo.FontSlant.Normal, Cairo.FontWeight.Normal);
-			gc.SetFontSize(NetworkNameFontSize);
-			TextExtents te = gc.TextExtents(network.NetworkName);
-			gc.Restore();
-			return new SizeD(te.Width, te.Height);
+			Pango.Layout layout = new Pango.Layout(this.PangoContext);
+			layout.SetText(network.NetworkName);
+			Gdk.Size size = GetTextSize(layout);
+			return new SizeD(size.Width, size.Height);
 		}
 
 		private void CalculateNetworkSize (Network network, Cairo.Context gc)
@@ -679,10 +681,13 @@ namespace FileFind.Meshwork.GtkClient
 				
 				// Draw title, 2px/2px offset from top/left corner
 				gc.Color = white;
-				gc.SelectFontFace("sans", Cairo.FontSlant.Normal, Cairo.FontWeight.Normal);
-				gc.SetFontSize(NetworkNameFontSize);
-				gc.MoveTo(rect.X + 2, rect.Y + 2 + titleSize.Height);
-				gc.ShowText(network.NetworkName);
+				gc.MoveTo(rect.X + 2, rect.Y + 2 /* + titleSize.Height */);
+
+				Pango.Layout layout = new Pango.Layout(this.PangoContext);
+				layout.FontDescription = this.PangoContext.FontDescription.Copy();
+				layout.FontDescription.Size = Pango.Units.FromDouble(NetworkNameFontSize);
+				layout.SetText(network.NetworkName);
+				Pango.CairoHelper.ShowLayout(gc, layout);
 				
 				foreach (NodeGroup ng in nodegroups.Values)
 					RenderNodeGroup(ng, network, gc);
@@ -785,7 +790,11 @@ namespace FileFind.Meshwork.GtkClient
 			
 			// TODO: This is a mess...
 			if (hoverNode == n) {
-				TextExtents te = gc.TextExtents(n.ToString());
+				Pango.Layout layout = new Pango.Layout (this.PangoContext);
+				layout.SetText (n.ToString());
+				
+				Gdk.Size te = GetTextSize(layout);
+				
 				double textX = xBelow + 20 - (te.Width / 2.0);
 				double textY = yBelow + 20 - (te.Height / 2.0);
 				double padding = 3;
@@ -799,8 +808,9 @@ namespace FileFind.Meshwork.GtkClient
 				gc.Stroke();
 				
 				gc.Color = new Cairo.Color(255, 255, 255, 1);
-				gc.MoveTo(textX, textY + te.Height);
-				gc.ShowText(n.ToString());
+				gc.MoveTo(textX, textY);
+				
+				Pango.CairoHelper.ShowLayout(gc, layout);
 			}
 			
 			n.Properties["position"] = new PointD(x, y);

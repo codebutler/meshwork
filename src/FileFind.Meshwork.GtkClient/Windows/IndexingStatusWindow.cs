@@ -31,7 +31,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			indexingSpinner = new Hyena.Widgets.AnimatedImage();
 			indexingSpinner.SetSizeRequest(16, 16);
-			indexingSpinner.Pixbuf = Gtk.IconTheme.Default.LoadIcon("process-working", 22, IconLookupFlags.NoSvg);
+			indexingSpinner.Pixbuf = Gui.LoadIcon(22, "process-working");
 			indexingSpinner.FrameHeight = 22;
 			indexingSpinner.FrameWidth = 22;
 			indexingSpinner.Load();
@@ -39,7 +39,7 @@ namespace FileFind.Meshwork.GtkClient
 			
 			hashingSpinner = new Hyena.Widgets.AnimatedImage();
 			hashingSpinner.SetSizeRequest(16, 16);
-			hashingSpinner.Pixbuf = Gtk.IconTheme.Default.LoadIcon("process-working", 22, IconLookupFlags.NoSvg);
+			hashingSpinner.Pixbuf = Gui.LoadIcon(22, "process-working");
 			hashingSpinner.FrameHeight = 22;
 			hashingSpinner.FrameWidth = 22;
 			hashingSpinner.Load();

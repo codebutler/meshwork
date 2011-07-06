@@ -22,7 +22,3 @@ using System.Runtime.CompilerServices;
 
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]
-
-[assembly: Mono.UsageComplement("")]
-[assembly: Mono.About("")]
-[assembly: Mono.Author("Eric Butler <eric@extremeboredom.net>")]

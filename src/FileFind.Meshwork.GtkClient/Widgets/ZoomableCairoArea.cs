@@ -301,12 +301,18 @@ namespace Pixane.Widgets
 				gc.Color = new Cairo.Color (0,0,0, 0.5);
 				gc.Fill ();
 				RenderPixbufToSurf (gc, zoomGlass, width-102, 6);
-				gc.SelectFontFace ("sans", Cairo.FontSlant.Normal, Cairo.FontWeight.Normal);
-				gc.SetFontSize (10.0);
-				TextExtents te = gc.TextExtents ("Zooming...");
+								
+				Pango.Layout layout = new Pango.Layout (this.PangoContext);
+				layout.FontDescription = this.PangoContext.FontDescription.Copy ();
+				layout.FontDescription.Size = Pango.Units.FromDouble (10.0);
+				layout.SetText ("Zooming");
+				
+				Size te = GetTextSize(layout);
 				gc.MoveTo (width - 52 - (te.Width / 2.0), 109);
 				gc.Color = new Cairo.Color (1,1,1,0.7);
-				gc.ShowText ("Zooming");
+				
+				Pango.CairoHelper.ShowLayout (gc, layout);
+				
 				gc.Restore ();
 				return;
 			}
@@ -322,15 +328,23 @@ namespace Pixane.Widgets
 			                             this.TranslatedX,
 			                             this.TranslatedY,
 			                             this.ScaleFactor);
-				gc.SelectFontFace ("sans", Cairo.FontSlant.Normal, Cairo.FontWeight.Normal);
-				gc.SetFontSize (12.0);
-				TextExtents te = gc.TextExtents (s);
+				
+				int textWidth, textHeight;
+				
+				Pango.Layout layout = new Pango.Layout (this.PangoContext);
+				layout.FontDescription = this.PangoContext.FontDescription.Copy ();
+				layout.FontDescription.Size = Pango.Units.FromDouble (12.0);
+				layout.SetText (s);
+				Size te = GetTextSize(layout);
+			
 				gc.Color = new Cairo.Color (0.0, 0.0, 0.0, 0.6);
 				gc.Rectangle (width - 7.5d - te.Width, height - te.Height - 5.5d, 7.5d + te.Width, 5.5d + te.Height);
 				gc.Fill ();
-				gc.MoveTo (width - 4.5d - te.Width, height - 4.5d);
-				gc.Color = new Cairo.Color (1.0, 1.0, 1.0, 0.6);
-				gc.ShowText (s);
+				gc.MoveTo (width - 4.5d - te.Width, height - te.Height - 4.5d);
+				gc.Color = new Cairo.Color (1.0, 1.0, 1.0, 0.6);				
+				
+				Pango.CairoHelper.ShowLayout (gc, layout);
+				
 				gc.Fill ();
 				gc.Restore ();
 			}
@@ -529,6 +543,15 @@ namespace Pixane.Widgets
 			Gdk.CairoHelper.SetSourcePixbuf (gc, pixbuf, x, y);
 			gc.Fill ();
 			gc.Restore ();
+		}
+		
+		protected Size GetTextSize (Pango.Layout layout) 
+		{
+			int textWidth, textHeight;
+			layout.GetSize(out textWidth, out textHeight);
+			textWidth  = Pango.Units.ToPixels(textWidth);
+			textHeight = Pango.Units.ToPixels(textHeight);
+			return new Size(textWidth, textHeight);
 		}
 	}
 		

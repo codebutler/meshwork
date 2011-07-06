@@ -188,7 +188,7 @@ namespace FileFind.Meshwork.GtkClient
 			statusLabelItem.ShowAll();
 			
 			taskStatusIcon = new Hyena.Widgets.AnimatedImage();
-			taskStatusIcon.Pixbuf = Gtk.IconTheme.Default.LoadIcon("process-working", 22, IconLookupFlags.NoSvg); //Gui.LoadIcon(22, "process-working");
+			taskStatusIcon.Pixbuf = Gui.LoadIcon(22, "process-working");
 			taskStatusIcon.FrameHeight = 22;
 			taskStatusIcon.FrameWidth = 22;
 			taskStatusIcon.Load();
