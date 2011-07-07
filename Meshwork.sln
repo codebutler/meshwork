@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileFind.Meshwork.GtkClient
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileFind.Meshwork", "src\FileFind.Meshwork\FileFind.Meshwork.csproj", "{261A1AF5-01A7-4C09-AA0E-345B5DE1E888}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileFind.Meshwork.DaemonClient", "src\FileFind.Meshwork.DaemonClient\FileFind.Meshwork.DaemonClient.csproj", "{8CA75664-10AD-4EF3-857A-3FCB556906FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,18 @@ Global
 		{3365276B-1897-48BF-AE17-13519F98888B}.Release|Any CPU.ActiveCfg = Release|x86
 		{3365276B-1897-48BF-AE17-13519F98888B}.Release|x86.ActiveCfg = Release|Any CPU
 		{3365276B-1897-48BF-AE17-13519F98888B}.Release|x86.Build.0 = Release|Any CPU
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Debug|Any CPU.Build.0 = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Debug|x86.ActiveCfg = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Debug|x86.Build.0 = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Default|Any CPU.ActiveCfg = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Default|Any CPU.Build.0 = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Default|x86.ActiveCfg = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Default|x86.Build.0 = Debug|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Release|Any CPU.ActiveCfg = Release|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Release|Any CPU.Build.0 = Release|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Release|x86.ActiveCfg = Release|x86
+		{8CA75664-10AD-4EF3-857A-3FCB556906FA}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1CAEB1A6-1E4C-407A-B55E-860CD0ABA1C8} = {1A608B70-0FB1-4779-9994-699614659E43}
