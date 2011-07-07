@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # Usage:
 #     compare_versions MIN_VERSION ACTUAL_VERSION

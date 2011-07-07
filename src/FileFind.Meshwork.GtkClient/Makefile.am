@@ -197,8 +197,8 @@ REFERENCES = \
 	-r:$(top_builddir)/build/FileFind.Meshwork.dll \
 	-r:$(top_builddir)/build/gtkspell-sharp.dll \
 	-r:$(top_builddir)/build/ige-mac-integration-sharp.dll \
+	-r:$(top_builddir)/build/Mono.GetOptions.dll \
 	-r:System.Drawing \
-	-r:Mono.GetOptions \
 	-r:Mono.Posix \
 	-r:Mono.Cairo \
 	$(GTK_SHARP_LIBS) \

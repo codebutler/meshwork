@@ -167,7 +167,6 @@ REFERENCES = \
 	-r:System.Web.Extensions \
 	-r:System.Web \
 	-r:System.Data \
-	-r:Mono.Data \
 	-r:Mono.Data.Sqlite \
 	-r:Mono.Posix
 

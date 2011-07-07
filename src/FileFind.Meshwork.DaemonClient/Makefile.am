@@ -1,15 +1,18 @@
 BINDIR = $(top_builddir)/build
 
-REFERENCES = $(MESHWORK_LIBS) -r:System.ServiceProcess -r:Mono.Posix
+REFERENCES = \
+	-r:System.ServiceProcess \
+	-r:Mono.Posix		\
+	-r:$(top_builddir)/build/FileFind.Meshwork.dll
 
-ASSEMBLY = $(BINDIR)/meshwork-daemon.exe
+ASSEMBLY = $(BINDIR)/FileFind.Meshwork.DaemonClient.exe
 FILES = MeshworkDaemon.cs Settings.cs AvatarManager.cs SettingsCreator.cs
 
 all: $(ASSEMBLY)
 
 $(ASSEMBLY): $(FILES)
 	mkdir -p $(BINDIR)
-	$(MCS) $(MCS_FLAGS) -out:$@ $(REFERENCES) $(FILES)
+	$(MCS) $(CSC_FLAGS) -debug -out:$@ $(REFERENCES) $(FILES)
 
 CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb
 EXTRA_DIST = $(FILES)

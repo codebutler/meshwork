@@ -1,1 +1,1 @@
-SUBDIRS = FileFind.Meshwork FileFind.Meshwork.GtkClient
+SUBDIRS = FileFind.Meshwork FileFind.Meshwork.GtkClient FileFind.Meshwork.DaemonClient

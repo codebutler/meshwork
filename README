@@ -24,17 +24,11 @@ Build Dependencies
 
 Ubuntu users can install everything in one command...
 
-Dapper 6.06:
-
-	sudo apt-get install automake1.9 mono-gmcs libavahi-cil \ 
-	  libdbus-1-cil libglib2.0-dev gtk-sharp2 intltool \
-	  libgdiplus
-
-Edgy 6.10:
+Ubuntu 11.04 Natty:
 
 	sudo apt-get install automake1.9 mono-gmcs libavahi1.0-cil \ 
-	  libdbus-1-cil libmono-cairo2.0-cil libglib2.0-dev gtk-sharp2 \
-	  intltool libgdiplus
+	  libdbus1.0-cil libmono-cairo2.0-cil libglib2.0-dev gtk-sharp2 \
+	  intltool libgdiplus mono-1.0-devel
 
 Instructions
 ------------

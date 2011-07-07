@@ -36,7 +36,6 @@ fi
 dnl library dependencies
 MONO_REQUIRED_VERSION=1.2.6
 GTKSHARP_REQUIRED_VERSION=2.8.2
-MONO_CAIRO_REQUIRED_VERSION=1.1.13
 
 PKG_CHECK_MODULES(MONO, mono >= $MONO_REQUIRED_VERSION)
 
@@ -45,9 +44,6 @@ AC_SUBST(GTK_SHARP_LIBS)
 
 PKG_CHECK_MODULES(GLADE_SHARP, glade-sharp-2.0 >= $GTKSHARP_REQUIRED_VERSION)
 AC_SUBST(GLADE_SHARP_LIBS)
-
-PKG_CHECK_MODULES(MONO_CAIRO, mono-cairo >= $MONO_CAIRO_REQUIRED_VERSION)
-AC_SUBST(MONO_CAIRO_LIBS)
 
 dnl Intl
 ALL_LINGUAS=""
@@ -72,6 +68,7 @@ Makefile
 src/Makefile
 src/FileFind.Meshwork/Makefile
 src/FileFind.Meshwork.GtkClient/Makefile
+src/FileFind.Meshwork.DaemonClient/Makefile
 contrib/Makefile
 resources/Makefile
 po/Makefile.in
