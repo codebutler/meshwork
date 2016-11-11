@@ -28,7 +28,7 @@
 
 using System;
 
-namespace Hyena.Gui.Theatrics
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
     public class Actor<T>
     {

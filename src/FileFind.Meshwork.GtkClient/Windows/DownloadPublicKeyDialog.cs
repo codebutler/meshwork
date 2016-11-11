@@ -1,12 +1,11 @@
 // created on 05/31/2004 at 19:55
-using System;
-using Gtk;
-using Glade;
-using System.IO;
-using System.Net;
-using FileFind.Meshwork.GtkClient;
 
-namespace FileFind.Meshwork.GtkClient
+using System;
+using System.Net;
+using Glade;
+using Gtk;
+
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class DownloadPublicKeyDialog : GladeDialog
 	{

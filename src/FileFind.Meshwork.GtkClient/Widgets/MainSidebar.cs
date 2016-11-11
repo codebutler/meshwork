@@ -8,15 +8,12 @@
 //
 
 using System;
-using System.IO;
 using System.Collections;
-using System.Reflection;
+using FileFind.Meshwork.GtkClient.Pages;
+using FileFind.Meshwork.GtkClient.SidebarItems;
 using Gtk;
-using Banshee.Widgets;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Search;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
 	public class MainSidebar : VBox
 	{
@@ -285,7 +282,7 @@ namespace FileFind.Meshwork.GtkClient
 				else
 					(cell as CellRendererText).Text = Common.FormatNumber(item.Count);
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 		}
 

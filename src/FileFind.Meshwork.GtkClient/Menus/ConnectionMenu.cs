@@ -7,15 +7,13 @@
 // (C) 2006 FileFind.net (http://filefind.net)
 //
 
-using Gtk;
-using Glade;
 using System;
-using System.Net;
-using System.Collections;
 using System.Collections.Generic;
-using FileFind.Meshwork.Transport;
+using System.Net;
+using Glade;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Menus
 {
 	public class ConnectionMenu
 	{

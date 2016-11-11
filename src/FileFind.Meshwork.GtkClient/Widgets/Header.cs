@@ -9,7 +9,7 @@
 
 using System;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
 	public class Header : Gtk.HBox
 	{

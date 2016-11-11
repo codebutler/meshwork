@@ -8,12 +8,10 @@
 //
 
 using System;
-using Gtk;
 using Glade;
-using System.IO;
-using System.Net;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class InviteToChatDialog : GladeDialog
 	{
@@ -184,7 +182,7 @@ namespace FileFind.Meshwork.GtkClient
 				(cell as CellRendererText).Text = "(Select chat room)";
 				(cell as CellRendererText).Sensitive = false;
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 				(cell as CellRendererText).Sensitive = false;
 			}
 		}

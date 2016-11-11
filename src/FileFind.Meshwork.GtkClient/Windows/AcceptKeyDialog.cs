@@ -8,20 +8,10 @@
 //
 
 using System;
-using System.Security.Cryptography;
-using Gtk;
 using Glade;
-using System.IO;
-using System.Net;
-using FileFind;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Collections;
-using FileFind.Meshwork.Exceptions;
-using FileFind.Serialization;
-using FileFind.Meshwork.GtkClient;
-using FileFind.Meshwork.Protocol;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class AcceptKeyDialog : GladeDialog
 	{		
@@ -50,7 +40,7 @@ namespace FileFind.Meshwork.GtkClient
 			} else if (args.Connection != null) {
 				var conn = args.Connection;
 				
-				connectionLabel.Text = String.Format("{0} ({1})", conn.RemoteAddress, conn.Incoming ? "Incoming" : "Outgoing");
+				connectionLabel.Text = string.Format("{0} ({1})", conn.RemoteAddress, conn.Incoming ? "Incoming" : "Outgoing");
 				nicknameLabel.Text = args.Key.Info;
 				
 				connectionLabel.Show();
@@ -59,7 +49,7 @@ namespace FileFind.Meshwork.GtkClient
 				nicknameLabel.Text = args.Key.Info;
 			}
 			
-			denyKeyButtonLabel.Text = String.Format ("Deny Key ({0})", secondsLeft);
+			denyKeyButtonLabel.Text = string.Format ("Deny Key ({0})", secondsLeft);
 
 		}
 		
@@ -75,7 +65,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private bool IncreaseDenyCountdown ()
 		{
-			denyKeyButtonLabel.Text = String.Format ("Deny Key ({0})", secondsLeft);
+			denyKeyButtonLabel.Text = string.Format ("Deny Key ({0})", secondsLeft);
 			secondsLeft --;
 
 			if (secondsLeft == 0) {

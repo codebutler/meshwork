@@ -77,25 +77,25 @@ namespace FileFind.Meshwork.GtkClient.Windows
 		private bool UpdateWindow()
 		{
 			downloadedLabel.Text    = FileFind.Common.FormatBytes(transfer.BytesDownloaded);
-			downloadSpeedLabel.Text = String.Format("{0}/s", FileFind.Common.FormatBytes(transfer.TotalDownloadSpeed));
+			downloadSpeedLabel.Text = string.Format("{0}/s", FileFind.Common.FormatBytes(transfer.TotalDownloadSpeed));
 			uploadedLabel.Text      = FileFind.Common.FormatBytes(transfer.BytesUploaded);
-			uploadSpeedLabel.Text   = String.Format("{0}/s", FileFind.Common.FormatBytes(transfer.TotalUploadSpeed));
+			uploadSpeedLabel.Text   = string.Format("{0}/s", FileFind.Common.FormatBytes(transfer.TotalUploadSpeed));
 
-			string progress = String.Format("{0}%", Math.Round(transfer.Progress, 2).ToString());
+			string progress = string.Format("{0}%", Math.Round(transfer.Progress, 2).ToString());
 			if (transfer.Progress < 0) {
 				progressBar.Fraction = 0;
-				progressBar.Text = String.Format("({0}...)", transfer.Status.ToString());
+				progressBar.Text = string.Format("({0}...)", transfer.Status.ToString());
 			} else { 
 				double fraction = Math.Round(transfer.Progress * 0.01, 2);
 				progressBar.Fraction = fraction;
 				if (transfer.Status != FileTransferStatus.Transfering) {
-					progressBar.Text = String.Format("{0} - {1}", transfer.Status, progress);
+					progressBar.Text = string.Format("{0} - {1}", transfer.Status, progress);
 				} else {
 					progressBar.Text = progress;
 				}
 			}
 			
-			base.Window.Title = String.Format("{0} {1} - {2}", transfer.Direction.ToString(), transfer.File.Name, progress);
+			base.Window.Title = string.Format("{0} {1} - {2}", transfer.Direction.ToString(), transfer.File.Name, progress);
 			
 			peerListStore.Clear();
 			foreach (IFileTransferPeer peer in transfer.Peers) {
@@ -136,19 +136,19 @@ namespace FileFind.Meshwork.GtkClient.Windows
 		private void peersTreeView_DownloadSpeedFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			IFileTransferPeer peer = (IFileTransferPeer)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Format("{0}/s", FileFind.Common.FormatBytes(peer.DownloadSpeed));
+			(cell as CellRendererText).Text = string.Format("{0}/s", FileFind.Common.FormatBytes(peer.DownloadSpeed));
 		}
 
 		private void peersTreeView_UploadSpeedFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			IFileTransferPeer peer = (IFileTransferPeer)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Format("{0}/s", FileFind.Common.FormatBytes(peer.UploadSpeed));
+			(cell as CellRendererText).Text = string.Format("{0}/s", FileFind.Common.FormatBytes(peer.UploadSpeed));
 		}
 
 		private void peersTreeView_StatusFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			IFileTransferPeer peer = (IFileTransferPeer)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Format("{0} {1}", peer.Status, peer.StatusDetail);
+			(cell as CellRendererText).Text = string.Format("{0} {1}", peer.Status, peer.StatusDetail);
 		}
 
 		private void peersTreeView_ProgressFunc(TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
@@ -156,9 +156,9 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			IFileTransferPeer peer = (IFileTransferPeer)model.GetValue(iter, 0);
 			CellRendererProgress progressCell = (CellRendererProgress)cell;
 
-			if (peer.Progress > Int32.MinValue && peer.Progress < Int32.MaxValue) {
+			if (peer.Progress > int.MinValue && peer.Progress < int.MaxValue) {
 				progressCell.Value = Convert.ToInt32(peer.Progress);
-				progressCell.Text = String.Format("{0}%", progressCell.Value);
+				progressCell.Text = string.Format("{0}%", progressCell.Value);
 			} else {
 				progressCell.Value = 0;
 				progressCell.Text = "Unknown";

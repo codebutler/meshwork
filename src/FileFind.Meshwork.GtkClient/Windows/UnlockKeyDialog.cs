@@ -17,7 +17,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			} else {
 				Gui.ShowErrorDialog("Incorrect Password");
 			}			
-			passwordEntry.Text = String.Empty;
+			passwordEntry.Text = string.Empty;
 		}
 	}
 }

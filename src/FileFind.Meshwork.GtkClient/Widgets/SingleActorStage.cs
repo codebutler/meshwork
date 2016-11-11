@@ -26,9 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-
-namespace Hyena.Gui.Theatrics
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
     public class SingleActorStage : Stage<object>
     {

@@ -9,15 +9,12 @@
 
 using System;
 using System.Globalization;
+using FileFind.Meshwork.GtkClient.Widgets;
+using Glade;
 using Gtk;
 using GtkSpell;
-using Glade;
-using System.Collections;
-using FileFind.Meshwork;
-using GLib;
-using MonoDevelop.Components;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public abstract class ChatSubpageBase : GladeWidgetExtract, IPage
 	{

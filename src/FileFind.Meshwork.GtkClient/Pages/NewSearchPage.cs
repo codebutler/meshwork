@@ -7,11 +7,11 @@
 // (C) 2008 FileFind.net
 // 
 
-using Banshee.Widgets;
 using System;
+using FileFind.Meshwork.GtkClient.Widgets;
 using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	
 	public class NewSearchPage : Alignment, IPage

@@ -7,27 +7,25 @@
 // (C) 2006 FileFind.net (http://filefind.net)
 //
 
-using FileFind.Meshwork;
 using System;
 using System.Reflection;
 using Gtk;
-using Glade;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class AboutDialog : GladeDialog
 	{
 		public AboutDialog (Window parent) : base(parent, "AboutDialog")
 		{
-			string title = String.Empty;
-			string version = String.Empty;
+			string title = string.Empty;
+			string version = string.Empty;
 			
 			var assembly = Assembly.GetExecutingAssembly();
 			
 			var titleAttributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
 			if (titleAttributes.Length > 0) {
 				AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)titleAttributes[0];
-				if (!String.IsNullOrEmpty(titleAttribute.Title)) {
+				if (!string.IsNullOrEmpty(titleAttribute.Title)) {
 					title = titleAttribute.Title;
 				}
 			}
@@ -35,17 +33,17 @@ namespace FileFind.Meshwork.GtkClient
 			var versionAttributes = assembly.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
 			if (versionAttributes.Length > 0) {
 				AssemblyVersionAttribute versionAttribute = (AssemblyVersionAttribute)versionAttributes[0];
-				if (!String.IsNullOrEmpty(versionAttribute.Version)) {
+				if (!string.IsNullOrEmpty(versionAttribute.Version)) {
 					version =  versionAttribute.Version;
 				}
 			}			
 			
 			Gtk.AboutDialog dialog = (Gtk.AboutDialog)base.Dialog;
 			
-			if (!String.IsNullOrEmpty(title))
+			if (!string.IsNullOrEmpty(title))
 				dialog.ProgramName = title;
 			
-			if (!String.IsNullOrEmpty(version))
+			if (!string.IsNullOrEmpty(version))
 				dialog.Version = version;
 		}		
 	}

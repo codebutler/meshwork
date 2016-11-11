@@ -9,14 +9,10 @@
 //
 
 using System;
-using Gtk;
 using Glade;
-using System.IO;
-using System.Net;
+using Gtk;
 
-using FileFind.Meshwork;
-
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class EditMemoDialog : GladeDialog
 	{

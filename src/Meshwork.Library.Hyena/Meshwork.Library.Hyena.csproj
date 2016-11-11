@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4F89B3C4-2837-4020-9D91-96AAC8718911}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Meshwork.Library.Hyena</RootNamespace>
+    <AssemblyName>Meshwork.Library.Hyena</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Data.Sqlite, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\4.6.0\lib\mono\4.5-api\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Posix, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\4.6.0\lib\mono\4.5-api\Mono.Posix.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\Sqlite\DatabaseColumnAttribute.cs" />
+    <Compile Include="Data\Sqlite\FileTypeQueryValue.cs" />
+    <Compile Include="Data\Sqlite\SqliteUtils.cs" />
+    <Compile Include="DateTimeUtil.cs" />
+    <Compile Include="Query\AliasedObjectSet.cs" />
+    <Compile Include="Query\DateQueryValue.cs" />
+    <Compile Include="Query\ExactStringQueryValue.cs" />
+    <Compile Include="Query\FileSizeQueryValue.cs" />
+    <Compile Include="Query\IntegerKeyedObjectQueryValue.cs" />
+    <Compile Include="Query\IntegerQueryValue.cs" />
+    <Compile Include="Query\NullQueryValue.cs" />
+    <Compile Include="Query\QueryField.cs" />
+    <Compile Include="Query\QueryFieldSet.cs" />
+    <Compile Include="Query\QueryLimit.cs" />
+    <Compile Include="Query\QueryListNode.cs" />
+    <Compile Include="Query\QueryNode.cs" />
+    <Compile Include="Query\QueryOperator.cs" />
+    <Compile Include="Query\QueryOrder.cs" />
+    <Compile Include="Query\QueryParser.cs" />
+    <Compile Include="Query\QueryTermNode.cs" />
+    <Compile Include="Query\QueryToken.cs" />
+    <Compile Include="Query\QueryValue.cs" />
+    <Compile Include="Query\RelativeTimeSpanQueryValue.cs" />
+    <Compile Include="Query\StringQueryValue.cs" />
+    <Compile Include="Query\TimeSpanQueryValue.cs" />
+    <Compile Include="Query\UserQueryParser.cs" />
+    <Compile Include="Query\XmlQueryParser.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StringUtil.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

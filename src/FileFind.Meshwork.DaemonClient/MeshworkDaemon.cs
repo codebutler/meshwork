@@ -1,8 +1,5 @@
 using Mono.Unix.Native;
 using System;
-using System.ServiceProcess;
-using System.Diagnostics;
-using System.Security.Cryptography;
 using IO = System.IO;
 using FileFind.Meshwork.Logging;
 
@@ -78,7 +75,7 @@ namespace FileFind.Meshwork.DaemonClient
 		{
 			if (ex != null) {
 				//Syscall.syslog (SyslogLevel.LOG_ERR, String.Format ("{0}: {1}", text, ex.ToString()));
-				Console.Error.WriteLine(String.Format ("{0}: {1}", text, ex.ToString()));
+				Console.Error.WriteLine(string.Format ("{0}: {1}", text, ex.ToString()));
 			} else {
 				//Syscall.syslog (SyslogLevel.LOG_INFO, text);
 				Console.WriteLine(text);
@@ -133,7 +130,7 @@ namespace FileFind.Meshwork.DaemonClient
 				
 				// First person to connect? Put them in charge!
 				if (network.TrustedNodes.Count == 0) {
-					LogItem(String.Format("[!] WARNING! {0} is now the admin!", publicKey.Nickname));
+					LogItem(string.Format("[!] WARNING! {0} is now the admin!", publicKey.Nickname));
 					if (!settings.AdminIDs.Contains(nodeInfo.NodeID)) {
 						settings.AdminIDs.Add(nodeInfo.NodeID);
 						settings.SaveSettings();
@@ -183,7 +180,7 @@ namespace FileFind.Meshwork.DaemonClient
 				throw new Exception("EGADS!!");
 			}
 
-			string result = String.Empty;
+			string result = string.Empty;
 			switch (args[0]) {
 				case "key":
 					if (args.Length > 1) {

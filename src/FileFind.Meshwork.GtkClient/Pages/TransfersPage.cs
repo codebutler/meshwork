@@ -8,12 +8,11 @@
 //
 
 using System;
-using Gtk;
+using FileFind.Meshwork.GtkClient.Menus;
 using Gdk;
-using FileFind.Meshwork;
-using FileFind.Meshwork.FileTransfer;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public class TransfersPage : VBox, IPage
 	{
@@ -112,7 +111,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (transfer.Status == FileTransferStatus.Transfering) {
 				((CellRendererText)cell).Text = FileFind.Common.FormatBytes(transfer.TotalUploadSpeed) + "/s";
 			} else {
-				((CellRendererText)cell).Text = String.Empty;
+				((CellRendererText)cell).Text = string.Empty;
 			}
 		}
 
@@ -122,7 +121,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (transfer.Status == FileTransferStatus.Transfering) {
 				((CellRendererText)cell).Text = FileFind.Common.FormatBytes(transfer.TotalDownloadSpeed) + "/s";
 			} else {
-				((CellRendererText)cell).Text = String.Empty;
+				((CellRendererText)cell).Text = string.Empty;
 			}
 		}
 
@@ -149,7 +148,7 @@ namespace FileFind.Meshwork.GtkClient
 				progressCell.Value = 0;
 				progressCell.Visible = false;
 			}
-			progressCell.Text = String.Format("{0}%", progressCell.Value);
+			progressCell.Text = string.Format("{0}%", progressCell.Value);
 		}
 
 		private void TransferStatusFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
@@ -157,8 +156,8 @@ namespace FileFind.Meshwork.GtkClient
 			IFileTransfer transfer = (IFileTransfer)model.GetValue (iter, 0);
 			CellRendererText textCell = (CellRendererText)cell;
 			
-			if (!String.IsNullOrEmpty(transfer.StatusDetail)) {
-				textCell.Text = String.Format("{0} - {1}", transfer.Status, transfer.StatusDetail);
+			if (!string.IsNullOrEmpty(transfer.StatusDetail)) {
+				textCell.Text = string.Format("{0} - {1}", transfer.Status, transfer.StatusDetail);
 			} else {
 				textCell.Text = transfer.Status.ToString();
 			}
@@ -283,7 +282,7 @@ namespace FileFind.Meshwork.GtkClient
 		// FIXME: Nothing calls this!
 		private void transfer_Error(IFileTransfer transfer, Exception ex)
 		{
-			LoggingService.LogError(String.Format("Transfer error ({0})", transfer.File.Name), ex);
+			LoggingService.LogError(string.Format("Transfer error ({0})", transfer.File.Name), ex);
 		}
 	}
 }

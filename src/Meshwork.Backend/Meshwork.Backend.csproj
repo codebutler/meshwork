@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{14D462D1-0164-486E-823B-DC25F1F38EDA}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Meshwork.Backend</RootNamespace>
+    <AssemblyName>Meshwork.Backend</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Data.Sqlite, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\4.6.0\lib\mono\4.5-api\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\4.6.0\lib\mono\4.5-api\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoTorrent, Version=0.80.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\AckMethod.cs" />
+    <Compile Include="Core\AutoconnectManager.cs" />
+    <Compile Include="Core\Backend.cs" />
+    <Compile Include="Core\ChatRoom.cs" />
+    <Compile Include="Core\Collections\MessageIdCollection.cs" />
+    <Compile Include="Core\Collections\NodeConnectionCollection.cs" />
+    <Compile Include="Core\ConnectionState.cs" />
+    <Compile Include="Core\ConnectionType.cs" />
+    <Compile Include="Core\DebugInfo.cs" />
+    <Compile Include="Core\Destination\DestinationManager.cs" />
+    <Compile Include="Core\Destination\IDestination.cs" />
+    <Compile Include="Core\Destination\IPDestination.cs" />
+    <Compile Include="Core\Destination\TCPDestination.cs" />
+    <Compile Include="Core\Encryption.cs" />
+    <Compile Include="Core\Errors.cs" />
+    <Compile Include="Core\EventArgs.cs" />
+    <Compile Include="Core\Exceptions.cs" />
+    <Compile Include="Core\IAvatarManager.cs" />
+    <Compile Include="Core\IMeshworkPlugin.cs" />
+    <Compile Include="Core\INodeConnection.cs" />
+    <Compile Include="Core\ISettings.cs" />
+    <Compile Include="Core\LocalNodeConnection.cs" />
+    <Compile Include="Core\LoggingService.cs" />
+    <Compile Include="Core\Logging\ConsoleCrayon.cs" />
+    <Compile Include="Core\Logging\ConsoleLogger.cs" />
+    <Compile Include="Core\Logging\FileLogger.cs" />
+    <Compile Include="Core\Logging\ILogger.cs" />
+    <Compile Include="Core\Logging\LogLevel.cs" />
+    <Compile Include="Core\Memo.cs" />
+    <Compile Include="Core\Message.cs" />
+    <Compile Include="Core\MessageBuilder.cs" />
+    <Compile Include="Core\MessageProcessor.cs" />
+    <Compile Include="Core\NearbyNode.cs" />
+    <Compile Include="Core\Network.cs" />
+    <Compile Include="Core\NetworkInfo.cs" />
+    <Compile Include="Core\NetworkState.cs" />
+    <Compile Include="Core\Node.cs" />
+    <Compile Include="Core\PluginInfo.cs" />
+    <Compile Include="Core\Protocol\MemoInfo.cs" />
+    <Compile Include="Core\Protocol\MessageContentClasses.cs" />
+    <Compile Include="Core\Protocol\SearchResultInfo.cs" />
+    <Compile Include="Core\PublicKey.cs" />
+    <Compile Include="Core\RemoteNodeConnection.cs" />
+    <Compile Include="Core\SettingsBase.cs" />
+    <Compile Include="Core\TextCatalog.cs" />
+    <Compile Include="Core\Transport\AESTransportEncryptor.cs" />
+    <Compile Include="Core\Transport\IMeshworkOperation.cs" />
+    <Compile Include="Core\Transport\ITransport.cs" />
+    <Compile Include="Core\Transport\ITransportEncryptor.cs" />
+    <Compile Include="Core\Transport\ITransportListener.cs" />
+    <Compile Include="Core\Transport\TcpListener.cs" />
+    <Compile Include="Core\Transport\TcpTransport.cs" />
+    <Compile Include="Core\Transport\TransportBase.cs" />
+    <Compile Include="Core\Transport\TransportManager.cs" />
+    <Compile Include="Core\Transport\TransportState.cs" />
+    <Compile Include="Core\TrustedNodeInfo.cs" />
+    <Compile Include="Core\Validator.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\AbstractDirectory.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\AbstractFile.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\FileSystemProvider.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\IDirectory.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\IDirectoryItem.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\IFile.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\ILocalDirectoryItem.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\IRemoteDirectoryItem.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\LocalDirectory.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\LocalFile.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\MyDirectory.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\NetworkDirectory.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\NodeDirectory.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\PathUtil.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\RemoteDirectory.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\RemoteFile.cs" />
+    <Compile Include="Feature\FileBrowsing\Filesystem\RootDirectory.cs" />
+    <Compile Include="Feature\FileIndexing\ShareBuilder.cs" />
+    <Compile Include="Feature\FileIndexing\ShareHasher.cs" />
+    <Compile Include="Feature\FileIndexing\ShareWatcher.cs" />
+    <Compile Include="Feature\FileSearch\FileSearch.cs" />
+    <Compile Include="Feature\FileSearch\FileSearchFilter.cs" />
+    <Compile Include="Feature\FileSearch\FileSearchGroup.cs" />
+    <Compile Include="Feature\FileSearch\FileSearchManager.cs" />
+    <Compile Include="Feature\FileSearch\SearchResult.cs" />
+    <Compile Include="Feature\FileTransfer\BitTorrent\BitTorrentFileTransfer.cs" />
+    <Compile Include="Feature\FileTransfer\BitTorrent\BitTorrentFileTransferPeer.cs" />
+    <Compile Include="Feature\FileTransfer\BitTorrent\BitTorrentFileTransferProvider.cs" />
+    <Compile Include="Feature\FileTransfer\BitTorrent\MeshworkPeerConnection.cs" />
+    <Compile Include="Feature\FileTransfer\BitTorrent\MeshworkPeerConnectionListener.cs" />
+    <Compile Include="Feature\FileTransfer\BitTorrent\MeshworkTrackerClient.cs" />
+    <Compile Include="Feature\FileTransfer\FileTransferBase.cs" />
+    <Compile Include="Feature\FileTransfer\FileTransferDirection.cs" />
+    <Compile Include="Feature\FileTransfer\FileTransferManager.cs" />
+    <Compile Include="Feature\FileTransfer\FileTransferPeerBase.cs" />
+    <Compile Include="Feature\FileTransfer\FileTransferPeerStatus.cs" />
+    <Compile Include="Feature\FileTransfer\FileTransferStatus.cs" />
+    <Compile Include="Feature\FileTransfer\IFileTransfer.cs" />
+    <Compile Include="Feature\FileTransfer\IFileTransferPeer.cs" />
+    <Compile Include="Feature\FileTransfer\IFileTransferProvider.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Meshwork.Common\Meshwork.Common.csproj">
+      <Project>{592E20C9-16CB-431C-8BAC-879FDAE9EF14}</Project>
+      <Name>Meshwork.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Library.CRC\Meshwork.Library.CRC.csproj">
+      <Project>{86CEC195-22E0-4CA9-8B17-16C01A0C3647}</Project>
+      <Name>Meshwork.Library.CRC</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Library.Hyena\Meshwork.Library.Hyena.csproj">
+      <Project>{4F89B3C4-2837-4020-9D91-96AAC8718911}</Project>
+      <Name>Meshwork.Library.Hyena</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform\Meshwork.Platform.csproj">
+      <Project>{D981A690-6340-404C-96F5-B32E18C6AF8D}</Project>
+      <Name>Meshwork.Platform</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

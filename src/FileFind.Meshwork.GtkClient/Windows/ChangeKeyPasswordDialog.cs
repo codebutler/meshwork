@@ -34,7 +34,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 				return;
 			}
 			
-			if (newPasswordEntry.Text == String.Empty) {
+			if (newPasswordEntry.Text == string.Empty) {
 				var dialog = new Gtk.MessageDialog(base.Window, Gtk.DialogFlags.Modal, Gtk.MessageType.Question, Gtk.ButtonsType.YesNo, "Are you sure you don't want to set a password?");
 				dialog.Show();
 				int r = dialog.Run();

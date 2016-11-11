@@ -8,12 +8,11 @@
 // 
 
 using System;
-using System.Security.Cryptography;
 using System.Threading;
-using Gtk;
 using Glade;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class GenerateKeyDialog : GladeDialog
 	{

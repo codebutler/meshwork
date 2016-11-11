@@ -10,7 +10,7 @@ using FileFind.Meshwork;
 using FileFind.Meshwork.Collections;
 using FileFind.Meshwork.Exceptions;
 using FileFind.Meshwork.Destination;
-using FileFind.Serialization;
+using FileFind.Meshwork.FileFind;
 
 namespace FileFind.Meshwork.DaemonClient
 {

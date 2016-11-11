@@ -1,13 +1,8 @@
-using Gtk;
 using System;
 using System.Text.RegularExpressions;
-using System.Collections;
-using System.Collections.Generic;
-using Banshee.Widgets;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Search;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient 
+namespace FileFind.Meshwork.GtkClient.Widgets 
 {
 	public class FilterWidget : VBox
 	{
@@ -331,7 +326,7 @@ namespace FileFind.Meshwork.GtkClient
 				private void HideShowTooltip ()
 				{
 					UpdateTooltipText();
-					if (this.HasFocus && !String.IsNullOrEmpty(tooltip.Text) && this.Text.Length > 0 && 
+					if (this.HasFocus && !string.IsNullOrEmpty(tooltip.Text) && this.Text.Length > 0 && 
 					    (mode != FilterEntryMode.String || 
 					     (mode == FilterWidget.FilterWidgetRow.FilterEntryMode.String && 
 					      filter.Comparison == FileSearchFilterComparison.Regexp )))
@@ -359,7 +354,7 @@ namespace FileFind.Meshwork.GtkClient
 					if (mode == FilterEntryMode.String && filter.Comparison == FileSearchFilterComparison.Regexp) {
 						try {
 							new Regex(entryText);
-							tooltip.Text = String.Empty;
+							tooltip.Text = string.Empty;
 						} catch (ArgumentException ex) {
 							tooltip.Text = ex.Message;
 						}
@@ -369,7 +364,7 @@ namespace FileFind.Meshwork.GtkClient
 						ulong  num;
 						string unitName;
 						if (Common.ParseSizeString(entryText, out num, out unitName)) {
-							tooltip.Text = String.Format("{0} <b>{1}{2}</b>", FormatNumber(num),
+							tooltip.Text = string.Format("{0} <b>{1}{2}</b>", FormatNumber(num),
 													  unitName,
 													  num > 1 ? "s" : "");
 							return;
@@ -387,9 +382,9 @@ namespace FileFind.Meshwork.GtkClient
 						if (match.Success) {
 							ulong width;
 							ulong height;
-							if (UInt64.TryParse(match.Groups[1].Captures[0].Value, out width) && 
-							    UInt64.TryParse(match.Groups[2].Captures[0].Value, out height)) {
-								tooltip.Text = String.Format("<b>Width:</b> {0}px, <b>Height:</b> {1}px", width, height);
+							if (ulong.TryParse(match.Groups[1].Captures[0].Value, out width) && 
+							    ulong.TryParse(match.Groups[2].Captures[0].Value, out height)) {
+								tooltip.Text = string.Format("<b>Width:</b> {0}px, <b>Height:</b> {1}px", width, height);
 								return;
 							} else {
 								tooltip.Text = "Size too large.";

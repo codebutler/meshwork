@@ -1,10 +1,8 @@
-
 using System;
+using FileFind.Meshwork.GtkClient.Widgets;
 using Gtk;
-using FileFind.Meshwork;
-using Hyena.Widgets;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class IndexingStatusWindow : GladeWindow
 	{
@@ -29,7 +27,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public IndexingStatusWindow () : base ("IndexingStatusWindow")
 		{
-			indexingSpinner = new Hyena.Widgets.AnimatedImage();
+			indexingSpinner = new AnimatedImage();
 			indexingSpinner.SetSizeRequest(16, 16);
 			indexingSpinner.Pixbuf = Gui.LoadIcon(22, "process-working");
 			indexingSpinner.FrameHeight = 22;
@@ -37,7 +35,7 @@ namespace FileFind.Meshwork.GtkClient
 			indexingSpinner.Load();
 			indexingSpinnerAlignment.Add(indexingSpinner);
 			
-			hashingSpinner = new Hyena.Widgets.AnimatedImage();
+			hashingSpinner = new AnimatedImage();
 			hashingSpinner.SetSizeRequest(16, 16);
 			hashingSpinner.Pixbuf = Gui.LoadIcon(22, "process-working");
 			hashingSpinner.FrameHeight = 22;

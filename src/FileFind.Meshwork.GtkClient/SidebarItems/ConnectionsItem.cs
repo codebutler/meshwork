@@ -8,8 +8,9 @@
 //
 
 using System;
+using FileFind.Meshwork.GtkClient.Pages;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.SidebarItems
 {
 	internal class ConnectionsItem : ISidebarItem
 	{

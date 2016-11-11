@@ -261,7 +261,7 @@ namespace FileFind.Meshwork.GtkClient
 		private static void UnhandledExceptionHandler (object sender, UnhandledExceptionEventArgs args)
 		{
 			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + args.ExceptionObject.ToString());
-			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), String.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
+			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), string.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
 			string crashLog = args.ExceptionObject.ToString();
 			File.WriteAllText(crashFileName, crashLog);
 		}
@@ -271,7 +271,7 @@ namespace FileFind.Meshwork.GtkClient
 			string exceptionText = args.ExceptionObject.ToString();
 			
 			Console.Error.WriteLine("UNHANDLED EXCEPTION!! " + exceptionText);
-			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), String.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
+			string crashFileName = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), string.Format("meshwork-crash-{0}.log", DateTime.Now.ToFileTime()));
 			string crashLog = exceptionText;
 			File.WriteAllText(crashFileName, crashLog);
 			

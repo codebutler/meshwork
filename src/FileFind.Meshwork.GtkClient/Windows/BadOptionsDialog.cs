@@ -8,11 +8,11 @@
 //
 
 using System;
-using Gtk;
-using Glade;
 using System.Collections;
+using Glade;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class BadOptionsDialog : GladeDialog
 	{

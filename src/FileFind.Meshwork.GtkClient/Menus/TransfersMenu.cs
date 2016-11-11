@@ -8,14 +8,11 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Gtk;
-using FileFind.Meshwork;
-using FileFind.Meshwork.FileTransfer;
 using FileFind.Meshwork.GtkClient.Windows;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Menus
 {
 	public class TransfersMenu 
 	{

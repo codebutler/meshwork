@@ -128,7 +128,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (win == null && Gui.MainWindow != null)
 				win = Gui.MainWindow.Window;
 
-			MessageDialog md = new MessageDialog (win, Gtk.DialogFlags.DestroyWithParent, type, buttons, String.Empty);
+			MessageDialog md = new MessageDialog (win, Gtk.DialogFlags.DestroyWithParent, type, buttons, string.Empty);
 			md.Title = "Meshwork";
 			md.TransientFor = win;
 			md.WindowPosition = WindowPosition.CenterOnParent;
@@ -199,7 +199,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			try {
 				Assembly asm = System.Reflection.Assembly.GetCallingAssembly();
-				string resourceName = String.Format("FileFind.Meshwork.GtkClient.{0}_{1}.png", name, size.ToString());
+				string resourceName = string.Format("FileFind.Meshwork.GtkClient.{0}_{1}.png", name, size.ToString());
 				if (asm.GetManifestResourceInfo(resourceName) != null) {
 					Gdk.Pixbuf pixbuf = new Gdk.Pixbuf(null, resourceName);
 					if (pixbuf != null) {
@@ -246,7 +246,7 @@ namespace FileFind.Meshwork.GtkClient
 				}
 			}
 			
-			LoggingService.LogWarning("UNABLE TO LOAD ICON {0}, SIZE {1}", String.Join(",",names), size);
+			LoggingService.LogWarning("UNABLE TO LOAD ICON {0}, SIZE {1}", string.Join(",",names), size);
 			return null;
 		}
 

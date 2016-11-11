@@ -9,10 +9,10 @@
 
 using System;
 using System.Globalization;
+using FileFind.Meshwork.GtkClient.Menus;
 using Gtk;
-using FileFind.Meshwork;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public partial class NetworkOverviewPage
 	{
@@ -86,7 +86,7 @@ namespace FileFind.Meshwork.GtkClient
 				else
 					color = userList.Style.Dark (Gtk.StateType.Normal);
 
-				string darkColor = String.Format ("#{0}{1}{2}", (color.Red / 256).ToString ("X"), (color.Green / 256).ToString("X"), (color.Blue / 256).ToString("X"));
+				string darkColor = string.Format ("#{0}{1}{2}", (color.Red / 256).ToString ("X"), (color.Green / 256).ToString("X"), (color.Blue / 256).ToString("X"));
 
 				if (node == node.Network.LocalNode | node.FinishedKeyExchange == true)
 					if (node.Files > 0)

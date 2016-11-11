@@ -1,10 +1,8 @@
 using System;
-using Gtk;
 using Glade;
-using FileFind.Meshwork.Protocol;
-using FileFind.Meshwork.Filesystem;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class FilePropertiesWindow : GladeWindow
 	{
@@ -62,7 +60,7 @@ namespace FileFind.Meshwork.GtkClient
 			
 			if (file is RemoteFile) {
 				var remoteFile = (RemoteFile)file;
-				ownerLabel.Text = String.Format("{0} ({1})", remoteFile.Node.NickName, 
+				ownerLabel.Text = string.Format("{0} ({1})", remoteFile.Node.NickName, 
 				                                Common.FormatFingerprint(remoteFile.Node.NodeID));
 			} else
 				ownerLabel.Text = "You";

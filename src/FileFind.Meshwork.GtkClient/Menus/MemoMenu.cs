@@ -8,10 +8,11 @@
 //
 
 using System;
-using Gtk;
+using FileFind.Meshwork.GtkClient.Windows;
 using Glade;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Menus
 {
 	public class MemoMenu
 	{

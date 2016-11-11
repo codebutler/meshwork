@@ -9,10 +9,8 @@
 
 using System;
 using Gtk;
-using FileFind.Meshwork.Transport;
-using FileFind.Meshwork.Logging;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public class StatusLogPage : VBox, IPage, ILogger
 	{
@@ -94,7 +92,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		private void WriteMessage (LogLevel level, string message)
 		{			
-			message = String.Format("{0} [{1}]: {2}\n", level.ToString(), DateTime.Now.ToString("u"), message);
+			message = string.Format("{0} [{1}]: {2}\n", level.ToString(), DateTime.Now.ToString("u"), message);
 			TextIter endIter = m_TextView.Buffer.EndIter;
 			m_TextView.Buffer.InsertWithTagsByName(ref endIter, message, new string[] { level.ToString() });
 			var endMark = m_TextView.Buffer.GetMark("end");

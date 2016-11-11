@@ -1,8 +1,8 @@
-
 using System;
+using FileFind.Meshwork.GtkClient.Pages;
 using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Menus
 {	
 	public class ChatPageMenu
 	{

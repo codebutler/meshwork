@@ -8,17 +8,12 @@
 // 
 
 using System;
-using System.Text.RegularExpressions;
 using System.Net;
-using Gtk;
-using GtkSharp;
 using Gdk;
 using Glade;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Transport;
-using FileFind.Meshwork.Destination;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class ConnectDialog : GladeDialog
 	{
@@ -101,13 +96,13 @@ namespace FileFind.Meshwork.GtkClient
 				}
 				
 				if (store.IterNChildren() == 0) {
-					store.AppendValues(new object(), String.Empty);
+					store.AppendValues(new object(), string.Empty);
 				}
 				
 				ipCombo.Sensitive = true;
 			} else {
 				ipCombo.Sensitive = false;
-				ipCombo.Entry.Text = String.Empty;
+				ipCombo.Entry.Text = string.Empty;
 			}
 		}
 
@@ -132,11 +127,11 @@ namespace FileFind.Meshwork.GtkClient
 			
 			if (currentRow is TrustedNodeInfo) {
 				TrustedNodeInfo node = (currentRow as TrustedNodeInfo);
-				((CellRendererText)cell).Markup = String.Format("{0}\n<span size=\"small\">({1})</span>", node.Identifier, address);
+				((CellRendererText)cell).Markup = string.Format("{0}\n<span size=\"small\">({1})</span>", node.Identifier, address);
 				cell.Sensitive = true;
 			} else if (currentRow is NearbyNode) {
 				NearbyNode node = (currentRow as NearbyNode);
-				((CellRendererText)cell).Markup = String.Format("{0}\n<span size=\"small\">({1})</span>", node.NickName, address);
+				((CellRendererText)cell).Markup = string.Format("{0}\n<span size=\"small\">({1})</span>", node.NickName, address);
 				cell.Sensitive = true;
 			} else {
 				((CellRendererText)cell).Markup = "<b>There are no friends to connect to.</b>";
@@ -162,7 +157,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void on_connectButton_clicked (object sender, EventArgs e)
 		{
 			try {
-				if (ipCombo.Entry.Text.Trim() == String.Empty) {
+				if (ipCombo.Entry.Text.Trim() == string.Empty) {
 					Gui.ShowErrorDialog("Invalid address", base.Dialog);
 					return;
 				}

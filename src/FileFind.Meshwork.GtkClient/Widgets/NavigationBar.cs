@@ -16,10 +16,8 @@
 using System;
 using System.Collections;
 using Gtk;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Filesystem;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
 	public class NavigationBar : Layout
 	{
@@ -53,7 +51,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public void SetLocation(string newPath)
 		{
-			if (String.IsNullOrEmpty(newPath)) {
+			if (string.IsNullOrEmpty(newPath)) {
 				throw new ArgumentNullException("newPath");
 			}
 
@@ -214,7 +212,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private class NavigationBarEntry
 		{
-			string path = String.Empty;
+			string path = string.Empty;
 			ToggleButton button = null;
 		
 			public NavigationBarEntry(ToggleButton button, string path)
@@ -223,7 +221,7 @@ namespace FileFind.Meshwork.GtkClient
 					throw new ArgumentNullException("button");
 				}
 
-				if (String.IsNullOrEmpty(path)) {
+				if (string.IsNullOrEmpty(path)) {
 					throw new ArgumentNullException("path");
 				}
 

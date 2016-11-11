@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Hyena.Gui.Theatrics
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
     public class Stage<T>
     {   

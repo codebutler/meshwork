@@ -7,11 +7,10 @@
 // (C) 2006 FileFind.net (http://filefind.net)
 //
 
-using System;
-using Gtk;
 using Glade;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class AddNetworkDialog : GladeDialog
 	{

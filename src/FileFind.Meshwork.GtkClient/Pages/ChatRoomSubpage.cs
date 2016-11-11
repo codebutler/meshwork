@@ -9,15 +9,10 @@
 
 using System;
 using System.Globalization;
+using FileFind.Meshwork.GtkClient.Menus;
 using Gtk;
 
-using Glade;
-using System.Collections;
-using FileFind.Meshwork;
-using GLib;
-using MonoDevelop.Components;
-
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public class ChatRoomSubpage : ChatSubpageBase
 	{
@@ -53,7 +48,7 @@ namespace FileFind.Meshwork.GtkClient
 				userListStore.AppendValues (n);
 			}
 			
-			AddToChat (null, String.Format ("You have joined {0}.", thisRoom.Name));
+			AddToChat (null, string.Format ("You have joined {0}.", thisRoom.Name));
 
 			if (room.HasPassword) {
 				AddToChat (null, "This chatroom is password-protected. Other users on the network who do not have the password are not able to evesdrop on the conversation.\n");

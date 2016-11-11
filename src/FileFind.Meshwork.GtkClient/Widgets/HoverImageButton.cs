@@ -29,7 +29,7 @@
 using System;
 using Gtk;
 
-namespace Banshee.Widgets
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
     public class HoverImageButton : EventBox
     {

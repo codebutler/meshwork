@@ -8,19 +8,12 @@
 //
 
 using System;
-using Gtk;
-using Glade;
-using GLib;
-using System.Collections;
 using System.Collections.Generic;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Filesystem;
-using FileFind.Meshwork.GtkClient;
-using FileFind.Meshwork.Protocol;
-using FileFind.Meshwork.Exceptions;
-using FileFind.Meshwork.Errors;
+using FileFind.Meshwork.GtkClient.Widgets;
+using FileFind.Meshwork.GtkClient.Windows;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public class UserBrowserPage : VBox, IPage
 	{
@@ -266,9 +259,9 @@ namespace FileFind.Meshwork.GtkClient
 			//else
 			if (item is IDirectory) {
 				if (item is LocalDirectory || (item is RemoteDirectory && ((RemoteDirectory)item).State == RemoteDirectoryState.ContentsReceived)) {
-					(cell as CellRendererText).Text = String.Format("{0} items", item.Size.ToString());
+					(cell as CellRendererText).Text = string.Format("{0} items", item.Size.ToString());
 				} else {
-					(cell as CellRendererText).Text = String.Empty;
+					(cell as CellRendererText).Text = string.Empty;
 				}
 			} else if (item is IFile) {
 				(cell as CellRendererText).Text = FileFind.Common.FormatBytes(item.Size);
@@ -287,7 +280,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (item is IFile) {
 				(cell as CellRendererText).Text = ((IFile)item).InfoHash;
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 		}
 
@@ -398,7 +391,7 @@ namespace FileFind.Meshwork.GtkClient
 		
 		public void NavigateTo (string path)
 		{
-			if (String.IsNullOrEmpty (path)) {
+			if (string.IsNullOrEmpty (path)) {
 				throw new ArgumentNullException("path");
 			}
 			
@@ -452,7 +445,7 @@ namespace FileFind.Meshwork.GtkClient
 						filesList.Selection.Changed += filesList_Selection_Changed;
 					}
 				} else {
-					Gui.ShowErrorDialog(String.Format("Directory not found: {0}.", path));
+					Gui.ShowErrorDialog(string.Format("Directory not found: {0}.", path));
 				}
 				
 				StopNavigating();

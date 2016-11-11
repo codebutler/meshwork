@@ -7,11 +7,13 @@
 // (C) 2005-2006 FileFind.net
 // 
 
-using Gtk;
 using System;
-using FileFind.Meshwork;
+using FileFind.Meshwork.GtkClient.Menus;
+using FileFind.Meshwork.GtkClient.Widgets;
+using FileFind.Meshwork.GtkClient.Windows;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient 
+namespace FileFind.Meshwork.GtkClient.Pages 
 {
 	public class MemosPage : VBox, IPage
 	{
@@ -49,7 +51,7 @@ namespace FileFind.Meshwork.GtkClient
 			column.Expand = true;
 			column.Resizable = true;
 
-			column = memoList.AppendColumn(String.Empty,
+			column = memoList.AppendColumn(string.Empty,
 			                               new CellRendererPixbuf(),
 						       new TreeCellDataFunc(MemoAttachmentFunc));
 			column.Widget = new Gtk.Image(new Gdk.Pixbuf(null, "FileFind.Meshwork.GtkClient.attachment-col-small.png"));
@@ -192,7 +194,7 @@ namespace FileFind.Meshwork.GtkClient
 				(cell as CellRendererText).Text = memo.Node.ToString();
 				(cell as CellRendererText).Weight = memo.Unread ? (int)Pango.Weight.Bold : (int)Pango.Weight.Normal;
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 		}
 
@@ -204,7 +206,7 @@ namespace FileFind.Meshwork.GtkClient
 				(cell as CellRendererText).Text = memo.CreatedOn.ToString("g");
 				(cell as CellRendererText).Weight = memo.Unread ? (int)Pango.Weight.Bold : (int)Pango.Weight.Normal;
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 		}
 

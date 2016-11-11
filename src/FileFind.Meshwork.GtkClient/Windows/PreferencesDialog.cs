@@ -179,7 +179,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			emailEntry.Text = settings.Email;
 
 			string avatarDirectory = Path.Combine (Settings.ConfigurationDirectory, "avatars");
-			string myAvatarFile = Path.Combine (avatarDirectory, String.Format ("{0}.png", nodeid));
+			string myAvatarFile = Path.Combine (avatarDirectory, string.Format ("{0}.png", nodeid));
 
 			if (File.Exists (myAvatarFile)) {
 				avatarImage.Pixbuf = new Gdk.Pixbuf (myAvatarFile);
@@ -210,7 +210,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			
 			tcpPortLabel.Text = settings.TcpListenPort.ToString();
 
-			firewallStatusLabel.Text = String.Empty;
+			firewallStatusLabel.Text = string.Empty;
 
 			if (CheckForNat()) {
 				natStatusLabel.Markup = "You <b>are</b> behind a NAT router.";
@@ -337,7 +337,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 		private void NetworkNameFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			NetworkInfo networkInfo = (NetworkInfo)model.GetValue (iter, 0);
-			(cell as CellRendererText).Text = String.Format ("{0} ({1} friends)", networkInfo.NetworkName, networkInfo.TrustedNodes.Count);
+			(cell as CellRendererText).Text = string.Format ("{0} ({1} friends)", networkInfo.NetworkName, networkInfo.TrustedNodes.Count);
 		}
 
 		private void addNetworkButton_Clicked (object o, EventArgs args)
@@ -438,10 +438,10 @@ namespace FileFind.Meshwork.GtkClient.Windows
 
 			if (((TreeStore)model).IterDepth (iter) == 0) {
 				NetworkInfo networkInfo = (NetworkInfo)model.GetValue (iter, 0);
-				textCell.Markup = String.Format ("<b>{0}</b>", GLib.Markup.EscapeText(networkInfo.NetworkName));
+				textCell.Markup = string.Format ("<b>{0}</b>", GLib.Markup.EscapeText(networkInfo.NetworkName));
 			} else {
 				TrustedNodeInfo node = (TrustedNodeInfo) model.GetValue (iter, 0);
-				textCell.Markup = String.Format ("{0} <span size=\"small\" foreground=\"#666666\">({1})</span>",
+				textCell.Markup = string.Format ("{0} <span size=\"small\" foreground=\"#666666\">({1})</span>",
 				                                 node.Identifier,
 				                                 node.NodeID);
 			}
@@ -460,7 +460,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 					textCell.Text = destination.ToString();
 				}
 			} else {
-				textCell.Text = String.Empty;
+				textCell.Text = string.Empty;
 			}
 		}
 		
@@ -616,7 +616,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 
 			ArrayList badOptions = new ArrayList();
 			
-			if (nicknameEntry.Text == String.Empty)
+			if (nicknameEntry.Text == string.Empty)
 				badOptions.Add("Nickname");
 
 			if (Directory.Exists(completedDownloadsChooser.CurrentFolder) == false)
@@ -681,7 +681,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 				settings.IPv6LinkLocalInterfaceIndex = -1;
 			}
 
-			if (stunServerEntry.Text != String.Empty) {
+			if (stunServerEntry.Text != string.Empty) {
 				settings.StunServer = stunServerEntry.Text;
 			} else {
 				settings.StunServer = Settings.DefaultStunServer;
@@ -695,7 +695,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 			if (Directory.Exists(avatarDirectory) == false)
 				Directory.CreateDirectory(avatarDirectory);
 
-			string myAvatarFile = Path.Combine(avatarDirectory, String.Format("{0}.png", nodeid));
+			string myAvatarFile = Path.Combine(avatarDirectory, string.Format("{0}.png", nodeid));
 
 			//if (avatarImage.Pixbuf != null)
 			if (avatarImage.Sensitive == true)
@@ -853,7 +853,7 @@ namespace FileFind.Meshwork.GtkClient.Windows
 		{
 			PluginInfo info = (PluginInfo)model.GetValue (iter, 0);
 			CellRendererText textCell = (CellRendererText)cell;
-			textCell.Markup = String.Format ("<b>{0}</b> v{1}\n{2}",
+			textCell.Markup = string.Format ("<b>{0}</b> v{1}\n{2}",
 			                                 GLib.Markup.EscapeText (info.Name),
 							 GLib.Markup.EscapeText (info.Version),
 			                                 GLib.Markup.EscapeText (info.Description));

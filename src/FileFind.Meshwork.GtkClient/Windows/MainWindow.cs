@@ -8,18 +8,15 @@
 //
 
 using System;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using FileFind.Meshwork.GtkClient.Pages;
+using FileFind.Meshwork.GtkClient.SidebarItems;
+using FileFind.Meshwork.GtkClient.Widgets;
 using Gtk;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Protocol;
-using FileFind.Meshwork.Search;
-using Banshee.Widgets;
-using Hyena.Widgets;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class MainWindow
 	{
@@ -46,7 +43,7 @@ namespace FileFind.Meshwork.GtkClient
 			AssemblyTitleAttribute attr = (AssemblyTitleAttribute)attrs[0];
 			AssemblyName asmName = Assembly.GetExecutingAssembly().GetName();
 			
-			string title = String.Format ("{0} (BETA) {1} (Protocol Version: {2})",
+			string title = string.Format ("{0} (BETA) {1} (Protocol Version: {2})",
 				                      attr.Title, asmName.Version, 
 				                      Core.ProtocolVersion);
 			
@@ -187,7 +184,7 @@ namespace FileFind.Meshwork.GtkClient
 			statusBar.Insert(statusLabelItem, -1);
 			statusLabelItem.ShowAll();
 			
-			taskStatusIcon = new Hyena.Widgets.AnimatedImage();
+			taskStatusIcon = new AnimatedImage();
 			taskStatusIcon.Pixbuf = Gui.LoadIcon(22, "process-working");
 			taskStatusIcon.FrameHeight = 22;
 			taskStatusIcon.FrameWidth = 22;
@@ -313,12 +310,12 @@ namespace FileFind.Meshwork.GtkClient
 				text = "You are not connected to anybody.";
 			} else {
 				if (totalConnections > 1)
-					text = String.Format ("You are connected to {0} friends. ", totalConnections);
+					text = string.Format ("You are connected to {0} friends. ", totalConnections);
 				else
 					text = "You are connected to 1 friend. ";
 
 				if (totalNodes > Core.Networks.Length) {
-					text += String.Format ("There are a total of {0} people and {1} files ({2}) avaliable.", 
+					text += string.Format ("There are a total of {0} people and {1} files ({2}) avaliable.", 
 					                       totalNodes,
 							       FileFind.Common.FormatNumber(totalFiles),
 							       FileFind.Common.FormatBytes(totalBytes));
@@ -365,7 +362,7 @@ namespace FileFind.Meshwork.GtkClient
 		{
 			if (Core.ShareBuilder.Going || Core.ShareHasher.Going) {
 				if (Core.ShareHasher.Going) {
-					taskStatusIcon.TooltipMarkup = String.Format("<b>Updating Shared Files</b>\nFiles To Hash: {0}", 
+					taskStatusIcon.TooltipMarkup = string.Format("<b>Updating Shared Files</b>\nFiles To Hash: {0}", 
 					                                             Common.FormatNumber(Core.ShareHasher.FilesRemaining));
 				} else {
 					taskStatusIcon.TooltipMarkup = "<b>Updating Shared Files</b>";

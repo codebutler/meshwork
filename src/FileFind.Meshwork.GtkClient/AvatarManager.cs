@@ -17,9 +17,9 @@ namespace FileFind.Meshwork.GtkClient
 {
 	public class AvatarManager : IAvatarManager
 	{
-		Dictionary<String, Pixbuf> avatars = new Dictionary<String, Pixbuf>();
-		Dictionary<String, Pixbuf> smallAvatars = new Dictionary<String, Pixbuf>();
-		Dictionary<String, Pixbuf> miniAvatars = new Dictionary<String, Pixbuf>();
+		Dictionary<string, Pixbuf> avatars = new Dictionary<string, Pixbuf>();
+		Dictionary<string, Pixbuf> smallAvatars = new Dictionary<string, Pixbuf>();
+		Dictionary<string, Pixbuf> miniAvatars = new Dictionary<string, Pixbuf>();
 		long      avatarSize = 0;
 		string    avatarsPath;
 
@@ -69,7 +69,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public void UpdateMyAvatar ()
 		{
-			string myAvatarFile = Path.Combine(avatarsPath, String.Format("{0}.png", Core.MyNodeID));
+			string myAvatarFile = Path.Combine(avatarsPath, string.Format("{0}.png", Core.MyNodeID));
 
 			if (File.Exists (myAvatarFile)) {
 
@@ -238,7 +238,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		private string GetAvatarPath (Node node) 
 		{
-			return Path.Combine(avatarsPath, String.Format("{0}.png", node.NodeID));
+			return Path.Combine(avatarsPath, string.Format("{0}.png", node.NodeID));
 		}
 	}
 }

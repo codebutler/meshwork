@@ -2,7 +2,7 @@ using System;
 using Gtk;
 using Mono.Unix;
 
-namespace FileFind.Meshwork.DebugPlugin
+namespace Debug
 {
 	public class DebugPluginActionGroup : ActionGroup
 	{

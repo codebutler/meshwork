@@ -151,7 +151,7 @@ namespace FileFind.Meshwork.GtkClient
 				// XXX: Very strange OSX bug!
 				// When an underline is present in the Label, nothing after it is displayed.
 				if (Common.OSName == "Darwin") {
-					action.Label = action.Label.Replace("_", String.Empty);
+					action.Label = action.Label.Replace("_", string.Empty);
 				}
 			}
 		}

@@ -1,15 +1,14 @@
-using System;
 using System.Collections.Generic;
-using Gtk;
-using FileFind.Meshwork;
+using Debug;
 using FileFind.Meshwork.GtkClient;
+using Gtk;
 
 [assembly: PluginName("Debug Console")]
 [assembly: PluginAuthor("Eric Butler <eric@extremeboredom.net>")]
 [assembly: PluginVersion("0.0.0.1")]
-[assembly: PluginType(typeof(FileFind.Meshwork.DebugPlugin.DebugPlugin))]
+[assembly: PluginType(typeof(DebugPlugin))]
 
-namespace FileFind.Meshwork.DebugPlugin
+namespace Debug
 {
 	public class DebugPlugin : IPlugin
 	{

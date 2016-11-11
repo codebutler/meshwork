@@ -8,11 +8,10 @@
 // 
 
 using System;
+using FileFind.Meshwork.GtkClient.Menus;
 using Gtk;
-using FileFind.Meshwork.Transport;
-using FileFind.Meshwork.FileTransfer;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public class ConnectionsPage : VBox, IPage
 	{
@@ -148,7 +147,7 @@ namespace FileFind.Meshwork.GtkClient
 		private void ConnectionListAddressFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			ITransport transport = (ITransport) model.GetValue (iter, 0);
-			(cell as CellRendererText).Text = String.Format("{0} ({1})", transport.RemoteEndPoint.ToString(), Core.TransportManager.GetFriendlyName(transport.GetType()));
+			(cell as CellRendererText).Text = string.Format("{0} ({1})", transport.RemoteEndPoint.ToString(), Core.TransportManager.GetFriendlyName(transport.GetType()));
 			
 			SetConnectionListCellBackground ((CellRendererText)cell, transport);
 		}
@@ -167,19 +166,19 @@ namespace FileFind.Meshwork.GtkClient
 			if (transport.Operation is LocalNodeConnection) {
 				LocalNodeConnection connection = (LocalNodeConnection)transport.Operation;
 				if (connection.NodeRemote != null) {
-					(cell as CellRendererText).Text = String.Format ("{0} on {1}, {2}, {3} ms",
+					(cell as CellRendererText).Text = string.Format ("{0} on {1}, {2}, {3} ms",
 					                                                 connection.NodeRemote.NickName,
 											 transport.Network.NetworkName,
 											 connection.ConnectionState.ToString(),
 											 connection.Latency.ToString());
 				} else {
-					(cell as CellRendererText).Text = String.Empty;
+					(cell as CellRendererText).Text = string.Empty;
 				}
 			} else if (transport.Operation is FileTransferOperation) {
 				FileTransferOperation operation = (FileTransferOperation)transport.Operation;
-				(cell as CellRendererText).Text = String.Format("{0} on {1}", operation.Peer.Node.NickName, operation.Transfer.File.Name);
+				(cell as CellRendererText).Text = string.Format("{0} on {1}", operation.Peer.Node.NickName, operation.Transfer.File.Name);
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 			
 			SetConnectionListCellBackground ((CellRendererText)cell, transport);

@@ -33,13 +33,11 @@
 //
 
 
-using System;
-using Gtk;
 using Glade;
-
+using Gtk;
 using Assembly = System.Reflection.Assembly;
 
-namespace MonoDevelop.Components {
+namespace FileFind.Meshwork.GtkClient.Widgets {
 	public abstract class GladeWidgetExtract : HBox {
 		
 		Glade.XML glade;

@@ -1,12 +1,11 @@
 using System;
-using System.Threading;
 using System.Reflection;
-using Gtk;
+using System.Threading;
+using FileFind.Meshwork.GtkClient.Windows;
 using Glade;
-using FileFind.Meshwork;
-using FileFind.Meshwork.GtkClient;
+using Gtk;
 
-namespace FileFind.Meshwork.DebugPlugin
+namespace Debug
 {
 	public class DebugWindow  : GladeWindow
 	{
@@ -53,7 +52,7 @@ namespace FileFind.Meshwork.DebugPlugin
 
 			trafficTreeView.Model = filter;
 
-			ListStore networkStore = new ListStore(typeof(string), typeof(Network));
+			var networkStore = new ListStore(typeof(string), typeof(Network));
 			networkStore.AppendValues("All Networks", null);
 			networkComboBox.Model = networkStore;
 			networkComboBox.Active = 0;
@@ -74,7 +73,7 @@ namespace FileFind.Meshwork.DebugPlugin
 
 			messageSenderToComboBox.Clear();
 			messageSenderToComboBox.Model = new ListStore(typeof(string), typeof(Network), typeof(Node));
-			CellRendererText textCell = new CellRendererText();
+			var textCell = new CellRendererText();
 			messageSenderToComboBox.PackStart(textCell, true);
 			messageSenderToComboBox.AddAttribute(textCell, "markup", 0);
 		}
@@ -112,7 +111,7 @@ namespace FileFind.Meshwork.DebugPlugin
 		private void network_UserOnline (Network network, Node node)
 		{
 			Application.Invoke(delegate {
-				string text = String.Format("{0} ({1})", node.NickName, network.NetworkName);
+				var text = string.Format("{0} ({1})", node.NickName, network.NetworkName);
 				Console.WriteLine("Hello ! " + text);
 
 				((ListStore)messageSenderToComboBox.Model).AppendValues(text, network, node);
@@ -128,7 +127,7 @@ namespace FileFind.Meshwork.DebugPlugin
 		private void IconFunc (TreeViewColumn tree_column, CellRenderer cell,
 				       TreeModel tree_model, TreeIter iter)
 		{
-			MessageInfo info = (MessageInfo)tree_model.GetValue(iter, 0);
+			var info = (MessageInfo)tree_model.GetValue(iter, 0);
 			if (info is SentMessageInfo) {
 				(cell as CellRendererText).Text = "Out";
 			} else {
@@ -139,7 +138,7 @@ namespace FileFind.Meshwork.DebugPlugin
 		private void ToFromFunc (TreeViewColumn tree_column, CellRenderer cell,
 					 TreeModel tree_model, TreeIter iter)
 		{
-			MessageInfo info = (MessageInfo)tree_model.GetValue(iter, 0);
+			var info = (MessageInfo)tree_model.GetValue(iter, 0);
 
 			if (info != null) {
 				
@@ -164,12 +163,12 @@ namespace FileFind.Meshwork.DebugPlugin
 					}
 					
 					if (info.Connection.Transport.Network != null && info.Connection.Transport.Network.Nodes.ContainsKey(nodeId)) {
-						Node node = info.Connection.Transport.Network.Nodes[nodeId];
+						var node = info.Connection.Transport.Network.Nodes[nodeId];
 						(cell as CellRendererText).Text = node.ToString();
 					} else if (nodeId == Network.BroadcastNodeID) {
 						(cell as CellRendererText).Text = "(Broadcast)";
 					} else {
-						(cell as CellRendererText).Text = String.Format("({0})", nodeId);
+						(cell as CellRendererText).Text = string.Format("({0})", nodeId);
 					}
 				/*}*/
 			}
@@ -178,7 +177,7 @@ namespace FileFind.Meshwork.DebugPlugin
 		private void TypeFunc (TreeViewColumn tree_column, CellRenderer cell,
 				       TreeModel tree_model, TreeIter iter)
 		{
-			MessageInfo info = (MessageInfo)tree_model.GetValue(iter, 0);
+			var info = (MessageInfo)tree_model.GetValue(iter, 0);
 			if (info != null) {
 				(cell as CellRendererText).Text = info.Message.Type.ToString();
 			}
@@ -188,7 +187,7 @@ namespace FileFind.Meshwork.DebugPlugin
 		{
 			TreeIter iter;
 			if (trafficTreeView.Selection.GetSelected(out iter)) {
-				MessageInfo info = (MessageInfo)trafficTreeView.Model.GetValue(iter, 0);
+				var info = (MessageInfo)trafficTreeView.Model.GetValue(iter, 0);
 				try {
 					networkLabel.Text   = info.Connection.Transport.Network.NetworkName;
 					fromLabel.Text      = info.Message.From;
@@ -197,9 +196,9 @@ namespace FileFind.Meshwork.DebugPlugin
 					idLabel.Text        = info.Message.MessageID.ToString();
 					timestampLabel.Text = Common.ParseUnixTimestamp(info.Message.Timestamp).ToString();
 
-					object content = info.Message.Content;
-					string typeName = (content != null) ? content.GetType().ToString() : "null";
-					string json = FileFind.Serialization.JSON.Serialize(content);
+					var content = info.Message.Content;
+					var typeName = (content != null) ? content.GetType().ToString() : "null";
+					var json = JSON.Serialize(content);
 					json = FileFind.JSONFormatter.FormatJSON(json);
 					json = json.Replace("\t", "  ");
 					messageTextView.Buffer.Text = "// " + typeName + Environment.NewLine + json;
@@ -241,7 +240,7 @@ namespace FileFind.Meshwork.DebugPlugin
 
 		private bool filter_VisibleFunc (TreeModel model, TreeIter iter)
 		{
-			MessageInfo info = (MessageInfo)model.GetValue(iter, 0);
+			var info = (MessageInfo)model.GetValue(iter, 0);
 
 			if (info == null) {
 				return false;
@@ -249,7 +248,7 @@ namespace FileFind.Meshwork.DebugPlugin
 
 			TreeIter itz;
 			if (networkComboBox.GetActiveIter(out itz)) {
-				Network selectedNetwork = (Network)networkComboBox.Model.GetValue(itz, 1);
+				var selectedNetwork = (Network)networkComboBox.Model.GetValue(itz, 1);
 				if (selectedNetwork != null) {
 					if (info.Connection.Transport.Network != selectedNetwork) {
 						return false;
@@ -280,21 +279,21 @@ namespace FileFind.Meshwork.DebugPlugin
 			TreeIter iter;
 			if (messageSenderToComboBox.GetActiveIter(out iter)) {
 
-				Network network = (Network)messageSenderToComboBox.Model.GetValue(iter, 1);
-				Node node = (Node)messageSenderToComboBox.Model.GetValue(iter, 2);
+				var network = (Network)messageSenderToComboBox.Model.GetValue(iter, 1);
+				var node = (Node)messageSenderToComboBox.Model.GetValue(iter, 2);
 
-				for (int x = 0; x < 10; x++) {
-					Thread thread = new Thread(delegate () {
+				for (var x = 0; x < 10; x++) {
+					var thread = new Thread(delegate () {
 						try {
-							for (int y = 0; y < 10; y++) {
-								double kilobytes = messageSenderSizeSpinButton.Value;
-								string data = new String('X', (int)kilobytes * 1024);
+							for (var y = 0; y < 10; y++) {
+								var kilobytes = messageSenderSizeSpinButton.Value;
+								var data = new string('X', (int)kilobytes * 1024);
 
-								Message message = new Message(network, MessageType.Test);
+								var message = new Message(network, MessageType.Test);
 								message.To = node.NodeID;
 								message.Content = data;
 
-								AckMethod m = new AckMethod();
+								var m = new AckMethod();
 								m.Method += MessageSent;
 								network.AckMethods.Add(message.MessageID, m);
 

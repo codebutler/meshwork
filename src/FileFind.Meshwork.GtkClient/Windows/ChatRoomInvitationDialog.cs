@@ -8,12 +8,10 @@
 //
 
 using System;
-using Gtk;
 using Glade;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Protocol;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class ChatRoomInvitationDialog : GladeWindow
 	{
@@ -33,15 +31,15 @@ namespace FileFind.Meshwork.GtkClient
 			this.room = room;
 			this.invitation = invitation;
 
-			descLabel.Markup = String.Format(descLabel.Text, GLib.Markup.EscapeText(inviteFrom.ToString()), GLib.Markup.EscapeText(room.Name));
+			descLabel.Markup = string.Format(descLabel.Text, GLib.Markup.EscapeText(inviteFrom.ToString()), GLib.Markup.EscapeText(room.Name));
 			
-			messageContainer.Visible = !String.IsNullOrEmpty(invitation.Message);
+			messageContainer.Visible = !string.IsNullOrEmpty(invitation.Message);
 			messageLabel.Text = GLib.Markup.EscapeText(invitation.Message);
 			
 			passwordInfoBox.Visible = room.HasPassword;
 			
 			passwordEntry.Text = invitation.Password;
-			showPasswordCheck.Visible = !String.IsNullOrEmpty(invitation.Password);
+			showPasswordCheck.Visible = !string.IsNullOrEmpty(invitation.Password);
 			
 			Validate();
 		}

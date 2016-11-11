@@ -7,11 +7,10 @@
 // (C) 2007 FileFind.net (http://filefind.net)
 //
 
-using System;
-using Gtk;
 using Gdk;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.SidebarItems
 {
 	public interface ISidebarItem
 	{

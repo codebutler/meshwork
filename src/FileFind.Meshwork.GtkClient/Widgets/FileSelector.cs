@@ -10,8 +10,7 @@
 using System;
 using Gtk;
 
-
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
 	public class FileSelector : FileChooserDialog
 	{

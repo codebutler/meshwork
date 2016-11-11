@@ -9,10 +9,10 @@
 
 using System;
 using System.Reflection;
-using Gtk;
 using Glade;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public delegate void UrgentChangedEventHandler (GladeWindow window, bool urgent);
 

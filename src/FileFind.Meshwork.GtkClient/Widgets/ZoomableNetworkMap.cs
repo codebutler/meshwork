@@ -9,15 +9,13 @@
 // 
 
 using System;
-using System.Net;
 using System.Collections;
-using Gtk;
+using System.Net;
 using Cairo;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Destination;
-using Pixane.Widgets;
+using FileFind.Meshwork.GtkClient.Menus;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
 	public class NodeGroup
 	{
@@ -851,7 +849,7 @@ namespace FileFind.Meshwork.GtkClient
 			int yOffset = 0;
 			foreach (Network network in Core.Networks) {
 				if (network.ReadyLocalConnections.Length == 0) {
-					yOffset += RenderNotice(String.Format("You are not connected to anybody on the <b>{0}</b> network.\n<span size=\"small\">Select \"Connect to a Friend\" above to get started.</span>", network.NetworkName), gc, yOffset);
+					yOffset += RenderNotice(string.Format("You are not connected to anybody on the <b>{0}</b> network.\n<span size=\"small\">Select \"Connect to a Friend\" above to get started.</span>", network.NetworkName), gc, yOffset);
 				}
 			}
 		}

@@ -8,14 +8,10 @@
 // 
 
 using System;
-using System.Collections;
-using Gtk;
 using Glade;
-using GLib;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Filesystem;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class MemoWindow : GladeWindow
 	{
@@ -39,7 +35,7 @@ namespace FileFind.Meshwork.GtkClient
 
 		public MemoWindow (Memo memo) : base ("MemoWindow")
 		{			
-			lblSubject.Markup = String.Format("<b>{0}</b>", GLib.Markup.EscapeText(memo.Subject));
+			lblSubject.Markup = string.Format("<b>{0}</b>", GLib.Markup.EscapeText(memo.Subject));
 			lblPostedBy.Text = memo.Node.ToString();
 			lblDate.Text = memo.CreatedOn.ToString();
 			txtMemo.Buffer.Text = memo.Text;
@@ -61,7 +57,7 @@ namespace FileFind.Meshwork.GtkClient
 			} else {
 				lblSignatureStatus.Markup = "<b>This memo has a valid digital signature.</b>";				
 			}
-			lblSignatureInfo.Text = String.Format("{0} ({1})", memo.Node.NickName, memo.Node.NodeID);
+			lblSignatureInfo.Text = string.Format("{0} ({1})", memo.Node.NickName, memo.Node.NodeID);
 		
 			fileListStore = new ListStore(typeof(string),typeof(string));
 			fileList.Model = fileListStore;

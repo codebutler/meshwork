@@ -8,10 +8,10 @@
 //
 
 using System;
-using Gtk;
 using Glade;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class EditNetworkDialog : GladeDialog
 	{
@@ -22,7 +22,7 @@ namespace FileFind.Meshwork.GtkClient
 		public EditNetworkDialog (Window parentWindow, NetworkInfo networkInfo) : base (parentWindow, "EditNetworkDialog")
 		{
 			this.networkInfo = networkInfo;
-			Dialog.Title = String.Format ("Editing network: {0}", networkInfo.NetworkName);
+			Dialog.Title = string.Format ("Editing network: {0}", networkInfo.NetworkName);
 	
 			trustedNodesList.AppendColumn ("Name", new CellRendererText (), new TreeCellDataFunc (NameFunc));
 

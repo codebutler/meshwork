@@ -8,15 +8,10 @@
 //
 
 using System;
-using Gtk;
 using Glade;
-using System.IO;
-using System.Net;
-using FileFind.Meshwork;
-using FileFind.Meshwork.GtkClient;
-using FileFind.Meshwork.Destination;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class EditFriendDialog : GladeDialog
 	{
@@ -61,7 +56,7 @@ namespace FileFind.Meshwork.GtkClient
 			}
 			foreach (DestinationInfo info in tni.DestinationInfos) {
 				if (!info.Supported) {
-					addressListStore.AppendValues(info.FriendlyName, String.Join(", ", info.Data), "False", "False");
+					addressListStore.AppendValues(info.FriendlyName, string.Join(", ", info.Data), "False", "False");
 				}
 			}
 			connectionsTreeView.Model = addressListStore;

@@ -1,14 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using FileFind;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Filesystem;
-using FileFind.Meshwork.Search;
-using FileFind.Meshwork.Protocol;
+using FileFind.Meshwork.GtkClient.Widgets;
+using FileFind.Meshwork.GtkClient.Windows;
 using Gtk;
 
-namespace FileFind.Meshwork.GtkClient 
+namespace FileFind.Meshwork.GtkClient.Pages 
 {
 	internal class SearchResultsPage : VBox, IPage
 	{
@@ -333,7 +330,7 @@ namespace FileFind.Meshwork.GtkClient
 					SearchResult selectedResult = resultsTree.Model.GetValue(iter, 0) as SearchResult;	
 					if (selectedResult != null) {
 						string path = PathUtil.Join(selectedResult.Node.Directory.FullPath, 
-						                            String.Join("/", selectedResult.FullPath.Split('/').Slice(0, -2)));
+						                            string.Join("/", selectedResult.FullPath.Split('/').Slice(0, -2)));
 						
 						UserBrowserPage.Instance.NavigateTo(path);
 						Gui.MainWindow.SelectedPage = UserBrowserPage.Instance;					
@@ -582,37 +579,37 @@ namespace FileFind.Meshwork.GtkClient
 		private void CodecFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			//SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Empty;
+			(cell as CellRendererText).Text = string.Empty;
 		}
 
 		private void FormatFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			//SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Empty;
+			(cell as CellRendererText).Text = string.Empty;
 		}
 
 		private void ResolutionFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			//SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Empty;
+			(cell as CellRendererText).Text = string.Empty;
 		}
 
 		private void ArtistFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			//SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Empty;
+			(cell as CellRendererText).Text = string.Empty;
 		}
 
 		private void AlbumFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			//SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Empty;
+			(cell as CellRendererText).Text = string.Empty;
 		}
 
 		private void BitrateFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
 		{
 			//SearchResult result = (SearchResult)model.GetValue(iter, 0);
-			(cell as CellRendererText).Text = String.Empty;
+			(cell as CellRendererText).Text = string.Empty;
 		}
 
 		private void SizeFunc (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
@@ -621,7 +618,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (result.Type == SearchResultType.File) {
 				(cell as CellRendererText).Text = Common.FormatBytes(result.Size);
 			} else  {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 		}
 
@@ -637,7 +634,7 @@ namespace FileFind.Meshwork.GtkClient
 					(cell as CellRendererText).Text = numberOfSources + " sources";
 				}
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 		}
 		
@@ -653,7 +650,7 @@ namespace FileFind.Meshwork.GtkClient
 			if (result.Type == SearchResultType.File) {
 				(cell as CellRendererText).Text = result.InfoHash;
 			} else {
-				(cell as CellRendererText).Text = String.Empty;
+				(cell as CellRendererText).Text = string.Empty;
 			}
 		}
 

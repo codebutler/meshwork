@@ -7,12 +7,13 @@
 // (C) 2006-2008 FileFind.net
 // 
 
-using Gtk;
 using System;
 using System.Collections.Generic;
-using FileFind.Meshwork;
+using FileFind.Meshwork.GtkClient.Menus;
+using FileFind.Meshwork.GtkClient.Widgets;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient 
+namespace FileFind.Meshwork.GtkClient.Pages 
 {
 	public class ChatsPage : VBox, IPage
 	{

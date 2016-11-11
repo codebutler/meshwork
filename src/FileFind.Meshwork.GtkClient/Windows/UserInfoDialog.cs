@@ -8,15 +8,11 @@
 //
 
 using System;
-using Gtk;
+using FileFind.Meshwork.GtkClient.Menus;
 using Glade;
-using System.IO;
-using System.Net;
-using System.Collections.Generic;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Destination;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class UserInfoDialog : GladeDialog
 	{
@@ -46,7 +42,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			avatarImage.Pixbuf = Gui.AvatarManager.GetAvatar(node);
 
-			nickNameLabel.Markup = String.Format("<span weight=\"bold\" size=\"x-large\">{0}</span> on <i>{1}</i>\n<span font=\"monospace\" size=\"small\">{2}</span>",
+			nickNameLabel.Markup = string.Format("<span weight=\"bold\" size=\"x-large\">{0}</span> on <i>{1}</i>\n<span font=\"monospace\" size=\"small\">{2}</span>",
 			                                     node.NickName, network.NetworkName, Common.FormatFingerprint(node.NodeID, 4));
 			
 			realNameLabel.Text = node.RealName;
@@ -83,9 +79,9 @@ namespace FileFind.Meshwork.GtkClient
 			foreach (DestinationInfo info in destinationInfos) {
 				if ((!info.Supported) || destinations == null) {
 					if (node.IsMe) {
-						addressListStore.AppendValues(info.FriendlyName, String.Join(", ", info.Data), info.Supported.ToString(), info.IsOpenExternally.ToString(), String.Empty);
+						addressListStore.AppendValues(info.FriendlyName, string.Join(", ", info.Data), info.Supported.ToString(), info.IsOpenExternally.ToString(), string.Empty);
 					} else {
-						addressListStore.AppendValues(info.FriendlyName, String.Join(", ", info.Data), "False", info.IsOpenExternally.ToString(), "False");
+						addressListStore.AppendValues(info.FriendlyName, string.Join(", ", info.Data), "False", info.IsOpenExternally.ToString(), "False");
 					}
 				}
 			}

@@ -7,13 +7,10 @@
 // (C) 2006 FileFind.net (http://filefind.net)
 //
 
-using System;
-using Gtk;
 using Glade;
-using System.IO;
-using System.Net;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class SplashWindow : GladeWindow
 	{

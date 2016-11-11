@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DataPath>/Users/eric/Projects/meshwork/src/FileFind.Meshwork.DaemonClient</DataPath>
+  <Networks>
+    <NetworkInfo>
+      <TrustedNodes />
+      <Memos />
+      <NetworkName>tes</NetworkName>
+    </NetworkInfo>
+  </Networks>
+  <CompletedDownloadDir />
+  <IncompleteDownloadDir />
+  <Email />
+  <NickName>test</NickName>
+  <RealName>test</RealName>
+  <AutoConnectCount>2</AutoConnectCount>
+  <Plugins />
+  <SavedDestinationInfos />
+  <KeyData><![CDATA[<RSAKeyValue><Modulus>hcohon+1f/Ot96QuT/WbRdJijyYcdz29iZY1kIUKRd1QzpnSAT7L6H+oOnM0OJy3IvCK51wqAvXt55IYk6mB3w4ronZqaigRLDZ1yaZg2JqL9ZVw1c+8+tdSZJzpZeADckZWt5e1h1bs72nocFRNmP+B/4XJIGRxlRN/ExBsWJm6DBoqRGnG9pkXgD3Vnyvmz5xJHiCT0I+CuunhBh/bUkRuwBjRFWac4ejcBqkpxTej3UWR12BN1ITCZImU5QYFiyKNN4TxSI/m5iZeMy+pfD6K7b9vlbYGo1tz4tzXXuvkP77UULybAXa3+1yMDAQR4XKMqAPJlOyLHw8oXwpKdw==</Modulus><Exponent>AQAB</Exponent><P>5hls9C/RzLXgZvJTJhP1BK7WOsHflZY/VmGLw8xSZDwWE3kYSKKZfFuNOH5nJkQeFh1fRkNR+lipmR5XiVay9zTql0lzax0mLoqN08BOihfoFkXPLJqwMSOMfbrv/vFUPROppOpy4und6VPMT/HFzmsZHLq8EQjVpbXLOEuC6hM=</P><Q>lNluP3gpL9G7Hy3tzWpGBKjF1fqfNUbD/TQCwnbyKOKXXxxH3oE91jVWpeVQYWyjo4LGeqN95TPd/W/Iqfd1Oc0cGbTSmn0sLwfKNaeL8Y/xsms44ANzJUL4CjEoS57h6x5C86qAGvkHiTzZmPnbSnw6zCvKAUSpx967aYle6o0=</Q><DP>3jP/e3ASclXQ9plcopDzNCqCxwsiFxqY35ojlllh11oPF48BXGNpRSZEIiIvCk0NoN2MfBXWvKOSZENg1UfcW83GHYLY6r+jd55lh+9V6RVdEuUnRDO9ojZqHaDA0rnKV5D9ajzd5TNjEUfTLgCUvNm/znal1u1pJDWCokKJkfE=</DP><DQ>cEvVjBa4Y/ZDyNMavEV4C53Um4mXwVbhF868Yj/glA3XC49HfUtd/pSBCWmGiemvTvWjjfR4T4og6UoDRo+FphTjJVWxKZJT2itzV6VOw/DH9MZFw2N25F6wyOerMdntMTfEZRZ1zWOhVt1MgMfHtFsi9NP4c5p8yGh2VbmonSU=</DQ><InverseQ>zC+bxremKRX6RLk0T+TCyfIL+N/THD0kjQXvRqvagX1bo/bSdA/PKwwhrfWMKqkWCfn98HvwQgR+FXBHqJqq77QU5FTIjPM2QacpmNgphfWKkTnUDp2uO/lTDmdtFFNQmm2xrQMvnAIvPez+HpSmFrUTB+qGH7GFs2qedgP6i4I=</InverseQ><D>Xwn+qKul6BXXYBKOH5juS0QvZVcCY6ZFLSa6OEZ5zLVxwMG+T8onGasNey/5Sbnx0m0jj0SGR4IiFR1QPhzst+IeFxOddnmt8UVimPOK2nO2tqcI96nRqjMpQXXByu++IwBae6LWfiS+vTfzuU/5q5Td6QFFpbAUi3zFCWriPHEyaaGzl96QCRYxnglLLXFNMgCeDKTb1j6gAx6JM+CMBdPcoBB8EK/kb/dmociahYRZ+D/QsgM3hAYRjQdhHsXIQ/m5kCTlUOo/0nvA+owwuS82V+FB+XKHpUBbcPmguPqacwsECdsntN4nfK3u5YPJMAxx8XJ3rtKRaKahRCWHyQ==</D></RSAKeyValue>]]></KeyData>
+  <SaltData>86XlQDN84eqlETINA30N/31sddUga+a1Nf3GngG6aV4=</SaltData>
+  <StunServer>stun.ekiga.net</StunServer>
+  <LastShareScan>0001-01-01T00:00:00</LastShareScan>
+  <TcpListenPort>7332</TcpListenPort>
+  <TcpListenPortOpen>false</TcpListenPortOpen>
+  <DetectInternetIPOnStart>true</DetectInternetIPOnStart>
+  <IPv6LinkLocalInterfaceIndex>-1</IPv6LinkLocalInterfaceIndex>
+  <SharedDirectories />
+  <GlobalDownloadSpeedLimit>80</GlobalDownloadSpeedLimit>
+  <GlobalUploadSpeedLimit>10</GlobalUploadSpeedLimit>
+  <EnableGlobalDownloadSpeedLimit>false</EnableGlobalDownloadSpeedLimit>
+  <EnableGlobalUploadSpeedLimit>false</EnableGlobalUploadSpeedLimit>
+  <AdminIDs />
+  <FileName>foo.xml</FileName>
+</Settings>

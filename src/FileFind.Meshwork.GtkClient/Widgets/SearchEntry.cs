@@ -25,11 +25,11 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.
  */
- 
+
 using System;
 using Gtk;
 
-namespace Banshee.Widgets
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
     public class SearchEntry : EventBox
     {
@@ -214,7 +214,7 @@ namespace Banshee.Widgets
 
         private void OnClearButtonClicked(object o, EventArgs args)
         {
-            entry.Text = String.Empty;
+            entry.Text = string.Empty;
         }
 
         protected override bool OnExposeEvent(Gdk.EventExpose evnt)
@@ -317,7 +317,7 @@ namespace Banshee.Widgets
 
         public void CancelSearch()
         {
-            entry.Text = String.Empty;
+            entry.Text = string.Empty;
             ActivateFilter(0);
         }
 
@@ -347,7 +347,7 @@ namespace Banshee.Widgets
         }
 
         public bool IsQueryAvailable {
-            get { return Query != null && Query != String.Empty; }
+            get { return Query != null && Query != string.Empty; }
         }
 
         public bool Ready {

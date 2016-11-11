@@ -7,13 +7,13 @@
 // (C) 2005-2008 FileFind.net (http://filefind.net)
 //
 
-using Gtk;
-using Glade;
 using System;
-using FileFind.Meshwork.Transport;
-using FileFind.Meshwork.Destination;
+using FileFind.Meshwork.GtkClient.Pages;
+using FileFind.Meshwork.GtkClient.Widgets;
+using FileFind.Meshwork.GtkClient.Windows;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Menus
 {
 	public class UserMenu
 	{

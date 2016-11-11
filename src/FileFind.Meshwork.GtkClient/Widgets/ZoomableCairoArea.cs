@@ -21,13 +21,11 @@
  */
 
 using System;
-using Gtk;
 using Cairo;
 using Gdk;
-using System.Reflection;
-using FileFind.Meshwork.GtkClient;
+using Gtk;
 
-namespace Pixane.Widgets
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
 	public class ZoomableCairoArea : DrawingArea {
 		
@@ -324,7 +322,7 @@ namespace Pixane.Widgets
 		{
 			if (this.drawZoomScale) {
 				gc.Save ();
-				string s = String.Format ("x:{0:##0.0} y:{1:##0.0} *:{2:#0.0#}", 
+				string s = string.Format ("x:{0:##0.0} y:{1:##0.0} *:{2:#0.0#}", 
 			                             this.TranslatedX,
 			                             this.TranslatedY,
 			                             this.ScaleFactor);

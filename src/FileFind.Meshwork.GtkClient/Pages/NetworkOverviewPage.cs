@@ -8,26 +8,12 @@
 // 
 
 using System;
-using System.Reflection;
-using System.Collections;
-using System.Security;
-using System.Security.Cryptography;
-using System.Xml;
-using System.Xml.Serialization;
 using System.Threading;
-using System.IO;
+using FileFind.Meshwork.GtkClient.Widgets;
+using FileFind.Meshwork.GtkClient.Windows;
 using Gtk;
-using Glade;
-using GLib;
-using GtkSharp;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Transport;
-using FileFind.Meshwork.Filesystem;
-using FileFind.Meshwork.Exceptions;
-using FileFind.Meshwork.Protocol;
-using FileFind.Meshwork.Errors;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public partial class NetworkOverviewPage : HPaned, IPage
 	{
@@ -74,7 +60,7 @@ namespace FileFind.Meshwork.GtkClient
 			var sidebarBox = new Gtk.VBox();			
 			sidebar.Add(sidebarBox);
 			
-			var headerAlign = new Banshee.Widgets.FadingAlignment();	
+			var headerAlign = new FadingAlignment();	
 			sidebarBox.PackStart(headerAlign, false, false, 0);			
 			
 			var headerLabel = new Gtk.Label();

@@ -7,13 +7,12 @@
 // (C) 2006 FileFind.net (http://filefind.net)
 //
 
-using FileFind.Meshwork;
 using System;
-using Gtk;
+using FileFind.Meshwork.GtkClient.Pages;
 using Glade;
-using FileFind.Meshwork.GtkClient;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class JoinChatroomDialog : GladeDialog
 	{

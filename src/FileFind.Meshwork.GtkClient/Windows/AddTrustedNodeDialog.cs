@@ -8,19 +8,12 @@
 //
 
 using System;
-using Gtk;
-using Glade;
 using System.IO;
-using System.Security.Cryptography;
+using FileFind.Meshwork.GtkClient.Widgets;
+using Glade;
+using Gtk;
 
-using FileFind;
-using FileFind.Meshwork;
-using FileFind.Meshwork.Collections;
-using FileFind.Meshwork.Exceptions;
-using FileFind.Serialization;
-using FileFind.Meshwork.GtkClient;
-
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class AddTrustedNodeDialog : GladeDialog
 	{
@@ -83,7 +76,7 @@ namespace FileFind.Meshwork.GtkClient
 				base.Dialog.Destroy();
 			}
 			catch (Exception ex) {
-				Gui.ShowMessageDialog(String.Format("Invalid public key: {0}", ex.Message),
+				Gui.ShowMessageDialog(string.Format("Invalid public key: {0}", ex.Message),
 				                      base.Dialog, Gtk.MessageType.Error, ButtonsType.Ok);
 				base.Dialog.Respond(ResponseType.None);
 				return;

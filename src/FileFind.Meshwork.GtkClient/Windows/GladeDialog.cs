@@ -9,9 +9,8 @@
 
 using System;
 using Gtk;
-using Glade;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public abstract class GladeDialog : GladeWindow
 	{

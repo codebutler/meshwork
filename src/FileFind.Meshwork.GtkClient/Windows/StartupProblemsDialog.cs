@@ -7,12 +7,10 @@
 // (C) 2008 FileFind.net (http://filefind.net)
 //
 
-using System;
-using Gtk;
 using Glade;
-using FileFind.Meshwork.Transport;
+using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class StartupProblemsDialog  : GladeDialog
 	{

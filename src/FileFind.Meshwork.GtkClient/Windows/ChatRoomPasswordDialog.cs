@@ -11,7 +11,7 @@ using System;
 using Glade;
 using Gtk;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Windows
 {
 	public class ChatRoomPasswordDialog : GladeDialog
 	{
@@ -25,7 +25,7 @@ namespace FileFind.Meshwork.GtkClient
 			: base (parent, "ChatRoomPasswordDialog")
 		{
 			this.room = room;
-			infoLabel.Markup = "<b>" + String.Format(infoLabel.Text, room.Name) + "</b>";
+			infoLabel.Markup = "<b>" + string.Format(infoLabel.Text, room.Name) + "</b>";
 		}
 
 		private void on_okbutton_clicked (object sender, EventArgs args)

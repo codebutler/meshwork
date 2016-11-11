@@ -9,7 +9,7 @@
 
 using System;
 
-namespace FileFind.Meshwork.GtkClient 
+namespace FileFind.Meshwork.GtkClient.Pages 
 {
 	public interface IPage
 	{

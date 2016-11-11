@@ -25,12 +25,11 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  *  DEALINGS IN THE SOFTWARE.
  */
- 
-using System;
+
 using Cairo;
 using Gtk;
 
-namespace Banshee.Widgets
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
     public class FadingAlignment : Alignment
     {

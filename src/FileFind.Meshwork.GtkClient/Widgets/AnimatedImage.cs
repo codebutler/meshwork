@@ -29,10 +29,7 @@
 using System;
 using Gtk;
 
-using Hyena.Gui;
-using Hyena.Gui.Theatrics;
-
-namespace Hyena.Widgets
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
     public class AnimatedImage : Image
     {

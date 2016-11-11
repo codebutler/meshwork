@@ -7,10 +7,9 @@
 // (C) 2007 FileFind.net (http://filefind.net)
 //
 
-using System;
-using FileFind.Meshwork.Search;
+using FileFind.Meshwork.GtkClient.Pages;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.SidebarItems
 {
 	internal class FileSearchItem : ISidebarItem
 	{

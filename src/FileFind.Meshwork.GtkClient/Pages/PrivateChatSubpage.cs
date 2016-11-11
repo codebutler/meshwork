@@ -8,15 +8,9 @@
 //
 
 using System;
-using System.Globalization;
 using Gtk;
-using Glade;
-using System.Collections;
-using FileFind.Meshwork;
-using GLib;
-using MonoDevelop.Components;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Pages
 {
 	public class PrivateChatSubpage : ChatSubpageBase
 	{
@@ -39,7 +33,7 @@ namespace FileFind.Meshwork.GtkClient
 
 			base.SendMessage += base_SendMessage;
 
-			AddToChat(null, String.Format("Now talking with {0} ({1}).", trustedNodeInfo.Identifier, Common.FormatFingerprint(trustedNodeInfo.NodeID)));
+			AddToChat(null, string.Format("Now talking with {0} ({1}).", trustedNodeInfo.Identifier, Common.FormatFingerprint(trustedNodeInfo.NodeID)));
 			AddToChat(null, "This conversation is secure.");
 		}
 	
@@ -58,7 +52,7 @@ namespace FileFind.Meshwork.GtkClient
 		public void UserInfoChanged (string oldNick)
 		{
 			if (oldNick != null) {
-				AddToChat(null, String.Format("{0} is now known as {1}", oldNick, node.NickName));
+				AddToChat(null, string.Format("{0} is now known as {1}", oldNick, node.NickName));
 			}
 		}
 

@@ -9,10 +9,8 @@
 
 using System;
 using System.Collections.Generic;
-using Gtk;
-using Banshee.Widgets;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.Widgets
 {
 	public class FileSearchEntry : SearchEntry
 	{
@@ -51,7 +49,7 @@ namespace FileFind.Meshwork.GtkClient
 				Gui.ShowErrorDialog(ex.Message);
 			}
 
-			base.Query = String.Empty;
+			base.Query = string.Empty;
 		}
 
 		private void searchEntry_FilterChanged (object sender, EventArgs args)
@@ -63,7 +61,7 @@ namespace FileFind.Meshwork.GtkClient
 				entry.EmptyMessage = "Search for files";
 			} else {
 				string network = entry.GetLabelForFilterID(selectedId);
-				entry.EmptyMessage = String.Format("Search '{0}' for files", network);
+				entry.EmptyMessage = string.Format("Search '{0}' for files", network);
 			}
 		}
 

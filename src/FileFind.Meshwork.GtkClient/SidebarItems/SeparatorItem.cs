@@ -9,13 +9,13 @@
 
 using System;
 
-namespace FileFind.Meshwork.GtkClient
+namespace FileFind.Meshwork.GtkClient.SidebarItems
 {
 	internal class SeparatorItem : ISidebarItem
 	{
 		public string Name {
 			get {
-				return String.Empty;
+				return string.Empty;
 			}
 		}
 

@@ -27,13 +27,8 @@
  */
 
 using System;
-using System.Runtime.InteropServices;
 
-using Gdk;
-using Cairo;
-using Gtk;
-
-namespace Banshee.Widgets
+namespace FileFind.Meshwork.GtkClient
 {
     public static class DrawingUtilities
     {
