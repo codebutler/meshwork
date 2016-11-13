@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Meshwork.Backend.Core;
 using Meshwork.Backend.Core.Protocol;
 using Meshwork.Backend.Feature.FileTransfer;
@@ -19,6 +20,7 @@ using Meshwork.Common;
 using Meshwork.Library.Hyena.Data.Sqlite;
 using Meshwork.Library.Hyena.Query;
 using Mono.Data.Sqlite;
+using ConnectionState = System.Data.ConnectionState;
 
 namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 {
@@ -27,11 +29,15 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 	public delegate void DirectoryCallback (IDirectory directory);
 	public delegate void FileCallback (IFile file);
-	
+
+
 	public class FileSystemProvider
 	{
 		const string SCHEMA_VERSION = "12";
-		
+
+	    private readonly Core.Core core;
+
+	    private readonly RootDirectory rootDirectory;
 		string connectionString;
 		long yourTotalBytes = -1;
 		long yourTotalFiles = -1;
@@ -79,13 +85,16 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 	    );
 		
 		
-		public FileSystemProvider ()
+		public FileSystemProvider (Core.Core core)
 		{
-			string path = Path.Combine(Core.Core.Settings.DataPath, "shares.db");
+		    this.core = core;
+            this.rootDirectory = new RootDirectory(core);
 
-			bool create = !File.Exists(path);
+		    var path = Path.Combine(core.Settings.DataPath, "shares.db");
 
-			connectionString = string.Format("URI=file:{0},version=3;busy_timeout=300000", path);
+			var create = !File.Exists(path);
+
+			connectionString = $"URI=file:{path},version=3;busy_timeout=300000";
 
 			if (!create) {
 				try {
@@ -95,7 +104,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 						create = true;
 					} else {
 						// Verify version
-						string currentVersion = ExecuteScalar("SELECT value FROM properties WHERE name='version'").ToString();
+						var currentVersion = ExecuteScalar("SELECT value FROM properties WHERE name='version'").ToString();
 						if (currentVersion != SCHEMA_VERSION) {
 							LoggingService.LogWarning("Schema has changed, recreating db.");
 							create = true;
@@ -121,105 +130,103 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 				}
 
 				// Force a scan.
-				Core.Core.Settings.LastShareScan = DateTime.MinValue;
+				core.Settings.LastShareScan = DateTime.MinValue;
 			}
 		}
-		
+
 		public bool BeginGetDirectory (string path, DirectoryCallback callback)
 		{
 			path = PathUtil.CleanPath(path);
-			
+
 			// LocalDirectory and NetworkDirectory objects can always be returned immediately.
-			string[] parts = path.Split('/');
+			var parts = path.Split('/');
 			if ((parts.Length > 1 && parts[1] == "local") || parts.Length < 3) {
 				var directory = GetDirectory(path);
 				callback(directory);
 				return true;
 			} else {
-				RemoteDirectory directory = (RemoteDirectory) GetDirectory(path);
+				var directory = (RemoteDirectory) GetDirectory(path);
 				if (directory != null) {
 					 if (directory.State != RemoteDirectoryState.ContentsUnrequested) {
 						callback(directory);
 						return true;
 					}
 				}
-				
+
 				lock (remoteDirectoryCallbacks) {
 					if (!remoteDirectoryCallbacks.ContainsKey(path)) {
 						remoteDirectoryCallbacks.Add(path, new List<DirectoryCallback>());
 					}
 					var list = remoteDirectoryCallbacks[path];
 					list.Add(callback);
-				}				
-				
-				var network = PathUtil.GetNetwork(path);
+				}
+
+				var network = PathUtil.GetNetwork(core, path);
 				network.RequestDirectoryListing(path);
 				return false;
 			}
 		}
-		
+
 		public bool BeginGetFileDetails (string path, FileCallback callback)
 		{
 			path = PathUtil.CleanPath(path);
-			
-			IFile file = GetFile(path);
+
+			var file = GetFile(path);
 			if (file != null) {
 				callback(file);
 				return true;
 			}
-			
+
 			// If file is local and wasn't found, throw error.
-			string[] parts = path.Split('/');
+			var parts = path.Split('/');
 			if (parts.Length > 1 && parts[1] == "local") {
 				throw new Exception("File does not exist");
 			}
-			
+
 			// If remote file, request it!
-			
+
 			lock (remoteFileCallbacks) {
 				if (!remoteFileCallbacks.ContainsKey(path))
 					remoteFileCallbacks.Add(path, new List<FileCallback>());
 				var list = remoteFileCallbacks[path];
 				list.Add(callback);
 			}
-			
-			var network = PathUtil.GetNetwork(path);
+
+			var network = PathUtil.GetNetwork(core, path);
 			network.RequestFileDetails(path);
-			return false;		
+			return false;
 		}
-		
+
 		internal LocalDirectory GetLocalDirectory (string path)
 		{
 			if (path.Length > 1 && path.EndsWith("/"))
 				path = path.Substring(0, path.Length - 1);
-			
-			string[] parts = path.Split('/');
+
+			var parts = path.Split('/');
 			if (parts.Length < 3) {
 				return (LocalDirectory)GetDirectory(path);
-			} else {			
-				return Core.Core.FileSystem.UseConnection<LocalDirectory>(delegate (IDbConnection connection) {
-					string query = "SELECT * FROM directoryitems WHERE type = 'D' AND full_path = @full_path LIMIT 1";
-					IDbCommand command = connection.CreateCommand();
-					command.CommandText = query;
-					Core.Core.FileSystem.AddParameter(command, "@full_path", path);
-					DataSet data = Core.Core.FileSystem.ExecuteDataSet(command);
-					if (data.Tables[0].Rows.Count > 0)
-						return LocalDirectory.FromDataRow(data.Tables[0].Rows[0]);
-					else
-						return null;
-				});
 			}
+		    return core.FileSystem.UseConnection(delegate (IDbConnection connection) {
+		        var query = "SELECT * FROM directoryitems WHERE type = 'D' AND full_path = @full_path LIMIT 1";
+		        var command = connection.CreateCommand();
+		        command.CommandText = query;
+		        core.FileSystem.AddParameter(command, "@full_path", path);
+		        var data = core.FileSystem.ExecuteDataSet(command);
+		        if (data.Tables[0].Rows.Count > 0)
+		            return LocalDirectory.FromDataRow(this, data.Tables[0].Rows[0]);
+		        return null;
+		    });
 		}
-		
+
 		// FIXME: Eventually, this method should become private.
 		internal IDirectory GetDirectory (string path)
 		{
-			if (!path.StartsWith("/")) path = "/" + path;		
+			if (!path.StartsWith("/")) path = "/" + path;
 			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
-			IDirectory directory = Core.Core.FileSystem.RootDirectory;
+			IDirectory directory = core.FileSystem.RootDirectory;
 			if (path.Length > 0) {
-				string[] pathParts = path.Substring(1).Split('/');
-				foreach (string dirName in pathParts)
+				var pathParts = path.Substring(1).Split('/');
+				foreach (var dirName in pathParts)
 				{
 					directory = directory.GetSubdirectory(dirName);
 					if (directory == null)
@@ -228,16 +235,16 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			}
 			return directory;
 		}
-		
+
 		RemoteDirectory GetOrCreateRemoteDirectory (string path)
 		{
 			IDirectory directory = GetDirectory(path) as RemoteDirectory;
 			if (directory != null)
 				return (RemoteDirectory) directory;
-						
-			directory = Core.Core.FileSystem.RootDirectory;
+
+			directory = core.FileSystem.RootDirectory;
 			var pathParts = path.Substring(1).Split('/');
-			foreach (string dirName in pathParts) {
+			foreach (var dirName in pathParts) {
 				var curDir = directory;
 				directory = directory.GetSubdirectory(dirName);
 				if (directory == null) {
@@ -246,36 +253,35 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			}
 			return (RemoteDirectory) directory;
 		}
-		
+
 		RemoteFile GetOrCreateRemoteFile (string path, SharedFileListing listing, out bool created)
 		{
 			created = false;
-			
+
 			IFile file = GetFile(path) as RemoteFile;
 			if (file != null)
 				return (RemoteFile) file;
-			
+
 			created = true;
-			
+
 			var dirPath = string.Join("/", path.Split('/').Slice(0, -2));
 			var directory = GetOrCreateRemoteDirectory(dirPath);
 			file = directory.CreateFile(listing);
-						
+
 			return (RemoteFile) file;
 		}
-		
+
 		public IFile GetFile (string path)
 		{
-			string directoryPath = string.Join("/", path.Split('/').Slice(0, -2));
-			string fileName = path.Split('/').Slice(-1, -1)[0];
-			IDirectory directory = GetDirectory(directoryPath);
+			var directoryPath = string.Join("/", path.Split('/').Slice(0, -2));
+			var fileName = path.Split('/').Slice(-1, -1)[0];
+			var directory = GetDirectory(directoryPath);
 			if (directory != null) {
 				return directory.GetFile(fileName);
-			} else {
-				return null;
 			}
+		    return null;
 		}
-		
+
 		internal T UseConnection<T> (DbMethod<T> method)
 		{
 			return UseConnection(method, false);
@@ -288,9 +294,9 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			// Try to let any pending reads go through if we need to write,
 			// since it locks everything.
 			if (write) {
-				DateTime start = DateTime.Now;
+				var start = DateTime.Now;
 				while (workingConnections.Count > 0) {
-					System.Threading.Thread.Sleep(1);
+					Thread.Sleep(1);
 					if ((DateTime.Now - start).TotalSeconds >= 1) {
 						// After a second, give up and go anyway.
 						break;
@@ -299,17 +305,17 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			}
 
 			lock (connections) {
-				theConnection = connections.Find(delegate (IDbConnection c) { return c.State == System.Data.ConnectionState.Open; });
+				theConnection = connections.Find(delegate (IDbConnection c) { return c.State == ConnectionState.Open; });
 				connections.Remove(theConnection);
 			}
 
 			if (theConnection == null) {
 				theConnection = CreateDbConnection();
 			}
-			
+
 			workingConnections.Add(theConnection);
 
-			T result = method(theConnection);
+			var result = method(theConnection);
 
 			workingConnections.Remove(theConnection);
 
@@ -319,7 +325,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 			return result;
 		}
-		
+
 		internal void UseConnection (DbMethod method)
 		{
 			UseConnection(method, false);
@@ -331,39 +337,37 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 				method(connection);
 				return null;
 			}, write);
-		}	
-		
+		}
+
 		private IDbConnection CreateDbConnection ()
 		{
-			SqliteConnection connection = new SqliteConnection(connectionString);
+			var connection = new SqliteConnection(connectionString);
 			connection.Open ();
-			return (IDbConnection)connection;
+			return connection;
 		}
-		
+
 		public RootDirectory RootDirectory {
-			get {
-				return RootDirectory.Instance;
-			}
+			get { return rootDirectory; }
 		}
-		
+
 		public long TotalDirectories {
 			get {
-				return UseConnection<long>(delegate (IDbConnection connection) {
-					string query = "SELECT count(*) FROM directoryitems WHERE type='D'";
-					IDbCommand command = connection.CreateCommand();
+				return UseConnection(delegate (IDbConnection connection) {
+					var query = "SELECT count(*) FROM directoryitems WHERE type='D'";
+					var command = connection.CreateCommand();
 					command.CommandText = query;
-					object result = ExecuteScalar(command);
+					var result = ExecuteScalar(command);
 					return (result == null) ? 0 : (long)result;
 				});
 			}
 		}
 		public long TotalFiles {
 			get {
-				return UseConnection<long>(delegate (IDbConnection connection) {
-					string query = "SELECT count(*) FROM directoryitems WHERE type='F'";
-					IDbCommand command = connection.CreateCommand();
+				return UseConnection(delegate (IDbConnection connection) {
+					var query = "SELECT count(*) FROM directoryitems WHERE type='F'";
+					var command = connection.CreateCommand();
 					command.CommandText = query;
-					object result = ExecuteScalar(command);
+					var result = ExecuteScalar(command);
 					return (result == null) ? 0 : (long)result;
 				});
 			}
@@ -371,47 +375,47 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		public long TotalBytes {
 			get {
-				return UseConnection<long>(delegate (IDbConnection connection) {
-					string query = "SELECT sum(length) FROM directoryitems WHERE type='F'";
-					IDbCommand command = connection.CreateCommand();
+				return UseConnection(delegate (IDbConnection connection) {
+					var query = "SELECT sum(length) FROM directoryitems WHERE type='F'";
+					var command = connection.CreateCommand();
 					command.CommandText = query;
-					object result = ExecuteScalar(command);
+					var result = ExecuteScalar(command);
 					return (result == null) ? 0 : (long)result;
 				});
 			}
 		}
 
 		public long YourTotalFiles {
-			get {
-				if (yourTotalFiles != -1) {
+			get
+			{
+			    if (yourTotalFiles != -1) {
 					return yourTotalFiles;
-				} else {
-					return UseConnection<long>(delegate (IDbConnection connection) {
-						string query = "SELECT count(*) FROM directoryitems WHERE type='F'";
-						IDbCommand command = connection.CreateCommand();
-						command.CommandText = query;
-						object result = ExecuteScalar(command);
-						yourTotalFiles = (result is DBNull) ? 0 : (long)result;
-						return yourTotalFiles;
-					});
 				}
+			    return UseConnection(delegate (IDbConnection connection) {
+			        var query = "SELECT count(*) FROM directoryitems WHERE type='F'";
+			        var command = connection.CreateCommand();
+			        command.CommandText = query;
+			        var result = ExecuteScalar(command);
+			        yourTotalFiles = (result is DBNull) ? 0 : (long)result;
+			        return yourTotalFiles;
+			    });
 			}
 		}
 
 		public long YourTotalBytes {
-			get {
-				if (yourTotalBytes != -1) {
+			get
+			{
+			    if (yourTotalBytes != -1) {
 					return yourTotalBytes;
-				} else {
-					return UseConnection<long>(delegate (IDbConnection connection) {
-						string query = "SELECT sum(length) FROM directoryitems WHERE type='F'";
-						IDbCommand command = connection.CreateCommand();
-						command.CommandText = query;
-						object result = ExecuteScalar(command);
-						yourTotalBytes = (result is DBNull) ? 0 : (long)result;
-						return yourTotalBytes;
-					});
 				}
+			    return UseConnection(delegate (IDbConnection connection) {
+			        var query = "SELECT sum(length) FROM directoryitems WHERE type='F'";
+			        var command = connection.CreateCommand();
+			        command.CommandText = query;
+			        var result = ExecuteScalar(command);
+			        yourTotalBytes = (result is DBNull) ? 0 : (long)result;
+			        return yourTotalBytes;
+			    });
 			}
 		}
 
@@ -422,38 +426,38 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			DataSet          ds;
 			int              x;
 			SearchResultInfo result;
-						
+
 			var directories = new List<string>();
 			var files = new List<SharedFileListing>();
 
 			result = new SearchResultInfo();
-			
-			var queryNode = UserQueryParser.Parse(query, FileSystemProvider.FieldSet);
-			var queryFragment = queryNode.ToSql(FileSystemProvider.FieldSet);
-					
+
+			var queryNode = UserQueryParser.Parse(query, FieldSet);
+			var queryFragment = queryNode.ToSql(FieldSet);
+
 			var sb = new StringBuilder();
 			sb.Append("SELECT * FROM directoryitems WHERE ");
 			sb.Append(queryFragment);
-			sb.AppendFormat(" LIMIT {0}", MAX_RESULTS.ToString());
-			
-			UseConnection(delegate (IDbConnection connection) {				
+			sb.AppendFormat(" LIMIT {0}", MAX_RESULTS);
+
+			UseConnection(delegate (IDbConnection connection) {
 				command = connection.CreateCommand();
 				command.CommandText = sb.ToString();
-				
+
 				ds = ExecuteDataSet(command);
-				
+
 				for (x = 0; x < ds.Tables[0].Rows.Count; x++) {
 					if (ds.Tables[0].Rows[x]["type"].ToString() == "F") {
-						files.Add(new SharedFileListing(LocalFile.FromDataRow(ds.Tables[0].Rows[x]), false));
+						files.Add(new SharedFileListing(LocalFile.FromDataRow(core.FileSystem, ds.Tables[0].Rows[x]), false));
 					} else {
-						LocalDirectory dir = LocalDirectory.FromDataRow(ds.Tables[0].Rows[x]);
+						var dir = LocalDirectory.FromDataRow(this, ds.Tables[0].Rows[x]);
 						// FIXME: Ugly: Remove '/local' from begining of path
-						string path = "/" + string.Join("/", dir.FullPath.Split('/').Slice(2));
+						var path = "/" + string.Join("/", dir.FullPath.Split('/').Slice(2));
 						directories.Add(path);
 					}
 				}
 			});
-			
+
 			result.Files = files.ToArray();
 			result.Directories = directories.ToArray();
 
@@ -468,18 +472,18 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		private void CreateTables ()
 		{
-			using (IDbConnection connection = CreateDbConnection()) {
-				using (IDbTransaction transaction = connection.BeginTransaction()) {
-					
+			using (var connection = CreateDbConnection()) {
+				using (var transaction = connection.BeginTransaction()) {
+
 					// If any of these tables exist, drop them before trying to re-create.
-					string[] tablesToDrop = new string[] { "properties", "directoryitems", "filepieces" };
-					foreach (string tableName in tablesToDrop) {
-						IDbCommand dropCommand = connection.CreateCommand();
+					string[] tablesToDrop = { "properties", "directoryitems", "filepieces" };
+					foreach (var tableName in tablesToDrop) {
+						var dropCommand = connection.CreateCommand();
 						dropCommand.CommandText = string.Format("DROP TABLE IF EXISTS {0}", tableName);
 						ExecuteNonQuery(dropCommand);
 					}
 
-					IDbCommand command = connection.CreateCommand();
+					var command = connection.CreateCommand();
 
 					command.CommandText = @"
 					CREATE TABLE properties (id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -546,27 +550,27 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_local_path ON directoryitems (local_path);";
 					ExecuteNonQuery(command);
-					
+
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_type ON directoryitems (type);";
 					ExecuteNonQuery(command);
-					
+
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_name ON directoryitems (name);";
 					ExecuteNonQuery(command);
-					
+
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_full_path ON directoryitems (full_path);";
 					ExecuteNonQuery(command);
-					
+
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX directoryitems_length ON directoryitems (length);";
 					ExecuteNonQuery(command);
-					
+
 					command = connection.CreateCommand();
 					command.CommandText = "CREATE INDEX filepieces_file_id ON filepieces (file_id);";
 					ExecuteNonQuery(command);
-					
+
 					transaction.Commit();
 				}
 			}
@@ -574,17 +578,17 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		public void AddParameter (IDbCommand command, string name, object value)
 		{
-			IDbDataParameter param = command.CreateParameter();
+			var param = command.CreateParameter();
 			param.ParameterName = name;
 			param.Value = value;
 			command.Parameters.Add(param);
 		}
-		
+
 		public DataSet ExecuteDataSet (IDbCommand command)
 		{
 			LoggingService.LogDebug("ExecuteDataSet: {0}", GetCommandTextWithParameters(command));
 			IDbDataAdapter adapter = new SqliteDataAdapter((SqliteCommand)command);
-			DataSet ds = new DataSet();
+			var ds = new DataSet();
 			adapter.Fill(ds);
 			return ds;
 		}
@@ -593,20 +597,20 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		{
 			object result = null;
 			UseConnection(delegate (IDbConnection connection) {
-				IDbCommand cmd = connection.CreateCommand();
+				var cmd = connection.CreateCommand();
 				cmd.CommandText = query;
 				LoggingService.LogDebug("ExecuteScalar: {0}", GetCommandTextWithParameters(cmd));
 				result = cmd.ExecuteScalar();
 			});
 			return result;
 		}
-		
+
 		public object ExecuteScalar (IDbCommand command)
 		{
 			LoggingService.LogDebug("ExecuteScalar: {0}", GetCommandTextWithParameters(command));
 			return command.ExecuteScalar();
 		}
-		
+
 		public int ExecuteNonQuery (IDbCommand command)
 		{
 			LoggingService.LogDebug("ExecuteNonQuery: {0}", GetCommandTextWithParameters(command));
@@ -615,10 +619,10 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		internal void PurgeMissing ()
 		{
-			List<string> idsToDelete = new List<string>();
-			
+			var idsToDelete = new List<string>();
+
 			UseConnection(delegate (IDbConnection connection) {
-				IDbCommand command = connection.CreateCommand();
+				var command = connection.CreateCommand();
 				command.CommandText = "SELECT id,local_path,type FROM directoryitems WHERE local_path IS NOT NULL";
 
 				// XXX: This is a try-finally instead of a using because of a compiler bug.
@@ -628,15 +632,15 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 					reader = command.ExecuteReader();
 
 					while (reader.Read()) {
-						string id = reader.GetInt32(0).ToString();
-						string path = reader.GetString(1);
-						string type = reader.GetString(2);
+						var id = reader.GetInt32(0).ToString();
+						var path = reader.GetString(1);
+						var type = reader.GetString(2);
 						if (type == "D") {
-							if (!string.IsNullOrEmpty(path) && !System.IO.Directory.Exists(path)) {
+							if (!string.IsNullOrEmpty(path) && !Directory.Exists(path)) {
 								idsToDelete.Add(id);
 							}
 						} else if (type == "F") {
-							if (!System.IO.File.Exists(path)) {
+							if (!File.Exists(path)) {
 								idsToDelete.Add(id);
 							}
 						}
@@ -654,34 +658,34 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 				}
 			});
 		}
-		
-		// This is intended *for display only*! 
+
+		// This is intended *for display only*!
 		string GetCommandTextWithParameters (IDbCommand command)
 		{
-			string text = command.CommandText;
+			var text = command.CommandText;
 			foreach (IDbDataParameter parameter in command.Parameters) {
 				if (parameter.Value == null) {
 					text = text.Replace(parameter.ParameterName, "NULL");
 				} else if (parameter.Value is string) {
-					text = text.Replace(parameter.ParameterName, "'" + parameter.Value.ToString() + "'");
+					text = text.Replace(parameter.ParameterName, "'" + parameter.Value + "'");
 				} else {
 					text = text.Replace(parameter.ParameterName, parameter.Value.ToString());
 				}
 			}
 			return text;
 		}
-	
+
 		internal void ProcessRespondDirListingMessage (Network network, Node messageFrom, SharedDirectoryInfo info)
-		{			
-			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
-			
-			var node = PathUtil.GetNode(fullPath);
+		{
+			var fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
+
+			var node = PathUtil.GetNode(core, fullPath);
 			if (node != messageFrom)
 				throw new Exception("Directory was for a different node");
-			
-			RemoteDirectory remoteDirectory = GetOrCreateRemoteDirectory(fullPath);
+
+			var remoteDirectory = GetOrCreateRemoteDirectory(fullPath);
 			remoteDirectory.UpdateFromInfo(info);
-			
+
 			lock (remoteDirectoryCallbacks) {
 				if (remoteDirectoryCallbacks.ContainsKey(fullPath)) {
 					foreach (var callback in remoteDirectoryCallbacks[fullPath]) {
@@ -690,23 +694,23 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 					remoteDirectoryCallbacks.Remove(fullPath);
 				}
 			}
-			
+
 			network.RaiseReceivedDirListing(messageFrom, remoteDirectory);
 		}
-		
+
 		internal void ProcessFileDetailsMessage (Network network, Node messageFrom, SharedFileListing info)
 		{
-			string fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
-			
-			var node = PathUtil.GetNode(fullPath);
+			var fullPath = PathUtil.Join(messageFrom.Directory.FullPath, info.FullPath);
+
+			var node = PathUtil.GetNode(core, fullPath);
 			if (node != messageFrom)
 				throw new Exception("Directory was for a different node");
-			
-			bool created = false;
-			RemoteFile remoteFile = GetOrCreateRemoteFile(fullPath, info, out created);
+
+			var created = false;
+			var remoteFile = GetOrCreateRemoteFile(fullPath, info, out created);
 			if (!created)
 				remoteFile.UpdateFromInfo(info);
-			
+
 			lock (remoteFileCallbacks) {
 				if (remoteFileCallbacks.ContainsKey(fullPath)) {
 					foreach (var callback in remoteFileCallbacks[fullPath]) {
@@ -715,13 +719,13 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 				}
 				remoteFileCallbacks.Remove(fullPath);
 			}
-			
+
 			network.RaiseReceivedFileDetails(remoteFile);
-				
+
 			// FIXME: Get rid of all this, just listen for above network.ReceivedFileDetails event!
-			IFileTransfer transfer = Core.Core.FileTransferManager.GetTransfer(remoteFile);
-			if (transfer != null && transfer.Status == FileTransfer.FileTransferStatus.WaitingForInfo) {
-				((FileTransfer.IFileTransferInternal)transfer).DetailsReceived();
+			var transfer = core.FileTransferManager.GetTransfer(remoteFile);
+			if (transfer != null && transfer.Status == FileTransferStatus.WaitingForInfo) {
+				((IFileTransferInternal)transfer).DetailsReceived();
 			}
 		}
 	}

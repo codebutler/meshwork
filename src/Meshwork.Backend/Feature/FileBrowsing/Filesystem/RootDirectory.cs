@@ -13,29 +13,16 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 {
 	public class RootDirectory : AbstractDirectory
 	{
-		static RootDirectory s_Instance;
-		
+	    private readonly Core.Core core;
+
 		MyDirectory m_MyDirectory;
-		
-		private RootDirectory ()
+
+	    internal RootDirectory (Core.Core core)
 		{
-			if (s_Instance != null)
-				throw new Exception("Only one instance is allowed");
-			
-			s_Instance = this;
-			
-			m_MyDirectory = new MyDirectory();
+		    this.core = core;
+			m_MyDirectory = new MyDirectory(core.FileSystem);
 		}
-		
-		public static RootDirectory Instance {
-			get {
-				if (s_Instance == null) {
-					s_Instance = new RootDirectory();
-				}
-				return s_Instance;
-			}
-		}
-						
+
 		public MyDirectory MyDirectory {
 			get {
 				return m_MyDirectory;
@@ -53,7 +40,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 				IDirectory[] directories = new IDirectory[DirectoryCount];
 				directories[0] = MyDirectory;
 				for (int x = 1; x < directories.Length; x++) {
-					directories[x] = Core.Core.Networks[x - 1].Directory;
+					directories[x] = core.Networks[x - 1].Directory;
 				}
 				return directories;
 			}
@@ -73,7 +60,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		
 		public override int DirectoryCount {
 			get {
-				return Core.Core.Networks.Length + 1;
+				return core.Networks.Length + 1;
 			}
 		}
 

@@ -115,7 +115,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 				// FIXME: Find other sources for file!
 				
 				var path = PathUtil.Join(m_Node.Directory.FullPath, m_Listing.FullPath);
-				Core.Core.FileSystem.BeginGetFileDetails(path, delegate (IFile file) {
+				Node.Network.Core.FileSystem.BeginGetFileDetails(path, delegate (IFile file) {
 					m_Node.Network.DownloadFile(m_Node, (RemoteFile)file);
 				});				
 			} else {

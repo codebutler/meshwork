@@ -17,24 +17,29 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 	public class FileSearchManager
 	{
+	    private readonly Core.Core core;
+
 		List<FileSearch> fileSearches = new List<FileSearch>();
 
-		public event FileSearchEventHandler SearchAdded;
+	    public event FileSearchEventHandler SearchAdded;
 		public event FileSearchEventHandler SearchRemoved;
 
-		internal FileSearchManager ()
+		internal FileSearchManager (Core.Core core)
 		{
-			Core.Core.NetworkAdded   += Core_NetworkAdded;
-			Core.Core.NetworkRemoved += Core_NetworkRemoved;
+		    this.core = core;
+			core.NetworkAdded   += Core_NetworkAdded;
+			core.NetworkRemoved += Core_NetworkRemoved;
 		}
 
 		public FileSearch NewFileSearch (string query, string networkId)
 		{
-			FileSearch search = new FileSearch();
-			search.Name = query;
-			search.Query = query;
+		    FileSearch search = new FileSearch(core)
+		    {
+		        Name = query,
+		        Query = query
+		    };
 
-			if (networkId != null) {
+		    if (networkId != null) {
 				search.NetworkIds.Add(networkId);
 			}
 			
@@ -47,11 +52,9 @@ namespace Meshwork.Backend.Feature.FileSearch
 		{
 			fileSearches.Add(search);
 
-			if (SearchAdded != null) {
-				SearchAdded(search);
-			}
-			
-			foreach (Network network in Core.Core.Networks) {
+		    SearchAdded?.Invoke(search);
+
+		    foreach (Network network in core.Networks) {
 				if (search.NetworkIds.Count == 0 || search.NetworkIds.IndexOf(network.NetworkID) > -1) { 
 					network.FileSearch(search);
 				}

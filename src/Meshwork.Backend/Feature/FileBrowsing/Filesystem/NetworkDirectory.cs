@@ -55,7 +55,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		}
 
 		public override IDirectory Parent {
-			get { return Core.Core.FileSystem.RootDirectory; }
+			get { return Network.Core.FileSystem.RootDirectory; }
 		}		
 	}
 }

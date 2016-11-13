@@ -7,7 +7,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 	{
 		public static string GetDirectoryName (string path)
 		{
-			int last = path.LastIndexOf("/");
+			var last = path.LastIndexOf("/");
 
 			if (last == 0) {
 				last ++;
@@ -22,14 +22,14 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		
 		public static string GetBaseName (string path)
 		{
-			int i = path.LastIndexOf("/");
+			var i = path.LastIndexOf("/");
 			return path.Substring(i + 1);
 		}
 		
 		public static string GetParentPath (string path)
 		{
 			if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
-			int i = path.LastIndexOf("/");
+			var i = path.LastIndexOf("/");
 			return path.Substring(0, i);
 		}
 
@@ -56,20 +56,20 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			return (CleanPath(path1) == CleanPath(path2));
 		}
 		
-		public static Network GetNetwork (string path)
+		public static Network GetNetwork (Core.Core core, string path)
 		{
-			string[] parts = path.Split('/');
-			Network network = Core.Core.GetNetwork(parts[1]);
+			var parts = path.Split('/');
+			var network = core.GetNetwork(parts[1]);
 			if (network == null)
 				throw new Exception("Network not found! " + path + " " + parts[1]);
 			return network;
 		}
 		
-		public static Node GetNode (string path)
+		public static Node GetNode (Core.Core core, string path)
 		{
-			string[] parts = path.Split('/');
-			Network network = Core.Core.GetNetwork(parts[1]);
-			Node node = network.GetNode(parts[2]);
+			var parts = path.Split('/');
+			var network = core.GetNetwork(parts[1]);
+			var node = network.GetNode(parts[2]);
 			if (node == null)
 				throw new Exception("Not not found! " + path + " " + parts[2]);
 			return node;

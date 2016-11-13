@@ -10,6 +10,8 @@
 //#define RIDICULOUS_DEBUG_OUTPUT
 
 using System;
+using System.Diagnostics;
+using System.IO;
 using Meshwork.Backend.Core;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
 using MonoTorrent.Client;
@@ -19,25 +21,29 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 {
 	internal class BitTorrentFileTransferProvider : IFileTransferProvider
 	{
-		ClientEngine 	engine;
+	    private readonly Core.Core core;
+
+	    ClientEngine 	engine;
 		TorrentSettings torrentDefaults;
 
 		MeshworkPeerConnectionListener listener;
 
-		public BitTorrentFileTransferProvider ()
+		public BitTorrentFileTransferProvider (Core.Core core)
 		{
-			MonoTorrent.Client.Logger.AddListener(new System.Diagnostics.ConsoleTraceListener());
+		    this.core = core;
 
-			string downloadPath = Core.Core.Settings.IncompleteDownloadDir;
+		    Logger.AddListener(new ConsoleTraceListener());
+
+			string downloadPath = core.Settings.IncompleteDownloadDir;
 			EngineSettings settings = new EngineSettings (downloadPath, 1);
 			
 			torrentDefaults = new TorrentSettings (4, 60, 0, 0);
 			
-			listener = new MeshworkPeerConnectionListener ();
+			listener = new MeshworkPeerConnectionListener (core);
 			engine = new ClientEngine(settings, listener);
 
-			Core.Core.FinishedLoading += delegate {
-				Core.Core.FileTransferManager.FileTransferRemoved += Core_FileTransferRemoved;
+			core.FinishedLoading += delegate {
+				core.FileTransferManager.FileTransferRemoved += Core_FileTransferRemoved;
 			};
 			
 			#if RIDICULOUS_DEBUG_OUTPUT
@@ -55,8 +61,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 
 		public IFileTransfer CreateFileTransfer(IFile file)
 		{
-			BitTorrentFileTransfer transfer = new BitTorrentFileTransfer(file);
-			return transfer;
+		    return new BitTorrentFileTransfer(core, file);
 		}
 
 		public int GlobalUploadSpeedLimit {
@@ -79,7 +84,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 
 		internal TorrentManager CreateTorrentManager(Torrent torrent, IFile file)
 		{
-			string localPath = (file is LocalFile) ? System.IO.Path.GetDirectoryName(((LocalFile)file).LocalPath) : engine.Settings.SavePath;
+			string localPath = (file is LocalFile) ? Path.GetDirectoryName(((LocalFile)file).LocalPath) : engine.Settings.SavePath;
 			LoggingService.LogDebug("Local path: {0}", localPath);
 			TorrentManager manager = new TorrentManager(torrent,
 			                             localPath,

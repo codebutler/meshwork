@@ -30,24 +30,24 @@ namespace Meshwork.Backend.Feature.FileTransfer
 
 		List<IFileTransfer> transfers = new List<IFileTransfer>();
 
-		internal FileTransferManager ()
+		internal FileTransferManager (Core.Core core)
 		{
 			// XXX: Hard-coded for now, may change later!
-			provider = new BitTorrentFileTransferProvider();
+			provider = new BitTorrentFileTransferProvider(core);
 		}
 
 		// Starts a new file transfer, or adds a new peer if one
 		// already exists.
 		internal IFileTransfer StartTransfer(Network network, Node node, IFile file)
 		{
-			if (node.NodeID == Core.Core.MyNodeID) {
+			if (node.NodeID == network.Core.MyNodeID) {
 				throw new ArgumentException("You cannot start a file transfer with yourself.");
 			}
 			
 			// Don't download files if it already exists in the completed downloads directory.
 			// If the remote file is different, but has the same filename, it'll globber your copy.
 			if (!(file is LocalFile)) {
-				if (IO.File.Exists(IO.Path.Combine(Core.Core.Settings.CompletedDownloadDir, file.Name))) {
+				if (IO.File.Exists(IO.Path.Combine(network.Core.Settings.CompletedDownloadDir, file.Name))) {
 					throw new Exception("A file by that name already exists in your download directory.");
 				}
 			}

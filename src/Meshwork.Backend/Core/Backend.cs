@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using Meshwork.Backend.Core.Destination;
@@ -29,35 +30,26 @@ namespace Meshwork.Backend.Core
 	
 	public delegate string PasswordPromptEventHandler();
 	
-	public static class Core
+	public class Core
 	{
-		static List<Network> networks = new List<Network>();
-		static ShareBuilder shareBuilder;
-		static ShareHasher shareHasher;
-		static ShareWatcher shareWatcher;
-		static TransportManager transportManager;
-		static FileTransferManager fileTransferManager;
-		static FileSearchManager fileSearchManager;
-		static ArrayList transportListeners = new ArrayList ();
-		static FileSystemProvider fileSystem;
-		static ISettings settings;
-		static bool loaded = false;
-		static bool started = false;
-		static RSACryptoServiceProvider rsaProvider;
-		static string nodeID;
-		static IAvatarManager avatarManager;
-		static List<PluginInfo> loadedPlugins = new List<PluginInfo>();
-		static IPlatform os;
-		static DestinationManager destinationManager;
-		static List<FailedTransportListener> failedTransportListeners = new List<FailedTransportListener>();
+		private readonly List<Network> networks = new List<Network>();
+	    private readonly ShareWatcher shareWatcher;
+		private readonly TransportManager transportManager;
+	    private readonly ArrayList transportListeners = new ArrayList ();
+	    private ISettings settings;
+		private bool started = false;
+		private readonly RSACryptoServiceProvider rsaProvider;
+		private readonly string nodeID;
+	    private readonly List<PluginInfo> loadedPlugins = new List<PluginInfo>();
+	    private readonly List<FailedTransportListener> failedTransportListeners = new List<FailedTransportListener>();
 
-		public static event EventHandler Started;
-		public static event EventHandler FinishedLoading;
-		public static event MessageInfoEventHandler MessageReceived;
-		public static event MessageInfoEventHandler MessageSent;
-		public static event NetworkEventHandler NetworkAdded;
-		public static event NetworkEventHandler NetworkRemoved;
-		public static event EventHandler PasswordPrompt;
+		public event EventHandler Started;
+		public event EventHandler FinishedLoading;
+		public event MessageInfoEventHandler MessageReceived;
+		public event MessageInfoEventHandler MessageSent;
+		public event NetworkEventHandler NetworkAdded;
+		public event NetworkEventHandler NetworkRemoved;
+		public event EventHandler PasswordPrompt;
 		
 		public static readonly int ProtocolVersion = 250;
 
@@ -76,27 +68,21 @@ namespace Meshwork.Backend.Core
 //				Core.OS = new WindowsPlatform();
 //			}
 //		}
-
-		public static bool Init (ISettings settings)
+	    public Core(ISettings settings)
 		{
-			if (loaded == true) {
-				throw new Exception ("Please only call this method once.");
-			}
-
 			if (settings == null) {
-				throw new ArgumentNullException("settings");
+				throw new ArgumentNullException(nameof(settings));
 			}
 
-			Core.Settings = settings;
+			Settings = settings;
 			
-			string pidFilePath = Path.Combine(Core.Settings.DataPath, "meshwork.pid");
+			var pidFilePath = Path.Combine(Settings.DataPath, "meshwork.pid");
 			if (File.Exists(pidFilePath)) {
-				int processId = -1;
+				var processId = -1;
 				int.TryParse(File.ReadAllText(pidFilePath), out processId);
 				try {
 					Process.GetProcessById(processId);
-					Console.Error.WriteLine("Meshwork is already running (PID {0})!", processId);
-					return false;
+					throw new Exception($"Meshwork is already running (PID {processId})!");
 				} catch (ArgumentException) {
 					File.Delete(pidFilePath);
 				}
@@ -106,8 +92,7 @@ namespace Meshwork.Backend.Core
 			if (settings.KeyEncrypted) {
 				PasswordPrompt(null, EventArgs.Empty);
 				if (!settings.KeyUnlocked) {
-					// Quit!
-					return false;
+				    throw new Exception();
 				}	
 			}			
 			
@@ -115,52 +100,43 @@ namespace Meshwork.Backend.Core
 			rsaProvider.ImportParameters(settings.EncryptionParameters);
 			nodeID = Common.Common.SHA512Str(rsaProvider.ToXmlString(false));
 
-			fileSystem = new FileSystemProvider();
+			FileSystem = new FileSystemProvider(this);
 
-			shareBuilder = new ShareBuilder();
-			shareBuilder.FinishedIndexing += ShareBuilder_FinishedIndexing;
+			ShareBuilder = new ShareBuilder(this);
+			ShareBuilder.FinishedIndexing += ShareBuilder_FinishedIndexing;
 
-			shareWatcher = new ShareWatcher();
+			shareWatcher = new ShareWatcher(this);
 
-			shareHasher = new ShareHasher();
+			ShareHasher = new ShareHasher();
 
-			transportManager = new TransportManager ();
+			transportManager = new TransportManager(this);
 
-			fileTransferManager = new FileTransferManager();
+			FileTransferManager = new FileTransferManager(this);
 
-			fileSearchManager = new FileSearchManager();
+			FileSearchManager = new FileSearchManager(this);
 
-			destinationManager = new DestinationManager();
+			DestinationManager = new DestinationManager(this);
 
 			// XXX: Use reflection to load these:
-			destinationManager.RegisterSource(new TCPIPv4DestinationSource());
-			destinationManager.RegisterSource(new TCPIPv6DestinationSource());
+			DestinationManager.RegisterSource(new TCPIPv4DestinationSource(this));
+			DestinationManager.RegisterSource(new TCPIPv6DestinationSource(this));
 
 			MonoTorrent.Client.Tracker.TrackerFactory.Register("meshwork", typeof(MeshworkTracker));
 
-			ITransportListener tcpListener = new TcpTransportListener(Core.Settings.TcpListenPort);
+			ITransportListener tcpListener = new TcpTransportListener(this, Settings.TcpListenPort);
 			transportListeners.Add(tcpListener);
 			
-			loaded = true;
-
 			if (FinishedLoading != null) {
 				FinishedLoading(null, EventArgs.Empty);
 			}
-			
-			return true;
 		}
 
-		public static void Start ()
-		{
-			if (!loaded) {
-				throw new InvalidOperationException("Call Init() First!");
-			}
-
+		public void Start () {
 			if (started) {
 				throw new InvalidOperationException("You already called Start()!");
 			}
 			
-			foreach (NetworkInfo networkInfo in settings.Networks) {
+			foreach (var networkInfo in settings.Networks) {
 				AddNetwork(networkInfo);
 			}
 			
@@ -173,31 +149,21 @@ namespace Meshwork.Backend.Core
 				}
 			}
 
-			shareHasher.Start();			
+			ShareHasher.Start();
 			RescanSharedDirectories();
 			
 			// XXX: This is blocking ! shareWatcher.Start();
 
 			started = true;
 
-			if (Started != null) {
-				Started(null, EventArgs.Empty);
-			}
+		    Started?.Invoke(null, EventArgs.Empty);
 		}
 
-		public static FileSystemProvider FileSystem {
-			get {
-				return fileSystem;
-			}
-		}
+		public FileSystemProvider FileSystem { get; }
 
-		public static MyDirectory MyDirectory {
-			get {
-				return FileSystem.RootDirectory.MyDirectory;
-			}
-		}
+	    public MyDirectory MyDirectory => FileSystem.RootDirectory.MyDirectory;
 
-		public static string MyNodeID {
+	    public string MyNodeID {
 			get {
 				if (nodeID == null) {
 					throw new InvalidOperationException();
@@ -206,76 +172,40 @@ namespace Meshwork.Backend.Core
 			}
 		}
 
-		public static FileSearchManager FileSearchManager {
-			get {
-				return fileSearchManager;
-			}
-		}
+		public FileSearchManager FileSearchManager { get; }
 
-		public static IAvatarManager AvatarManager {
-			get {
-				return avatarManager;
-			}
-			set {
-				avatarManager = value;
-			}
-		}
+	    public IAvatarManager AvatarManager { get; set; }
 
-		public static DestinationManager DestinationManager {
-			get {
-				return destinationManager;
-			}
-		}
+	    public DestinationManager DestinationManager { get; }
 
-		public static IPlatform OS {
-			get {
-				return os;
-			}
-			set {
-				os = value;
-			}
-		}
-	
-		internal static RSACryptoServiceProvider CryptoProvider {
-			get {
-				return rsaProvider;
-			}
-		}
+	    public IPlatform OS { get; set; }
 
-		public static ShareHasher ShareHasher {
-			get {
-				return shareHasher;
-			}
-		}
+	    internal RSACryptoServiceProvider CryptoProvider => rsaProvider;
 
-		public static ShareBuilder ShareBuilder {
-			get {
-				return shareBuilder;
-			}
-		}
+	    public ShareHasher ShareHasher { get; }
 
-		public static bool IsLocalNode (Node node)
+	    public ShareBuilder ShareBuilder { get; }
+
+	    public bool IsLocalNode (Node node)
 		{
-			return (node.NodeID == Core.MyNodeID);
+			return (node.NodeID == MyNodeID);
 		}
 
-		internal static Node CreateLocalNode (Network network)
+		internal Node CreateLocalNode (Network network)
 		{
-			if (!loaded) {
-				throw new InvalidOperationException("You must call Init() first");
-			}
-			
-			Node node = new Node(network, Core.MyNodeID);
-			node.NickName     = Core.Settings.NickName;
-			node.RealName     = Core.Settings.RealName;
-			node.Email        = Core.Settings.Email;
-			node.Verified     = true;
+		    var node = new Node(network, MyNodeID)
+		    {
+		        NickName = Settings.NickName,
+		        RealName = Settings.RealName,
+		        Email = Settings.Email,
+		        Verified = true
+		    };
 
-			// XXX: This is a mess. Perhaps the client should register it's name and version with Core on Init.
-			object[] attrs = Assembly.GetEntryAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), true);
+		    // XXX: This is a mess. Perhaps the client should register it's name and version with Core on Init.
+			var attrs = Assembly.GetEntryAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), true);
 			if (attrs.Length > 0) {
-				AssemblyTitleAttribute attr = (AssemblyTitleAttribute)attrs[0];
-				AssemblyName asmName = Assembly.GetEntryAssembly().GetName();
+				var attr = (AssemblyTitleAttribute)attrs[0];
+				var asmName = Assembly.GetEntryAssembly().GetName();
 				node.ClientName    = attr.Title;
 				node.ClientVersion = asmName.Version.ToString();
 			} else {
@@ -283,44 +213,38 @@ namespace Meshwork.Backend.Core
 				node.ClientVersion = "Unknown";
 			}
 
-			node.OperatingSystem = Core.OS.VersionInfo;
+			node.OperatingSystem = OS.VersionInfo;
 			return node;
 		}
 
-		public static PluginInfo[] Plugins {
-			get {
-				return loadedPlugins.ToArray();
-			}
-		}
+		public PluginInfo[] Plugins => loadedPlugins.ToArray();
 
-		public static void Stop ()
+	    public void Stop ()
 		{
-			if (!loaded) return;
+			ShareBuilder.Stop();
 
-			shareBuilder.Stop();
-
-			shareHasher.Stop();
+			ShareHasher.Stop();
 			shareWatcher.Stop();
 
 			foreach (ITransportListener listener in transportListeners) {
 				listener.StopListening ();
 			}
 
-			foreach (ITransport transport in TransportManager.Transports) {
+			foreach (var transport in TransportManager.Transports) {
 				transport.Disconnect();
 			}
 		}
 
-		public static void LoadPlugin (string fileName)
+		public void LoadPlugin (string fileName)
 		{
 			try {
 				if (fileName == null) {
-					throw new ArgumentNullException ("fileName");
+					throw new ArgumentNullException (nameof(fileName));
 				}
 
-				PluginInfo info = new PluginInfo (fileName);
+				var info = new PluginInfo (fileName);
 
-				foreach (PluginInfo cInfo in loadedPlugins) {
+				foreach (var cInfo in loadedPlugins) {
 					if (cInfo.Type == info.Type) {
 						throw new Exception ("Plugin already loaded.");
 					}
@@ -333,22 +257,22 @@ namespace Meshwork.Backend.Core
 			}
 		}
 
-		public static void UnloadPlugin (PluginInfo info)
+		public void UnloadPlugin (PluginInfo info)
 		{
 			if (info == null) {
-				throw new ArgumentNullException ("info");
+				throw new ArgumentNullException (nameof(info));
 			}
 
 			info.DestroyInstance();
 			loadedPlugins.Remove (info);
 		}
 
-		private static void ShareBuilder_FinishedIndexing (object sender, EventArgs args)
+		private void ShareBuilder_FinishedIndexing (object sender, EventArgs args)
 		{
 			try {
-				Core.FileSystem.InvalidateCache();
+				FileSystem.InvalidateCache();
 
-				foreach (Network network in networks) {
+				foreach (var network in networks) {
 					network.SendInfoToTrustedNodes();
 				}
 
@@ -357,15 +281,15 @@ namespace Meshwork.Backend.Core
 			}
 		}
 
-		private static void AddNetwork (NetworkInfo networkInfo)
+		private void AddNetwork (NetworkInfo networkInfo)
 		{
-			foreach (Network thisNetwork in networks) {
+			foreach (var thisNetwork in networks) {
 				if (thisNetwork.NetworkID == networkInfo.NetworkID) {
 					throw new Exception("That network has already been added.");
 				}
 			}
 
-			Network network = Network.FromNetworkInfo(networkInfo);
+			var network = Network.FromNetworkInfo(this, networkInfo);
 
 			networks.Add(network);
 
@@ -382,7 +306,7 @@ namespace Meshwork.Backend.Core
 			network.Start ();
 		}
 
-		private static void RemoveNetwork (Network network)
+		private void RemoveNetwork (Network network)
 		{
 			network.Stop();
 
@@ -393,9 +317,9 @@ namespace Meshwork.Backend.Core
 			}
 		}
 		
-		public static Network GetNetwork (string networkID)
+		public Network GetNetwork (string networkID)
 		{
-			foreach (Network network in networks) {
+			foreach (var network in networks) {
 				if (network.NetworkID == networkID) {
 					return network;
 				}
@@ -403,10 +327,10 @@ namespace Meshwork.Backend.Core
 			return null;
 		}
 
-		internal static void ConnectTo (ITransport transport, TransportCallback connectCallback)
+		internal void ConnectTo (ITransport transport, TransportCallback connectCallback)
 		{
 			if (transport == null) {
-				throw new ArgumentNullException("transport");
+				throw new ArgumentNullException(nameof(transport));
 			}
 
 			if (transport.Network == null) {
@@ -416,7 +340,7 @@ namespace Meshwork.Backend.Core
 			if (transport.ConnectionType == ConnectionType.NodeConnection) {
 				// XXX: This doesn't belong here. Have LocalNodeConnection set this up
 				// and call me with the proper callback.
-				LocalNodeConnection connection = new LocalNodeConnection(transport);
+				var connection = new LocalNodeConnection(transport);
 				transport.Operation = connection;
 				transport.Network.AddConnection(connection);
 				transportManager.Add(transport, delegate (ITransport bleh) { 
@@ -430,72 +354,46 @@ namespace Meshwork.Backend.Core
 			}
 		}
 
-		public static int CountTransports (ulong connectionType)
+		public int CountTransports (ulong connectionType)
 		{
-			int result = 0;
-			foreach (ITransport transport in transportManager.Transports) {
-				if (transport.ConnectionType == connectionType) {
-					result++;
-				}
-			}
-			return result;
+		    return transportManager.Transports.Count(transport => transport.ConnectionType == connectionType);
 		}
 
-		public static TransportManager TransportManager {
-			get {
-				return transportManager;
-			}
-		}
+		public TransportManager TransportManager => transportManager;
 
-		public static FileTransferManager FileTransferManager {
-			get {
-				return fileTransferManager;
-			}
-		}
+	    public FileTransferManager FileTransferManager { get; }
 
-		public static Network[] Networks {
-			get {
-				return networks.ToArray ();
-			}
-		}
+	    public Network[] Networks => networks.ToArray ();
 
-		public static void RescanSharedDirectories ()
+	    public void RescanSharedDirectories ()
 		{
-			if (shareBuilder.Going == true) {
+			if (ShareBuilder.Going == true) {
 				LoggingService.LogDebug("Starting scan over!!");
-				shareBuilder.Stop();
+				ShareBuilder.Stop();
 			}
 
-			shareBuilder.Start();
+			ShareBuilder.Start();
 		}
 		
-		public static void RaiseMessageSent (MessageInfo info)
+		public void RaiseMessageSent (MessageInfo info)
 		{
-			if (MessageReceived != null) {
-				MessageSent(info);
-			}
+		    MessageSent?.Invoke(info);
 		}
 
-		public static void RaiseMessageReceived (MessageInfo info)
+		public void RaiseMessageReceived (MessageInfo info)
 		{
-			if (MessageReceived != null) {
-				MessageReceived(info);
-			}
+		    MessageReceived?.Invoke(info);
 		}
 
-		public static FailedTransportListener[] FailedTransportListeners {
-			get {
-				return failedTransportListeners.ToArray();
-			}
-		}
+		public FailedTransportListener[] FailedTransportListeners => failedTransportListeners.ToArray();
 
-		public static ISettings Settings {
+	    public ISettings Settings {
 			get {
 				return settings;
 			}
 			set {
 				if (value == null) {
-					throw new ArgumentNullException("value");
+					throw new ArgumentNullException(nameof(value));
 				}
 				
 				if (settings != null) 
@@ -507,22 +405,22 @@ namespace Meshwork.Backend.Core
 			}
 		}
 		
-		public static void ReloadSettings ()
+		public void ReloadSettings ()
 		{				
 			if (settings.Plugins != null) {
-				foreach (string fileName in settings.Plugins) {
+				foreach (var fileName in settings.Plugins) {
 					LoadPlugin (fileName);
 				}
 			}
-			
-			if (Core.DestinationManager != null) {
-				Core.DestinationManager.SyncFromSettings();
-			}
 
-			// Update listeners
-			foreach (ITransportListener listener in transportListeners) {
-				if (listener is TcpTransportListener) {
-					((TcpTransportListener)listener).Port = settings.TcpListenPort;
+		    DestinationManager?.SyncFromSettings();
+
+		    // Update listeners
+			foreach (ITransportListener listener in transportListeners)
+			{
+			    var transportListener = listener as TcpTransportListener;
+			    if (transportListener != null) {
+					transportListener.Port = settings.TcpListenPort;
 				}
 			}
 			
@@ -543,15 +441,15 @@ namespace Meshwork.Backend.Core
 			}
 			
 			// Update/remove networks.
-			foreach (Network network in Networks) {
-				string oldNick = network.LocalNode.NickName;
+			foreach (var network in Networks) {
+				var oldNick = network.LocalNode.NickName;
 				network.LocalNode.NickName = settings.NickName;
 				network.LocalNode.RealName = settings.RealName;
 				network.LocalNode.Email = settings.Email;
 
-				bool foundNetwork = false;
+				var foundNetwork = false;
 				
-				foreach (NetworkInfo networkInfo in settings.Networks) {
+				foreach (var networkInfo in settings.Networks) {
 					if (networkInfo.NetworkID == network.NetworkID) {
 						network.UpdateTrustedNodes(networkInfo.TrustedNodes);
 						foundNetwork = true;
@@ -561,7 +459,7 @@ namespace Meshwork.Backend.Core
 
 				if (!foundNetwork) {
 					// Actually, this network was removed!
-					Core.RemoveNetwork(network);
+					RemoveNetwork(network);
 				} else {
 					network.SendInfoToTrustedNodes();
 					network.RaiseUpdateNodeInfo(oldNick, network.LocalNode);
@@ -570,7 +468,7 @@ namespace Meshwork.Backend.Core
 			}
 
 			// Add new networks
-			foreach (NetworkInfo networkInfo in settings.Networks) {
+			foreach (var networkInfo in settings.Networks) {
 				if (GetNetwork(networkInfo.NetworkID) == null) {
 					AddNetwork(networkInfo);
 				}
@@ -579,9 +477,9 @@ namespace Meshwork.Backend.Core
 			RescanSharedDirectories();
 		}
 
-	    public static bool HasExternalIPv6 {
+	    public bool HasExternalIPv6 {
 	        get {
-	            foreach (var destination in Core.DestinationManager.Destinations) {
+	            foreach (var destination in DestinationManager.Destinations) {
 	                if (destination is IPv6Destination && ((IPv6Destination)destination).IsExternal) {
 	                    return true;
 	                }

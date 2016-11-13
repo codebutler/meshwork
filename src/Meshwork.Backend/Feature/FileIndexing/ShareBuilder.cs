@@ -20,7 +20,8 @@ namespace Meshwork.Backend.Feature.FileIndexing
 	
 	public class ShareBuilder
 	{
-		Thread thread = null;
+	    private readonly Core.Core core;
+	    Thread thread = null;
 
 		public event EventHandler StartedIndexing;
 		public event EventHandler FinishedIndexing;
@@ -28,8 +29,9 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		public event ShareBuilderFileEventHandler IndexingFile;
 		public event IO.ErrorEventHandler ErrorIndexing;
 
-		internal ShareBuilder ()
+		internal ShareBuilder (Core.Core core)
 		{
+		    this.core = core;
 		}
 
 		public bool Going {
@@ -56,22 +58,22 @@ namespace Meshwork.Backend.Feature.FileIndexing
 				StartedIndexing (this, EventArgs.Empty);
 			}
 
-			LocalDirectory myDirectory = Core.Core.FileSystem.RootDirectory.MyDirectory;
+			LocalDirectory myDirectory = core.FileSystem.RootDirectory.MyDirectory;
 			
 			// Remove files/directories from db that no longer exist on the filesystem.
-			Core.Core.FileSystem.PurgeMissing();
+		    core.FileSystem.PurgeMissing();
 			
 			// If any dirs were removed from the list in settings, remove them from db.
 			foreach (LocalDirectory dir in myDirectory.Directories) {
-				if (!((IList) Core.Core.Settings.SharedDirectories).Contains(dir.LocalPath)) {
+				if (!((IList) core.Settings.SharedDirectories).Contains(dir.LocalPath)) {
 					dir.Delete();
 				}
 			}
 			
-			TimeSpan lastScanAgo = (DateTime.Now - Core.Core.Settings.LastShareScan);
+			TimeSpan lastScanAgo = (DateTime.Now - core.Settings.LastShareScan);
 			if (Math.Abs(lastScanAgo.TotalHours) >= 1) {
 				LoggingService.LogDebug("Starting directory scan. Last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));				
-				foreach (string directoryName in Core.Core.Settings.SharedDirectories) {
+				foreach (string directoryName in core.Settings.SharedDirectories) {
 					IO.DirectoryInfo info = new IO.DirectoryInfo(directoryName);	
 					if (IO.Directory.Exists(directoryName)) {
 						ProcessDirectory(myDirectory, info);
@@ -80,7 +82,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 					}
 				}
 				
-				Core.Core.Settings.LastShareScan = DateTime.Now;
+			    core.Settings.LastShareScan = DateTime.Now;
 				
 			} else {
 				LoggingService.LogDebug("Skipping directory scan because last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));
@@ -123,7 +125,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 					LocalDirectory directory = (LocalDirectory)parentDirectory.GetSubdirectory(directoryInfo.Name);
 
 					if (directory == null) {
-						directory = parentDirectory.CreateSubDirectory(directoryInfo.Name, directoryInfo.FullName);
+						directory = parentDirectory.CreateSubDirectory(core.FileSystem, directoryInfo.Name, directoryInfo.FullName);
 					}
 
 					foreach (IO.FileInfo fileInfo in directoryInfo.GetFiles()) {
@@ -139,7 +141,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 								// XXX: Update file info
 							}
 							if (string.IsNullOrEmpty(file.InfoHash)) {
-								Core.Core.ShareHasher.HashFile(file);
+							    core.ShareHasher.HashFile(file);
 							}
 						}
 					}

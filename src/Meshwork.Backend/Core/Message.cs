@@ -74,7 +74,7 @@ namespace Meshwork.Backend.Core
 			}
 			
 			// If this message isn't for us, ignore the content.
-			if (to == Core.MyNodeID || to == Network.BroadcastNodeID) {
+			if (to == network.Core.MyNodeID || to == Network.BroadcastNodeID) {
 				
 				byte[] contentBuffer = new byte[contentLength];
 				Buffer.BlockCopy(data, offset, contentBuffer, 0, contentLength);		
@@ -82,7 +82,7 @@ namespace Meshwork.Backend.Core
 				// Decrypt if needed			
 				
 				if (Message.TypeIsEncrypted(type)) {
-					if (From != Core.MyNodeID) {
+					if (From != network.Core.MyNodeID) {
 						if (network.Nodes.ContainsKey(From)) {
 							contentBuffer = Encryption.Decrypt(network.Nodes[From].CreateDecryptor(), contentBuffer);
 						} else {
@@ -95,7 +95,7 @@ namespace Meshwork.Backend.Core
 				
 				// Verify signature
 				
-				if (From != Core.MyNodeID) {
+				if (From != network.Core.MyNodeID) {
 					if (network.TrustedNodes.ContainsKey(from)) {
 						bool validSignature = network.TrustedNodes[from].Crypto.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
 						if (validSignature == false) {
@@ -105,7 +105,7 @@ namespace Meshwork.Backend.Core
 						throw new Exception ("Unable to verify message signature! (Type: " + type.ToString() + ")");
 					}
 				} else {
-					bool validSignature = Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
+					bool validSignature = network.Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
 					if (validSignature == false) {
 						throw new InvalidSignatureException();
 					}
@@ -257,7 +257,7 @@ namespace Meshwork.Backend.Core
 			byte[] contentBytes = Binary.Serialize(content);
 			
 			// Sign before encrypting
-			this.signature = Core.CryptoProvider.SignData(contentBytes, new SHA1CryptoServiceProvider());
+			this.signature = network.Core.CryptoProvider.SignData(contentBytes, new SHA1CryptoServiceProvider());
 			this.signatureLength = (ulong)this.signature.Length;
 			
 			if (Message.TypeIsEncrypted(type)) {

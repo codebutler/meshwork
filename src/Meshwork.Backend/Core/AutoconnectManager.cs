@@ -111,7 +111,7 @@ namespace Meshwork.Backend.Core
 					if (nodeList.Count != 0) {
 						TrustedNodeInfo node = (TrustedNodeInfo) GetNode ();
 						try {	
-							IDestination destination = node.FirstConnectableDestination;
+							IDestination destination = node.GetFirstConnectableDestination(network.Core);
 							if (destination != null) {
 								ITransport transport = destination.CreateTransport(ConnectionType.NodeConnection);
 								network.ConnectTo(transport);
@@ -147,7 +147,7 @@ namespace Meshwork.Backend.Core
 			}
 
 			return (node.AllowConnect && node.AllowAutoConnect &&
-			        node.FirstConnectableDestination != null);
+			        node.GetConnectableDestinations(network.Core) != null);
 		}
 
 		private class NodeSuccessComparer : IComparer<TrustedNodeInfo>

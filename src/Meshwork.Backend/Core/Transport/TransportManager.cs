@@ -25,8 +25,11 @@ namespace Meshwork.Backend.Core.Transport
 		List<ITransport> transports = new List<ITransport>();
 		Dictionary<Type, string> friendlyNames = new Dictionary<Type, string>();
 
-		public TransportManager ()
+	    private readonly Core core;
+
+		public TransportManager (Core core)
 		{
+		    this.core = core;
 			friendlyNames.Add(typeof(TcpTransport), "TCP");
 		}
 
@@ -100,7 +103,7 @@ namespace Meshwork.Backend.Core.Transport
 					string networkId = EndianBitConverter.ToString (responseBuffer).Replace ("-", "");
 
 					// Match to one of our known networks!
-					foreach (Network network in Core.Networks) {
+					foreach (Network network in core.Networks) {
 						if (network.NetworkID == networkId) {
 							transport.Network = network;
 						}
@@ -119,7 +122,7 @@ namespace Meshwork.Backend.Core.Transport
 						connection.Start();
 					} else if (connectionType == ConnectionType.TransferConnection) {
 
-						Core.FileTransferManager.NewIncomingConnection(transport);
+						core.FileTransferManager.NewIncomingConnection(transport);
 
 					} else {
 						throw new Exception(string.Format("Unknown connection type: {0}.",
@@ -128,7 +131,7 @@ namespace Meshwork.Backend.Core.Transport
 
 				} else {
 					if (connectCallback == null) {
-						throw new ArgumentNullException("connectCallback");
+						throw new ArgumentNullException(nameof(connectCallback));
 					}
 
 					connectCallbacks.Add (transport, connectCallback);

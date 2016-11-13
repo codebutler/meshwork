@@ -16,6 +16,8 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 {
 	public class RemoteDirectory : AbstractDirectory, IRemoteDirectoryItem
 	{
+	    private readonly Core.Core core;
+
 		IDirectory m_Parent;
 		Node m_Node;
 		
@@ -26,15 +28,16 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		RemoteDirectoryState m_State = RemoteDirectoryState.ContentsUnrequested;
 		
-		internal RemoteDirectory (string fullPath)
+		internal RemoteDirectory (Core.Core core, string fullPath)
 		{
+		    this.core = core;
 			m_FullPath = fullPath;
 		}
 		
 		public virtual Node Node {
 			get { 
 				if (m_Node == null)
-					m_Node = PathUtil.GetNode(m_FullPath);
+					m_Node = PathUtil.GetNode(core, m_FullPath);
 				return m_Node; 
 			}
 		}
@@ -92,7 +95,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		public override IDirectory Parent {
 			get {
 				if (m_Parent == null)
-					m_Parent = Core.Core.FileSystem.GetDirectory(PathUtil.GetParentPath(this.FullPath));
+					m_Parent = core.FileSystem.GetDirectory(PathUtil.GetParentPath(this.FullPath));
 				return m_Parent;
 			}
 		}
@@ -103,7 +106,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			for (int x = 0; x < info.Directories.Length; x++) {
 				RemoteDirectory dir = (RemoteDirectory) GetSubdirectory(info.Directories[x]);
 				if (dir == null)
-					dir = new RemoteDirectory(PathUtil.Join(m_FullPath, info.Directories[x]));
+					dir = new RemoteDirectory(core, PathUtil.Join(m_FullPath, info.Directories[x]));
 				newDirectories[x] = dir;
 			}
 
@@ -125,7 +128,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		
 		internal RemoteDirectory CreateSubdirectory (string name)
 		{
-			var dir = new RemoteDirectory(PathUtil.Join(m_FullPath, name));	
+			var dir = new RemoteDirectory(core, PathUtil.Join(m_FullPath, name));
 			
 			var newDirectories = new RemoteDirectory[m_SubDirectories.Length + 1];
 			Array.Copy(m_SubDirectories, newDirectories, m_SubDirectories.Length);

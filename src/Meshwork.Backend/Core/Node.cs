@@ -47,8 +47,8 @@ namespace Meshwork.Backend.Core
 			alg = new RijndaelManaged();
 			DiffieHellman = new DiffieHellmanManaged();
 
-			if (nodeID != Core.MyNodeID) {
-				Directory = new NodeDirectory(this);
+			if (nodeID != Network.Core.MyNodeID) {
+				Directory = new NodeDirectory(Network.Core, this);
 			}
 		}
 
@@ -77,14 +77,14 @@ namespace Meshwork.Backend.Core
 
 	    public long Files {
 			get {
-				if (NodeID == Core.MyNodeID) {
-					return Core.FileSystem.YourTotalFiles;
+				if (NodeID == Network.Core.MyNodeID) {
+					return Network.Core.FileSystem.YourTotalFiles;
 				} else {
 					return sharedFiles;
 				}
 			}
 			internal set {
-				if (NodeID == Core.MyNodeID) {
+				if (NodeID == Network.Core.MyNodeID) {
 					throw new InvalidOperationException();
 				}
 				sharedFiles = value;
@@ -93,14 +93,14 @@ namespace Meshwork.Backend.Core
 
 		public long Bytes {
 			get {
-				if (NodeID == Core.MyNodeID) {
-					return Core.FileSystem.YourTotalBytes;
+				if (NodeID == Network.Core.MyNodeID) {
+					return Network.Core.FileSystem.YourTotalBytes;
 				} else {
 					return sharedBytes;
 				}
 			}
 			internal set {
-				if (NodeID == Core.MyNodeID) {
+				if (NodeID == Network.Core.MyNodeID) {
 					throw new InvalidOperationException();
 				}
 				sharedBytes = value;
@@ -125,7 +125,7 @@ namespace Meshwork.Backend.Core
 
 	    public bool Verified {
 			get {
-				if (Core.IsLocalNode(this))
+				if (Network.Core.IsLocalNode(this))
 					return true;
 				else
 					return verified;
@@ -170,7 +170,7 @@ namespace Meshwork.Backend.Core
 
 		public Network Network { get; }
 
-	    public bool IsMe => (NodeID == Core.MyNodeID);
+	    public bool IsMe => (NodeID == Network.Core.MyNodeID);
 
 	    public void CreateNewSessionKey()
 		{
@@ -300,7 +300,7 @@ namespace Meshwork.Backend.Core
 		public DestinationInfo[] DestinationInfos {
 			get {
 				if (IsMe) {
-					return Core.DestinationManager.DestinationInfos;
+					return Network.Core.DestinationManager.DestinationInfos;
 				} else {
 					TrustedNodeInfo tnode = GetTrustedNode();
 					if (tnode != null) {
@@ -316,11 +316,11 @@ namespace Meshwork.Backend.Core
 		public IDestination[] Destinations {
 			get {
 				if (IsMe) {
-					return Core.DestinationManager.Destinations;
+					return Network.Core.DestinationManager.Destinations;
 				} else {
 					TrustedNodeInfo tnode = GetTrustedNode();
 					if (tnode != null) {
-						return tnode.Destinations;
+						return tnode.GetDestinations(Network.Core);
 					} else {
 						return null;
 					}

@@ -14,12 +14,14 @@ namespace Meshwork.Backend.Core.Destination
 {
 	public class DestinationManager
 	{
-		Dictionary<DestinationInfo, IDestination> destinationsFromSettings;
-		Dictionary<string, IDestinationSource>    sources;
+	    private readonly Core core;
+	    private readonly Dictionary<DestinationInfo, IDestination> destinationsFromSettings;
+	    private readonly Dictionary<string, IDestinationSource>    sources;
 
-		public DestinationManager ()
+		public DestinationManager (Core core)
 		{
-			sources = new Dictionary<string, IDestinationSource>();
+		    this.core = core;
+		    sources = new Dictionary<string, IDestinationSource>();
 			destinationsFromSettings = new Dictionary<DestinationInfo, IDestination>();
 
 			SyncFromSettings();
@@ -32,7 +34,7 @@ namespace Meshwork.Backend.Core.Destination
 			source.DestinationAdded += source_DestinationAdded;
 			source.DestinationRemoved += source_DestinationRemoved;
 
-			foreach (IDestination destination in source.Destinations) {
+			foreach (var destination in source.Destinations) {
 				source_DestinationAdded(destination);
 			}
 		}
@@ -41,19 +43,15 @@ namespace Meshwork.Backend.Core.Destination
 		{
 			source.DestinationAdded -= source_DestinationAdded;
 			source.DestinationRemoved -= source_DestinationRemoved;
-			foreach (IDestination destination in source.Destinations) {
+			foreach (var destination in source.Destinations) {
 				source_DestinationRemoved(destination);
 			}
 			sources.Remove(source.DestinationType.ToString());
 		}
 		
-		public IDestinationSource[] Sources {
-			get {
-				return sources.Values.ToArray();
-			}
-		}
+		public IDestinationSource[] Sources => sources.Values.ToArray();
 
-		public bool SupportsDestinationType (string typeName)
+	    public bool SupportsDestinationType (string typeName)
 		{
 			return sources.ContainsKey(typeName);
 		}
@@ -61,11 +59,11 @@ namespace Meshwork.Backend.Core.Destination
 		/// <summary>Returns a list of all local destinations.</summary>
 		public IDestination[] Destinations {
 			get {
-				List<IDestination> result = new List<IDestination>();
-				foreach (IDestinationSource source in sources.Values) {
+				var result = new List<IDestination>();
+				foreach (var source in sources.Values) {
 					result.AddRange(source.Destinations);
 				}
-				foreach (IDestination destination in destinationsFromSettings.Values) {
+				foreach (var destination in destinationsFromSettings.Values) {
 					result.Add(destination);
 				}
 				return result.ToArray();
@@ -74,13 +72,7 @@ namespace Meshwork.Backend.Core.Destination
 
 		public DestinationInfo[] DestinationInfos {
 			get {
-				List<DestinationInfo> result = new List<DestinationInfo>();
-
-				foreach (IDestination destination in this.Destinations) {
-					result.Add(destination.CreateDestinationInfo());
-				}
-
-				return result.ToArray();
+			    return Destinations.Select(destination => destination.CreateDestinationInfo()).ToArray();
 			}
 		}
 
@@ -96,28 +88,24 @@ namespace Meshwork.Backend.Core.Destination
 		
 		internal static IDestination[] GetConnectableDestinations (IDestination[] destinations)
 		{
-			var result = destinations.Where(d => d.CanConnect).OrderByDescending(d => d).ToArray();
-			return result;
+		    return destinations.Where(d => d.CanConnect).OrderByDescending(d => d).ToArray();
 		}
 
 		public void SyncFromSettings ()
 		{
 			// Remove old destinations
-			List<DestinationInfo> toRemove = new List<DestinationInfo>();
-			foreach (KeyValuePair<DestinationInfo,IDestination> pair in destinationsFromSettings) {
-				if (!Core.Settings.SavedDestinationInfos.Contains(pair.Key)) {
-					toRemove.Add(pair.Key);
-				}
-			}
-			foreach (DestinationInfo info in toRemove) {
+		    var toRemove = destinationsFromSettings
+		        .Where(pair => !core.Settings.SavedDestinationInfos.Contains(pair.Key))
+		        .Select(pair => pair.Key);
+		    foreach (var info in toRemove) {
 				destinationsFromSettings.Remove(info);
 			}
 
 			// Add new destinations
-			foreach (DestinationInfo info in Core.Settings.SavedDestinationInfos) {
+			foreach (var info in core.Settings.SavedDestinationInfos) {
 				if (!destinationsFromSettings.ContainsKey(info)) {
 					info.Local = true;
-					IDestination destination = info.CreateDestination();
+					var destination = info.CreateDestination();
 					destinationsFromSettings[info] = destination;
 				}
 			}

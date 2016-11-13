@@ -18,6 +18,7 @@ namespace Meshwork.Backend.Core.Transport
 	{
 		public static readonly int DefaultPort = 7332;
 
+	    private readonly Core core;
 		Socket socket = null;
 		IPAddress address = IPAddress.Any;
 		int port = 0;
@@ -26,8 +27,9 @@ namespace Meshwork.Backend.Core.Transport
 		object sendLock = new object();
 		object receiveLock = new object();
 
-		internal TcpTransport (Socket socket)
+		internal TcpTransport (Core core, Socket socket)
 		{
+		    this.core = core;
 			this.socket = socket;
 			address = (socket.RemoteEndPoint as IPEndPoint).Address;
 			port = (socket.RemoteEndPoint as IPEndPoint).Port;
@@ -58,7 +60,7 @@ namespace Meshwork.Backend.Core.Transport
 			connectCallback = callback;
 			
 			if (address.IsIPv6LinkLocal) {
-				address.ScopeId = Core.Settings.IPv6LinkLocalInterfaceIndex;
+				address.ScopeId = core.Settings.IPv6LinkLocalInterfaceIndex;
 			}
 			
 			IPEndPoint remoteEndpoint = new IPEndPoint(address, port);

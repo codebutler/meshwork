@@ -24,16 +24,19 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 {
 	internal class BitTorrentFileTransfer : FileTransferBase
 	{
-		TorrentManager manager;
+	    private readonly Core.Core core;
+
+	    TorrentManager manager;
 		double hashingPercent = 0;
 		bool isCanceled = false;
 		bool startCalled = false;
 		int maxUploadSpeed = 0;
 		int maxDownloadSpeed = 0;
 		
-		public BitTorrentFileTransfer(IFile file) : base ()
+		public BitTorrentFileTransfer(Core.Core core, IFile file) : base ()
 		{
-			this.file = file;
+		    this.core = core;
+		    this.file = file;
 		}
 
 		public override FileTransferDirection Direction {
@@ -175,7 +178,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 			if (file is LocalFile) {
 				if (file.Pieces.Length == 0) {
 					// Yep!
-					Core.Core.ShareHasher.HashFile((LocalFile)file, HashCallback);
+				    core.ShareHasher.HashFile((LocalFile)file, HashCallback);
 				} else {
 					// Nope, we're good! Just start!
 					DetailsReceived();
@@ -189,7 +192,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				// XXX: If we already have the file pieces, we still need to send this message,
 				// but the response (FileDetails) doesn't need to include pieces.
 				foreach (BitTorrentFileTransferPeer peer in this.peers) {
-					if (peer.Node.NodeID != Core.Core.MyNodeID) {
+					if (peer.Node.NodeID != core.MyNodeID) {
 						peer.Network.SendRoutedMessage(peer.Network.MessageBuilder.CreateRequestFileMessage(peer.Node, this));
 					}
 				}
@@ -237,7 +240,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 			}
 
 			BitTorrentFileTransferProvider provider =
-				(BitTorrentFileTransferProvider)Core.Core.FileTransferManager.Provider;
+				(BitTorrentFileTransferProvider)core.FileTransferManager.Provider;
 
 			Torrent torrent = BitTorrentFileTransfer.CreateTorrent(file);
 			
@@ -561,12 +564,12 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				if (args.NewState == TorrentState.Seeding && this.manager.Progress == 100) {
 
 					if (Direction == FileTransferDirection.Download) {
-						if (Core.Core.Settings.IncompleteDownloadDir != Core.Core.Settings.CompletedDownloadDir) {
+						if (core.Settings.IncompleteDownloadDir != core.Settings.CompletedDownloadDir) {
 							// Ensure torrent is stopped before attempting to move file, to avoid access violation.
 							manager.Stop();
 							
-							IO.File.Move(IO.Path.Combine(Core.Core.Settings.IncompleteDownloadDir, file.Name), 
-							             IO.Path.Combine(Core.Core.Settings.CompletedDownloadDir, file.Name));
+							IO.File.Move(IO.Path.Combine(core.Settings.IncompleteDownloadDir, file.Name),
+							             IO.Path.Combine(core.Settings.CompletedDownloadDir, file.Name));
 						}
 					}
 
@@ -610,7 +613,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		private void OutgoingPeerTransportConnected (ITransport t)
 		{
 			try {	
-				((BitTorrentFileTransferProvider)Core.Core.FileTransferManager.Provider).Listener.AddConnection(new TorrentConnection(t), this.manager);
+				((BitTorrentFileTransferProvider)core.FileTransferManager.Provider).Listener.AddConnection(new TorrentConnection(t), this.manager);
 			} catch (Exception ex) {
 				// XXX: Better error handling here! Stop the torrent! Kill connections! Wreak havoc!
 				LoggingService.LogError(ex);

@@ -233,11 +233,11 @@ namespace Meshwork.Backend.Core
 				m.To = messageTo.NodeID;
 			}
 
-			KeyInfo info = new KeyInfo ();
-			info.Key = Core.CryptoProvider.ToXmlString (false);
-			info.Info = Core.Settings.NickName;
-
-			m.Content = info;
+		    m.Content = new KeyInfo
+		    {
+		        Key = network.Core.CryptoProvider.ToXmlString(false),
+		        Info = network.Core.Settings.NickName
+		    };
 
 			return m;
 		}
@@ -255,16 +255,16 @@ namespace Meshwork.Backend.Core
 			
 			nodeInfo.AvatarSize = network.LocalNode.AvatarSize;
 				
-			if (MessageTo.IsConnectedLocally == true || t.AllowNetworkInfo == true) {
-				nodeInfo.DestinationInfos = Core.DestinationManager.DestinationInfos;
+			if (MessageTo.IsConnectedLocally || t.AllowNetworkInfo) {
+				nodeInfo.DestinationInfos = network.Core.DestinationManager.DestinationInfos;
 			}
-			if (t.AllowProfile == true) {
+			if (t.AllowProfile) {
 				nodeInfo.RealName = network.LocalNode.RealName;
 				nodeInfo.Email = network.LocalNode.Email;
 			}
 			nodeInfo.ClientName = network.LocalNode.ClientName;
 			nodeInfo.ClientVersion = network.LocalNode.ClientVersion;
-			if (t.AllowSharedFiles == true) {
+			if (t.AllowSharedFiles) {
 				nodeInfo.Bytes = network.LocalNode.Bytes;
 				nodeInfo.Files = network.LocalNode.Files;
 			}
@@ -302,7 +302,7 @@ namespace Meshwork.Backend.Core
 			}
 
 			foreach (Memo currentMemo in network.Memos) {
-				if (Core.IsLocalNode(currentMemo.Node)) {
+				if (network.Core.IsLocalNode(currentMemo.Node)) {
 					MemoInfo info = new MemoInfo(currentMemo);
 					memos.Add(info);
 				}

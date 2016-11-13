@@ -48,29 +48,29 @@ namespace Meshwork.Backend.Core
 	public class Network : Object
 	{
 		// Public variables
-		public readonly static string BroadcastNodeID = new string('0', 128);
+		public static readonly string BroadcastNodeID = new string('0', 128);
 		public bool AllowUploading = true;
 		public int MaxSimltaniousUploads = 2;
 		public int MaxSimltaniousUploadsPerUser = 1;
 		public bool NoConnectionChecking = false;
 
 		// Private Variables
-		AutoconnectManager autoConnect;
-		NodeConnectionCollection connections;
-		List<Node> seenNodes = new List<Node>();
-		string networkName;
-		string networkId;
-		Node localNode;
-		NetworkDirectory directory;
-		AutoResetEvent reset = new AutoResetEvent (false);
-		MessageIdCollection processedMessages = new MessageIdCollection();
-		MessageIdCollection routedMessages = new MessageIdCollection();
-		MessageProcessor processor;
-		Dictionary<string, TrustedNodeInfo> trustedNodes = new Dictionary<string, TrustedNodeInfo>();
-		Dictionary<string, Node>            nodes        = new Dictionary<string, Node>();
-		Dictionary<string, ChatRoom>        chatRooms    = new Dictionary<string, ChatRoom>();
-		Dictionary<string, Memo>            memos        = new Dictionary<string, Memo>();
-		Dictionary<string, AckMethod>       ackMethods   = new Dictionary<string, AckMethod>();
+	    readonly AutoconnectManager autoConnect;
+	    readonly NodeConnectionCollection connections;
+	    readonly List<Node> seenNodes = new List<Node>();
+	    readonly string networkName;
+	    readonly string networkId;
+	    readonly Node localNode;
+	    readonly NetworkDirectory directory;
+	    readonly AutoResetEvent reset = new AutoResetEvent (false);
+	    readonly MessageIdCollection processedMessages = new MessageIdCollection();
+	    readonly MessageIdCollection routedMessages = new MessageIdCollection();
+	    readonly MessageProcessor processor;
+	    readonly Dictionary<string, TrustedNodeInfo> trustedNodes = new Dictionary<string, TrustedNodeInfo>();
+	    readonly Dictionary<string, Node>            nodes        = new Dictionary<string, Node>();
+	    readonly Dictionary<string, ChatRoom>        chatRooms    = new Dictionary<string, ChatRoom>();
+	    readonly Dictionary<string, Memo>            memos        = new Dictionary<string, Memo>();
+	    readonly Dictionary<string, AckMethod>       ackMethods   = new Dictionary<string, AckMethod>();
 
 		// Internal static variables
 		internal static List<MessageType> UnencryptedMessageTypes = new List<MessageType>();
@@ -150,9 +150,9 @@ namespace Meshwork.Backend.Core
 			UnencryptedMessageTypes.Add(MessageType.NewSessionKey);
 		}
 
-		internal static Network FromNetworkInfo (NetworkInfo networkInfo)
+		internal static Network FromNetworkInfo (Core core, NetworkInfo networkInfo)
 		{
-			Network network = new Network (networkInfo.NetworkName);
+			Network network = new Network (core, networkInfo.NetworkName);
 
 			foreach (TrustedNodeInfo node in networkInfo.TrustedNodes.Values) {
 				network.AddTrustedNode(node);
@@ -160,19 +160,22 @@ namespace Meshwork.Backend.Core
 			
 			foreach (MemoInfo m in networkInfo.Memos) {
 				var memoInfo = m;
-				memoInfo.FromNodeID = Core.MyNodeID;
+				memoInfo.FromNodeID = core.MyNodeID;
 				network.PostMemo(new Memo(network, memoInfo));
 			}
 
 			return network;
 		}
 
-		private Network (string networkName)
+		private Network (Core core, string networkName)
 		{
 			if (networkName == null) {
-				throw new ArgumentException("networkName cannot be null");
+			    throw new ArgumentNullException(nameof(networkName));
 			}
-			this.networkName = networkName;
+
+		    Core = core;
+
+		    this.networkName = networkName;
 			this.networkId = Common.Common.SHA512Str(networkName);
 
 			localNode = Core.CreateLocalNode(this);
@@ -185,6 +188,8 @@ namespace Meshwork.Backend.Core
 			
 			directory = new NetworkDirectory(this);
 		}
+
+	    public Core Core { get; }
 
 		public string NetworkName {
 			get {
@@ -946,7 +951,7 @@ namespace Meshwork.Backend.Core
 		
 		internal void RequestDirectoryListing (string path)
 		{
-			var node = PathUtil.GetNode(path);
+			var node = PathUtil.GetNode(Core, path);
 			var remotePath = "/" + string.Join("/", path.Split('/').Slice(3));
 			var message = MessageBuilder.CreateRequestDirectoryMessage(node, remotePath);
 			SendRoutedMessage(message);
@@ -956,7 +961,7 @@ namespace Meshwork.Backend.Core
 		{
 			var remotePath = "/" + string.Join("/", path.Split('/').Slice(3));
 			var message = new Message(this, MessageType.RequestFileDetails);
-			message.To = PathUtil.GetNode(path).NodeID;
+			message.To = PathUtil.GetNode(Core, path).NodeID;
 			message.Content = remotePath;
 			SendRoutedMessage(message);
 		}
@@ -964,9 +969,9 @@ namespace Meshwork.Backend.Core
 		public IFileTransfer DownloadFile (Node node, RemoteFile file)
 		{
 			if (node == null)
-				throw new ArgumentNullException("node");
+				throw new ArgumentNullException(nameof(node));
 			if (file == null)
-				throw new ArgumentNullException("file");
+				throw new ArgumentNullException(nameof(file));
 
 			return Core.FileTransferManager.StartTransfer(this, node, file);
 		}

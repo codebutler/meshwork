@@ -46,9 +46,16 @@ namespace Meshwork.Backend.Core
 		bool                  enableGlobalUploadSpeedLimit   = false;
 		bool                  enableGlobalDownloadSpeedLimit = false;
 
+	    private readonly Core core;
+
 		public static readonly string DefaultStunServer = "stun.ekiga.net";
-				
-		public abstract bool FirstRun {
+
+	    protected SettingsBase(Core core)
+	    {
+	        this.core = core;
+	    }
+
+	    public abstract bool FirstRun {
 			get;
 		}
 
@@ -187,7 +194,7 @@ namespace Meshwork.Backend.Core
 			try {
 				string d = Encryption.PasswordDecrypt(password, this.keyData, this.salt);
 			 	return d.StartsWith("<RSAKeyValue>");
-			} catch (Exception ex) {
+			} catch (Exception) {
 				return false;
 			}
 		}
@@ -208,7 +215,7 @@ namespace Meshwork.Backend.Core
 					return true;
 				}
 				return false;
-			} catch (Exception ex) {
+			} catch (Exception) {
 				return false;
 			}
 		}
@@ -382,7 +389,7 @@ namespace Meshwork.Backend.Core
 		public void SyncNetworkInfo ()
 		{
 			foreach (NetworkInfo info in networks) {
-				foreach (Network network in Core.Networks) {
+				foreach (Network network in core.Networks) {
 					if (network.NetworkID == info.NetworkID) {
 						info.TrustedNodes.Clear();
 						foreach (TrustedNodeInfo tni in network.TrustedNodes.Values) {
@@ -391,7 +398,7 @@ namespace Meshwork.Backend.Core
 						
 						info.Memos.Clear();
 						foreach (Memo memo in network.Memos) {
-							if (Core.IsLocalNode(memo.Node)) {
+							if (core.IsLocalNode(memo.Node)) {
 								var memoInfo = new MemoInfo(memo);
 								memoInfo.FromNodeID = null;
 								info.Memos.Add(memoInfo);

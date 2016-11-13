@@ -26,23 +26,25 @@ namespace Meshwork.Backend.Feature.FileIndexing
 {
 	public class ShareWatcher
 	{
-		Dictionary<string, FileSystemWatcher> watchers = new Dictionary<string, FileSystemWatcher>();
+	    private readonly Core.Core core;
+	    Dictionary<string, FileSystemWatcher> watchers = new Dictionary<string, FileSystemWatcher>();
 		
 		bool running;
 		AutoResetEvent mutex = new AutoResetEvent(false);
 		Thread changedFilesThread;
 		Dictionary<string, ChangedFileInfo> changedFiles = new Dictionary<string, ChangedFileInfo>();
 
-		public ShareWatcher ()
+		public ShareWatcher (Core.Core core)
 		{
-			changedFilesThread = new Thread(ChangedFileWatcher);
+		    this.core = core;
+		    changedFilesThread = new Thread(ChangedFileWatcher);
 		}
 
 		public void Start ()
 		{
 			running = true;
 			changedFilesThread.Start();
-			foreach (string path in Core.Core.Settings.SharedDirectories) {
+			foreach (string path in core.Settings.SharedDirectories) {
 				FileSystemWatcher watcher = new FileSystemWatcher(path);
 				watcher.IncludeSubdirectories = true;
 				watcher.Created += watcher_Changed;
@@ -134,7 +136,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 					LocalDirectory parentDirectory = GetParentDirectory(info);
 					if (parentDirectory != null) {
 						LoggingService.LogDebug("NEW DIR !! " + path);
-						parentDirectory.CreateSubDirectory(info.Name, info.FullName);
+						parentDirectory.CreateSubDirectory(core.FileSystem, info.Name, info.FullName);
 					} else {
 						// No parent directory, this happens because
 						// we can get events out of order.
@@ -183,17 +185,17 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		private ILocalDirectoryItem GetFromLocalPath (string localPath)
 		{
 			LoggingService.LogDebug("GET FROM LOCAL !!! " + localPath);
-			return Core.Core.FileSystem.UseConnection<ILocalDirectoryItem>(delegate (IDbConnection connection) {
+			return core.FileSystem.UseConnection<ILocalDirectoryItem>(delegate (IDbConnection connection) {
 				IDbCommand cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT * FROM directoryitems WHERE local_path = @local_path";
-				Core.Core.FileSystem.AddParameter(cmd, "@local_path", localPath);
-				DataSet ds = Core.Core.FileSystem.ExecuteDataSet(cmd);
+				core.FileSystem.AddParameter(cmd, "@local_path", localPath);
+				DataSet ds = core.FileSystem.ExecuteDataSet(cmd);
 				if (ds.Tables[0].Rows.Count > 0) {
 					string type = ds.Tables[0].Rows[0]["type"].ToString();
 					if (type == "F") {
-						return LocalFile.FromDataRow(ds.Tables[0].Rows[0]);
+						return LocalFile.FromDataRow(core.FileSystem, ds.Tables[0].Rows[0]);
 					} else {
-						return LocalDirectory.FromDataRow(ds.Tables[0].Rows[0]);
+						return LocalDirectory.FromDataRow(core.FileSystem, ds.Tables[0].Rows[0]);
 					}
 				} else {
 					return null;
@@ -234,8 +236,8 @@ namespace Meshwork.Backend.Feature.FileIndexing
 
 			LoggingService.LogDebug("GET PARENT DIRECTORY " + directoryInfo.FullName);
 
-			if (Core.Core.Settings.SharedDirectories.Contains(directoryInfo.FullName)) {
-				return Core.Core.MyDirectory;
+			if (core.Settings.SharedDirectories.Contains(directoryInfo.FullName)) {
+				return core.MyDirectory;
 			} else {
 				return (LocalDirectory)GetFromLocalPath(directoryInfo.Parent.FullName);
 			}

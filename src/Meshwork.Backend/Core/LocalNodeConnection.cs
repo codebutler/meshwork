@@ -50,32 +50,16 @@ namespace Meshwork.Backend.Core
 				return (transport.RemoteEndPoint as IPEndPoint).Address.ToString ();
 			}
 		}
-		
-		public bool Incoming {
-			get {
-				return transport.Incoming;
-			}
-		}
-		
-		public ITransport Transport {
-			get {
-				return transport;
-			}
-		}
-		
-		public bool ReadySent {
-			get {
-				return readySent;
-			}
-		}
-	
-		public double Latency {
-			get {
-				return latency;
-			}
-		}
 
-		public Node NodeLocal {
+		public bool Incoming => transport.Incoming;
+
+	    public ITransport Transport => transport;
+
+	    public bool ReadySent => readySent;
+
+	    public double Latency => latency;
+
+	    public Node NodeLocal {
 			get {
 				return transport.Network.LocalNode;
 			}
@@ -84,13 +68,9 @@ namespace Meshwork.Backend.Core
 			}
 		}
 
-		public TrustedNodeInfo RemoteNodeInfo {
-                       get {
-                               return remoteNodeInfo;
-                       }
-               }
-	
-		public Node NodeRemote {
+		public TrustedNodeInfo RemoteNodeInfo => remoteNodeInfo;
+
+	    public Node NodeRemote {
 			get {
 				return thisNodeRemote;
 			}
@@ -102,7 +82,7 @@ namespace Meshwork.Backend.Core
 		public LocalNodeConnection (ITransport transport)
 		{
 			if (transport == null) {
-				throw new ArgumentNullException ("transport");
+				throw new ArgumentNullException (nameof(transport));
 			}
 
 			if (transport.Network == null) {
@@ -158,7 +138,7 @@ namespace Meshwork.Backend.Core
 
 			info.Connection = this;
 			info.Message = message;
-			Core.RaiseMessageSent(info);
+			transport.Network.Core.RaiseMessageSent(info);
 		}
 
 		private void MessageSent(IAsyncResult asyncResult)
@@ -351,7 +331,7 @@ namespace Meshwork.Backend.Core
 				ReceivedMessageInfo info = new ReceivedMessageInfo ();
 				info.Connection = this;
 				info.Message = message;
-				Core.RaiseMessageReceived(info);
+			    transport.Network.Core.RaiseMessageReceived(info);
 
 				if (remoteNodeInfo == null) {
 					KeyInfo key = (KeyInfo) message.Content;
@@ -371,7 +351,7 @@ namespace Meshwork.Backend.Core
 							trustedNode.Identifier = string.Format("[{0}]", nodeID);
 							trustedNode.PublicKey = new PublicKey(key.Key);
 							transport.Network.AddTrustedNode(trustedNode);
-							Core.Settings.SyncNetworkInfoAndSave();
+						    transport.Network.Core.Settings.SyncNetworkInfoAndSave();
 						} else {
 							throw new ConnectNotTrustedException ();
 						}

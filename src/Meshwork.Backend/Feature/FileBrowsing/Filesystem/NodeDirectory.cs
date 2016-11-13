@@ -15,7 +15,8 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 	{
 		Node m_Node;
 		
-		internal NodeDirectory (Node node) : base (PathUtil.Join(node.Network.Directory.FullPath, node.NodeID))
+		internal NodeDirectory (Core.Core core, Node node)
+		    : base (core, PathUtil.Join(node.Network.Directory.FullPath, node.NodeID))
 		{
 			m_Node = node;
 		}

@@ -20,7 +20,8 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 	public class FileSearch
 	{
-		string name;
+	    private readonly Core.Core core;
+	    string name;
 		string query;
 		bool filtersEnabled = false;
 		List<FileSearchFilter> filters;
@@ -33,9 +34,10 @@ namespace Meshwork.Backend.Feature.FileSearch
 		public event NewResultsEventHandler NewResults;
 		public event EventHandler ClearedResults;
 
-		public FileSearch ()
+		public FileSearch (Core.Core core)
 		{
-			filters = new List<FileSearchFilter>();
+		    this.core = core;
+		    filters = new List<FileSearchFilter>();
 			networkIds = new List<string>();
 
 			results = new List<SearchResult>();
@@ -104,7 +106,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 			if (ClearedResults != null)
 				ClearedResults(this, EventArgs.Empty);
 			
-			foreach (Network network in Core.Core.Networks) {
+			foreach (Network network in core.Networks) {
 				if (networkIds.Count == 0 || networkIds.IndexOf(network.NetworkID) > -1) { 
 					network.FileSearch(this);
 				}

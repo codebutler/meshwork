@@ -39,7 +39,7 @@ namespace Meshwork.Backend.Core
 		public Memo (Network network)
 		{
 			this.network = network;
-			this.node = network.Nodes[Core.MyNodeID];
+			this.node = network.Nodes[Network.Core.MyNodeID];
 			this.createdOn = DateTime.Now;
 		}
 
@@ -105,7 +105,7 @@ namespace Meshwork.Backend.Core
 				id = Guid.NewGuid().ToString();
 			}
 			byte[] buf = System.Text.Encoding.UTF8.GetBytes (CreateSignString());
-			signature = Core.CryptoProvider.SignData (buf, new SHA1CryptoServiceProvider());
+			signature = Network.Core.CryptoProvider.SignData (buf, new SHA1CryptoServiceProvider());
 		}
 
 		public bool Verify ()

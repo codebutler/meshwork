@@ -105,37 +105,27 @@ namespace Meshwork.Backend.Core
 			get { return m_DestinationInfos; }
 		}
 
-		[XmlIgnore]
-		public IDestination[] Destinations {
-			get {
-				List<IDestination> result = new List<IDestination>();
-				foreach (DestinationInfo info in m_DestinationInfos) {
-					if (info.Supported) {
-						info.CreateAndAddDestination(result);
-					}
-				}
-				return result.ToArray();
-			}
+		public IDestination[] GetDestinations(Core core) {
+            List<IDestination> result = new List<IDestination>();
+            foreach (DestinationInfo info in m_DestinationInfos) {
+                if (info.IsSupported(core)) {
+                    info.CreateAndAddDestination(result);
+                }
+            }
+            return result.ToArray();
 		}
 
-		[XmlIgnore]
-		public IDestination FirstConnectableDestination {
-			get {
-				IDestination[] destinations = this.ConnectableDestinations;
-				if (destinations.Length == 0) {
-					return null;
-				} else {
-					return destinations[0];
-				}
-			}
+		public IDestination GetFirstConnectableDestination(Core core) {
+            IDestination[] destinations = this.GetConnectableDestinations(core);
+            if (destinations.Length == 0) {
+                return null;
+            }
+		    return destinations[0];
 		}
 
 		/// <summary>Get a list of destinations that we can connect to.</summary>
-		[XmlIgnore]
-		public IDestination[] ConnectableDestinations {
-			get {
-				return DestinationManager.GetConnectableDestinations(this.Destinations);
-			}
+		public IDestination[] GetConnectableDestinations(Core core) {
+            return DestinationManager.GetConnectableDestinations(GetDestinations(core));
 		}
 	}
 }

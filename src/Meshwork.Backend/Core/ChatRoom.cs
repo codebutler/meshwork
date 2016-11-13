@@ -16,51 +16,32 @@ namespace Meshwork.Backend.Core
 {
 	public class ChatRoom : Common.Object
 	{
-		string id;
-		string name;
-		string password;
-		Dictionary<string, Node> users = new Dictionary<string, Node>();
-		Network network;
+	    private string password;
+	    private readonly Dictionary<string, Node> users = new Dictionary<string, Node>();
 
-		public ChatRoom (Network network, string id, string name)
+	    public ChatRoom (Network network, string id, string name)
 		{
-			this.network = network;
-			this.id = id;
-			this.name = name;
+			this.Network = network;
+			this.Id = id;
+			this.Name = name;
 		}
 
 		internal ChatRoom (Network network, ChatRoomInfo info)
 		{
-			this.network = network;
-			this.id = info.Id;
-			this.name = info.Name;
+			this.Network = network;
+			this.Id = info.Id;
+			this.Name = info.Name;
 		}
 
-		public Network Network {
-			get {
-				return network;
-			}
-		}
+		public Network Network { get; }
 
-		public string Id {
-			get {
-				return id;
-			}
-		}
+	    public string Id { get; }
 
-		public string Name {
-			get {
-				return name;
-			}
-		}
+	    public string Name { get; }
 
-		public IDictionary<string, Node> Users {
-			get {
-				return new ReadOnlyDictionary<string, Node>(users);
-			}
-		}
+	    public IDictionary<string, Node> Users => new ReadOnlyDictionary<string, Node>(users);
 
-		internal void AddUser (Node node)
+	    internal void AddUser (Node node)
 		{
 			users.Add(node.NodeID, node);
 		}
@@ -84,24 +65,16 @@ namespace Meshwork.Backend.Core
 			}
 		}
 
-		public bool HasPassword {
-			get {
-				return this.id != Common.Common.SHA512Str(this.name);
-			}
-		}
+		public bool HasPassword => this.Id != Common.Common.SHA512Str(this.Name);
 
-		public bool InRoom {
-			get {
-				return users.ContainsKey(Core.MyNodeID);
-			}
-		}
+	    public bool InRoom => users.ContainsKey(Network.Core.MyNodeID);
 
-		public bool TestPassword (string password)
+	    public bool TestPassword (string password)
 		{
 			if (!HasPassword)
 				return true;
 
-			return (id == Common.Common.SHA512Str(name + password));
+			return (Id == Common.Common.SHA512Str(Name + password));
 		}
 	}
 }

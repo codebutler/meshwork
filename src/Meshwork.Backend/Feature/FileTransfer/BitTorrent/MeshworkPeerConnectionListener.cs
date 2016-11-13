@@ -8,11 +8,14 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 {
 	internal class MeshworkPeerConnectionListener : PeerListener
 	{
-		public MeshworkPeerConnectionListener ()
+	    private readonly Core.Core core;
+
+	    public MeshworkPeerConnectionListener (Core.Core core)
 			: base (new System.Net.IPEndPoint (System.Net.IPAddress.Loopback, 0))
-		{
-			// Nothing
-		}
+	    {
+	        this.core = core;
+	        // Nothing
+	    }
 		
 		public override void Start()
 		{
@@ -33,7 +36,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 			if (!connection.IsIncoming) {
 				// Send my identity.
 				// XXX: This absolutely needs to be signed.
-				connection.Transport.SendMessage(System.Text.Encoding.ASCII.GetBytes(Core.Core.MyNodeID));
+				connection.Transport.SendMessage(System.Text.Encoding.ASCII.GetBytes(core.MyNodeID));
 
 				// Get other end's identity.
 				byte[] message = connection.Transport.ReceiveMessage();
@@ -46,7 +49,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 
 				// Send my identity.
 				// XXX: This absolutely needs to be signed.
-				connection.Transport.SendMessage(System.Text.Encoding.ASCII.GetBytes(Core.Core.MyNodeID));
+				connection.Transport.SendMessage(System.Text.Encoding.ASCII.GetBytes(core.MyNodeID));
 			}
 
 			LoggingService.LogDebug("Pushing connection to engine: {0} - {1}", connection.IsIncoming ? "Incoming" : "Outgoing",

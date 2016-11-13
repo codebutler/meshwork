@@ -19,9 +19,12 @@ namespace Meshwork.Backend.Core.Transport
 		int port;
 		TcpListener listener;
 		Thread listenThread;
-		
-		public TcpTransportListener (int port)
+
+	    private readonly Core core;
+
+		public TcpTransportListener (Core core, int port)
 		{
+		    this.core = core;
 			this.port = port;
 		}
 
@@ -79,9 +82,9 @@ namespace Meshwork.Backend.Core.Transport
 				while (true) {
 					Socket socket = listener.AcceptSocket();
 					try {
-						ITransport transport = new TcpTransport(socket);
+						ITransport transport = new TcpTransport(core, socket);
 						LoggingService.LogInfo("New incoming transport: {0}.", transport.ToString());
-						Core.TransportManager.Add(transport);
+						core.TransportManager.Add(transport);
 						// TransportManager will take care of this 
 						// connection now
 					} catch (Exception ex) {

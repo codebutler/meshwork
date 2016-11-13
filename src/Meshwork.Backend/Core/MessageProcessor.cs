@@ -19,7 +19,7 @@ namespace Meshwork.Backend.Core
 {
 	internal class MessageProcessor
 	{
-		static Dictionary<int,DateTime> SeenSearchRequests = new Dictionary<int,DateTime>();
+	    static Dictionary<int,DateTime> SeenSearchRequests = new Dictionary<int,DateTime>();
 
 		Network network;
 		internal MessageProcessor (Network network)
@@ -113,7 +113,7 @@ namespace Meshwork.Backend.Core
 
 				network.AddTrustedNode(tni);
 
-				Core.Settings.SyncNetworkInfoAndSave();
+				network.Core.Settings.SyncNetworkInfoAndSave();
 			}
 		}
 		
@@ -171,7 +171,7 @@ namespace Meshwork.Backend.Core
 			tNode.DestinationInfos.Clear();
 			tNode.DestinationInfos.AddRange(nodeInfo.DestinationInfos);
 
-			Core.Settings.SyncNetworkInfoAndSave();
+			network.Core.Settings.SyncNetworkInfoAndSave();
 
 			/*
 			IDirectory userDirectory = network.Directory.GetSubdirectory(currentNode.NodeID);
@@ -194,7 +194,7 @@ namespace Meshwork.Backend.Core
 				messageFrom.RemotelyUntrusted = true;
 			} else if (error is FileTransferError) {
 				string id = ((FileTransferError)error).TransferId;
-				foreach (IFileTransfer transfer in Core.FileTransferManager.Transfers) {
+				foreach (IFileTransfer transfer in network.Core.FileTransferManager.Transfers) {
 					if (transfer.Id == id) {
 						((IFileTransferInternal)transfer).ErrorReceived(messageFrom, (FileTransferError)error);
 						break;
@@ -219,7 +219,7 @@ namespace Meshwork.Backend.Core
 				}
 			}
 
-			SearchResultInfo reply = Core.FileSystem.SearchFiles(searchRequest.Query);
+			SearchResultInfo reply = network.Core.FileSystem.SearchFiles(searchRequest.Query);
 			reply.SearchId = searchRequest.Id;
 
 			if (reply.Files.Length > 0 || reply.Directories.Length > 0) {
@@ -236,9 +236,9 @@ namespace Meshwork.Backend.Core
 		{
 			string filePath = PathUtil.Join("/local", info.FullPath);
 
-			LocalFile file = (LocalFile)Core.FileSystem.GetFile(filePath);
+			LocalFile file = (LocalFile) network.Core.FileSystem.GetFile(filePath);
 			if (file != null) {
-				Core.FileTransferManager.StartTransfer(network, messageFrom, file);
+				network.Core.FileTransferManager.StartTransfer(network, messageFrom, file);
 			} else {
 				LoggingService.LogWarning("Invalid file request from: {0}", messageFrom);
 				network.SendNonCriticalError(messageFrom, new FileNotFoundError(info.FullPath, info.TransferId));
@@ -320,9 +320,7 @@ namespace Meshwork.Backend.Core
 			} else {
 				throw new Exception("A chat message was Received from a non existing user! (NodeID: " + messageFrom + ")");
 			}
-
 		}
-
 
 		internal void ProcessPrivateMessage (Node messageFrom, string messageText)
 		{
@@ -339,8 +337,8 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessRequestFileDetails (Node messageFrom, string path)
 		{
-			string directoryPath = PathUtil.Join(Core.MyDirectory.FullPath, path);
-			LocalFile file = (LocalFile)Core.FileSystem.GetFile(directoryPath);
+			string directoryPath = PathUtil.Join(network.Core.MyDirectory.FullPath, path);
+			LocalFile file = (LocalFile)network.Core.FileSystem.GetFile(directoryPath);
 			if (file != null)
 				network.SendFileDetails(messageFrom, file);
 			else
@@ -385,7 +383,7 @@ namespace Meshwork.Backend.Core
 				connection.ConnectionState = ConnectionState.Ready;
 				connection.RaiseConnectionReady();
 				connection.RemoteNodeInfo.LastConnected = DateTime.Now;
-				Core.Settings.SyncNetworkInfoAndSave();
+			    network.Core.Settings.SyncNetworkInfoAndSave();
 
 				if (connection.ReadySent == false) {
 					connection.SendReady();
@@ -415,7 +413,7 @@ namespace Meshwork.Backend.Core
 		{
 			Memo memo = new Memo (network, memoInfo);
 
-			if (!Core.IsLocalNode(memo.Node)) {
+			if (!network.Core.IsLocalNode(memo.Node)) {
 				if (network.TrustedNodes.ContainsKey(memo.Node.NodeID) && memo.Verify() == false) {
 					LoggingService.LogWarning("Ignored a memo with an invalid signature!");
 					return;
@@ -440,10 +438,10 @@ namespace Meshwork.Backend.Core
 		internal void ProcessRequestDirListingMessage (Node messageFrom, string requestedPath)
 		{
 			try {
-				string directoryPath = PathUtil.Join(Core.MyDirectory.FullPath, requestedPath);
+				string directoryPath = PathUtil.Join(network.Core.MyDirectory.FullPath, requestedPath);
 				
 				if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
-					var directory = Core.FileSystem.GetLocalDirectory(directoryPath);
+					var directory = network.Core.FileSystem.GetLocalDirectory(directoryPath);
 					if (directory != null) {
 						network.SendRoutedMessage(network.MessageBuilder.CreateRespondDirListingMessage(messageFrom, directory));
 					} else {
