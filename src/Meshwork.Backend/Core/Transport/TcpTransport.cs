@@ -19,10 +19,10 @@ namespace Meshwork.Backend.Core.Transport
 		public static readonly int DefaultPort = 7332;
 
 	    private readonly Core core;
-		Socket socket = null;
+		Socket socket;
 		IPAddress address = IPAddress.Any;
-		int port = 0;
-		TransportCallback connectCallback = null;
+		int port;
+		TransportCallback connectCallback;
 
 		object sendLock = new object();
 		object receiveLock = new object();
@@ -33,18 +33,18 @@ namespace Meshwork.Backend.Core.Transport
 			this.socket = socket;
 			address = (socket.RemoteEndPoint as IPEndPoint).Address;
 			port = (socket.RemoteEndPoint as IPEndPoint).Port;
-			base.incoming = true;
-			base.transportState = TransportState.Connected;
-			base.RaiseConnected();
+			incoming = true;
+			transportState = TransportState.Connected;
+			RaiseConnected();
 		}
 
 		public TcpTransport (IPAddress address, int port, ulong connectionType)
 		{
 			this.address = address;
 			this.port = port;
-			base.connectionType = connectionType;
-			base.incoming = false;
-			base.transportState = TransportState.Waiting;
+			this.connectionType = connectionType;
+			incoming = false;
+			transportState = TransportState.Waiting;
 		}
 
 		public override void Connect (TransportCallback callback)
@@ -55,7 +55,7 @@ namespace Meshwork.Backend.Core.Transport
 			if (address.Equals(IPAddress.Any) || address.Equals(IPAddress.None) || port == 0)
 				throw new Exception("Invalid IP Address/Port");
 			
-			base.transportState = TransportState.Connecting;
+			transportState = TransportState.Connecting;
 			
 			connectCallback = callback;
 			
@@ -63,17 +63,17 @@ namespace Meshwork.Backend.Core.Transport
 				address.ScopeId = core.Settings.IPv6LinkLocalInterfaceIndex;
 			}
 			
-			IPEndPoint remoteEndpoint = new IPEndPoint(address, port);
+			var remoteEndpoint = new IPEndPoint(address, port);
 			socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-			socket.BeginConnect(remoteEndpoint, new AsyncCallback(OnConnected), null);
+			socket.BeginConnect(remoteEndpoint, OnConnected, null);
 		}
 
 		public override int Send (byte[] buffer, int offset, int size)
 		{
 			lock (sendLock) {
-				int totalSent = 0;
+				var totalSent = 0;
 				while (totalSent < size) {
-					int sent = socket.Send(buffer, offset + totalSent, size - totalSent, SocketFlags.None);
+					var sent = socket.Send(buffer, offset + totalSent, size - totalSent, SocketFlags.None);
 					if (sent == 0) {
 						throw new Exception("No data was sent.");
 					}
@@ -92,9 +92,9 @@ namespace Meshwork.Backend.Core.Transport
 				throw new ArgumentException("Cannot receive <= 0 bytes");
 			}
 			
-			int totalReceived = 0;
+			var totalReceived = 0;
 			while (totalReceived < size) {
-				int count = 0;
+				var count = 0;
 				if (socket == null) {
 					// We were disconnected!
 					return 0;
@@ -106,29 +106,28 @@ namespace Meshwork.Backend.Core.Transport
 					// This means the connection was closed.
 					Disconnect();
 					return 0;
-				} else {
-					totalReceived += count;
-					
-					if (totalReceived > size) {
-						throw new Exception("Somehow received too much! This shouldn't ever happen!");
-					}
 				}
+			    totalReceived += count;
+					
+			    if (totalReceived > size) {
+			        throw new Exception("Somehow received too much! This shouldn't ever happen!");
+			    }
 			}
 			return totalReceived;
 		}
 
 		public override EndPoint RemoteEndPoint {
-			get {
-				if (socket != null && socket.Connected) {
+			get
+			{
+			    if (socket != null && socket.Connected) {
 					try {
-						return (EndPoint)socket.RemoteEndPoint;
+						return socket.RemoteEndPoint;
 					} catch (SocketException ex) {
 						LoggingService.LogError("Failed to get remote end point. I am pretty sure this is a bug in mono!", ex);
 						return new IPEndPoint(address, port);
 					}
-				} else {
-					return new IPEndPoint(address, port);
 				}
+			    return new IPEndPoint(address, port);
 			}
 		}
 
@@ -145,10 +144,10 @@ namespace Meshwork.Backend.Core.Transport
 			var addr = (socket != null) ? (socket.RemoteEndPoint as IPEndPoint).Address : address;
 			if (addr.AddressFamily == AddressFamily.InterNetworkV6) {
 				builder.Append("[");
-				builder.Append(addr.ToString());
+				builder.Append(addr);
 				builder.Append("]");
 			} else
-				builder.Append(addr.ToString());
+				builder.Append(addr);
 
 			builder.Append(":");
 			builder.Append(port.ToString());
@@ -163,8 +162,8 @@ namespace Meshwork.Backend.Core.Transport
 
 		public override void Disconnect (Exception ex)
 		{
-			if (base.transportState != TransportState.Disconnected) {
-				base.transportState = TransportState.Disconnected;
+			if (transportState != TransportState.Disconnected) {
+				transportState = TransportState.Disconnected;
 				
 				if (socket != null) {
 					socket.Close();
@@ -173,13 +172,13 @@ namespace Meshwork.Backend.Core.Transport
 				
 				if (ex != null)
 					if (ex is SocketException)
-						LoggingService.LogInfo("Transport {0} disconnected ({1}).", this.ToString(), ex.Message);
+						LoggingService.LogInfo("Transport {0} disconnected ({1}).", ToString(), ex.Message);
 					else
-						LoggingService.LogInfo("Transport {0} disconnected with error: {1}", this.ToString(), ex.ToString());
+						LoggingService.LogInfo("Transport {0} disconnected with error: {1}", ToString(), ex.ToString());
 				else
-					LoggingService.LogInfo("Transport {0} disconnected", this.ToString());
+					LoggingService.LogInfo("Transport {0} disconnected", ToString());
 				
-				base.RaiseDisconnected(ex);
+				RaiseDisconnected(ex);
 			}
 		}
 
@@ -187,8 +186,8 @@ namespace Meshwork.Backend.Core.Transport
 		{
 			try {
 				socket.EndConnect(result);
-				base.transportState = TransportState.Connected;
-				base.RaiseConnected();
+				transportState = TransportState.Connected;
+				RaiseConnected();
 				connectCallback(this);
 			} catch (Exception ex) {
 				Disconnect(ex);

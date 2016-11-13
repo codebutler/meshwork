@@ -21,13 +21,8 @@ namespace Meshwork.Backend.Core.Transport
 
 		byte[] keyBytes;
 		byte[] ivBytes;
-		
-		public AESTransportEncryptor()
-		{
 
-		}
-
-		public int KeySize {
+	    public int KeySize {
 			get {
 				return keySize;
 			}
@@ -51,27 +46,25 @@ namespace Meshwork.Backend.Core.Transport
 			this.keyBytes = keyBytes;
 			this.ivBytes = ivBytes;
 			
-			this.algorithm = new RijndaelManaged();
+			algorithm = new RijndaelManaged();
 		}
 		
 		public byte[] Encrypt (byte[] buffer)
 		{
-			if (algorithm != null) {
-				ICryptoTransform encryptor = algorithm.CreateEncryptor(keyBytes, ivBytes);
+		    if (algorithm != null) {
+				var encryptor = algorithm.CreateEncryptor(keyBytes, ivBytes);
 				return encryptor.TransformFinalBlock(buffer, 0, buffer.Length);
-			} else {
-				throw new Exception("No key");
 			}
+		    throw new Exception("No key");
 		}
 		
 		public byte[] Decrypt (byte[] buffer)
 		{
-			if (algorithm != null) {
-				ICryptoTransform decryptor = algorithm.CreateDecryptor(keyBytes, ivBytes);
+		    if (algorithm != null) {
+				var decryptor = algorithm.CreateDecryptor(keyBytes, ivBytes);
 				return decryptor.TransformFinalBlock(buffer, 0, buffer.Length);
-			} else {
-				throw new Exception("No key");
 			}
+		    throw new Exception("No key");
 		}
 
 		public bool Ready {

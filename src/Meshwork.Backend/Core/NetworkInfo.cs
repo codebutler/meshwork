@@ -9,62 +9,21 @@
 
 using System.Collections.Generic;
 using Meshwork.Backend.Core.Protocol;
-using Meshwork.Common;
+using Meshwork.Common.Serialization;
 
 namespace Meshwork.Backend.Core
 {
 	public class NetworkInfo
 	{
-		List<MemoInfo> memos = new List<MemoInfo>();		
-		SerializableDictionary<string, TrustedNodeInfo> trustedNodes = new SerializableDictionary<string, TrustedNodeInfo>();
-		string networkName;
+	    // FIXME: Should be a list/array.
+	    public Dictionary<string, TrustedNodeInfo> TrustedNodes { get; } = new Dictionary<string, TrustedNodeInfo>();
 
-		public SerializableDictionary<string, TrustedNodeInfo> TrustedNodes {
-			get {
-				return trustedNodes;
-			}
-			set { // Setter exists ONLY for XML Serializer. Do not use!
-				trustedNodes = value;
-			}
-		}
-		
-		public List<MemoInfo> Memos {
-			get {
-				return memos;
-			}
-			set { // Setter exists ONLY for XML Serializer. Do not use!
-				memos = value;
-			}
-		}
+	    // FIXME: readonly list!?
+	    public List<MemoInfo> Memos { get; } = new List<MemoInfo>();
 
-		public string NetworkName {
-			get {
-				return networkName;
-			}
-			set {
-				networkName = value;
-			}
-		}
+	    public string NetworkName { get; set; }
 
-		public string NetworkID {
-			get {
-				return Common.Common.SHA512Str(networkName);
-			}
-		}
-
-		public NetworkInfo Clone ()
-		{
-			NetworkInfo clone = new NetworkInfo();
-			clone.NetworkName = this.NetworkName;
-
-			foreach (KeyValuePair<string, TrustedNodeInfo> pair in this.TrustedNodes) {
-				// XXX: pair.Value should be cloned too!
-				clone.TrustedNodes.Add(pair.Key, pair.Value);
-			}
-			
-			clone.Memos.AddRange(memos);
-
-			return clone;
-		}
+	    [DontSerialize]
+	    public string NetworkId => Common.Utils.SHA512Str(NetworkName);
 	}
 }

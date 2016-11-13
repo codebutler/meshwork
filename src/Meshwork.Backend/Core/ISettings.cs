@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using Meshwork.Backend.Core.Destination;
 using Meshwork.Backend.Feature.FileSearch;
 
@@ -125,25 +124,15 @@ namespace Meshwork.Backend.Core
 			get;
 			set;
 		}
-		
-		bool KeyEncrypted {
-			get;
-		}
-		
-		bool KeyUnlocked {
-			get;
-		}
-				
-		RSAParameters EncryptionParameters {
-			get;
-		}
-		
-		bool CheckKeyPassword (string password);
-		bool UnlockKey (string password);
-		void ChangeKeyPassword (string newPassword);
-		
+
+	    string PrivateKey
+	    {
+	        get;
+	        set;
+	    }
+
 		void SaveSettings ();
-		void SyncNetworkInfo ();
-		void SyncNetworkInfoAndSave ();
+		void SyncNetworkInfo (Core core);
+		void SyncNetworkInfoAndSave (Core core);
 	}
 }

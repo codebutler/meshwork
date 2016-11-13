@@ -27,7 +27,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -48,12 +47,12 @@ namespace Meshwork.Library.Hyena.Query
         public AliasedObjectSet (params T [] objects)
         {
             this.objects = objects;
-            foreach (T obj in objects) {
+            foreach (var obj in objects) {
                 map [obj.Name.ToLower ()] = obj;
-                foreach (string alias in obj.Aliases) {
+                foreach (var alias in obj.Aliases) {
                     if (!string.IsNullOrEmpty (alias) && alias.IndexOf (" ") == -1) {
-                        foreach (string sub_alias in alias.Split(',')) {
-                            string lower_alias = sub_alias.ToLower ();
+                        foreach (var sub_alias in alias.Split(',')) {
+                            var lower_alias = sub_alias.ToLower ();
                             map [lower_alias] = obj;
                             if (!aliases.Contains (lower_alias)) {
                                 aliases.Add (lower_alias);
@@ -73,7 +72,7 @@ namespace Meshwork.Library.Hyena.Query
         public string FindAlias (string input)
         {
             input = input.ToLower ();
-            foreach (string alias in aliases) {
+            foreach (var alias in aliases) {
                 if (input.Contains (alias)) {
                     return alias;
                 }
@@ -91,7 +90,7 @@ namespace Meshwork.Library.Hyena.Query
 
         public IEnumerator<T> GetEnumerator ()
         {
-            foreach (T o in objects) {
+            foreach (var o in objects) {
                 yield return o;
             }
         }

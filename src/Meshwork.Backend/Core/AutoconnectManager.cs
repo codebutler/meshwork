@@ -9,8 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using Meshwork.Backend.Core.Destination;
-using Meshwork.Backend.Core.Transport;
 
 namespace Meshwork.Backend.Core
 {
@@ -30,10 +28,10 @@ namespace Meshwork.Backend.Core
 		{
 			this.network = network;
 
-			connectingToHandler       = new NetworkLocalNodeConnectionEventHandler(NewConnection);
-			incomingConnectionHandler = new NetworkLocalNodeConnectionEventHandler(NewConnection);
-			connectionReadyHandler    = new LocalNodeConnectionEventHandler(OnConnectionReady);
-			connectionClosedHandler   = new LocalNodeConnectionEventHandler(OnConnectionClosed);
+			connectingToHandler       = NewConnection;
+			incomingConnectionHandler = NewConnection;
+			connectionReadyHandler    = OnConnectionReady;
+			connectionClosedHandler   = OnConnectionClosed;
 
 			// The number of connections to try to keep open
 			this.connectionCount = connectionCount;
@@ -44,7 +42,7 @@ namespace Meshwork.Backend.Core
 			network.ConnectingTo += connectingToHandler;
 			network.NewIncomingConnection += incomingConnectionHandler;
 
-			foreach (TrustedNodeInfo info in network.TrustedNodes.Values) {
+			foreach (var info in network.TrustedNodes.Values) {
 				if (IsGoodNode(info)) {
 					nodeList.Add(info);
 				}
@@ -81,7 +79,7 @@ namespace Meshwork.Backend.Core
 
 		private void OnConnectionReady (LocalNodeConnection connection)
 		{
-			TrustedNodeInfo tnode = connection.NodeRemote.GetTrustedNode();
+			var tnode = connection.NodeRemote.GetTrustedNode();
 			lock (nodeList) {
 				if (nodeList.Contains (tnode)) {
 					nodeList.Remove (tnode);
@@ -105,15 +103,15 @@ namespace Meshwork.Backend.Core
 
 		private void ConnectIfNeeded()
 		{
-			int totalConnections = network.LocalConnections.Length;
+			var totalConnections = network.LocalConnections.Length;
 			if (totalConnections < connectionCount) {
-				for (int x = 0; x < (connectionCount - totalConnections); x ++) {
+				for (var x = 0; x < (connectionCount - totalConnections); x ++) {
 					if (nodeList.Count != 0) {
-						TrustedNodeInfo node = (TrustedNodeInfo) GetNode ();
+						var node = (TrustedNodeInfo) GetNode ();
 						try {	
-							IDestination destination = node.GetFirstConnectableDestination(network.Core);
+							var destination = node.GetFirstConnectableDestination(network.Core);
 							if (destination != null) {
-								ITransport transport = destination.CreateTransport(ConnectionType.NodeConnection);
+								var transport = destination.CreateTransport(ConnectionType.NodeConnection);
 								network.ConnectTo(transport);
 							}
 						} catch (Exception ex) {
@@ -154,13 +152,11 @@ namespace Meshwork.Backend.Core
 		{
 			public int Compare (TrustedNodeInfo firstNode, TrustedNodeInfo secondNode)
 			{
-				if (firstNode.LastConnected < secondNode.LastConnected)
+			    if (firstNode.LastConnected < secondNode.LastConnected)
 					return -1;
-				else if (firstNode.LastConnected == secondNode.LastConnected)
-					return 0;
-				else
-					return 1;
-					
+			    if (firstNode.LastConnected == secondNode.LastConnected)
+			        return 0;
+			    return 1;
 			}
 		}
 	}

@@ -15,9 +15,8 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 			if (last > 0) {
 				return path.Substring(0, last);
-			} else {
-				return path;
 			}
+		    return path;
 		}
 		
 		public static string GetBaseName (string path)
@@ -42,11 +41,11 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			
 			string path = null;
 			if (path1.EndsWith("/") ^ path2.StartsWith("/")) {
-				path = string.Format("{0}{1}", path1, path2);
+				path = $"{path1}{path2}";
 			} else if (path1.EndsWith("/") && path2.StartsWith("/")) {
-				path = string.Format("{0}{1}", path1, path2.Substring(1));
+				path = $"{path1}{path2.Substring(1)}";
 			} else {
-				path = string.Format("{0}/{1}", path1, path2);
+				path = $"{path1}/{path2}";
 			}
 			return CleanPath(path);
 		}

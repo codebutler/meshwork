@@ -9,6 +9,7 @@
 
 using System;
 using System.Security.Cryptography;
+using System.Text;
 using Meshwork.Backend.Core.Protocol;
 
 namespace Meshwork.Backend.Core
@@ -28,19 +29,19 @@ namespace Meshwork.Backend.Core
 		public Memo (Network network, MemoInfo memoInfo) 
 		{
 			this.network = network;
-			this.id = memoInfo.ID;
-			this.node = network.Nodes[memoInfo.FromNodeID];
-			this.createdOn = memoInfo.CreatedOn;
-			this.signature = memoInfo.Signature;
-			this.subject = memoInfo.Subject;
-			this.text = memoInfo.Text;
+			id = memoInfo.ID;
+			node = network.Nodes[memoInfo.FromNodeID];
+			createdOn = memoInfo.CreatedOn;
+			signature = memoInfo.Signature;
+			subject = memoInfo.Subject;
+			text = memoInfo.Text;
 		}
 
 		public Memo (Network network)
 		{
 			this.network = network;
-			this.node = network.Nodes[Network.Core.MyNodeID];
-			this.createdOn = DateTime.Now;
+			node = network.Nodes[Network.Core.MyNodeID];
+			createdOn = DateTime.Now;
 		}
 
 		public string Subject {
@@ -104,23 +105,23 @@ namespace Meshwork.Backend.Core
 			if (id == null) {
 				id = Guid.NewGuid().ToString();
 			}
-			byte[] buf = System.Text.Encoding.UTF8.GetBytes (CreateSignString());
+			var buf = Encoding.UTF8.GetBytes (CreateSignString());
 			signature = Network.Core.CryptoProvider.SignData (buf, new SHA1CryptoServiceProvider());
 		}
 
 		public bool Verify ()
 		{
-			TrustedNodeInfo remoteNode = network.TrustedNodes[this.node.NodeID];
-			byte[] buf = System.Text.Encoding.UTF8.GetBytes (CreateSignString());
-			return remoteNode.Crypto.VerifyData (buf, new SHA1CryptoServiceProvider(), signature);
+			var remoteNode = network.TrustedNodes[node.NodeID];
+			var buf = Encoding.UTF8.GetBytes (CreateSignString());
+			return remoteNode.CreateCrypto().VerifyData (buf, new SHA1CryptoServiceProvider(), signature);
 		}
 
 		//XXX: Ewwww
 		private string CreateSignString()
 		{
-			byte[] tmpsig = signature;
+			var tmpsig = signature;
 			signature = null;
-			string returnMe = node.NodeID + id + Subject + createdOn.ToString() + Text;
+			var returnMe = node.NodeID + id + Subject + createdOn + Text;
 			signature = tmpsig;
 			return returnMe;
 		}

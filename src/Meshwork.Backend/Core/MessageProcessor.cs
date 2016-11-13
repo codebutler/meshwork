@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Meshwork.Backend.Core.Protocol;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
 using Meshwork.Backend.Feature.FileTransfer;
@@ -73,19 +74,19 @@ namespace Meshwork.Backend.Core
 
 			// XXX: Isn't this checked elsewhere?
 			if (c.NetworkName != network.NetworkName) {
-				InvalidNetworkNameError error = new InvalidNetworkNameError(c.NetworkName, network.NetworkName);
+				var error = new InvalidNetworkNameError(c.NetworkName, network.NetworkName);
 				network.SendCriticalError (messageFrom, error);
 				throw error.ToException();
 			}
 
 			if (c.ProtocolVersion != Core.ProtocolVersion) {
-				VersionMismatchError e = new VersionMismatchError (c.ProtocolVersion.ToString());
+				var e = new VersionMismatchError (c.ProtocolVersion.ToString());
 				network.SendCriticalError (messageFrom, e);
 				throw new VersionMismatchError().ToException();
 			}
 
 			// Update node details:
-			Node node = network.Nodes[messageFrom.NodeID];
+			var node = network.Nodes[messageFrom.NodeID];
 			node.NickName = c.NickName;
 			
 			if (isReply == false) {
@@ -104,16 +105,10 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessMyKeyMessage (Node node, KeyInfo key)
 		{
-			bool acceptKey = network.RaiseReceivedKey (node, key);
-
+			var acceptKey = network.RaiseReceivedKey (node, key);
 			if (acceptKey) {
-				TrustedNodeInfo tni = new TrustedNodeInfo();
-				tni.Identifier = node.NickName;
-				tni.PublicKey = new PublicKey(key.Key);
-
-				network.AddTrustedNode(tni);
-
-				network.Core.Settings.SyncNetworkInfoAndSave();
+			    network.AddTrustedNode(new TrustedNodeInfo(node.NickName, node.NodeID, key.Key));
+				network.Core.Settings.SyncNetworkInfoAndSave(network.Core);
 			}
 		}
 		
@@ -125,7 +120,7 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessNewSessionKeyMessage (Node messageFrom, byte[] key)
 		{
-			string keyHash = Common.Common.SHA512Str(key);
+			var keyHash = Common.Utils.SHA512Str(key);
 			
 			// This lets us create a brand new session key
 			// if someone wants that for whatever reason.
@@ -140,7 +135,7 @@ namespace Meshwork.Backend.Core
 				messageFrom.SessionKeyDataHash = keyHash;
 				messageFrom.DecryptKeyExchange(key);
 
-				if (messageFrom.RemoteHasKey == true) {
+				if (messageFrom.RemoteHasKey) {
 					LoggingService.LogInfo("Secure communication channel to {0} now avaliable.", messageFrom.ToString());
 					network.SendInfoToTrustedNode(messageFrom);
 				} else {
@@ -153,7 +148,7 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessMyInfoMessage (Node currentNode, NodeInfo nodeInfo)
 		{
-			string oldNick = currentNode.NickName;
+			var oldNick = currentNode.NickName;
 
 			currentNode.Bytes         = nodeInfo.Bytes;
 			currentNode.ClientName    = nodeInfo.ClientName;
@@ -165,13 +160,10 @@ namespace Meshwork.Backend.Core
 			currentNode.RealName      = nodeInfo.RealName;
 			currentNode.AvatarSize    = nodeInfo.AvatarSize;
 
-			TrustedNodeInfo tNode = network.TrustedNodes[currentNode.NodeID];
-			tNode.Identifier = currentNode.NickName;
+			var tNode = network.TrustedNodes[currentNode.NodeID];
+		    tNode.Update(nodeInfo);
 
-			tNode.DestinationInfos.Clear();
-			tNode.DestinationInfos.AddRange(nodeInfo.DestinationInfos);
-
-			network.Core.Settings.SyncNetworkInfoAndSave();
+			network.Core.Settings.SyncNetworkInfoAndSave(network.Core);
 
 			/*
 			IDirectory userDirectory = network.Directory.GetSubdirectory(currentNode.NodeID);
@@ -193,8 +185,8 @@ namespace Meshwork.Backend.Core
 				messageFrom.ClearSessionKey();
 				messageFrom.RemotelyUntrusted = true;
 			} else if (error is FileTransferError) {
-				string id = ((FileTransferError)error).TransferId;
-				foreach (IFileTransfer transfer in network.Core.FileTransferManager.Transfers) {
+				var id = ((FileTransferError)error).TransferId;
+				foreach (var transfer in network.Core.FileTransferManager.Transfers) {
 					if (transfer.Id == id) {
 						((IFileTransferInternal)transfer).ErrorReceived(messageFrom, (FileTransferError)error);
 						break;
@@ -212,14 +204,13 @@ namespace Meshwork.Backend.Core
 				if (SeenSearchRequests.ContainsKey(searchRequest.Id)) {
 					return; // Ignore. We probably saw this same request from the same person
 					        // on multiple networks.
-				} else {
-					// Store timestamp so we can cleanup the list later.
-					// XXX: Cleanup not implemented yet
-					SeenSearchRequests[searchRequest.Id] = DateTime.Now;
 				}
+			    // Store timestamp so we can cleanup the list later.
+			    // XXX: Cleanup not implemented yet
+			    SeenSearchRequests[searchRequest.Id] = DateTime.Now;
 			}
 
-			SearchResultInfo reply = network.Core.FileSystem.SearchFiles(searchRequest.Query);
+			var reply = network.Core.FileSystem.SearchFiles(searchRequest.Query);
 			reply.SearchId = searchRequest.Id;
 
 			if (reply.Files.Length > 0 || reply.Directories.Length > 0) {
@@ -234,9 +225,9 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessRequestFileMessage (Node messageFrom, RequestFileInfo info)
 		{
-			string filePath = PathUtil.Join("/local", info.FullPath);
+			var filePath = PathUtil.Join("/local", info.FullPath);
 
-			LocalFile file = (LocalFile) network.Core.FileSystem.GetFile(filePath);
+			var file = (LocalFile) network.Core.FileSystem.GetFile(filePath);
 			if (file != null) {
 				network.Core.FileTransferManager.StartTransfer(network, messageFrom, file);
 			} else {
@@ -276,7 +267,7 @@ namespace Meshwork.Backend.Core
 		internal void ProcessChatInviteMessage (Node messageFrom, ChatInviteInfo invitation)
 		{
 			if (network.HasChatRoom(invitation.RoomId)) {
-				ChatRoom room = network.GetChatRoom(invitation.RoomId);
+				var room = network.GetChatRoom(invitation.RoomId);
 				if (room.Users.ContainsKey(messageFrom.NodeID)) {
 					network.RaiseReceivedChatInvite (messageFrom, invitation);
 				} else {
@@ -289,7 +280,7 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessChatMessage (Node messageFrom, ChatMessage message)
 		{
-			ChatRoom c = network.GetChatRoom(message.RoomId);
+			var c = network.GetChatRoom(message.RoomId);
 			
 			if (messageFrom != null) {
 				
@@ -305,11 +296,11 @@ namespace Meshwork.Backend.Core
 
 					network.RaiseJoinedChat (messageFrom, c);
 				}
-				if (c.InRoom == true) {
-					string messageText = message.Message;
+				if (c.InRoom) {
+					var messageText = message.Message;
 					if (c.HasPassword) {
 						try {
-							byte[] saltBytes = System.Text.Encoding.UTF8.GetBytes(c.Id);
+							var saltBytes = Encoding.UTF8.GetBytes(c.Id);
 							messageText = Encryption.PasswordDecrypt(c.Password, messageText, saltBytes);
 						} catch (Exception) {
 							messageText = "<UNABLE TO DECRYPT MESSAGE>";
@@ -337,8 +328,8 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessRequestFileDetails (Node messageFrom, string path)
 		{
-			string directoryPath = PathUtil.Join(network.Core.MyDirectory.FullPath, path);
-			LocalFile file = (LocalFile)network.Core.FileSystem.GetFile(directoryPath);
+			var directoryPath = PathUtil.Join(network.Core.MyDirectory.FullPath, path);
+			var file = (LocalFile)network.Core.FileSystem.GetFile(directoryPath);
 			if (file != null)
 				network.SendFileDetails(messageFrom, file);
 			else
@@ -347,7 +338,7 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessConnectionDownMessage (Node messageFrom, ConnectionInfo info)
 		{
-			INodeConnection c = network.FindConnection(info.SourceNodeID, info.DestNodeID);
+			var c = network.FindConnection(info.SourceNodeID, info.DestNodeID);
 			if (c != null) {
 				network.RemoveConnection(c);
 			} else {
@@ -361,7 +352,7 @@ namespace Meshwork.Backend.Core
 			if (action.RoomName == null || !action.RoomName.StartsWith("#"))
 				return;
 			
-			ChatRoom room = network.GetChatRoom(action.RoomId);
+			var room = network.GetChatRoom(action.RoomId);
 			if (room != null) {
 				if (room.Users.ContainsKey(messageFrom.NodeID)) {
 					room.RemoveUser(messageFrom);
@@ -383,7 +374,7 @@ namespace Meshwork.Backend.Core
 				connection.ConnectionState = ConnectionState.Ready;
 				connection.RaiseConnectionReady();
 				connection.RemoteNodeInfo.LastConnected = DateTime.Now;
-			    network.Core.Settings.SyncNetworkInfoAndSave();
+			    network.Core.Settings.SyncNetworkInfoAndSave(network.Core);
 
 				if (connection.ReadySent == false) {
 					connection.SendReady();
@@ -397,7 +388,7 @@ namespace Meshwork.Backend.Core
 				// The network needs to know about me this new connection,
 				// any nodes I know about, memos, etc... so say hi to
 				// everyone and let them know everything that I know.
-				Message message = network.MessageBuilder.CreateHelloMessage ();
+				var message = network.MessageBuilder.CreateHelloMessage ();
 				message.To = Network.BroadcastNodeID;
 				network.SendBroadcast (message);
 
@@ -411,7 +402,7 @@ namespace Meshwork.Backend.Core
 
 		internal void ProcessAddMemoMessage (Node messageFrom, MemoInfo memoInfo)
 		{
-			Memo memo = new Memo (network, memoInfo);
+			var memo = new Memo (network, memoInfo);
 
 			if (!network.Core.IsLocalNode(memo.Node)) {
 				if (network.TrustedNodes.ContainsKey(memo.Node.NodeID) && memo.Verify() == false) {
@@ -426,7 +417,7 @@ namespace Meshwork.Backend.Core
 		internal void ProcessDeleteMemoMessage (Node messageFrom, string memoId)
 		{
 			if (network.HasMemo(memoId)) {
-				Memo theMemo = network.GetMemo(memoId);
+				var theMemo = network.GetMemo(memoId);
 				if (messageFrom == theMemo.Node) {
 					network.RemoveMemo(theMemo);
 				} else {
@@ -438,7 +429,7 @@ namespace Meshwork.Backend.Core
 		internal void ProcessRequestDirListingMessage (Node messageFrom, string requestedPath)
 		{
 			try {
-				string directoryPath = PathUtil.Join(network.Core.MyDirectory.FullPath, requestedPath);
+				var directoryPath = PathUtil.Join(network.Core.MyDirectory.FullPath, requestedPath);
 				
 				if (network.TrustedNodes[messageFrom.NodeID].AllowSharedFiles) {
 					var directory = network.Core.FileSystem.GetLocalDirectory(directoryPath);
@@ -459,7 +450,7 @@ namespace Meshwork.Backend.Core
 		internal void ProcessAckMessage (Node messageFrom, string hash)
 		{
 			if (network.AckMethods.ContainsKey(hash)) {
-				AckMethod m = network.AckMethods[hash];
+				var m = network.AckMethods[hash];
 				m.CallMethod(DateTime.Now);
 				network.AckMethods.Remove(hash);
 			}

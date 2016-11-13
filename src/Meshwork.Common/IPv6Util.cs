@@ -15,9 +15,9 @@ namespace Meshwork.Common
 	{
 		public static string GetNetworkPrefix (int prefixLength, IPAddress address)
 		{
-			byte[] bytes = address.GetAddressBytes ();
-			string prefix = "";
-			for (int y = 0; y < (prefixLength / 8); y += 2) {
+			var bytes = address.GetAddressBytes ();
+			var prefix = "";
+			for (var y = 0; y < (prefixLength / 8); y += 2) {
 				if (y > 0) prefix += ":";
 				prefix += EndianBitConverter.ToString (bytes, y,2).Replace ("-","");
 			}

@@ -11,14 +11,13 @@
 //#define RIDICULOUS_DEBUG_OUTPUT
 
 using System;
+using System.IO;
 using Meshwork.Backend.Core;
-using Meshwork.Backend.Core.Destination;
 using Meshwork.Backend.Core.Transport;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
 using MonoTorrent.BEncoding;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
-using IO=System.IO;
 
 namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 {
@@ -27,13 +26,13 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 	    private readonly Core.Core core;
 
 	    TorrentManager manager;
-		double hashingPercent = 0;
-		bool isCanceled = false;
-		bool startCalled = false;
-		int maxUploadSpeed = 0;
-		int maxDownloadSpeed = 0;
+		double hashingPercent;
+		bool isCanceled;
+		bool startCalled;
+		int maxUploadSpeed;
+		int maxDownloadSpeed;
 		
-		public BitTorrentFileTransfer(Core.Core core, IFile file) : base ()
+		public BitTorrentFileTransfer(Core.Core core, IFile file)
 		{
 		    this.core = core;
 		    this.file = file;
@@ -64,95 +63,90 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				}
 				
 				if (manager == null) {
-					if (file.Pieces.Length == 0) {
-						if (!(file is LocalFile)) {
+					if (file.Pieces.Length == 0)
+					{
+					    if (!(file is LocalFile)) {
 							return FileTransferStatus.WaitingForInfo;
-						} else {
-							return FileTransferStatus.Hashing;
 						}
-					} else {
-						// File was updated, but DetailsReceived() not yet called
-						return FileTransferStatus.WaitingForInfo;
+					    return FileTransferStatus.Hashing;
 					}
-				} else {
-					switch (manager.State) {
-						case TorrentState.Paused:
-							return FileTransferStatus.Paused;
+				    // File was updated, but DetailsReceived() not yet called
+				    return FileTransferStatus.WaitingForInfo;
+				}
+			    switch (manager.State) {
+			        case TorrentState.Paused:
+			            return FileTransferStatus.Paused;
 						
-						case TorrentState.Hashing:
-							return FileTransferStatus.Hashing;
+			        case TorrentState.Hashing:
+			            return FileTransferStatus.Hashing;
 						
-						case TorrentState.Stopped:
-							if (manager.Progress == 100) {
-								if (Direction == FileTransferDirection.Download) {
-									return FileTransferStatus.Completed;
-								} else {
-									// XXX: For uploads, this isnt always right.
-									// Need to check that other peer got the entire file.
-									return FileTransferStatus.Completed;
-								}
-							} else {
-								if (!isCanceled) {
-									// XXX: I think this might happen for just a breif moment while
-									// we're going from Transferring -> Canceled.
-									LoggingService.LogWarning("This shouldn't happen ever, right? " + manager.Progress);
-								}
+			        case TorrentState.Stopped:
+			            if (manager.Progress == 100) {
+			                if (Direction == FileTransferDirection.Download) {
+			                    return FileTransferStatus.Completed;
+			                }
+			                // XXX: For uploads, this isnt always right.
+			                // Need to check that other peer got the entire file.
+			                return FileTransferStatus.Completed;
+			            }
+			            if (!isCanceled) {
+			                // XXX: I think this might happen for just a breif moment while
+			                // we're going from Transferring -> Canceled.
+			                LoggingService.LogWarning("This shouldn't happen ever, right? " + manager.Progress);
+			            }
 							
-								return FileTransferStatus.Canceled;
-							}
-						
-						/*
+			            return FileTransferStatus.Canceled;
+
+			        /*
 						case TorrentState.Queued:
 							return FileTransferStatus.Queued;
 						*/
 						
-						case TorrentState.Seeding:
-						case TorrentState.Downloading:
-							if (peers.Count > 0) {
-								if (manager.OpenConnections == 0) {
-									return FileTransferStatus.Connecting;
-								} else {
-									return FileTransferStatus.Transfering;
-								}
-							} else {
-								return FileTransferStatus.NoPeers;
-							}
+			        case TorrentState.Seeding:
+			        case TorrentState.Downloading:
+			            if (peers.Count > 0)
+			            {
+			                if (manager.OpenConnections == 0) {
+			                    return FileTransferStatus.Connecting;
+			                }
+			                return FileTransferStatus.Transfering;
+			            }
+			            return FileTransferStatus.NoPeers;
 
-						default:
-							// XXX:
-							LoggingService.LogWarning("Add a case for this: " + manager.State);
-							return FileTransferStatus.WaitingForInfo;
-					}
-				}
+			        default:
+			            // XXX:
+			            LoggingService.LogWarning("Add a case for this: " + manager.State);
+			            return FileTransferStatus.WaitingForInfo;
+			    }
 			}
 		}
 
 		public override double Progress {
-			get {
-				if (manager != null) {
-					if (manager.State == TorrentState.Hashing) {
+			get
+			{
+			    if (manager != null)
+			    {
+			        if (manager.State == TorrentState.Hashing) {
 						return hashingPercent;
-					} else {
-						if (Direction == FileTransferDirection.Upload) {
-							if (this.Peers.Length == 1) {
-								return this.Peers[0].Progress;
-							} else if (this.Peers.Length == 0) {
-								return -1;
-							} else {
-								double averageProgress = 0;
-								foreach (IFileTransferPeer peer in this.Peers) {
-									averageProgress += peer.Progress; 
-								};
-								averageProgress = averageProgress / this.Peers.Length;
-								return averageProgress;
-							}
-						} else {
-							return manager.Progress;
-						}
 					}
-				} else {
-					return -1;
-				}
+			        if (Direction == FileTransferDirection.Upload)
+			        {
+			            if (Peers.Length == 1) {
+			                return Peers[0].Progress;
+			            }
+			            if (Peers.Length == 0) {
+			                return -1;
+			            }
+			            double averageProgress = 0;
+			            foreach (var peer in Peers) {
+			                averageProgress += peer.Progress; 
+			            };
+			            averageProgress = averageProgress / Peers.Length;
+			            return averageProgress;
+			        }
+			        return manager.Progress;
+			    }
+			    return -1;
 			}
 		}
 
@@ -165,7 +159,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		public override void ErrorReceived (Node node, FileTransferError error)
 		{
 			LoggingService.LogError("Received File Transfer Error: {0}", error.Message);
-			base.statusDetail = error.Message;
+			statusDetail = error.Message;
 			Cancel();
 		}
 
@@ -191,7 +185,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				
 				// XXX: If we already have the file pieces, we still need to send this message,
 				// but the response (FileDetails) doesn't need to include pieces.
-				foreach (BitTorrentFileTransferPeer peer in this.peers) {
+				foreach (BitTorrentFileTransferPeer peer in peers) {
 					if (peer.Node.NodeID != core.MyNodeID) {
 						peer.Network.SendRoutedMessage(peer.Network.MessageBuilder.CreateRequestFileMessage(peer.Node, this));
 					}
@@ -239,10 +233,10 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				throw new InvalidOperationException("No info hash");
 			}
 
-			BitTorrentFileTransferProvider provider =
+			var provider =
 				(BitTorrentFileTransferProvider)core.FileTransferManager.Provider;
 
-			Torrent torrent = BitTorrentFileTransfer.CreateTorrent(file);
+			var torrent = CreateTorrent(file);
 			
 			#if RIDICULOUS_DEBUG_OUTPUT
 			// Dump the hashes to the screen
@@ -256,8 +250,8 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 			manager.PeersFound += manager_PeersFound;
 			manager.PieceHashed += manager_PieceHashed;
 			manager.TorrentStateChanged += manager_TorrentStateChanged;
-			manager.PeerConnected += new EventHandler<PeerConnectionEventArgs>(manager_PeerConnected);
-			manager.PeerDisconnected += new EventHandler<PeerConnectionEventArgs>(manager_PeerDisconnected);
+			manager.PeerConnected += manager_PeerConnected;
+			manager.PeerDisconnected += manager_PeerDisconnected;
 
 			#if RIDICULOUS_DEBUG_OUTPUT
 			LoggingService.LogDebug("Engine ID: {0}", provider.Engine.PeerId);
@@ -266,7 +260,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 			manager.Start();
 
 			if (file is LocalFile) {
-				foreach (BitTorrentFileTransferPeer peer in this.peers) {
+				foreach (BitTorrentFileTransferPeer peer in peers) {
 					peer.Network.SendFileDetails(peer.Node, (LocalFile)file);
 				}
 			}
@@ -282,15 +276,9 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				}
 			
 			// Torrent has not been started, may be hashing.
-			} else {
-				/* XXX:
-				if (hashingThread != null) {
-					hashingThread.Abort();
-				}
-				*/
 			}
-			
-			LoggingService.LogDebug("Transfer Cancel() {0}", Environment.StackTrace);
+
+		    LoggingService.LogDebug("Transfer Cancel() {0}", Environment.StackTrace);
 
 			isCanceled = true;
 		}
@@ -324,7 +312,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				}
 			}
 
-			BitTorrentFileTransferPeer peer = new BitTorrentFileTransferPeer(network, node);
+			var peer = new BitTorrentFileTransferPeer(network, node);
 			peers.Add(peer);
 			
 			if ((manager != null) && Direction == FileTransferDirection.Upload && file.Pieces.Length > 0) {
@@ -339,57 +327,57 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		}
 	
 		public override ulong TotalDownloadSpeed {
-			get {
-				if (manager != null) {
+			get
+			{
+			    if (manager != null) {
 					return (ulong)manager.Monitor.DownloadSpeed;
-				} else {
-					return 0;
 				}
+			    return 0;
 			}
 		}
 
 		public override ulong TotalUploadSpeed {
-			get {
-				if (manager != null) {
+			get
+			{
+			    if (manager != null) {
 					return (ulong)manager.Monitor.UploadSpeed;
-				} else {
-					return 0;
 				}
+			    return 0;
 			}
 		}
 
 		public override ulong BytesDownloaded {
-			get {
-				if (manager != null) {
+			get
+			{
+			    if (manager != null) {
 					return (ulong) ((manager.Progress * 0.01) * file.Size);
 					
 					//XXX: Perhaps add a separate property
 					//that's bytes downloaded in "this session"
 					//return (ulong)manager.Monitor.DataBytesDownloaded;
-				} else {
-					return 0;
 				}
+			    return 0;
 			}
 		}
 
 		public override ulong BytesUploaded {
-			get {
-				if (manager != null) {
+			get
+			{
+			    if (manager != null) {
 					return (ulong)manager.Monitor.DataBytesUploaded;
-				} else {
-					return 0;
 				}
+			    return 0;
 			}
 		}
 
 		
 		public override int UploadSpeedLimit {
-			get {
-				if (manager != null) {
+			get
+			{
+			    if (manager != null) {
 					return manager.Settings.MaxUploadSpeed;
-				} else {
-					return maxUploadSpeed;
 				}
+			    return maxUploadSpeed;
 			}
 			set {
 				maxUploadSpeed = value;
@@ -400,12 +388,12 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		}
 
 		public override int DownloadSpeedLimit {
-			get {
-				if (manager != null) {
+			get
+			{
+			    if (manager != null) {
 					return manager.Settings.MaxDownloadSpeed;
-				} else {
-					return maxDownloadSpeed;
 				}
+			    return maxDownloadSpeed;
 			}
 			set {
 				maxDownloadSpeed = value;
@@ -417,18 +405,18 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 
 		private static BEncodedDictionary GetTorrentData (IFile file)
 		{
-			BEncodedDictionary infoDict = new BEncodedDictionary();
+			var infoDict = new BEncodedDictionary();
 			infoDict[new BEncodedString("piece length")] = new BEncodedNumber(file.PieceLength);
-			infoDict[new BEncodedString("pieces")] = new BEncodedString(Common.Common.StringToBytes(string.Join("", file.Pieces)));
+			infoDict[new BEncodedString("pieces")] = new BEncodedString(Common.Utils.StringToBytes(string.Join("", file.Pieces)));
 			infoDict[new BEncodedString("length")] = new BEncodedNumber(file.Size);
 			infoDict[new BEncodedString("name")] = new BEncodedString(file.Name);
 
-			BEncodedDictionary dict = new BEncodedDictionary();
+			var dict = new BEncodedDictionary();
 			dict[new BEncodedString("info")] = infoDict;
 
-			BEncodedList announceTier = new BEncodedList();
-			announceTier.Add(new BEncodedString(string.Format("meshwork://transfers/{0}", file.InfoHash)));
-			BEncodedList announceList = new BEncodedList();
+			var announceTier = new BEncodedList();
+			announceTier.Add(new BEncodedString($"meshwork://transfers/{file.InfoHash}"));
+			var announceList = new BEncodedList();
 			announceList.Add(announceTier);
 			dict[new BEncodedString("announce-list")] = announceList;
 			
@@ -446,16 +434,16 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				LoggingService.LogDebug("PEER CONNECTED: {0} {1}", args.PeerID.Uri, args.PeerID.GetHashCode());
 			
 				// XXX: This check can probably be removed.
-				if (args.TorrentManager != this.manager) {
+				if (args.TorrentManager != manager) {
 					throw new Exception("PeerConnected for wrong manager. This should NEVER happen.");
 				}
 				
 				// Now, match the peer to the internal BittorrentFileTransferPeer.
-				lock (this.peers) {
-					foreach (BitTorrentFileTransferPeer peer in this.peers) {
-						string nodeID = args.PeerID.Uri.AbsolutePath;
+				lock (peers) {
+					foreach (BitTorrentFileTransferPeer peer in peers) {
+						var nodeID = args.PeerID.Uri.AbsolutePath;
 						if (nodeID == peer.Node.NodeID) {
-							ITransport transport = ((TorrentConnection)args.PeerID.Connection).Transport;
+							var transport = ((TorrentConnection)args.PeerID.Connection).Transport;
 							transport.Operation = new FileTransferOperation(transport, this, peer);
 
 							peer.AddPeerId(args.PeerID);
@@ -465,7 +453,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				}
 
 				// If we got here, then we were not expecting this peer.
-				throw new Exception("Unexpected peer!!!! - " + args.PeerID.Uri.ToString());
+				throw new Exception("Unexpected peer!!!! - " + args.PeerID.Uri);
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in manager_PeerConnected.", ex);
 				args.PeerID.CloseConnection();
@@ -478,13 +466,13 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				LoggingService.LogDebug("Peer Disconnected: {0}", args.PeerID.Uri);
 
 				// Find the matching peer
-				bool found = false;
+				var found = false;
 
-				string nodeID = args.PeerID.Uri.AbsolutePath;
-				lock (this.peers) {
-					foreach (BitTorrentFileTransferPeer peer in this.peers) {
+				var nodeID = args.PeerID.Uri.AbsolutePath;
+				lock (peers) {
+					foreach (BitTorrentFileTransferPeer peer in peers) {
 						if (nodeID == peer.Node.NodeID) {
-							this.peers.Remove(peer);
+							peers.Remove(peer);
 							found = true;
 							break;
 						}
@@ -495,11 +483,11 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 					LoggingService.LogWarning("PeerDisconnected: Unknown peer!");
 				}
 
-				if (base.peers.Count == 0) {
+				if (peers.Count == 0) {
 					if (manager.Progress != 100) {
 						// Transfer didn't finish, cancel!
 						LoggingService.LogWarning("No more peers - canceling torrent!");
-						this.Cancel();
+						Cancel();
 					} else {	
 						// Transfer was complete (or an upload), just stop normally.
 						manager.Stop();
@@ -507,7 +495,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				}
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in manager_PeerDisconnected:", ex);
-				this.Cancel();
+				Cancel();
 			}
 		}
 		
@@ -520,7 +508,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		{	
 			try {
 				if (manager.State == TorrentState.Hashing) {
-					hashingPercent = (((double)args.PieceIndex / (double)manager.Torrent.Pieces.Count) * 100);
+					hashingPercent = ((args.PieceIndex / (double)manager.Torrent.Pieces.Count) * 100);
 				}
 
 				#if RIDICULOUS_DEBUG_OUTPUT
@@ -528,7 +516,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				#endif
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in manager_PieceHashed.", ex);
-				this.Cancel();
+				Cancel();
 			}
 		}
 
@@ -536,7 +524,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		{
 			try {
 				LoggingService.LogDebug("State: {0}", args.NewState);
-				LoggingService.LogDebug("Progress: {0:0.00}", this.manager.Progress);
+				LoggingService.LogDebug("Progress: {0:0.00}", manager.Progress);
 
 				if (args.NewState == TorrentState.Downloading || (args.NewState == TorrentState.Seeding && args.OldState != TorrentState.Downloading)) {
 					// XXX: Only have the requesting end connect for now,
@@ -544,16 +532,16 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 					// We need a solution for this that can handle reverse connections.
 					if (!(File is LocalFile)) {
 						LoggingService.LogDebug("Torrent is ready! connecting to peers!");
-						lock (this.peers) {
-							bool didConnect = false;
-							foreach (IFileTransferPeer p in this.peers) {
-								BitTorrentFileTransferPeer peer = (BitTorrentFileTransferPeer)p;
+						lock (peers) {
+							var didConnect = false;
+							foreach (var p in peers) {
+								var peer = (BitTorrentFileTransferPeer)p;
 								if (ConnectToPeer(peer))
 									didConnect = true;
 							}
 							if (!didConnect) {
-								base.statusDetail = "Unable to connect to any peers";
-								this.Cancel();
+								statusDetail = "Unable to connect to any peers";
+								Cancel();
 							}
 						}
 					} else {
@@ -561,20 +549,20 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 					}
 				}
 
-				if (args.NewState == TorrentState.Seeding && this.manager.Progress == 100) {
+				if (args.NewState == TorrentState.Seeding && manager.Progress == 100) {
 
 					if (Direction == FileTransferDirection.Download) {
 						if (core.Settings.IncompleteDownloadDir != core.Settings.CompletedDownloadDir) {
 							// Ensure torrent is stopped before attempting to move file, to avoid access violation.
 							manager.Stop();
 							
-							IO.File.Move(IO.Path.Combine(core.Settings.IncompleteDownloadDir, file.Name),
-							             IO.Path.Combine(core.Settings.CompletedDownloadDir, file.Name));
+							System.IO.File.Move(Path.Combine(core.Settings.IncompleteDownloadDir, file.Name),
+							             Path.Combine(core.Settings.CompletedDownloadDir, file.Name));
 						}
 					}
 
 
-					foreach (BitTorrentFileTransferPeer peer in base.peers) {
+					foreach (BitTorrentFileTransferPeer peer in peers) {
 						if (peer.Peer == null || !peer.Peer.IsSeeder) {
 							return;
 						}
@@ -583,7 +571,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 					if (manager == null || manager.Progress != 100) {
 						// If we got here, then everyone is a seeder.
 						// No need to keep the transfer active.
-						this.Cancel();
+						Cancel();
 					} else {
 						// Success! Ensure torrent is stopped.
 						manager.Stop();
@@ -591,29 +579,28 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 				}
 			} catch (Exception ex) {
 				LoggingService.LogError("Error in manager_TorrentStateChanged.", ex);
-				this.Cancel();
+				Cancel();
 			}
 		}
 
 		private bool ConnectToPeer (BitTorrentFileTransferPeer peer)
 		{
-			IDestination destination = peer.Node.FirstConnectableDestination;
+			var destination = peer.Node.FirstConnectableDestination;
 			if (destination != null) {
-				ITransport transport = destination.CreateTransport(ConnectionType.TransferConnection);
+				var transport = destination.CreateTransport(ConnectionType.TransferConnection);
 				LoggingService.LogDebug("New outgoing connection");
 				peer.Network.ConnectTo(transport, OutgoingPeerTransportConnected);
 				return true;
-			} else {
-				// FIXME: Mark peer as bad!
-				LoggingService.LogError("Transfer can't connect to peer {0} - no destinations available!", peer.Node);
-				return false;
 			}
+		    // FIXME: Mark peer as bad!
+		    LoggingService.LogError("Transfer can't connect to peer {0} - no destinations available!", peer.Node);
+		    return false;
 		}
 		
 		private void OutgoingPeerTransportConnected (ITransport t)
 		{
 			try {	
-				((BitTorrentFileTransferProvider)core.FileTransferManager.Provider).Listener.AddConnection(new TorrentConnection(t), this.manager);
+				((BitTorrentFileTransferProvider)core.FileTransferManager.Provider).Listener.AddConnection(new TorrentConnection(t), manager);
 			} catch (Exception ex) {
 				// XXX: Better error handling here! Stop the torrent! Kill connections! Wreak havoc!
 				LoggingService.LogError(ex);

@@ -16,33 +16,33 @@ namespace Meshwork.Library.Stun
 		{
 			MessageAttributes = new List <MessageAttribute> ();
 
-			byte[] typeBytes = new byte[2];
+			var typeBytes = new byte[2];
 			Array.Copy (data, typeBytes, 2);
 			MessageType = (MessageType) Utility.TwoBytesToInteger (typeBytes);
 			
-			byte[] lengthBytes = new byte[2];
+			var lengthBytes = new byte[2];
 			Array.Copy (data, 2, lengthBytes, 0, 2);
-			int length = Utility.TwoBytesToInteger (lengthBytes);
+			var length = Utility.TwoBytesToInteger (lengthBytes);
 
-			int position = 20;
+			var position = 20;
 			
 			while (position < length) {
-				byte[] attributeTypeBytes = new byte [2];
+				var attributeTypeBytes = new byte [2];
 				Array.Copy (data, position, attributeTypeBytes, 0, 2);
-				MessageAttributeType attributeType = (MessageAttributeType) Utility.TwoBytesToInteger (attributeTypeBytes);
+				var attributeType = (MessageAttributeType) Utility.TwoBytesToInteger (attributeTypeBytes);
 				position += 2;
 				
-				byte[] attributeLengthBytes = new byte [2];
+				var attributeLengthBytes = new byte [2];
 				Array.Copy (data, position, attributeLengthBytes, 0, 2);
-				int attributeLength = Utility.TwoBytesToInteger (attributeLengthBytes);
+				var attributeLength = Utility.TwoBytesToInteger (attributeLengthBytes);
 				position += 2;
 
-				byte[] attributeData = new byte [attributeLength];
+				var attributeData = new byte [attributeLength];
 				Array.Copy (data, position, attributeData, 0, attributeLength);
 
-				if (MessageAttribute.TypeTable.ContainsKey (attributeType) == true) {
-					Type type = MessageAttribute.TypeTable [attributeType];
-					MessageAttribute attribute = (MessageAttribute) Activator.CreateInstance (type, new object[] {attributeData});
+				if (MessageAttribute.TypeTable.ContainsKey (attributeType)) {
+					var type = MessageAttribute.TypeTable [attributeType];
+					var attribute = (MessageAttribute) Activator.CreateInstance (type, attributeData);
 					MessageAttributes.Add (attribute);
 				}
 
@@ -66,12 +66,12 @@ namespace Meshwork.Library.Stun
 		{
 			ushort length = 20;
 
-			foreach (MessageAttribute attribute in MessageAttributes) {
+			foreach (var attribute in MessageAttributes) {
 				length += (ushort) attribute.Length;
 			}
 
-			int index = 0;
-			byte [] buffer = new byte [length];
+			var index = 0;
+			var buffer = new byte [length];
 	
 			Array.Copy (Utility.IntegerToTwoBytes ((int)MessageType), 0, buffer, index, 2);
 			index += 2;
@@ -82,8 +82,8 @@ namespace Meshwork.Library.Stun
 			Array.Copy (transactionID, 0, buffer, index, 16);
 			index += 16;
 
-			foreach (MessageAttribute attribute in MessageAttributes) {
-				byte [] attributeBytes = attribute.GetBytes ();
+			foreach (var attribute in MessageAttributes) {
+				var attributeBytes = attribute.GetBytes ();
 				Array.Copy (attributeBytes, 0, buffer, index, attributeBytes.Length);
 				index += attributeBytes.Length;
 			}
@@ -93,8 +93,8 @@ namespace Meshwork.Library.Stun
 	
 		private byte[] CreateTransactionID ()
 		{
-			byte[] result = new byte [16];
-			Random random = new Random ();
+			var result = new byte [16];
+			var random = new Random ();
 		        random.NextBytes (result);
 			return result;
 		}

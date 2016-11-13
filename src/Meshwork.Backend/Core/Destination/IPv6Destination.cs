@@ -24,7 +24,7 @@ namespace Meshwork.Backend.Core.Destination
 
         public override bool CanConnect {
             get {
-                if (!Common.Common.SupportsIPv6) {
+                if (!Common.Utils.SupportsIPv6) {
                     return false;
                 }
 				

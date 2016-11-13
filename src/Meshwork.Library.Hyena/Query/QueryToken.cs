@@ -52,7 +52,7 @@ namespace Meshwork.Library.Hyena.Query
 
         public QueryToken(string term)
         {
-            this.id = TokenID.Term;
+            id = TokenID.Term;
             this.term = term;
         }
 

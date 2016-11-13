@@ -15,7 +15,6 @@ using System.Runtime.Serialization;
 
 namespace Meshwork.Common
 {
-	[Serializable]
 	public class ReadOnlyDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, ISerializable,
 	                                                IDeserializationCallback
 	{

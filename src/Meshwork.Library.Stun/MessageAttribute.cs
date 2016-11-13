@@ -31,9 +31,9 @@ namespace Meshwork.Library.Stun
 
 		public byte[] GetBytes ()
 		{
-			byte[] buffer = new byte [Value.Length + 32];
+			var buffer = new byte [Value.Length + 32];
 		
-			int index = 0;
+			var index = 0;
 			
 			Array.Copy (BitConverter.GetBytes ((ushort)type), 0, buffer, index, 2);
 			index += 2;

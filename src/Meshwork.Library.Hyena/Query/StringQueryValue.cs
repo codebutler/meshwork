@@ -26,7 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using System.Xml;
 
 namespace Meshwork.Library.Hyena.Query
@@ -76,7 +75,7 @@ namespace Meshwork.Library.Hyena.Query
 
         public override string ToSql (Operator op)
         {
-            return string.IsNullOrEmpty (value) ? null : EscapeString (op, Hyena.StringUtil.SearchKey (value));
+            return string.IsNullOrEmpty (value) ? null : EscapeString (op, StringUtil.SearchKey (value));
         }
 
         protected static string EscapeString (Operator op, string orig)

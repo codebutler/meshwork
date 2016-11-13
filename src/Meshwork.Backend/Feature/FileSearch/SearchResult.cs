@@ -39,7 +39,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 			
 			/* The InfoHash property is used as a key elsewhere, so just
 			 * set it to something unique for directories */
-			m_InfoHash = Common.Common.SHA512Str(directoryFullPath);
+			m_InfoHash = Common.Utils.SHA512Str(directoryFullPath);
 		}
 		
 		SearchResult (FileSearch search, Node node)
@@ -55,12 +55,12 @@ namespace Meshwork.Backend.Feature.FileSearch
 		}
 
 		public string InfoHash {
-			get {
-				if (m_Listing is SharedFileListing) {
-					return ((SharedFileListing)m_Listing).InfoHash;
-				} else {
-					return m_InfoHash;
+			get
+			{
+			    if (m_Listing is SharedFileListing) {
+					return m_Listing.InfoHash;
 				}
+			    return m_InfoHash;
 			}
 		}
 		

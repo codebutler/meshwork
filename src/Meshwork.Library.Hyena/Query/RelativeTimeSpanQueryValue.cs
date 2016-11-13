@@ -27,6 +27,7 @@
 //
 
 using System;
+using System.Globalization;
 using System.Xml;
 using Mono.Unix;
 
@@ -47,7 +48,7 @@ namespace Meshwork.Library.Hyena.Query
         
         public static RelativeTimeSpanQueryValue RelativeToNow (DateTime since)
         {
-            RelativeTimeSpanQueryValue qv = new RelativeTimeSpanQueryValue ();
+            var qv = new RelativeTimeSpanQueryValue ();
             qv.SetRelativeValue ((since - DateTime.Now).TotalSeconds, TimeFactor.Second);
             qv.DetermineFactor ();
             return qv;
@@ -74,12 +75,12 @@ namespace Meshwork.Library.Hyena.Query
 
         public override string ToSql (Operator op)
         {
-            return DateTimeUtil.FromDateTime (DateTime.Now + TimeSpan.FromSeconds ((double) offset)).ToString (System.Globalization.CultureInfo.InvariantCulture);
+            return DateTimeUtil.FromDateTime (DateTime.Now + TimeSpan.FromSeconds (offset)).ToString (CultureInfo.InvariantCulture);
         }
 
         protected override string FactorString (TimeFactor factor, double count, bool translate)
         {
-            string result = base.FactorString (factor, count, translate);
+            var result = base.FactorString (factor, count, translate);
             return (result == null) ? null : string.Format (
                 translate ? Catalog.GetString ("{0} ago") : "{0} ago", result);
         }

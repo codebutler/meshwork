@@ -8,7 +8,10 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Text;
+using Meshwork.Backend.Core.Protocol;
 using Meshwork.Common;
 using Meshwork.Common.Serialization;
 
@@ -22,11 +25,11 @@ namespace Meshwork.Backend.Core
 		private Message (Network network, byte[] data, out string messageFrom)
 		{
 			if (network == null) {
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			}
 			
 			if (data == null) {
-				throw new ArgumentNullException("data");
+				throw new ArgumentNullException(nameof(data));
 			}
 			
 			this.network = network;
@@ -34,7 +37,7 @@ namespace Meshwork.Backend.Core
 			
 			// Read message header
 			
-			int offset = 0;
+			var offset = 0;
 				    
 			signatureLength = EndianBitConverter.ToUInt64(data, offset);
 			offset += 8;
@@ -43,13 +46,13 @@ namespace Meshwork.Backend.Core
 			Buffer.BlockCopy(data, offset, signature, 0, (int)signatureLength);
 			offset += (int)signatureLength;
 
-			byte[] fromBuffer = new byte[64];
+			var fromBuffer = new byte[64];
 			Buffer.BlockCopy(data, offset, fromBuffer, 0, fromBuffer.Length);
 			from = BitConverter.ToString(fromBuffer).Replace("-", string.Empty);
 			messageFrom = from;
 			offset += 64;
 			
-			byte[] toBuffer = new byte[64];
+			var toBuffer = new byte[64];
 			Buffer.BlockCopy(data, offset, toBuffer, 0, toBuffer.Length);
 			to = BitConverter.ToString(toBuffer).Replace("-", string.Empty);
 			offset += 64;
@@ -57,7 +60,7 @@ namespace Meshwork.Backend.Core
 			type = (MessageType)data[offset];
 			offset += 1;
 			
-			byte[] idBytes = new byte[16];
+			var idBytes = new byte[16];
 			Buffer.BlockCopy(data, offset, idBytes, 0, 16);
 			id = new Guid(idBytes).ToString();
 			offset += 16;
@@ -68,25 +71,25 @@ namespace Meshwork.Backend.Core
 			contentLength = EndianBitConverter.ToInt32(data, offset);
 			offset += 4;
 
-			int remainingLength = data.Length - offset;
+			var remainingLength = data.Length - offset;
 			if (remainingLength != contentLength) {
-				throw new Exception(string.Format("Message size mismatch! Content length should be {0}, was {1}", contentLength, remainingLength));
+				throw new Exception($"Message size mismatch! Content length should be {contentLength}, was {remainingLength}");
 			}
 			
 			// If this message isn't for us, ignore the content.
 			if (to == network.Core.MyNodeID || to == Network.BroadcastNodeID) {
 				
-				byte[] contentBuffer = new byte[contentLength];
+				var contentBuffer = new byte[contentLength];
 				Buffer.BlockCopy(data, offset, contentBuffer, 0, contentLength);		
 				
 				// Decrypt if needed			
 				
-				if (Message.TypeIsEncrypted(type)) {
+				if (TypeIsEncrypted(type)) {
 					if (From != network.Core.MyNodeID) {
 						if (network.Nodes.ContainsKey(From)) {
 							contentBuffer = Encryption.Decrypt(network.Nodes[From].CreateDecryptor(), contentBuffer);
 						} else {
-							throw new Exception(string.Format("Node not found: {0}", From));
+							throw new Exception($"Node not found: {From}");
 						}
 					} else {
 						contentBuffer = Encryption.Decrypt(network.Nodes[To].CreateDecryptor(), contentBuffer);
@@ -97,29 +100,28 @@ namespace Meshwork.Backend.Core
 				
 				if (From != network.Core.MyNodeID) {
 					if (network.TrustedNodes.ContainsKey(from)) {
-						bool validSignature = network.TrustedNodes[from].Crypto.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
+						var validSignature = network.TrustedNodes[from].CreateCrypto().VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
 						if (validSignature == false) {
 							throw new InvalidSignatureException();
 						}
-					} else if (Message.TypeIsEncrypted(type)) {
-						throw new Exception ("Unable to verify message signature! (Type: " + type.ToString() + ")");
+					} else if (TypeIsEncrypted(type)) {
+						throw new Exception ("Unable to verify message signature! (Type: " + type + ")");
 					}
 				} else {
-					bool validSignature = network.Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
+					var validSignature = network.Core.CryptoProvider.VerifyData (contentBuffer, new SHA1CryptoServiceProvider(), signature);
 					if (validSignature == false) {
 						throw new InvalidSignatureException();
 					}
 				}			
 	
 				// Now deserialize content
-	
-				content = Binary.Deserialize(contentBuffer);					
+				content = Json.Deserialize(Encoding.UTF8.GetString(contentBuffer), MessageTypeToType[type]);
 			}
 		}
 		
 		public static Message Parse (Network network, byte[] data, out string messageFrom)
 		{
-			Message message = new Message(network, data, out messageFrom);
+			var message = new Message(network, data, out messageFrom);
 			return message;
 		}
 
@@ -129,10 +131,10 @@ namespace Meshwork.Backend.Core
 				throw new ArgumentNullException("network");
 			}
 			
-			this.from = network.LocalNode.NodeID;
+			from = network.LocalNode.NodeID;
 			this.type = type;
-			this.id = network.CreateMessageID();
-			this.timestamp = Common.Common.GetUnixTimestamp();
+			id = network.CreateMessageID();
+			timestamp = Common.Utils.GetUnixTimestamp();
 
 			this.network = network;
 		}
@@ -163,18 +165,17 @@ namespace Meshwork.Backend.Core
 				
 				if (!network.Nodes.ContainsKey(value)) {
 					throw new Exception ("The specified node was not found (" + value + ").");
-				} else {
-					this.from = value;
 				}
+			    from = value;
 			}
 		}
 
 		public string To {
-			get {
-				if (this.to == null)
+			get
+			{
+			    if (to == null)
 					return Network.BroadcastNodeID;
-				else
-					return this.to;
+			    return to;
 			}
 			set {
 				if (data != null)
@@ -186,9 +187,8 @@ namespace Meshwork.Backend.Core
 
 				if ((!network.Nodes.ContainsKey(value)) & value != Network.BroadcastNodeID) {
 					throw new Exception ("The specified node was not found (" + value + ").");
-				} else {
-					this.to = value;
 				}
+			    to = value;
 			}
 		}
 		
@@ -200,7 +200,7 @@ namespace Meshwork.Backend.Core
 				if (data != null)
 					throw new InvalidOperationException("Message has already been signed");
 				
-				this.type = value;
+				type = value;
 			}
 		}
 
@@ -210,7 +210,7 @@ namespace Meshwork.Backend.Core
 					throw new InvalidOperationException("Message has already been signed");
 				
 				if (value.Length == 16)
-					this.id = value;
+					id = value;
 				else
 					throw new InvalidOperationException("MessageID must be 16 bytes.");
 			}
@@ -225,7 +225,7 @@ namespace Meshwork.Backend.Core
 					throw new InvalidOperationException("Message has already been signed");
 				
 				//TODO: verify that it is a valid unix epoch timestamp
-				this.timestamp = value;
+				timestamp = value;
 			}
 			get {
 				return timestamp;
@@ -251,16 +251,16 @@ namespace Meshwork.Backend.Core
 			if (data != null)
 				return data;
 			
-			int index = 0;
+			var index = 0;
 			byte[] buffer;
 
-			byte[] contentBytes = Binary.Serialize(content);
+			var contentBytes = Encoding.UTF8.GetBytes(Json.Serialize(content));
 			
 			// Sign before encrypting
-			this.signature = network.Core.CryptoProvider.SignData(contentBytes, new SHA1CryptoServiceProvider());
-			this.signatureLength = (ulong)this.signature.Length;
+			signature = network.Core.CryptoProvider.SignData(contentBytes, new SHA1CryptoServiceProvider());
+			signatureLength = (ulong)signature.Length;
 			
-			if (Message.TypeIsEncrypted(type)) {
+			if (TypeIsEncrypted(type)) {
 
 				if (!network.Nodes.ContainsKey(to)) {
 					throw new Exception ("network.Nodes[to] was null!... to was " +  to);
@@ -283,7 +283,7 @@ namespace Meshwork.Backend.Core
 			
 			AppendByteToBuffer((byte)type, ref buffer, ref index);			// 1
 			
-			byte[] idBytes = new Guid(id).ToByteArray();
+			var idBytes = new Guid(id).ToByteArray();
 			AppendBytesToBuffer(idBytes, ref buffer, ref index); 			// 16
 
 			AppendULongToBuffer(timestamp, ref buffer, ref index);			// 8
@@ -319,7 +319,7 @@ namespace Meshwork.Backend.Core
 		
 		private static void AppendStringToBuffer (string data, ref byte[] buffer, ref int index)
 		{
-			byte[] bytes = Common.Common.StringToBytes(data);
+			var bytes = Common.Utils.StringToBytes(data);
 			Buffer.BlockCopy(bytes, 0, buffer, index, bytes.Length);
 			index += bytes.Length;
 		}
@@ -337,51 +337,54 @@ namespace Meshwork.Backend.Core
 			index += 1;
 		}
 		
-		/*
 		// XXX: Move all this somewhere else!
-		public static Dictionary<MessageType, Type> MessageTypeToType;
-		static Message ()
-		{
-			Message.MessageTypeToType = new Dictionary<MessageType,Type>();
-			Message.MessageTypeToType[MessageType.Auth] 		= typeof(AuthInfo);
-			Message.MessageTypeToType[MessageType.AuthReply] 	= typeof(AuthInfo);
-			Message.MessageTypeToType[MessageType.PrivateMessage] 	= typeof(string);
-			Message.MessageTypeToType[MessageType.ChatroomMessage] 	= typeof(ChatMessage);
-			Message.MessageTypeToType[MessageType.MyInfo] 		= typeof(NodeInfo);
-			Message.MessageTypeToType[MessageType.Ready] 		= typeof(string);
-			Message.MessageTypeToType[MessageType.JoinChat] 	= typeof(ChatAction);
-			Message.MessageTypeToType[MessageType.LeaveChat] 	= typeof(ChatAction);
-			Message.MessageTypeToType[MessageType.ConnectionDown] 	= typeof(ConnectionInfo);
-			Message.MessageTypeToType[MessageType.Ping]	 	= typeof(ulong);
-			Message.MessageTypeToType[MessageType.Pong] 		= typeof(ulong);
-			Message.MessageTypeToType[MessageType.RequestDirListing] = typeof(string);
-			Message.MessageTypeToType[MessageType.RespondDirListing] = typeof(SharedDirectoryInfo);
-			Message.MessageTypeToType[MessageType.Ack] 		= typeof(string);
-			Message.MessageTypeToType[MessageType.SearchResult] 	= typeof(SearchResultInfo);
-			Message.MessageTypeToType[MessageType.SearchRequest] 	= typeof(SearchInfo);
-			Message.MessageTypeToType[MessageType.RequestFile] 	= typeof(RequestFileInfo);
-			Message.MessageTypeToType[MessageType.NonCriticalError] = typeof(MeshworkException);
-			Message.MessageTypeToType[MessageType.CriticalError] 	= typeof(MeshworkException);
-			Message.MessageTypeToType[MessageType.RequestInfo] 	= typeof(string);
-			Message.MessageTypeToType[MessageType.RequestKey]	= typeof(string);
-			Message.MessageTypeToType[MessageType.MyKey]		= typeof(KeyInfo);
-			Message.MessageTypeToType[MessageType.ChatInvite] 	= typeof(ChatInviteInfo);
-			Message.MessageTypeToType[MessageType.SendFile] 	= typeof(SendFileInfo);
-			Message.MessageTypeToType[MessageType.AddMemo]		= typeof(MemoInfo);
-			Message.MessageTypeToType[MessageType.DeleteMemo] 	= typeof(string);
-			Message.MessageTypeToType[MessageType.Hello] 		= typeof(HelloInfo);
-			Message.MessageTypeToType[MessageType.NewSessionKey] 	= typeof(byte[]);
-//			Message.MessageTypeToType[MessageType.OfferFile] 	= typeof();
-		}
-		*/
-		
+	    public static Dictionary<MessageType, Type> MessageTypeToType = new Dictionary<MessageType, Type>()
+	    {
+	        { MessageType.Auth, typeof(AuthInfo) },
+	        { MessageType.AuthReply, typeof(AuthInfo) },
+	        { MessageType.PrivateMessage, typeof(string) },
+	        { MessageType.ChatroomMessage, typeof(ChatMessage) },
+	        { MessageType.MyInfo, typeof(NodeInfo) },
+	        { MessageType.Ready, typeof(string) },
+	        { MessageType.JoinChat, typeof(ChatAction) },
+	        { MessageType.LeaveChat, typeof(ChatAction) },
+	        { MessageType.ConnectionDown, typeof(ConnectionInfo) },
+	        { MessageType.Ping, typeof(ulong) },
+	        { MessageType.Pong, typeof(ulong) },
+	        { MessageType.RequestDirListing, typeof(string) },
+	        { MessageType.RespondDirListing, typeof(SharedDirectoryInfo) },
+	        { MessageType.Ack, typeof(string) },
+	        { MessageType.SearchResult, typeof(SearchResultInfo) },
+	        { MessageType.SearchRequest, typeof(SearchRequestInfo) },
+	        { MessageType.RequestFile, typeof(RequestFileInfo) },
+	        { MessageType.NonCriticalError, typeof(MeshworkError) },
+	        { MessageType.CriticalError, typeof(MeshworkError) },
+	        { MessageType.RequestInfo, typeof(string) },
+	        { MessageType.RequestKey, typeof(string) },
+	        { MessageType.MyKey, typeof(KeyInfo) },
+	        { MessageType.ChatInvite, typeof(ChatInviteInfo) },
+	        // { MessageType.SendFile, typeof(SharedFileInfo) },
+	        { MessageType.AddMemo, typeof(MemoInfo) },
+	        { MessageType.DeleteMemo, typeof(string) },
+	        { MessageType.Hello, typeof(HelloInfo) },
+	        { MessageType.NewSessionKey, typeof(byte[]) },
+	        { MessageType.FileDetails, typeof(SharedFileListing) },
+	        { MessageType.TransportConnect, typeof(string) },
+	        //{ MessageType.TransportDisconnect, null },
+	        //{ MessageType.TransportData, null },
+	        //{ MessageType.TransportErro, null },
+	        { MessageType.RequestAvatar, typeof(string) },
+	        { MessageType.Avatar, typeof(byte[]) },
+	        { MessageType.Test, typeof(string) },
+	        { MessageType.RequestFileDetails, typeof(string) }
+	    };
+
 		public static bool TypeIsEncrypted (MessageType type)
 		{
-			if (Network.InsecureMessageTypes.Contains(type) || Network.LocalOnlyMessageTypes.Contains(type) || Network.UnencryptedMessageTypes.Contains(type)) {
+		    if (Network.InsecureMessageTypes.Contains(type) || Network.LocalOnlyMessageTypes.Contains(type) || Network.UnencryptedMessageTypes.Contains(type)) {
 				return false;
-			} else {
-				return true;
 			}
+		    return true;
 		}
 	}	
 
@@ -410,16 +413,16 @@ namespace Meshwork.Backend.Core
 		RequestKey              = 0x14,
 		MyKey                   = 0x15,
 		ChatInvite              = 0x16,
-		SendFile                = 0x17,
+		//SendFile                = 0x17,
 		AddMemo                 = 0x18,
 		DeleteMemo              = 0x19,
 		Hello                   = 0x1A,
 		NewSessionKey           = 0x1B,
 		FileDetails             = 0x1C,
 		TransportConnect        = 0x1D,
-		TransportDisconnect	    = 0x1E,
-		TransportData           = 0x1F,
-		TransportErro           = 0x20,
+		//TransportDisconnect	    = 0x1E,
+		//TransportData           = 0x1F,
+		//TransportErro           = 0x20,
 		RequestAvatar           = 0x21,
 		Avatar                  = 0x22,
 		Test                    = 0x23,

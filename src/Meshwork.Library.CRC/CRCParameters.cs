@@ -41,12 +41,12 @@ namespace Meshwork.Library.CRC {
 		/// <summary>Gets or sets the order of the CRC (e.g., how many bits).</summary>
 		public int Order {
 			get { return order; }
-			set {
-				if (((value % 8) != 0) || (value < 8) || (value > 64)) {
+			set
+			{
+			    if (((value % 8) != 0) || (value < 8) || (value > 64)) {
 					throw new ArgumentOutOfRangeException("Order", value, "CRC Order must represent full bytes and be between 8 and 64.");
-				} else {
-					order = value;
 				}
+			    order = value;
 			}
 		}
 
@@ -82,18 +82,18 @@ namespace Meshwork.Library.CRC {
 		/// <param name="finalXOR">The final value to XOR with the CRC.</param>
 		/// <param name="reflectIn">Whether or not to reflect the incoming data before calculating.</param>
 		public CRCParameters(int order, long polynomial, long initial, long finalXOR, bool reflectIn) {
-			this.Order = order;
-			this.Polynomial = polynomial;
-			this.InitialValue = initial;
-			this.FinalXORValue = finalXOR;
-			this.ReflectInput = reflectIn;
+			Order = order;
+			Polynomial = polynomial;
+			InitialValue = initial;
+			FinalXORValue = finalXOR;
+			ReflectInput = reflectIn;
 		}
 
 
 		/// <summary>Serves as a hash function for a particular type, suitable for use in hashing algorithms and data structures like a hash table.</summary>
 		/// <returns>A hash code for the current Object.</returns>
 		public override int GetHashCode() {
-			string temp = Polynomial.ToString() + Order.ToString() + ReflectInput.ToString();
+			var temp = Polynomial + Order.ToString() + ReflectInput;
 			return temp.GetHashCode();
 		}
 

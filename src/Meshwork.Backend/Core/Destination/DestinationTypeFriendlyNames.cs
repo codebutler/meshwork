@@ -21,9 +21,8 @@ namespace Meshwork.Backend.Core.Destination
         {
             if (FriendlyNames.ContainsKey(typeName)) {
                 return FriendlyNames[typeName];
-            } else {
-                return typeName;
             }
+            return typeName;
         }
     }
 }

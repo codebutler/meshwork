@@ -27,7 +27,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using System.IO;
 using System.Text;
 
@@ -52,7 +51,8 @@ namespace Meshwork.Library.Hyena.Query
             return new UserQueryParser (input).BuildTree (fieldSet);
         }
 
-        public UserQueryParser () : base () {}
+        public UserQueryParser ()
+        {}
         public UserQueryParser (string inputQuery) : base (inputQuery) {}
         public UserQueryParser (Stream stream) : base (stream) {}
         public UserQueryParser (StreamReader reader) : base (reader) {}
@@ -61,10 +61,10 @@ namespace Meshwork.Library.Hyena.Query
         {
             field_set = fieldSet;
             root = current_parent = new QueryListNode (Keyword.And);
-            bool last_was_term = false;
+            var last_was_term = false;
             
             while (true) {
-                QueryToken token = Scan ();
+                var token = Scan ();
 
                 if (token.ID == TokenID.Unknown) {
                     break;
@@ -110,7 +110,7 @@ namespace Meshwork.Library.Hyena.Query
             current_parent.AddChild (node);
 
             // If the node is a list, it's our new parent
-            QueryListNode list = node as QueryListNode;
+            var list = node as QueryListNode;
             if (list != null) {
                 current_parent = list;
             }
@@ -137,8 +137,8 @@ namespace Meshwork.Library.Hyena.Query
                     if (current_parent.Keyword == Keyword.Not ||
                             current_parent.Keyword == (token.ID == TokenID.Or ? Keyword.And : Keyword.Or)) {
 
-                        QueryListNode list = new QueryListNode (token.ID == TokenID.Or ? Keyword.Or : Keyword.And);
-                        QueryListNode p = current_parent.Parent;
+                        var list = new QueryListNode (token.ID == TokenID.Or ? Keyword.Or : Keyword.And);
+                        var p = current_parent.Parent;
 
                         if (p != null) {
                             current_parent.Parent.RemoveChild (current_parent);
@@ -163,16 +163,15 @@ namespace Meshwork.Library.Hyena.Query
 
         private QueryToken Scan ()
         {
-            if (reader.EndOfStream) {
+            if (reader.EndOfStream)
+            {
                 if (eos_consumed)
                     return new QueryToken (TokenID.Unknown);
-                else
-                    eos_consumed = true;
+                eos_consumed = true;
             }
             
             for (; ; ReadChar ()) {
                 if (char.IsWhiteSpace (peek) && peek != '\n') {
-                    continue;
                 } else if (peek == '\n') {
                     current_line++;
                     current_column = 0;
@@ -187,30 +186,32 @@ namespace Meshwork.Library.Hyena.Query
             if (peek == '(') {
                 ReadChar ();
                 return new QueryToken (TokenID.OpenParen);
-            } else if (peek == ')') {
+            }
+            if (peek == ')') {
                 ReadChar ();
                 return new QueryToken (TokenID.CloseParen);
-            } else if (peek == '-') {
+            }
+            if (peek == '-') {
                 ReadChar ();
                 return new QueryToken (TokenID.Not);
-            } else if (peek == '|' || peek == ',') {
+            }
+            if (peek == '|' || peek == ',') {
                 ReadChar ();
                 return new QueryToken (TokenID.Or);
-            } else {
-                string token = ScanString ();
+            }
+            var token = ScanString ();
 
-                if (reader.EndOfStream)
-                    eos_consumed = true;
+            if (reader.EndOfStream)
+                eos_consumed = true;
                 
-                switch (token) {
-                    case "or": 
-                    case "OR": 
-                        return new QueryToken (TokenID.Or);
-                    case "NOT":
-                        return new QueryToken (TokenID.Not);
-                    default:
-                        return new QueryToken (token);
-                }
+            switch (token) {
+                case "or": 
+                case "OR": 
+                    return new QueryToken (TokenID.Or);
+                case "NOT":
+                    return new QueryToken (TokenID.Not);
+                default:
+                    return new QueryToken (token);
             }
         }
 
@@ -223,13 +224,14 @@ namespace Meshwork.Library.Hyena.Query
 
         private string ScanString ()
         {
-            StringBuilder buffer = new StringBuilder ();
-            bool in_string = false;
+            var buffer = new StringBuilder ();
+            var in_string = false;
 
             while (true) {
                 if (!in_string && IsStringTerminationChar (peek)) {
                     break;
-                } else if (peek == '"') {
+                }
+                if (peek == '"') {
                     in_string = !in_string;
                 } else {
                     buffer.Append (peek);

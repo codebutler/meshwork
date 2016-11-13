@@ -31,12 +31,12 @@ namespace Meshwork.Common
 		public static string FormatJSON(string json)
 		{
 			var result = new StringBuilder();
-			int tabCount = 0;
-			bool inString = false;
-			bool ignoreNext = false;
+			var tabCount = 0;
+			var inString = false;
+			var ignoreNext = false;
 
-			for (int x = 0; x < json.Length; x++) {
-				char thisChar = json[x];
+			for (var x = 0; x < json.Length; x++) {
+				var thisChar = json[x];
 				if (ignoreNext) {
 					result.Append(thisChar);
 					ignoreNext = false;

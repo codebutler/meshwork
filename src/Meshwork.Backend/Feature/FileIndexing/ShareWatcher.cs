@@ -44,8 +44,8 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		{
 			running = true;
 			changedFilesThread.Start();
-			foreach (string path in core.Settings.SharedDirectories) {
-				FileSystemWatcher watcher = new FileSystemWatcher(path);
+			foreach (var path in core.Settings.SharedDirectories) {
+				var watcher = new FileSystemWatcher(path);
 				watcher.IncludeSubdirectories = true;
 				watcher.Created += watcher_Changed;
 				watcher.Changed += watcher_Changed;
@@ -66,17 +66,17 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		private void watcher_Changed (object sender, FileSystemEventArgs args)
 		{
 			try {
-				if (System.IO.Directory.Exists(args.FullPath)) {
+				if (Directory.Exists(args.FullPath)) {
 					HandleDirectoryChanged(args.FullPath);
 				} else {
 					lock (changedFiles) {
 						if (!changedFiles.ContainsKey(args.FullPath)) {
-							ChangedFileInfo info = new ChangedFileInfo();
+							var info = new ChangedFileInfo();
 							info.LastChangeSeen = DateTime.Now;
 							info.FileSize = new FileInfo(args.FullPath).Length;
 							changedFiles.Add(args.FullPath, info);
 						} else {
-							ChangedFileInfo info = changedFiles[args.FullPath];
+							var info = changedFiles[args.FullPath];
 							info.LastChangeSeen = DateTime.Now;
 						}
 					}
@@ -91,7 +91,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		{
 			try {
 				while (running) {
-					int count = 0;
+					var count = 0;
 					lock (changedFiles) {
 						count = changedFiles.Count;
 					}
@@ -101,10 +101,10 @@ namespace Meshwork.Backend.Feature.FileIndexing
 						Thread.Sleep(1000);
 					}
 					lock (changedFiles) {
-						List<string> toRemove = new List<string>();
-						foreach (KeyValuePair<string, ChangedFileInfo> pair in changedFiles) {
+						var toRemove = new List<string>();
+						foreach (var pair in changedFiles) {
 							if ((DateTime.Now - pair.Value.LastChangeSeen).TotalSeconds >= 5) {
-								long size = new FileInfo(pair.Key).Length;
+								var size = new FileInfo(pair.Key).Length;
 								if (size == pair.Value.FileSize) {
 									HandleFileChanged(pair.Key);
 									toRemove.Add(pair.Key);
@@ -113,7 +113,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 								}
 							}
 						}
-						foreach (string key in toRemove) {
+						foreach (var key in toRemove) {
 							changedFiles.Remove(key);
 						}
 					}
@@ -128,12 +128,12 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		{
 			// Do these one at a time.
 			lock (directoryChangeLock) {
-				DirectoryInfo info = new DirectoryInfo(path);
+				var info = new DirectoryInfo(path);
 				IDirectoryItem item = GetFromLocalPath(path);
 				if (item == null && info != null) {
 					// New Directory!
 
-					LocalDirectory parentDirectory = GetParentDirectory(info);
+					var parentDirectory = GetParentDirectory(info);
 					if (parentDirectory != null) {
 						LoggingService.LogDebug("NEW DIR !! " + path);
 						parentDirectory.CreateSubDirectory(core.FileSystem, info.Name, info.FullName);
@@ -149,12 +149,12 @@ namespace Meshwork.Backend.Feature.FileIndexing
 
 		private void HandleFileChanged (string path)
 		{
-			FileInfo info = new FileInfo(path);
+			var info = new FileInfo(path);
 			IDirectoryItem item = GetFromLocalPath(path);
 
 			if (item == null) {
 				// New File!
-				LocalDirectory parentDirectory = GetParentDirectory(info);
+				var parentDirectory = GetParentDirectory(info);
 
 				LoggingService.LogDebug("NEW FILE!! IN " + parentDirectory.FullPath);
 			} else {
@@ -166,7 +166,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		private void watcher_Deleted (object sender, FileSystemEventArgs args)
 		{
 			try {
-				ILocalDirectoryItem item = GetFromLocalPath(args.FullPath);
+				var item = GetFromLocalPath(args.FullPath);
 				if (item != null) {
 					item.Delete();
 				}
@@ -186,20 +186,18 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		{
 			LoggingService.LogDebug("GET FROM LOCAL !!! " + localPath);
 			return core.FileSystem.UseConnection<ILocalDirectoryItem>(delegate (IDbConnection connection) {
-				IDbCommand cmd = connection.CreateCommand();
+				var cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT * FROM directoryitems WHERE local_path = @local_path";
 				core.FileSystem.AddParameter(cmd, "@local_path", localPath);
-				DataSet ds = core.FileSystem.ExecuteDataSet(cmd);
+				var ds = core.FileSystem.ExecuteDataSet(cmd);
 				if (ds.Tables[0].Rows.Count > 0) {
-					string type = ds.Tables[0].Rows[0]["type"].ToString();
+					var type = ds.Tables[0].Rows[0]["type"].ToString();
 					if (type == "F") {
 						return LocalFile.FromDataRow(core.FileSystem, ds.Tables[0].Rows[0]);
-					} else {
-						return LocalDirectory.FromDataRow(core.FileSystem, ds.Tables[0].Rows[0]);
 					}
-				} else {
-					return null;
+				    return LocalDirectory.FromDataRow(core.FileSystem, ds.Tables[0].Rows[0]);
 				}
+			    return null;
 			});
 		}
 
@@ -232,15 +230,14 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		// XXX: Move this too!
 		private LocalDirectory GetParentDirectory (FileSystemInfo info)
 		{
-			DirectoryInfo directoryInfo = (info is FileInfo) ? ((FileInfo)info).Directory : (DirectoryInfo)info;
+			var directoryInfo = (info is FileInfo) ? ((FileInfo)info).Directory : (DirectoryInfo)info;
 
 			LoggingService.LogDebug("GET PARENT DIRECTORY " + directoryInfo.FullName);
 
 			if (core.Settings.SharedDirectories.Contains(directoryInfo.FullName)) {
 				return core.MyDirectory;
-			} else {
-				return (LocalDirectory)GetFromLocalPath(directoryInfo.Parent.FullName);
 			}
+		    return (LocalDirectory)GetFromLocalPath(directoryInfo.Parent.FullName);
 		}
 	}
 }

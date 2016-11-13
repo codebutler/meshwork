@@ -27,6 +27,7 @@
 //
 
 using System;
+using System.Globalization;
 using System.Xml;
 
 namespace Meshwork.Library.Hyena.Query
@@ -99,7 +100,7 @@ namespace Meshwork.Library.Hyena.Query
 
         public override string ToSql (Operator op)
         {
-            return Convert.ToString (value, System.Globalization.CultureInfo.InvariantCulture);
+            return Convert.ToString (value, CultureInfo.InvariantCulture);
         }
     }
 }

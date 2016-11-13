@@ -37,7 +37,7 @@ namespace Meshwork.Backend.Core.Logging
 		Error = 2,
 		Warn  = 4,
 		Info  = 8,
-		Debug = 16,
+		Debug = 16
 	}
 	
 	[Flags]

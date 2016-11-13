@@ -1,8 +1,5 @@
-﻿using System;
-
-namespace Meshwork.Backend.Core.Protocol
+﻿namespace Meshwork.Backend.Core.Protocol
 {
-    [Serializable]
     public struct SearchResultInfo
     {
         public int SearchId;

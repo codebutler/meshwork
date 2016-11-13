@@ -92,12 +92,12 @@ namespace Meshwork.Library.Hyena.Query
         }
 
         public QueryField (string name, string propertyName, string label, string column, bool isDefault, params string [] aliases)
-            : this (name, propertyName, label, column, new Type [] {typeof(StringQueryValue)}, isDefault, aliases)
+            : this (name, propertyName, label, column, new[] {typeof(StringQueryValue)}, isDefault, aliases)
         {
         }
 
         public QueryField (string name, string propertyName, string label, string column, Type valueType, params string [] aliases)
-            : this (name, propertyName, label, column, new Type [] {valueType}, false, aliases)
+            : this (name, propertyName, label, column, new[] {valueType}, false, aliases)
         {
         }
 
@@ -109,29 +109,29 @@ namespace Meshwork.Library.Hyena.Query
         public QueryField (string name, string propertyName, string label, string column, Type [] valueTypes, bool isDefault, params string [] aliases)
         {
             this.name = name;
-            this.property_name = propertyName;
+            property_name = propertyName;
             this.label = label;
             this.column = column;
-            this.value_types = valueTypes;
-            this.is_default = isDefault;
+            value_types = valueTypes;
+            is_default = isDefault;
             this.aliases = aliases;
 
-            this.no_custom_format = (Column.IndexOf ("{0}") == -1 && Column.IndexOf ("{1}") == -1);
-            this.column_lowered = (Column.IndexOf ("Lowered") != -1);
+            no_custom_format = (Column.IndexOf ("{0}") == -1 && Column.IndexOf ("{1}") == -1);
+            column_lowered = (Column.IndexOf ("Lowered") != -1);
 
             if (!no_custom_format) {
                 // Ensure we have parens around any custom 'columns' that may be an OR of two columns
                 this.column = string.Format ("({0})", this.column);
             }
 
-            foreach (Type value_type in valueTypes) {
+            foreach (var value_type in valueTypes) {
                 QueryValue.AddValueType (value_type);
             }
         }
 
         public IEnumerable<QueryValue> CreateQueryValues ()
         {
-            foreach (Type type in ValueTypes) {
+            foreach (var type in ValueTypes) {
                 yield return Activator.CreateInstance (type) as QueryValue;
             }
         }
@@ -143,30 +143,28 @@ namespace Meshwork.Library.Hyena.Query
 
         public string ToSql (Operator op, QueryValue qv)
         {
-            string value = qv.ToSql (op) ?? string.Empty;
+            var value = qv.ToSql (op) ?? string.Empty;
 
             if (op == null) op = qv.OperatorSet.First;
 
-            StringBuilder sb = new StringBuilder ();
+            var sb = new StringBuilder ();
 
             if (no_custom_format) {
-                string column_with_key = Column;
+                var column_with_key = Column;
                 if (qv is StringQueryValue && !(column_lowered || qv is ExactStringQueryValue)) {
                     column_with_key = string.Format ("HYENA_SEARCH_KEY({0})", Column);
                 }
                 sb.AppendFormat ("{0} {1}", column_with_key, string.Format (op.SqlFormat, value));
 
                 if (op.IsNot) {
-                    return string.Format ("({0} OR {1} IS NULL)", sb.ToString (), Column);
-                } else {
-                    return string.Format ("({0} AND {1} IS NOT NULL)", sb.ToString (), Column);
+                    return string.Format ("({0} OR {1} IS NULL)", sb, Column);
                 }
-            } else {
-                sb.AppendFormat (
-                    Column, string.Format (op.SqlFormat, value),
-                    value, op.IsNot ? "NOT" : null
-                );
+                return string.Format ("({0} AND {1} IS NOT NULL)", sb, Column);
             }
+            sb.AppendFormat (
+                Column, string.Format (op.SqlFormat, value),
+                value, op.IsNot ? "NOT" : null
+            );
 
             return sb.ToString ();
         }

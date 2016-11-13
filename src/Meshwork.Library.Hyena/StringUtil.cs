@@ -50,14 +50,16 @@ namespace Meshwork.Library.Hyena
         {
             if (a == null && b == null) {
                 return 0;
-            } else if (a != null && b == null) {
+            }
+            if (a != null && b == null) {
                 return 1;
-            } else if (a == null && b != null) {
+            }
+            if (a == null && b != null) {
                 return -1;
             }
-            
-            int a_offset = a.StartsWith ("the ") ? 4 : 0;
-            int b_offset = b.StartsWith ("the ") ? 4 : 0;
+
+            var a_offset = a.StartsWith ("the ") ? 4 : 0;
+            var b_offset = b.StartsWith ("the ") ? 4 : 0;
 
             return CultureInfo.CurrentCulture.CompareInfo.Compare (a, a_offset, a.Length - a_offset, 
                 b, b_offset, b.Length - b_offset, compare_options);
@@ -75,15 +77,15 @@ namespace Meshwork.Library.Hyena
                 return null;
             }
         
-            StringBuilder undercase = new StringBuilder ();
-            string [] tokens = camelcase.Split (s);
+            var undercase = new StringBuilder ();
+            var tokens = camelcase.Split (s);
             
-            for (int i = 0; i < tokens.Length; i++) {
+            for (var i = 0; i < tokens.Length; i++) {
                 if (tokens[i] == string.Empty) {
                     continue;
                 }
 
-                undercase.Append (tokens[i].ToLower (System.Globalization.CultureInfo.InvariantCulture));
+                undercase.Append (tokens[i].ToLower (CultureInfo.InvariantCulture));
                 if (i < tokens.Length - 2) {
                     undercase.Append (underscore);
                 }
@@ -98,7 +100,7 @@ namespace Meshwork.Library.Hyena
                 return null;
             }
 
-            StringBuilder builder = new StringBuilder ();
+            var builder = new StringBuilder ();
 
             for (int i = 0, n = s.Length, b = -1; i < n; i++) {
                 if (b < 0 && s[i] != '_') {
@@ -160,15 +162,14 @@ namespace Meshwork.Library.Hyena
         {
             if (num == (int)num)
                 return (int)num;
-            else
-                return (int)num + 1;
+            return (int)num + 1;
         }
         
         // A mapping of non-Latin characters to be considered the same as
         // a Latin equivalent.
         private static Dictionary<char, char> BuildSpecialCases ()
         {
-            Dictionary<char, char> dict = new Dictionary<char, char> ();
+            var dict = new Dictionary<char, char> ();
             dict['\u00f8'] = 'o';
             dict['\u0142'] = 'l';
             return dict;
@@ -183,19 +184,19 @@ namespace Meshwork.Library.Hyena
             }
             
             val = val.ToLower ();
-            StringBuilder sb = new StringBuilder ();
+            var sb = new StringBuilder ();
             UnicodeCategory category;
-            bool previous_was_latin = false;
-            bool got_space = false;
+            var previous_was_latin = false;
+            var got_space = false;
             
             // Normalizing to KD splits into (base, combining) so we can check for Latin
             // characters and then strip off any NonSpacingMarks following them
-            foreach (char orig_c in val.TrimStart ().Normalize (NormalizationForm.FormKD)) {
+            foreach (var orig_c in val.TrimStart ().Normalize (NormalizationForm.FormKD)) {
                 
                 // Check for a special case *before* whitespace. This way, if
                 // a special case is ever added that maps to ' ' or '\t', it
                 // won't cause a run of whitespace in the result.
-                char c = orig_c;
+                var c = orig_c;
                 if (searchkey_special_cases.ContainsKey (c)) {
                     c = searchkey_special_cases[c];
                 }
@@ -220,7 +221,7 @@ namespace Meshwork.Library.Hyena
                 previous_was_latin = (c >= 'a' && c <= 'z');
             }
 
-            string result = sb.ToString ();
+            var result = sb.ToString ();
             try {
                 result = result.Normalize (NormalizationForm.FormKC);
             }
@@ -234,7 +235,7 @@ namespace Meshwork.Library.Hyena
 
         private static Regex BuildInvalidPathRegex ()
         {
-            char [] invalid_path_characters = new char [] {
+            char [] invalid_path_characters = {
                 // Control characters: there's no reason to ever have one of these in a track name anyway,
                 // and they're invalid in all Windows filesystems.
                 '\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07',
@@ -248,8 +249,8 @@ namespace Meshwork.Library.Hyena
                 '"', '\\', '/', ':', '*', '|', '?', '<', '>'
             };
 
-            string regex_str = "[";
-            for (int i = 0; i < invalid_path_characters.Length; i++) {
+            var regex_str = "[";
+            for (var i = 0; i < invalid_path_characters.Length; i++) {
                 regex_str += "\\" + invalid_path_characters[i];
             }
             regex_str += "]+";
@@ -264,7 +265,7 @@ namespace Meshwork.Library.Hyena
             return culture_compare_info.GetSortKey (orig, CompareOptions.IgnoreCase).KeyData;
         }
 
-        private static readonly char[] escape_path_trim_chars = new char[] {'.', '\x20'};
+        private static readonly char[] escape_path_trim_chars = {'.', '\x20'};
         public static string EscapeFilename (string input)
         {
             if (input == null)
@@ -286,10 +287,10 @@ namespace Meshwork.Library.Hyena
                 return input;
             }
 
-            StringBuilder builder = new StringBuilder ();
-            foreach (string name in input.Split (Path.DirectorySeparatorChar)) {
+            var builder = new StringBuilder ();
+            foreach (var name in input.Split (Path.DirectorySeparatorChar)) {
                 // Escape the directory or the file name.
-                string escaped = EscapeFilename (name);
+                var escaped = EscapeFilename (name);
                 // Skip empty names.
                 if (escaped.Length > 0) {
                     builder.Append (escaped);
@@ -307,7 +308,7 @@ namespace Meshwork.Library.Hyena
         
         public static string MaybeFallback (string input, string fallback)
         {
-            string trimmed = input == null ? null : input.Trim ();
+            var trimmed = input == null ? null : input.Trim ();
             return string.IsNullOrEmpty (trimmed) ? fallback : trimmed;
         }
         
@@ -317,10 +318,10 @@ namespace Meshwork.Library.Hyena
                 return 0;
             }
             
-            int position = 0;
+            var position = 0;
             uint count = 0;
             while (true) {
-                int index = haystack.IndexOf (needle, position);
+                var index = haystack.IndexOf (needle, position);
                 if (index < 0) {
                     return count;
                 }

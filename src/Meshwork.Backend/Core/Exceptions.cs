@@ -13,12 +13,7 @@ namespace Meshwork.Backend.Core
 {
 	public class FileAlreadyDownloadedException : Exception
 	{
-
-		public FileAlreadyDownloadedException ()
-		{
-		}
-
-		public override string Message {
+	    public override string Message {
 			get { return "You have already finished downloading the selected file."; }
 		}
 	}
@@ -39,31 +34,21 @@ namespace Meshwork.Backend.Core
 		}
 
 		public override string Message {
-			get { return string.Format("Unable to send {1} message to {0} because a private key has not been generated for this node!", _node.ToString(), _messageType); }
+			get { return string.Format("Unable to send {1} message to {0} because a private key has not been generated for this node!", _node, _messageType); }
 		}
 	}
 
 	public class UnableToDecryptException : Exception
 	{
-
-		public UnableToDecryptException ()
-		{
-		}
-
-		public override string Message {
-			get { return string.Format("Unable to decrypt message contents!"); }
+	    public override string Message {
+			get { return "Unable to decrypt message contents!"; }
 		}
 	}
 
 	public class InvalidSignatureException : Exception
 	{
-
-		public InvalidSignatureException ()
-		{
-		}
-
-		public override string Message {
-			get { return string.Format("Message had an invalid signature!"); }
+	    public override string Message {
+			get { return "Message had an invalid signature!"; }
 		}
 	}
 
@@ -79,7 +64,7 @@ namespace Meshwork.Backend.Core
 	{
 
 		public override string Message {
-			get { return string.Format("Unable to connect to the remote host"); }
+			get { return "Unable to connect to the remote host"; }
 		}
 	}
 
@@ -101,13 +86,7 @@ namespace Meshwork.Backend.Core
 	{
 		//private string _nodeid;
 
-		public ConnectNotTrustedException ()
-		{
-			//public ConnectNotTrustedException(string nodeid) {
-			//	_nodeid = nodeid;
-		}
-
-		public override string Message {
+	    public override string Message {
 				//return string.Format("Connection to was closed because remote node is not in trusted node list (NodeID: {0}).", _nodeid);
 			get { return "Not Trusted"; }
 		}
@@ -123,7 +102,8 @@ namespace Meshwork.Backend.Core
 		}
 
 		public override string Message {
-			get { return string.Format("Connection to was closed because you have selected to not allow connections with this node (NodeID: {0}).", _nodeid); }
+			get { return
+			    $"Connection to was closed because you have selected to not allow connections with this node (NodeID: {_nodeid})."; }
 		}
 	}
 
@@ -131,7 +111,7 @@ namespace Meshwork.Backend.Core
 	{
 
 		public override string Message {
-			get { return string.Format("Connection was closed because you tried to connect to yourself! Naughty boy!"); }
+			get { return "Connection was closed because you tried to connect to yourself! Naughty boy!"; }
 		}
 	}
 

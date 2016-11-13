@@ -19,9 +19,9 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		
 		public PeerId Peer {
 			get {
-				List<PeerId> removeMe = new List<PeerId>();
+				var removeMe = new List<PeerId>();
 				PeerId returnMe = null;
-				foreach (PeerId p in peers) {
+				foreach (var p in peers) {
 					if (p.IsConnected) {
 						if (returnMe != null) {
 							LoggingService.LogWarning("!!! Found more than one valid peer!!");
@@ -32,7 +32,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 						removeMe.Add(p);
 					}
 				}
-				foreach (PeerId p in removeMe) {
+				foreach (var p in removeMe) {
 					peers.Remove(p);
 				}
 
@@ -47,8 +47,8 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		
 		public BitTorrentFileTransferPeer (Network network, Node node)
 		{
-			base.network = network;
-			base.node = node;
+			this.network = network;
+			this.node = node;
 		}
 
 		public override ulong DownloadSpeed {
@@ -64,28 +64,27 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		}
 
 		public override double Progress {
-			get {
-				if (Peer != null) {
+			get
+			{
+			    if (Peer != null) {
 					return Peer.BitField.PercentComplete;
-				} else {
-					return 0;
 				}
+			    return 0;
 			}
 		}
 
 		public override FileTransferPeerStatus Status {
-			get {
-				if (Peer == null) {
+			get
+			{
+			    if (Peer == null) {
 					// XXX: This could also mean hashing.
 					return FileTransferPeerStatus.WaitingForInfo;
-				} else {
-					if (Peer.IsConnected) {
-						return FileTransferPeerStatus.Transfering;
-					} else {
-						// XXX: It may be possible that this sometimes means 'connecting'
-						return FileTransferPeerStatus.Error;
-					}
 				}
+			    if (Peer.IsConnected) {
+			        return FileTransferPeerStatus.Transfering;
+			    }
+			    // XXX: It may be possible that this sometimes means 'connecting'
+			    return FileTransferPeerStatus.Error;
 			}
 		}
 

@@ -19,7 +19,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 
 		public override void Announce (AnnounceParameters parameters, object state)
 		{
-			AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, state, true);
+			var e = new AnnounceResponseEventArgs(this, state, true);
 			RaiseAnnounceComplete(e);
 		}
 	}

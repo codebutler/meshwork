@@ -4,7 +4,7 @@ namespace Meshwork.Library.Stun
 	{
 		public static byte[] IntegerToTwoBytes (int integer)
 		{
-			byte[] result = new byte [2];
+			var result = new byte [2];
 			result [0] = (byte) (integer >> 8);
 			result [1] = (byte) integer;
 			return result;

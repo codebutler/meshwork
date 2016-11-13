@@ -15,7 +15,7 @@ namespace Meshwork.Platform
         public InterfaceAddress (int interfaceIndex, string name, IPAddress address, int prefixLength)
         {
             if (address.AddressFamily != AddressFamily.InterNetworkV6) {
-                throw new ArgumentException("address", "Must be IPv6");
+                throw new ArgumentException("Must be IPv6", nameof(address));
             }
 
             this.prefixLength = prefixLength;
@@ -28,12 +28,12 @@ namespace Meshwork.Platform
         public InterfaceAddress (int interfaceIndex, string name, IPAddress address, IPAddress subnetMask)
         {
             if (address.AddressFamily != AddressFamily.InterNetwork) {
-                throw new ArgumentException("address", "Must be IPv4");
+                throw new ArgumentException("Must be IPv4", nameof(address));
             }
 
 			
             if (subnetMask == null)
-                throw new ArgumentNullException("subnetMask");
+                throw new ArgumentNullException(nameof(subnetMask));
 			
             this.interfaceIndex = interfaceIndex;
             this.name = name;
@@ -54,11 +54,11 @@ namespace Meshwork.Platform
         }
 
         public IPAddress SubnetMask {
-            get {
+            get
+            {
                 if (address.AddressFamily == AddressFamily.InterNetwork)
                     return subnetMask;
-                else
-                    throw new Exception("Subnet mask not supported for this type of address");
+                throw new Exception("Subnet mask not supported for this type of address");
             }
         }
 		

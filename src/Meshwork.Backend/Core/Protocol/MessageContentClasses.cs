@@ -8,13 +8,13 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Meshwork.Backend.Core.Destination;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
 using Meshwork.Common;
 
 namespace Meshwork.Backend.Core.Protocol
 {
-	[Serializable]
 	public struct NodeInfo
 	{
 		public string NodeID;
@@ -32,7 +32,6 @@ namespace Meshwork.Backend.Core.Protocol
 		public DestinationInfo[] DestinationInfos;
 	}
 
-	[Serializable]
 	public struct HelloInfo
 	{
 		public string MyNickName;
@@ -41,21 +40,18 @@ namespace Meshwork.Backend.Core.Protocol
 		public MemoInfo[] KnownMemos;
 	}
 	
-	[Serializable]
 	public struct ChatAction
 	{
 		public string RoomId;
 		public string RoomName;
 	}
 
-	[Serializable]
 	public struct KeyInfo
 	{
-		public string Info;
+		public string Info; // FIXME: Is this needed?
 		public string Key;
 	}
 
-	[Serializable]
 	public struct ChatMessage
 	{
 		public string RoomId;
@@ -63,7 +59,6 @@ namespace Meshwork.Backend.Core.Protocol
 		public string Message;
 	}
 
-	[Serializable]
 	public struct AuthInfo
 	{
 		public int    ProtocolVersion;
@@ -71,62 +66,35 @@ namespace Meshwork.Backend.Core.Protocol
 		public string NickName;
 	}
 
-	[Serializable]
 	public class SharedDirectoryInfo : ISharedListing
 	{
-		string m_Name;
-		string m_FullPath;
-		string[] m_Directories;
-		SharedFileListing[] m_Files;
-		
-		public string Name {
+	    public string Name { get; }
+
+	    public string FullPath { get; }
+
+	    public string[] Directories { get;
+	        // FIXME: Remove this setter.
+	        set; }
+
+	    public SharedFileListing[] Files { get;
+	        // FIXME: Remove this setter.
+	        set; }
+
+	    public long Size {
 			get {
-				return m_Name;
+				return Files == null ? 0 : Files.Length;
 			}
 		}
-		
-		public string FullPath {
-			get {
-				return m_FullPath;
-			}
-		}
-		
-		public string[] Directories {
-			get {
-				return m_Directories;
-			}
-			// FIXME: Remove this setter.
-			set {
-				m_Directories = value;
-			}
-		}
-		
-		public SharedFileListing[] Files {
-			get {
-				return m_Files;
-			}
-			// FIXME: Remove this setter.
-			set {
-				m_Files = value;
-			}
-		}
-		
-		public long Size {
-			get {
-				return this.Files == null ? 0 : this.Files.Length;
-			}
-		}
-		
+
 		public SharedDirectoryInfo (LocalDirectory dir)
 		{
-			m_Name = dir.Name;
-			
+			Name = dir.Name;
+
 			// FIXME: Ugly: Remove '/local' from begining of path
-			m_FullPath = "/" + string.Join("/", dir.FullPath.Split('/').Slice(2));
+			FullPath = "/" + string.Join("/", dir.FullPath.Split('/').Slice(2));
 		}
 	}
 
-	[Serializable]
 	public struct SearchRequestInfo
 	{
 		public int Id;
@@ -135,9 +103,9 @@ namespace Meshwork.Backend.Core.Protocol
 
 		public SearchRequestInfo (int id, string query, int page)
 		{
-			this.Id    = id;
-			this.Query = query;
-			this.Page  = page;
+			Id    = id;
+			Query = query;
+			Page  = page;
 		}
 	}
 
@@ -146,103 +114,55 @@ namespace Meshwork.Backend.Core.Protocol
 		string Name {
 			get;
 		}
-	
+
 		string FullPath {
 			get;
 		}
-			
+
 		long Size {
 			get;
 		}
 	}
-	
-	[Serializable]
+
 	public class SharedFileListing : ISharedListing
 	{
-		string   fullPath;
-		string   name;
-		long     size;
-		FileType type;
-		string   infoHash;
-		string   sha1;
-		int      pieceLength;
-		string[] pieces;
-		SerializableDictionary<string, string> metadata;
-		
-		public string Name {
-			get {
-				return name;
-			}
-		}
+	    public string Name { get; }
 
-		public string FullPath {
-			get {
-				return fullPath;
-			}
-		}
+	    public string FullPath { get; }
 
-		public long Size {
-			get {
-				return size;
-			}
-		}
-		
-		public string InfoHash {
-			get {
-				return infoHash;
-			}
-		}
-		
-		public string SHA1 {
-			get {
-				return sha1;
-			}
-		}
+	    public long Size { get; }
 
-		public FileType Type {
-			get {
-				return type;
-			}
-		}
-		
-		public int PieceLength {
-			get {
-				return pieceLength;
-			}
-		}
-		
-		public string[] Pieces {
-			get {
-				return pieces;
-			}
-		}
-		
-		public SerializableDictionary<string, string> Metadata {
-			get {
-				return metadata;
-			}
-		}
-		
-		public SharedFileListing (LocalFile file, bool includePieces)
+	    public string InfoHash { get; }
+
+	    public string SHA1 { get; }
+
+	    public FileType Type { get; }
+
+	    public int PieceLength { get; }
+
+	    public string[] Pieces { get; }
+
+	    public Dictionary<string, string> Metadata { get; }
+
+	    public SharedFileListing (LocalFile file, bool includePieces)
 		{
 			if (file.InfoHash == null) {
 				throw new ArgumentException("File must have InfoHash");
 			}
 
-			this.name = file.Name;
-			this.fullPath =  "/" + string.Join("/", file.FullPath.Split('/').Slice(2));
-			this.size = file.Size;
-			this.infoHash = file.InfoHash;
-			this.sha1 = file.SHA1;
-			this.type = FileType.Other; // FIXME: Use real file type.
-			this.pieceLength = file.PieceLength;
-			
+			Name = file.Name;
+			FullPath =  "/" + string.Join("/", file.FullPath.Split('/').Slice(2));
+			Size = file.Size;
+			InfoHash = file.InfoHash;
+			SHA1 = file.SHA1;
+			Type = FileType.Other; // FIXME: Use real file type.
+			PieceLength = file.PieceLength;
+
 			if (includePieces)
-				this.pieces = file.Pieces;
+				Pieces = file.Pieces;
 		}
 	}
 
-	[Serializable]
 	public struct ConnectionInfo
 	{
 		public ConnectionInfo(string SourceNodeID, string SourceNodeNickname, string DestNodeID, string DestNodeNickname) {
@@ -257,7 +177,6 @@ namespace Meshwork.Backend.Core.Protocol
 		public string DestNodeNickname;
 	}
 	
-	[Serializable]
 	public struct ChatInviteInfo
 	{
 		public string RoomId;
@@ -266,7 +185,6 @@ namespace Meshwork.Backend.Core.Protocol
 		public string Password;
 	}
 
-	[Serializable]
 	public struct ChatRoomInfo
 	{
 		public string Id;
@@ -275,7 +193,6 @@ namespace Meshwork.Backend.Core.Protocol
 		public string[] Users; /* List of NodeIDs */
 	}
 
-	[Serializable]
 	public struct TransportDataInfo
 	{
 		public string ConnectionID;
@@ -283,12 +200,11 @@ namespace Meshwork.Backend.Core.Protocol
 
 		public TransportDataInfo (string connectionId, byte[] data)
 		{
-			this.ConnectionID = connectionId;
-			this.Data = data;
+			ConnectionID = connectionId;
+			Data = data;
 		}
 	}
 
-	[Serializable]
 	public struct RequestFileInfo
 	{
 		public string FullPath;
@@ -296,8 +212,8 @@ namespace Meshwork.Backend.Core.Protocol
 
 		public RequestFileInfo (string fullPath, string transferId)
 		{
-			this.FullPath = fullPath;
-			this.TransferId = transferId;
+			FullPath = fullPath;
+			TransferId = transferId;
 		}
 	}
 }

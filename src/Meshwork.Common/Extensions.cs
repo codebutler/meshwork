@@ -22,8 +22,8 @@ namespace Meshwork.Common
 			if (count < 0)
 				count = source.Length - Math.Abs(count) - start + 1;
 			
-			T[] result = new T[count];
-			for (int x = 0; x < count; x++)
+			var result = new T[count];
+			for (var x = 0; x < count; x++)
 				result[x] = source[start + x];
 			return result;
 		}
@@ -31,11 +31,11 @@ namespace Meshwork.Common
 		// http://social.msdn.microsoft.com/Forums/en-US/csharpgeneral/thread/c4948bfb-bc07-4681-a977-ac84a0c34ede
 		public static IEnumerable<string> CutIntoSetsOf (this string value, int interval)
 		{
-			int remainder = value.Length % interval;
+			var remainder = value.Length % interval;
 			
 			var result = new string[value.Length / interval + remainder / (1 > remainder ? 1 : remainder)];
 			
-			for (int i = 0; i < result.Length; i++) {
+			for (var i = 0; i < result.Length; i++) {
 				yield return value.Substring(i * interval, interval < (value.Length - i * interval) ? interval : (value.Length - i * interval));
 			}
 		}
@@ -63,10 +63,10 @@ namespace Meshwork.Common
 		private static IEnumerable<T[]> SliceIterator<T> (IEnumerable<T> sequence, int size)
 		{
 			// prepare the result array
-			int position = 0;
-			T[] resultArr = new T[size];
+			var position = 0;
+			var resultArr = new T[size];
 			
-			foreach (T item in sequence) {
+			foreach (var item in sequence) {
 				// NOTE: performing the following test at the beginning of the loop ensures that we do not needlessly
 				// create empty result arrays for sequences with even numbers of elements [(sequence.Count() % size) == 0]
 				if (position == size) {

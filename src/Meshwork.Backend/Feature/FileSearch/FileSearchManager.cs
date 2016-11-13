@@ -33,7 +33,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 		public FileSearch NewFileSearch (string query, string networkId)
 		{
-		    FileSearch search = new FileSearch(core)
+		    var search = new FileSearch(core)
 		    {
 		        Name = query,
 		        Query = query
@@ -54,7 +54,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 		    SearchAdded?.Invoke(search);
 
-		    foreach (Network network in core.Networks) {
+		    foreach (var network in core.Networks) {
 				if (search.NetworkIds.Count == 0 || search.NetworkIds.IndexOf(network.NetworkID) > -1) { 
 					network.FileSearch(search);
 				}
@@ -85,7 +85,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 		private void network_ReceivedSearchResult (Network network, SearchResultInfoEventArgs args)
 		{
-			foreach (FileSearch thisSearch in fileSearches) {
+			foreach (var thisSearch in fileSearches) {
 				if (thisSearch.Id == args.Info.SearchId) {
 					thisSearch.AppendResults(args.Node, args.Info);
 					return;

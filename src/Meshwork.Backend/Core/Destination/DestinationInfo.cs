@@ -1,74 +1,40 @@
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
+using Meshwork.Common.Serialization;
 
 namespace Meshwork.Backend.Core.Destination
 {
-    [Serializable]
     public class DestinationInfo
     {
-        bool         openExternal;
-        bool         local;
-        string       typeName;
-        string[]     data;
+        public string TypeName { get; set; }
 
-        public string TypeName {
-            get {
-                return typeName;
-            }
-            set {
-                typeName = value;
-            }
-        }
+        public string[] Data { get; set; }
 
-        public string[] Data {
-            get {
-                return data;
-            }
-            set {
-                data = value;
-            }
-        }
+        [DontSerialize]
+        public bool Local { get; set; }
 
-        [XmlIgnore]
-        public bool Local {
-            get {
-                return local;
-            }
-            set {
-                local = value;
-            }
-        }
-
-        public bool IsOpenExternally {
-            get {
-                return openExternal;
-            }
-            set {
-                openExternal = value;
-            }
-        }
+        public bool IsOpenExternally { get; set; }
 
         public bool IsSupported(Core core)
         {
-            return core.DestinationManager.SupportsDestinationType(typeName);
+            return core.DestinationManager.SupportsDestinationType(TypeName);
         }
 
-        public IDestination CreateDestination ()
+        public IDestination CreateDestination (Core core)
         {
             if (!Local) {
                 throw new InvalidOperationException("May not call CreateDestination() on non-local DestinationInfo. Use CreateAndAddDestination() instead.");
             }
 			
-            Type destinationType = Type.GetType(typeName);
-            IDestination destination = (IDestination)Activator.CreateInstance(destinationType, new object[] { this });
+            var destinationType = Type.GetType(TypeName);
+            var destination = (IDestination)Activator.CreateInstance(destinationType, core, this);
             return destination;
         }
 
-        public IDestination CreateAndAddDestination (List<IDestination> parentList)
+        public IDestination CreateAndAddDestination (Core core, List<IDestination> parentList)
         {
-            Type destinationType = Type.GetType(typeName);
-            IDestination destination = (IDestination)Activator.CreateInstance(destinationType, new object[] { this });
+            var destinationType = Type.GetType(TypeName);
+            var destination = (IDestination)Activator.CreateInstance(destinationType, core, this);
 
             ((DestinationBase)destination).ParentList = parentList.AsReadOnly();
             parentList.Add(destination);
@@ -76,6 +42,7 @@ namespace Meshwork.Backend.Core.Destination
             return destination;
         }
 
+        [DontSerialize]
         public string FriendlyName => DestinationTypeFriendlyNames.GetFriendlyName(TypeName);
     }
 }

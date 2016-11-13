@@ -45,7 +45,7 @@ namespace Meshwork.Library.Hyena.Query
         private List<QueryNode> children = new List<QueryNode>();
         private Keyword keyword;
     
-        public QueryListNode(Keyword keyword) : base()
+        public QueryListNode(Keyword keyword)
         {
             this.keyword = keyword;
         }
@@ -69,7 +69,7 @@ namespace Meshwork.Library.Hyena.Query
 
         public void TakeChildren (QueryListNode from)
         {
-            foreach (QueryNode child in from.Children) {
+            foreach (var child in from.Children) {
                 AddChild (child);
             }
             from.Children.Clear ();
@@ -77,7 +77,7 @@ namespace Meshwork.Library.Hyena.Query
         
         public void ReplaceChild(QueryNode old_child, QueryNode new_child)
         {
-            int index = children.IndexOf(old_child);
+            var index = children.IndexOf(old_child);
             if(index < 0) {
                 throw new ApplicationException("old_child does not exist");
             }
@@ -102,7 +102,7 @@ namespace Meshwork.Library.Hyena.Query
             PrintIndent(depth);
             Console.WriteLine("<{0}>", Keyword);
             
-            foreach(QueryNode child in children) {
+            foreach(var child in children) {
                 child.Dump(depth + 1);
             }
             
@@ -112,7 +112,7 @@ namespace Meshwork.Library.Hyena.Query
         
         public QueryNode GetLeftSibling(QueryNode node)
         {
-            int index = IndexOfChild(node);
+            var index = IndexOfChild(node);
             if(index >= 1) {
                 return Children[index - 1];
             }
@@ -122,7 +122,7 @@ namespace Meshwork.Library.Hyena.Query
         
         public QueryNode GetRightSibling(QueryNode node)
         {
-            int index = IndexOfChild(node);
+            var index = IndexOfChild(node);
             if(index < 0 || index > ChildCount - 2) {
                 return null;
             }
@@ -132,8 +132,8 @@ namespace Meshwork.Library.Hyena.Query
         public override QueryNode Trim ()
         {
             // Trim depth first
-            List<QueryNode> copy = new List<QueryNode> (Children);
-            foreach (QueryNode child in copy)
+            var copy = new List<QueryNode> (Children);
+            foreach (var child in copy)
                 child.Trim ();
 
             if (Keyword == Keyword.Not) {
@@ -147,7 +147,7 @@ namespace Meshwork.Library.Hyena.Query
             } else {
                 if (ChildCount <= 1) {
                     if (Parent != null) {
-                        QueryListNode p = Parent;
+                        var p = Parent;
                         p.RemoveChild (this);
                         p.TakeChildren (this);
                     } else if (ChildCount == 1) {
@@ -165,9 +165,9 @@ namespace Meshwork.Library.Hyena.Query
             if (ChildCount == 0)
                 return;
 
-            XmlElement node = doc.CreateElement (Keyword.ToString ().ToLower ());
+            var node = doc.CreateElement (Keyword.ToString ().ToLower ());
             parent.AppendChild (node);
-            foreach (QueryNode child in Children)
+            foreach (var child in Children)
                 child.AppendXml (doc, node, fieldSet);
         }
 
@@ -179,8 +179,8 @@ namespace Meshwork.Library.Hyena.Query
             if (Keyword != Keyword.Not) {
                 if (ChildCount > 1 && Parent != null)
                     sb.Append ("(");
-                bool first = true;
-                foreach (QueryNode child in Children) {
+                var first = true;
+                foreach (var child in Children) {
                     if (!first) {
                         if (Keyword == Keyword.Or) {
                             // FIXME translate
@@ -208,8 +208,8 @@ namespace Meshwork.Library.Hyena.Query
 
             if (Keyword != Keyword.Not) {
                 sb.Append ("(");
-                bool first = true;
-                foreach (QueryNode child in Children) {
+                var first = true;
+                foreach (var child in Children) {
                     if (!first) {
                         sb.AppendFormat (" {0} ", Keyword);
                     } else {

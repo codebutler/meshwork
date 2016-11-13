@@ -24,8 +24,8 @@ namespace Meshwork.Backend.Core.Transport
 
 		public FailedTransportListener (ITransportListener listener, Exception error)
 		{
-			this.Listener = listener;
-			this.Error    = error;
+			Listener = listener;
+			Error    = error;
 		}
 	}
 }

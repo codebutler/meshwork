@@ -1,5 +1,5 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
+Microsoft Visual Studio Solution File, Format Version 15.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Library.Stun", "src\Meshwork.Library.Stun\Meshwork.Library.Stun.csproj", "{01539583-6736-4E2C-933B-09F7F9CCD2C5}"
 EndProject
@@ -21,13 +21,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Platform", "src\Me
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Platform.Linux", "src\Meshwork.Platform.Linux\Meshwork.Platform.Linux.csproj", "{699E3784-28E7-490D-96F1-FFEBCAF930B9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7BD4BD15-9DF8-4A68-99A6-4D782D02E2B1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0A19460A-92A4-4172-B481-7B51F7B48C9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Common", "src\Meshwork.Common\Meshwork.Common.csproj", "{592E20C9-16CB-431C-8BAC-879FDAE9EF14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Backend", "src\Meshwork.Backend\Meshwork.Backend.csproj", "{14D462D1-0164-486E-823B-DC25F1F38EDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{1CE06F15-BA62-43F2-A28A-FBB384B1926B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Client.ConsoleClient", "src\Meshwork.Client.ConsoleClient\Meshwork.Client.ConsoleClient.csproj", "{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Client.GtkClient", "src\Meshwork.Client.GtkClient\Meshwork.Client.GtkClient.csproj", "{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +151,30 @@ Global
 		{14D462D1-0164-486E-823B-DC25F1F38EDA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{14D462D1-0164-486E-823B-DC25F1F38EDA}.Release|x86.ActiveCfg = Release|x86
 		{14D462D1-0164-486E-823B-DC25F1F38EDA}.Release|x86.Build.0 = Release|x86
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Debug|x86.ActiveCfg = Debug|x86
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Debug|x86.Build.0 = Debug|x86
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Default|Any CPU.ActiveCfg = Default|Any CPU
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Default|Any CPU.Build.0 = Default|Any CPU
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Default|x86.ActiveCfg = Default|x86
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Default|x86.Build.0 = Default|x86
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Release|x86.ActiveCfg = Release|x86
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14}.Release|x86.Build.0 = Release|x86
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Debug|x86.ActiveCfg = Debug|x86
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Debug|x86.Build.0 = Debug|x86
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Default|Any CPU.ActiveCfg = Default|Any CPU
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Default|Any CPU.Build.0 = Default|Any CPU
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Default|x86.ActiveCfg = Default|x86
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Default|x86.Build.0 = Default|x86
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Release|x86.ActiveCfg = Release|x86
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{86CEC195-22E0-4CA9-8B17-16C01A0C3647} = {8499C1C7-946A-483B-94F0-13465327906A}
@@ -156,9 +184,10 @@ Global
 		{84CB86DC-05A8-427E-8C49-13258361DA55} = {3D7E24C4-419E-41EB-BDAF-F7CE43357238}
 		{D981A690-6340-404C-96F5-B32E18C6AF8D} = {3D7E24C4-419E-41EB-BDAF-F7CE43357238}
 		{699E3784-28E7-490D-96F1-FFEBCAF930B9} = {3D7E24C4-419E-41EB-BDAF-F7CE43357238}
-		{7BD4BD15-9DF8-4A68-99A6-4D782D02E2B1} = {6C19961E-B76A-48A1-B0B6-B9C9C3C3EC18}
 		{592E20C9-16CB-431C-8BAC-879FDAE9EF14} = {0A19460A-92A4-4172-B481-7B51F7B48C9D}
 		{14D462D1-0164-486E-823B-DC25F1F38EDA} = {6C19961E-B76A-48A1-B0B6-B9C9C3C3EC18}
+		{3CD7D0AD-15ED-48AE-B324-DCF1BE1B2C14} = {1CE06F15-BA62-43F2-A28A-FBB384B1926B}
+		{4577A0A2-5A95-4E1F-96A9-829B1829FAE9} = {1CE06F15-BA62-43F2-A28A-FBB384B1926B}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = src\FileFind.Meshwork.GtkClient\FileFind.Meshwork.GtkClient.csproj

@@ -14,39 +14,38 @@ namespace Meshwork.Backend.Core
 {
 	public class Validator
 	{
-		public static bool ValidNickname(string Name) {
-			if (StringIsEmpty(Name) == true || CheckForXmlChars(Name) == true || Name.Length > 30 || Name.IndexOf("@") > -1 || Name.IndexOf("+") > -1 || Name.IndexOf("%") > -1 || Name.IndexOf(" ") > -1) {
+		public static bool ValidNickname(string Name)
+		{
+		    if (StringIsEmpty(Name) || CheckForXmlChars(Name) || Name.Length > 30 || Name.IndexOf("@") > -1 || Name.IndexOf("+") > -1 || Name.IndexOf("%") > -1 || Name.IndexOf(" ") > -1) {
 				return false;
-			} else {
-				return true;
 			}
+		    return true;
 		}
 
-		public static bool ValidName(string Name) {
-			if (StringIsEmpty(Name) == true || CheckForXmlChars(Name) == true) {
+		public static bool ValidName(string Name)
+		{
+		    if (StringIsEmpty(Name) || CheckForXmlChars(Name)) {
 				return false;
-			} else {
-				return true;
 			}
+		    return true;
 		}
 
-		private static bool CheckForXmlChars(string Str) {
-			//if (Str.IndexOf("<") > -1 | Str.IndexOf(">") > -1 | Str.IndexOf(Microsoft.VisualBasic.Chr(34)) > -1) {
+		private static bool CheckForXmlChars(string Str)
+		{
+		    //if (Str.IndexOf("<") > -1 | Str.IndexOf(">") > -1 | Str.IndexOf(Microsoft.VisualBasic.Chr(34)) > -1) {
 			if (Str.IndexOf("<") > -1 | Str.IndexOf(">") > -1 | Str.IndexOf("\"") > -1) {
 				return true;
-			} else {
-				return false;
 			}
+		    return false;
 		}
 
 		private static bool StringIsEmpty(string str)
 		{
-			if (str == null)
+		    if (str == null)
 				return true;
-			else if (str.Trim () == "")
-				return true;
-			else
-				return false;
+		    if (str.Trim () == "")
+		        return true;
+		    return false;
 		}
 
 		// XXX: This is horrible, implement cracklib or something
@@ -71,22 +70,22 @@ namespace Meshwork.Backend.Core
 		}
 
 		public static bool HasLowercaseLetter(string Text) {
-			Regex pattern = new Regex("[a-z]");
+			var pattern = new Regex("[a-z]");
 			return pattern.IsMatch(Text);
 		}
 
 		public static bool HasUppercaseLetter(string Text) {
-			Regex pattern = new Regex("[A-Z]");
+			var pattern = new Regex("[A-Z]");
 			return pattern.IsMatch(Text);
 		}
 
 		public static bool HasNumber(string Text) {
-			Regex pattern = new Regex("[\\d]");
+			var pattern = new Regex("[\\d]");
 			return pattern.IsMatch(Text);
 		}
 
 		public static bool HasPunctuation(string Text) {
-			Regex pattern = new Regex("[\\W|_]");
+			var pattern = new Regex("[\\W|_]");
 			return pattern.IsMatch(Text);
 		}
 	}

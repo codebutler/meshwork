@@ -15,6 +15,8 @@ using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using Mono.Unix;
+using Mono.Unix.Native;
 
 namespace Meshwork.Platform.Linux
 {
@@ -82,23 +84,22 @@ namespace Meshwork.Platform.Linux
 
 	    public string UserName {
 			get {
-				Mono.Unix.UnixUserInfo user = Mono.Unix.UnixUserInfo.GetRealUser();
+				var user = UnixUserInfo.GetRealUser();
 				return user.UserName;
 			}
 		}
 		
 		public string RealName {
 			get {
-				Mono.Unix.UnixUserInfo user = Mono.Unix.UnixUserInfo.GetRealUser();
-				if (user.RealName != null) {
-					if (user.RealName.IndexOf (",") > -1) {
+				var user = UnixUserInfo.GetRealUser();
+				if (user.RealName != null)
+				{
+				    if (user.RealName.IndexOf (",") > -1) {
 						return user.RealName.Substring (0, user.RealName.IndexOf(","));
-					} else {
-						return user.RealName;
 					}
-				} else {
-					return string.Empty;
+				    return user.RealName;
 				}
+			    return string.Empty;
 			}
 		}
 		
@@ -110,31 +111,31 @@ namespace Meshwork.Platform.Linux
 				throw new SystemException("getifaddrs() failed");
 			}
 
-			List<InterfaceAddress> result = new List<InterfaceAddress>();
+			var result = new List<InterfaceAddress>();
 
 			try {
-				IntPtr next = ifap;
+				var next = ifap;
 				
 				while (next != IntPtr.Zero) {
-					ifaddrs addr = (ifaddrs) Marshal.PtrToStructure(next, typeof(ifaddrs));
+					var addr = (ifaddrs) Marshal.PtrToStructure(next, typeof(ifaddrs));
 					
-					string name = addr.ifa_name;
+					var name = addr.ifa_name;
 					
 					if (addr.ifa_addr != IntPtr.Zero) {
-						sockaddr_in sockaddr = (sockaddr_in) Marshal.PtrToStructure(addr.ifa_addr, typeof(sockaddr_in));
+						var sockaddr = (sockaddr_in) Marshal.PtrToStructure(addr.ifa_addr, typeof(sockaddr_in));
 						
-						int index = if_nametoindex(name);
+						var index = if_nametoindex(name);
 
 						if (sockaddr.sin_family == AF_INET6) {
-							sockaddr_in6 sockaddr6 = (sockaddr_in6) Marshal.PtrToStructure(addr.ifa_addr, typeof(sockaddr_in6));
-							IPAddress address = new IPAddress(sockaddr6.sin6_addr.u6_addr8, sockaddr6.sin6_scope_id);
-							InterfaceAddress info = new InterfaceAddress(index, name, address, GetPrefixLength(name, address));
+							var sockaddr6 = (sockaddr_in6) Marshal.PtrToStructure(addr.ifa_addr, typeof(sockaddr_in6));
+							var address = new IPAddress(sockaddr6.sin6_addr.u6_addr8, sockaddr6.sin6_scope_id);
+							var info = new InterfaceAddress(index, name, address, GetPrefixLength(name, address));
 							result.Add(info);
 						} else if (sockaddr.sin_family == AF_INET) {
-							sockaddr_in netmaskaddr = (sockaddr_in)Marshal.PtrToStructure(addr.ifa_netmask, typeof(sockaddr_in));
-							IPAddress netmask = new IPAddress(netmaskaddr.sin_addr);
-							IPAddress address = new IPAddress(sockaddr.sin_addr);
-							InterfaceAddress info = new InterfaceAddress(index, name, address, netmask);
+							var netmaskaddr = (sockaddr_in)Marshal.PtrToStructure(addr.ifa_netmask, typeof(sockaddr_in));
+							var netmask = new IPAddress(netmaskaddr.sin_addr);
+							var address = new IPAddress(sockaddr.sin_addr);
+							var info = new InterfaceAddress(index, name, address, netmask);
 							result.Add(info);
 						}
 					}
@@ -147,7 +148,7 @@ namespace Meshwork.Platform.Linux
 			return result.ToArray();
 		}
 
-	    static string uname = null;
+	    static string uname;
 	    public string OSName {
 	        get {
 	            if (uname == null) {
@@ -176,7 +177,7 @@ namespace Meshwork.Platform.Linux
 	            if (prctl (15 /* PR_SET_NAME */, Encoding.ASCII.GetBytes (name + "\0"),
 	                    IntPtr.Zero, IntPtr.Zero, IntPtr.Zero) != 0) {
 	                throw new ApplicationException ("Error setting process name: " +
-	                                                Mono.Unix.Native.Stdlib.GetLastError ());
+	                                                Stdlib.GetLastError ());
 	            }
 	        } else if (OSName == "FreeBSD") { // XXX: I'm not sure this is right
 	            setproctitle (Encoding.ASCII.GetBytes ("%s\0"),
@@ -194,12 +195,12 @@ namespace Meshwork.Platform.Linux
 		// There is a way to get this using netlink, but I cant figure it out.
 		private int GetPrefixLength(string interfaceName, IPAddress address)
 		{
-			string text = File.ReadAllText("/proc/net/if_inet6");
-			foreach (string line in text.Split('\n')) {
+			var text = File.ReadAllText("/proc/net/if_inet6");
+			foreach (var line in text.Split('\n')) {
 				if (line.Length == 53) {
-					IPAddress ip = new IPAddress(Common.Common.StringToBytes(line.Substring(0, 32)));
-					string n = line.Substring(44).Trim();
-					int prefixLength = int.Parse(line.Substring(36, 2), NumberStyles.HexNumber);
+					var ip = new IPAddress(Common.Utils.StringToBytes(line.Substring(0, 32)));
+					var n = line.Substring(44).Trim();
+					var prefixLength = int.Parse(line.Substring(36, 2), NumberStyles.HexNumber);
 
 					if (ip.Equals(address) && n == interfaceName) {
 						return prefixLength;

@@ -9,6 +9,7 @@
 //
 
 using System;
+using System.Net;
 using Meshwork.Backend.Core.Transport;
 using MonoTorrent.Client.Connections;
 
@@ -48,7 +49,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 			get { return transport.Incoming; }
 		}
 
-		public System.Net.EndPoint EndPoint
+		public EndPoint EndPoint
 		{
 			get { return transport.RemoteEndPoint; }
 		}

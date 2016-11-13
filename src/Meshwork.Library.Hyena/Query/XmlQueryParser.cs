@@ -41,7 +41,8 @@ namespace Meshwork.Library.Hyena.Query
             return new XmlQueryParser (input).BuildTree (fieldSet);
         }
 
-        public XmlQueryParser () : base () {}
+        public XmlQueryParser ()
+        {}
 
         public XmlQueryParser (string str)
         {
@@ -51,18 +52,18 @@ namespace Meshwork.Library.Hyena.Query
         public override QueryNode BuildTree (QueryFieldSet fieldSet)
         {
             field_set = fieldSet;
-            XmlDocument doc = new XmlDocument ();
+            var doc = new XmlDocument ();
             try {
                 doc.LoadXml (str);
-                XmlElement request = doc.FirstChild as XmlElement;
+                var request = doc.FirstChild as XmlElement;
                 if (request == null || request.Name != "request")
                     throw new Exception ("Invalid request");
 
-                XmlElement query = request.FirstChild as XmlElement;
+                var query = request.FirstChild as XmlElement;
                 if (query == null || query.Name != "query" || query.GetAttribute ("banshee-version") != "1")
                     throw new Exception ("Invalid query");
 
-                QueryNode node = Parse (query.FirstChild as XmlElement, null);
+                var node = Parse (query.FirstChild as XmlElement, null);
                 return (node != null) ? node.Trim () : null;
             } catch (Exception) {
             }
@@ -87,7 +88,7 @@ namespace Meshwork.Library.Hyena.Query
                     list = new QueryListNode (Keyword.Not);
                     break;
                 default:
-                    QueryTermNode term = new QueryTermNode ();
+                    var term = new QueryTermNode ();
 
                     // Get the field (if any) that this term applies to
                     if (node["field"] != null)

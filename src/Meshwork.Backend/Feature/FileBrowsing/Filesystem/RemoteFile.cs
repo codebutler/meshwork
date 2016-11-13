@@ -23,7 +23,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		FileType m_Type;
 		long m_Size;
 
-		int m_PieceLength = 0;
+		int m_PieceLength;
 		string[] m_Pieces;
 		
 		Dictionary<string, string> m_Metadata;
@@ -70,7 +70,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		
 		public string RemoteFullPath {
 			get {
-				return "/" + string.Join("/", this.FullPath.Split('/').Slice(3));
+				return "/" + string.Join("/", FullPath.Split('/').Slice(3));
 			}
 		}
 

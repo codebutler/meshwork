@@ -77,7 +77,7 @@ namespace Meshwork.Library.Hyena.Query
 
         public string ToUserQuery ()
         {
-            StringBuilder sb = new StringBuilder ();
+            var sb = new StringBuilder ();
             AppendUserQuery (sb);
             return sb.ToString ();
         }
@@ -91,12 +91,12 @@ namespace Meshwork.Library.Hyena.Query
 
         public virtual string ToXml (QueryFieldSet fieldSet, bool pretty)
         {
-            XmlDocument doc = new XmlDocument ();
+            var doc = new XmlDocument ();
 
-            XmlElement request = doc.CreateElement ("request");
+            var request = doc.CreateElement ("request");
             doc.AppendChild (request);
 
-            XmlElement query = doc.CreateElement ("query");
+            var query = doc.CreateElement ("query");
             query.SetAttribute ("banshee-version", "1");
             request.AppendChild (query);
 
@@ -106,9 +106,9 @@ namespace Meshwork.Library.Hyena.Query
                 return doc.OuterXml;
             }
 
-            using (StringWriter sw = new StringWriter ()) {
-                using (XmlTextWriter xtw = new XmlTextWriter (sw)) {
-                    xtw.Formatting = System.Xml.Formatting.Indented;
+            using (var sw = new StringWriter ()) {
+                using (var xtw = new XmlTextWriter (sw)) {
+                    xtw.Formatting = Formatting.Indented;
                     xtw.Indentation = 2;
                     doc.WriteTo (xtw);
                     return sw.ToString ();
@@ -125,24 +125,23 @@ namespace Meshwork.Library.Hyena.Query
         {
             if (method == QueryNodeSearchMethod.DepthFirst) {
                 return SearchForValuesByDepth<T> (this);
-            } else {
-                return SearchForValuesByBreadth<T> ();
             }
+            return SearchForValuesByBreadth<T> ();
         }
         
         private static IEnumerable<T> SearchForValuesByDepth<T> (QueryNode node) where T : QueryValue
         {
-            QueryListNode list = node as QueryListNode;
+            var list = node as QueryListNode;
             if (list != null) {
-                foreach (QueryNode child in list.Children) {
-                    foreach (T item in SearchForValuesByDepth<T> (child)) {
+                foreach (var child in list.Children) {
+                    foreach (var item in SearchForValuesByDepth<T> (child)) {
                         yield return item;
                     }
                 }
             } else {
-                QueryTermNode term = node as QueryTermNode;
+                var term = node as QueryTermNode;
                 if (term != null) {
-                    T value = term.Value as T;
+                    var value = term.Value as T;
                     if (value != null) {
                         yield return value;
                     }
@@ -152,19 +151,19 @@ namespace Meshwork.Library.Hyena.Query
         
         private IEnumerable<T> SearchForValuesByBreadth<T> () where T : QueryValue
         {
-            Queue<QueryNode> queue = new Queue<QueryNode> ();
+            var queue = new Queue<QueryNode> ();
             queue.Enqueue (this);
             do {
-                QueryNode node = queue.Dequeue ();
-                QueryListNode list = node as QueryListNode;
+                var node = queue.Dequeue ();
+                var list = node as QueryListNode;
                 if (list != null) {
-                    foreach (QueryNode child in list.Children) {
+                    foreach (var child in list.Children) {
                         queue.Enqueue (child);
                     }
                 } else {
-                    QueryTermNode term = node as QueryTermNode;
+                    var term = node as QueryTermNode;
                     if (term != null) {
-                        T value = term.Value as T;
+                        var value = term.Value as T;
                         if (value != null) {
                             yield return value;
                         }
@@ -175,23 +174,23 @@ namespace Meshwork.Library.Hyena.Query
 
         public IEnumerable<QueryField> GetFields ()
         {
-            foreach (QueryTermNode term in GetTerms ())
+            foreach (var term in GetTerms ())
                 yield return term.Field;
         }
 
         public IEnumerable<QueryTermNode> GetTerms ()
         {
-            Queue<QueryNode> queue = new Queue<QueryNode> ();
+            var queue = new Queue<QueryNode> ();
             queue.Enqueue (this);
             do {
-                QueryNode node = queue.Dequeue ();
-                QueryListNode list = node as QueryListNode;
+                var node = queue.Dequeue ();
+                var list = node as QueryListNode;
                 if (list != null) {
-                    foreach (QueryNode child in list.Children) {
+                    foreach (var child in list.Children) {
                         queue.Enqueue (child);
                     }
                 } else {
-                    QueryTermNode term = node as QueryTermNode;
+                    var term = node as QueryTermNode;
                     if (term != null) {
                         yield return term;
                     }
@@ -208,7 +207,7 @@ namespace Meshwork.Library.Hyena.Query
 
         public virtual string ToSql (QueryFieldSet fieldSet)
         {
-            StringBuilder sb = new StringBuilder ();
+            var sb = new StringBuilder ();
             AppendSql (sb, fieldSet);
             return sb.ToString ();
         }

@@ -9,10 +9,11 @@
 
 using System;
 using System.Collections;
+using System.IO;
 using System.Threading;
 using Meshwork.Backend.Core;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
-using IO=System.IO;
+using ErrorEventHandler = System.IO.ErrorEventHandler;
 
 namespace Meshwork.Backend.Feature.FileIndexing
 {
@@ -21,13 +22,13 @@ namespace Meshwork.Backend.Feature.FileIndexing
 	public class ShareBuilder
 	{
 	    private readonly Core.Core core;
-	    Thread thread = null;
+	    Thread thread;
 
 		public event EventHandler StartedIndexing;
 		public event EventHandler FinishedIndexing;
 		public event EventHandler StoppedIndexing;
 		public event ShareBuilderFileEventHandler IndexingFile;
-		public event IO.ErrorEventHandler ErrorIndexing;
+		public event ErrorEventHandler ErrorIndexing;
 
 		internal ShareBuilder (Core.Core core)
 		{
@@ -70,12 +71,12 @@ namespace Meshwork.Backend.Feature.FileIndexing
 				}
 			}
 			
-			TimeSpan lastScanAgo = (DateTime.Now - core.Settings.LastShareScan);
+			var lastScanAgo = (DateTime.Now - core.Settings.LastShareScan);
 			if (Math.Abs(lastScanAgo.TotalHours) >= 1) {
 				LoggingService.LogDebug("Starting directory scan. Last scan was {0} minutes ago.", Math.Abs(lastScanAgo.TotalMinutes));				
-				foreach (string directoryName in core.Settings.SharedDirectories) {
-					IO.DirectoryInfo info = new IO.DirectoryInfo(directoryName);	
-					if (IO.Directory.Exists(directoryName)) {
+				foreach (var directoryName in core.Settings.SharedDirectories) {
+					var info = new DirectoryInfo(directoryName);	
+					if (Directory.Exists(directoryName)) {
 						ProcessDirectory(myDirectory, info);
 					} else {
 						LoggingService.LogWarning("Directory does not exist: {0}.", info.FullName);
@@ -111,7 +112,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 			}
 		}
 
-		private void ProcessDirectory (LocalDirectory parentDirectory, IO.DirectoryInfo directoryInfo)
+		private void ProcessDirectory (LocalDirectory parentDirectory, DirectoryInfo directoryInfo)
 		{
 			if (parentDirectory == null) {
 				throw new ArgumentNullException("parentDirectory");
@@ -122,31 +123,29 @@ namespace Meshwork.Backend.Feature.FileIndexing
 
 			try {
 				if (directoryInfo.Name.StartsWith(".") == false) {
-					LocalDirectory directory = (LocalDirectory)parentDirectory.GetSubdirectory(directoryInfo.Name);
+					var directory = (LocalDirectory)parentDirectory.GetSubdirectory(directoryInfo.Name);
 
 					if (directory == null) {
 						directory = parentDirectory.CreateSubDirectory(core.FileSystem, directoryInfo.Name, directoryInfo.FullName);
 					}
 
-					foreach (IO.FileInfo fileInfo in directoryInfo.GetFiles()) {
+					foreach (var fileInfo in directoryInfo.GetFiles()) {
 						if (fileInfo.Name.StartsWith(".") == false) {
 							
 							if (IndexingFile != null)
 								IndexingFile(this, fileInfo.FullName);
 							
-							LocalFile file = (LocalFile)directory.GetFile(fileInfo.Name);
+							var file = (LocalFile)directory.GetFile(fileInfo.Name);
 							if (file == null) {
 								file = directory.CreateFile(fileInfo);
-							} else {								
-								// XXX: Update file info
 							}
-							if (string.IsNullOrEmpty(file.InfoHash)) {
+						    if (string.IsNullOrEmpty(file.InfoHash)) {
 							    core.ShareHasher.HashFile(file);
 							}
 						}
 					}
 
-					foreach (IO.DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories()) {
+					foreach (var subDirectoryInfo in directoryInfo.GetDirectories()) {
 						ProcessDirectory(directory, subDirectoryInfo);
 					}
 				}
@@ -155,7 +154,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 			} catch (Exception ex) {
 				LoggingService.LogError("Error while re-indexing shared files:", ex);
 				if (ErrorIndexing != null) {
-					ErrorIndexing(this, new IO.ErrorEventArgs(ex));
+					ErrorIndexing(this, new ErrorEventArgs(ex));
 				}
 			}
 		}

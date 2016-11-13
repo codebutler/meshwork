@@ -38,15 +38,16 @@ namespace Meshwork.Library.Hyena.Data.Sqlite
         {
             if (type == typeof (string)) {
                 return "TEXT";
-            } else if (type == typeof (int) || type == typeof (long) || type == typeof (bool)
+            }
+            if (type == typeof (int) || type == typeof (long) || type == typeof (bool)
                 || type == typeof (DateTime) || type == typeof (TimeSpan) || type.IsEnum) {
                 return "INTEGER";
-            } else if (type == typeof (byte[])) {
-                return "BLOB";
-            } else {
-                throw new Exception (string.Format (
-                    "The type {0} cannot be bound to a database column.", type.Name));
             }
+            if (type == typeof (byte[])) {
+                return "BLOB";
+            }
+            throw new Exception (string.Format (
+                "The type {0} cannot be bound to a database column.", type.Name));
         }
         
         public static object ToDbFormat (Type type, object value)
@@ -56,20 +57,24 @@ namespace Meshwork.Library.Hyena.Data.Sqlite
                 return value == null || string.IsNullOrEmpty (((string)value).Trim ())
                     ? null
                     : value;
-            } else if (type == typeof (DateTime)) {
+            }
+            if (type == typeof (DateTime)) {
                 return DateTime.MinValue.Equals ((DateTime)value)
                     ? (object)null
                     : DateTimeUtil.FromDateTime ((DateTime)value);
-            } else if (type == typeof (TimeSpan)) {
+            }
+            if (type == typeof (TimeSpan)) {
                 return TimeSpan.MinValue.Equals ((TimeSpan)value)
                     ? (object)null
                     : ((TimeSpan)value).TotalMilliseconds;
-            } else if (type.IsEnum) {
+            }
+            if (type.IsEnum) {
                 return Convert.ChangeType (value, Enum.GetUnderlyingType (type));
-            } else if (type == typeof (bool)) {
+            }
+            if (type == typeof (bool)) {
                 return ((bool)value) ? 1 : 0;
             }
-            
+
             return value;
         }
         
@@ -82,29 +87,32 @@ namespace Meshwork.Library.Hyena.Data.Sqlite
                 return value == null
                     ? DateTime.MinValue
                     : DateTimeUtil.ToDateTime (Convert.ToInt64 (value));
-            } else if (type == typeof (TimeSpan)) {
+            }
+            if (type == typeof (TimeSpan)) {
                 return value == null
                     ? TimeSpan.MinValue
                     : TimeSpan.FromMilliseconds (Convert.ToInt64 (value));
-            } else if (value == null) {
+            }
+            if (value == null)
+            {
                 if (type.IsValueType) {
                     return Activator.CreateInstance (type);
-                } else {
-                    return null;
                 }
-            } else if (type.IsEnum) {
-                return Enum.ToObject (type, value);
-            } else if (type == typeof (bool)) {
-                return ((long)value == 1);
-            } else {
-                return Convert.ChangeType (value, type);
+                return null;
             }
+            if (type.IsEnum) {
+                return Enum.ToObject (type, value);
+            }
+            if (type == typeof (bool)) {
+                return ((long)value == 1);
+            }
+            return Convert.ChangeType (value, type);
         }
         
         public static string BuildColumnSchema (string type, string name, string default_value,
             DatabaseColumnConstraints constraints)
         {
-            StringBuilder builder = new StringBuilder ();
+            var builder = new StringBuilder ();
             builder.Append (name);
             builder.Append (' ');
             builder.Append (type);
@@ -130,7 +138,7 @@ namespace Meshwork.Library.Hyena.Data.Sqlite
     {
         public override object Invoke (object[] args)
         {
-            return Hyena.StringUtil.SortKey (args[0] as string);
+            return StringUtil.SortKey (args[0] as string);
         }
     }
     
@@ -139,7 +147,7 @@ namespace Meshwork.Library.Hyena.Data.Sqlite
     {
         public override object Invoke (object[] args)
         {
-            return Hyena.StringUtil.SearchKey (args[0] as string);
+            return StringUtil.SearchKey (args[0] as string);
         }
     }
 }

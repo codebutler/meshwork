@@ -9,11 +9,12 @@
 
 using System;
 using System.Net;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Timers;
 using Meshwork.Backend.Core.Protocol;
 using Meshwork.Backend.Core.Transport;
+using Meshwork.Common.Serialization;
+using Timer = System.Timers.Timer;
 
 namespace Meshwork.Backend.Core
 {
@@ -24,10 +25,10 @@ namespace Meshwork.Backend.Core
 	{
 		private TrustedNodeInfo remoteNodeInfo;
 		private Node thisNodeRemote;
-		private bool readySent = false;
+		private bool readySent;
 
-		private System.Timers.Timer pingTimer;
-		private System.Timers.Timer timeoutTimer;
+		private Timer pingTimer;
+		private Timer timeoutTimer;
 
 		private DateTime pingSent;
 		private double latency;
@@ -98,16 +99,16 @@ namespace Meshwork.Backend.Core
 		private void Construct ()
 		{
 			// Ping every 30 seconds
-			pingTimer = new System.Timers.Timer (30000);
+			pingTimer = new Timer (30000);
 			pingTimer.Enabled = false;
 			pingTimer.AutoReset = false;
-			pingTimer.Elapsed += new ElapsedEventHandler (PingTimerElapsed);
+			pingTimer.Elapsed += PingTimerElapsed;
 
 			// Timeout if no pong after a minute
-			timeoutTimer = new System.Timers.Timer (60000);
+			timeoutTimer = new Timer (60000);
 			timeoutTimer.Enabled = false;
 			timeoutTimer.AutoReset = false;
-			timeoutTimer.Elapsed += new ElapsedEventHandler (TimeOutTimerElapsed);
+			timeoutTimer.Elapsed += TimeOutTimerElapsed;
 		}
 
 
@@ -129,15 +130,18 @@ namespace Meshwork.Backend.Core
 				}
 			}
 
-			AsyncCallback messageSentCallback = new AsyncCallback(MessageSent);
+			AsyncCallback messageSentCallback = MessageSent;
 
-			SentMessageInfo info = new SentMessageInfo ();
+			var info = new SentMessageInfo ();
 
-			byte[] messageBytes = message.GetAssembledData();
+			var messageBytes = message.GetAssembledData();
 			transport.BeginSendMessage(messageBytes, messageSentCallback, info);
 
 			info.Connection = this;
 			info.Message = message;
+
+		    LoggingService.LogDebug("SEND: " + Json.Serialize(message.Content));
+
 			transport.Network.Core.RaiseMessageSent(info);
 		}
 
@@ -146,7 +150,7 @@ namespace Meshwork.Backend.Core
 			try {
 				transport.EndSendMessage(asyncResult);
 
-				SentMessageInfo info = (SentMessageInfo)asyncResult.AsyncState;
+				var info = (SentMessageInfo)asyncResult.AsyncState;
 				info.Sent = true;
 
 			} catch (Exception ex) {
@@ -163,13 +167,13 @@ namespace Meshwork.Backend.Core
 			ReceiveMessage();
 
 			if (transport.Incoming == false) {
-				this.SendMessage (transport.Network.MessageBuilder.CreateMyKeyMessage (null));
+				SendMessage (transport.Network.MessageBuilder.CreateMyKeyMessage (null));
 			}
 		}
 
 		private void ReceiveMessage()
 		{
-			AsyncCallback receiveDataCallback = new AsyncCallback(ReceivedMessage);
+			AsyncCallback receiveDataCallback = ReceivedMessage;
 			transport.BeginReceiveMessage(receiveDataCallback, null);
 		}
 	
@@ -200,17 +204,17 @@ namespace Meshwork.Backend.Core
 				// theres an if statement in Disconnect() to prevent a loop
 				transport.Disconnect ();
 				
-				this.ConnectionState = ConnectionState.Disconnected;
+				ConnectionState = ConnectionState.Disconnected;
 
 				transport.Network.RemoveConnection(this);
 			
 				if (ex != null) {					
-					LoggingService.LogError("Error in connection with " + this.RemoteAddress, ex);
+					LoggingService.LogError("Error in connection with " + RemoteAddress, ex);
 					if (ConnectionError != null)
 						ConnectionError(this, ex);
 				}
 				
-				LoggingService.LogInfo("Connection to {0} closed.", this.RemoteAddress.ToString());
+				LoggingService.LogInfo("Connection to {0} closed.", RemoteAddress);
 				
 				if (ConnectionClosed != null) {
 					ConnectionClosed(this);
@@ -219,7 +223,7 @@ namespace Meshwork.Backend.Core
 				transport.Network.Cleanup();
 			
 				if (NodeRemote != null) { 
-					transport.Network.SendBroadcast(transport.Network.MessageBuilder.CreateConnectionDownMessage(NodeLocal, this.NodeRemote), this.NodeRemote);
+					transport.Network.SendBroadcast(transport.Network.MessageBuilder.CreateConnectionDownMessage(NodeLocal, NodeRemote), NodeRemote);
 				}
 			} catch (Exception exx) {
 				LoggingService.LogError(exx);
@@ -236,7 +240,7 @@ namespace Meshwork.Backend.Core
 		public void SendReady()
 		{
 			if (readySent == false) {
-				this.SendMessage (transport.Network.MessageBuilder.CreateReadyMessage(NodeRemote));
+				SendMessage (transport.Network.MessageBuilder.CreateReadyMessage(NodeRemote));
 				readySent = true;
 			} else {
 				throw new Exception ("`Ready' was already sent.");
@@ -253,7 +257,7 @@ namespace Meshwork.Backend.Core
 		{			
 			connectionState = ConnectionState.Ready;
 			
-			LoggingService.LogInfo("Connection to {0} is ready.", this.NodeRemote.NickName);
+			LoggingService.LogInfo("Connection to {0} is ready.", NodeRemote.NickName);
 			
 			if (ConnectionReady != null) 
 				ConnectionReady(this);
@@ -307,7 +311,7 @@ namespace Meshwork.Backend.Core
 					return;
 				}
 				
-				byte[] messageData = transport.EndReceiveMessage(result);
+				var messageData = transport.EndReceiveMessage(result);
 				
 				if (messageData == null)
 					return;
@@ -320,72 +324,68 @@ namespace Meshwork.Backend.Core
 				try {
 					message = Message.Parse(transport.Network, messageData, out messageFrom);
 				} catch (InvalidSignatureException ex) {
-					if (string.IsNullOrEmpty(messageFrom) || messageFrom == remoteNodeInfo.NodeID) {
+					if (string.IsNullOrEmpty(messageFrom) || messageFrom == remoteNodeInfo.NodeId) {
 						throw ex;
-					} else {
-						LoggingService.LogWarning("Ignored message with invalid signature from {0}", messageFrom);
-						return;
 					}
+				    LoggingService.LogWarning("Ignored message with invalid signature from {0}", messageFrom);
+				    return;
 				}
 
-				ReceivedMessageInfo info = new ReceivedMessageInfo ();
+				var info = new ReceivedMessageInfo ();
 				info.Connection = this;
 				info.Message = message;
 			    transport.Network.Core.RaiseMessageReceived(info);
 
 				if (remoteNodeInfo == null) {
-					KeyInfo key = (KeyInfo) message.Content;
-					
-					RSACryptoServiceProvider provider = new RSACryptoServiceProvider ();
-					provider.FromXmlString (key.Key);
-					string nodeID = Common.Common.SHA512Str(provider.ToXmlString (false));
-				
-					if (nodeID.ToLower () == transport.Network.LocalNode.NodeID.ToLower ()) {
+					var keyInfo = (KeyInfo) message.Content;
+				    var publicKey = new PublicKey(keyInfo.Info, keyInfo.Key);
+				    var nodeId = publicKey.Fingerprint;
+
+				    if (nodeId.ToLower () == transport.Network.LocalNode.NodeID.ToLower ()) {
 						throw new Exception ("You cannot connect to yourself!");
 					}
-					
-					if (!transport.Network.TrustedNodes.ContainsKey(nodeID)) {						
-						bool acceptKey = transport.Network.RaiseReceivedKey (this, key);
-						if (acceptKey) {
-							TrustedNodeInfo trustedNode = new TrustedNodeInfo();
-							trustedNode.Identifier = string.Format("[{0}]", nodeID);
-							trustedNode.PublicKey = new PublicKey(key.Key);
+
+					if (!transport.Network.TrustedNodes.ContainsKey(nodeId)) {
+						var acceptKey = transport.Network.RaiseReceivedKey (this, keyInfo);
+						if (acceptKey)
+						{
+						    var trustedNode = new TrustedNodeInfo($"[{nodeId}]", nodeId, keyInfo.Key);
 							transport.Network.AddTrustedNode(trustedNode);
-						    transport.Network.Core.Settings.SyncNetworkInfoAndSave();
+						    transport.Network.Core.Settings.SyncNetworkInfoAndSave(transport.Network.Core);
 						} else {
 							throw new ConnectNotTrustedException ();
 						}
 					}
-					
-					if (transport.Network.TrustedNodes[nodeID].AllowConnect == false)
-						throw new ConnectNotAllowedException(nodeID);
-					
-					foreach (LocalNodeConnection connection in transport.Network.LocalConnections) {
-						if (connection != this && connection.NodeRemote != null && connection.NodeRemote.NodeID == nodeID)
+
+					if (transport.Network.TrustedNodes[nodeId].AllowConnect == false)
+						throw new ConnectNotAllowedException(nodeId);
+
+					foreach (var connection in transport.Network.LocalConnections) {
+						if (connection != this && connection.NodeRemote != null && connection.NodeRemote.NodeID == nodeId)
 							throw new Exception ("Already connected!");
 					}
 
-					remoteNodeInfo = transport.Network.TrustedNodes[nodeID];
-					if (!transport.Network.Nodes.ContainsKey(RemoteNodeInfo.NodeID)) {
-						Node node = new Node (transport.Network, RemoteNodeInfo.NodeID);
+					remoteNodeInfo = transport.Network.TrustedNodes[nodeId];
+					if (!transport.Network.Nodes.ContainsKey(RemoteNodeInfo.NodeId)) {
+						var node = new Node (transport.Network, RemoteNodeInfo.NodeId);
 						node.NickName = RemoteNodeInfo.Identifier;
 						node.Verified = true;
 						transport.Network.AddNode(node);
 					}
-					this.NodeRemote = transport.Network.Nodes[RemoteNodeInfo.NodeID];
+					NodeRemote = transport.Network.Nodes[RemoteNodeInfo.NodeId];
 
-					if (transport.Incoming == true) {
-						this.SendMessage(transport.Network.MessageBuilder.CreateMyKeyMessage (null));
+					if (transport.Incoming) {
+						SendMessage(transport.Network.MessageBuilder.CreateMyKeyMessage (null));
 					} else {
 						ConnectionState = ConnectionState.Authenticating;
 						RaiseConnectionInfoChanged ();
 
-						Message m = transport.Network.MessageBuilder.CreateAuthMessage (this, RemoteNodeInfo);
+						var m = transport.Network.MessageBuilder.CreateAuthMessage (this, RemoteNodeInfo);
 						SendMessage(m);
 					}
 
 				} else {
-					ThreadPool.QueueUserWorkItem(new WaitCallback(transport.Network.ProcessMessage), info);
+					ThreadPool.QueueUserWorkItem(transport.Network.ProcessMessage, info);
 				}
 			} catch (Exception ex) {
 				Disconnect(ex);
@@ -395,7 +395,7 @@ namespace Meshwork.Backend.Core
 
 	public class SentMessageInfo : MessageInfo
 	{
-		bool sent = false;
+		bool sent;
 
 		public bool Sent {
 			get {
@@ -425,8 +425,8 @@ namespace Meshwork.Backend.Core
 		
 		public MessageInfo (Message message, LocalNodeConnection connection)
 		{
-			this.Message = message;
-			this.Connection = connection;
+			Message = message;
+			Connection = connection;
 		}
 
 		protected void OnChanged ()

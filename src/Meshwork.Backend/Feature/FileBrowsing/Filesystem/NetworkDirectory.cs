@@ -28,7 +28,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		public override IDirectory[] Directories {
 			get {
 				var directories = new List<NodeDirectory>();
-				foreach (Node node in m_Network.Nodes.Values) {
+				foreach (var node in m_Network.Nodes.Values) {
 					if (node != m_Network.LocalNode)
 						directories.Add(node.Directory);				
 				}

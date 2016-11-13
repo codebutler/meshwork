@@ -43,12 +43,12 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		}
 		
 		public Network Network {
-			get { return this.Node.Network; }
+			get { return Node.Network; }
 		}
 
 		public string RemoteFullPath {
 			get {
-				return "/" + string.Join("/", this.FullPath.Split('/').Slice(3));
+				return "/" + string.Join("/", FullPath.Split('/').Slice(3));
 			}
 		}
 		
@@ -95,7 +95,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		public override IDirectory Parent {
 			get {
 				if (m_Parent == null)
-					m_Parent = core.FileSystem.GetDirectory(PathUtil.GetParentPath(this.FullPath));
+					m_Parent = core.FileSystem.GetDirectory(PathUtil.GetParentPath(FullPath));
 				return m_Parent;
 			}
 		}
@@ -103,16 +103,16 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		internal void UpdateFromInfo (SharedDirectoryInfo info)
 		{
 			var newDirectories = new RemoteDirectory[info.Directories.Length];
-			for (int x = 0; x < info.Directories.Length; x++) {
-				RemoteDirectory dir = (RemoteDirectory) GetSubdirectory(info.Directories[x]);
+			for (var x = 0; x < info.Directories.Length; x++) {
+				var dir = (RemoteDirectory) GetSubdirectory(info.Directories[x]);
 				if (dir == null)
 					dir = new RemoteDirectory(core, PathUtil.Join(m_FullPath, info.Directories[x]));
 				newDirectories[x] = dir;
 			}
 
 			var newFiles = new RemoteFile[info.Files.Length];
-			for (int x = 0; x < info.Files.Length; x++) {
-				RemoteFile file = (RemoteFile) GetFile(info.Files[x].Name);
+			for (var x = 0; x < info.Files.Length; x++) {
+				var file = (RemoteFile) GetFile(info.Files[x].Name);
 				if (file == null)
 					file = new RemoteFile(this, info.Files[x]);
 				else

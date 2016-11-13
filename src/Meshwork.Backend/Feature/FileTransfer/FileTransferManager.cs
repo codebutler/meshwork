@@ -9,11 +9,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Meshwork.Backend.Core;
 using Meshwork.Backend.Core.Transport;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
 using Meshwork.Backend.Feature.FileTransfer.BitTorrent;
-using IO = System.IO;
 
 namespace Meshwork.Backend.Feature.FileTransfer
 {
@@ -47,12 +47,12 @@ namespace Meshwork.Backend.Feature.FileTransfer
 			// Don't download files if it already exists in the completed downloads directory.
 			// If the remote file is different, but has the same filename, it'll globber your copy.
 			if (!(file is LocalFile)) {
-				if (IO.File.Exists(IO.Path.Combine(network.Core.Settings.CompletedDownloadDir, file.Name))) {
+				if (File.Exists(Path.Combine(network.Core.Settings.CompletedDownloadDir, file.Name))) {
 					throw new Exception("A file by that name already exists in your download directory.");
 				}
 			}
 
-			IFileTransfer transfer = GetTransfer(file);
+			var transfer = GetTransfer(file);
 			if (transfer == null) {
 				transfer = provider.CreateFileTransfer(file);
 				transfers.Add(transfer);
@@ -90,7 +90,7 @@ namespace Meshwork.Backend.Feature.FileTransfer
 				throw new ArgumentNullException("infoHash");
 			}
 
-			foreach (IFileTransfer transfer in transfers) {
+			foreach (var transfer in transfers) {
 				if (transfer.File.InfoHash == infoHash) {
 					return transfer;
 				}
@@ -112,8 +112,8 @@ namespace Meshwork.Backend.Feature.FileTransfer
 
 		internal void NewIncomingConnection(ITransport transport)
 		{
-			BitTorrent.TorrentConnection c = new BitTorrent.TorrentConnection(transport);
-			((BitTorrent.BitTorrentFileTransferProvider)provider).AddConnection(c);
+			var c = new TorrentConnection(transport);
+			((BitTorrentFileTransferProvider)provider).AddConnection(c);
 		}
 
 		internal IFileTransferProvider Provider {

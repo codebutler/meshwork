@@ -48,12 +48,11 @@ namespace Meshwork.Library.Hyena.Query
                 QueryValue val = new StringQueryValue ();
                 val.ParseUserQuery (input);
                 return val;
-            } else {
-                foreach (QueryValue val in field.CreateQueryValues ()) {
-                    val.ParseUserQuery (input);
-                    if (!val.IsEmpty) {
-                        return val;
-                    }
+            }
+            foreach (var val in field.CreateQueryValues ()) {
+                val.ParseUserQuery (input);
+                if (!val.IsEmpty) {
+                    return val;
                 }
             }
 
@@ -66,12 +65,11 @@ namespace Meshwork.Library.Hyena.Query
                 QueryValue val = new StringQueryValue ();
                 val.LoadString (input);
                 return val;
-            } else {
-                foreach (QueryValue val in field.CreateQueryValues ()) {
-                    val.LoadString (input);
-                    if (!val.IsEmpty) {
-                        return val;
-                    }
+            }
+            foreach (var val in field.CreateQueryValues ()) {
+                val.LoadString (input);
+                if (!val.IsEmpty) {
+                    return val;
                 }
             }
 
@@ -81,18 +79,17 @@ namespace Meshwork.Library.Hyena.Query
         public static QueryValue CreateFromXml (XmlElement parent, QueryField field)
         {
             if (field != null) {
-                foreach (QueryValue val in field.CreateQueryValues ()) {
+                foreach (var val in field.CreateQueryValues ()) {
                     if (CreateFromXml (val, parent)) {
                         return val;
                     }
                 }
                 return null;
-            } else {
-                foreach (Type subtype in subtypes) {
-                    QueryValue val = Activator.CreateInstance (subtype) as QueryValue;
-                    if (CreateFromXml (val, parent)) {
-                        return val;
-                    }
+            }
+            foreach (var subtype in subtypes) {
+                var val = Activator.CreateInstance (subtype) as QueryValue;
+                if (CreateFromXml (val, parent)) {
+                    return val;
                 }
             }
             return null;
@@ -100,7 +97,7 @@ namespace Meshwork.Library.Hyena.Query
 
         private static bool CreateFromXml (QueryValue val, XmlElement parent)
         {
-            XmlElement val_node = parent[val.XmlElementName];
+            var val_node = parent[val.XmlElementName];
             if (val_node != null) {
                 val.ParseXml (val_node);
                 return !val.IsEmpty;

@@ -3,7 +3,6 @@ using System;
 
 namespace Meshwork.Backend.Core
 {
-	[Serializable]
 	public class MeshworkError
 	{
 		string m_Message;
@@ -33,12 +32,11 @@ namespace Meshwork.Backend.Core
 
 		public Exception ToException ()
 		{
-			Exception e = new Exception(this.Message);
+			var e = new Exception(Message);
 			return e;
 		}
 	}
 
-	[Serializable]
 	public abstract class FileTransferError : MeshworkError
 	{
 		string transferId;
@@ -59,7 +57,6 @@ namespace Meshwork.Backend.Core
 		}
 	}
 
-	[Serializable]
 	public class InvalidNetworkNameError : MeshworkError
 	{
 		string theirName;
@@ -80,7 +77,6 @@ namespace Meshwork.Backend.Core
 		}
 	}
 
-	[Serializable]
 	public class VersionMismatchError : MeshworkError
 	{
 		string otherVersion = "";
@@ -94,56 +90,37 @@ namespace Meshwork.Backend.Core
 		}
 
 		public override string Message {
-			get {
-				//return "Connection was closed because remote node is using an incompatable version";
+			get
+			{
+			    //return "Connection was closed because remote node is using an incompatable version";
 				if (otherVersion != null && otherVersion != "")
 					return "Incompatable Version (" + otherVersion + ")";
-				else
-					return "Incompatable Version";
+			    return "Incompatable Version";
 			}
 		}
 	}
 
-	[Serializable]
 	public class InvalidNicknameError : MeshworkError
 	{
-
-		public InvalidNicknameError ()
-		{
-		}
-
-		public override string Message {
+	    public override string Message {
 			get { return "Connection was closed because remote node supplied an invalid nickname."; }
 		}
 	}
 
-	[Serializable]
 	public class FileTransferFirewallError : MeshworkError
 	{
-
-		public FileTransferFirewallError ()
-		{
-		}
-
-		public override string Message {
+	    public override string Message {
 			get { return "You cannot recieve files because you are behind a firewall."; }
 		}
 	}
 
-	[Serializable]
 	public class FileTransferNoTransfersError : MeshworkError
 	{
-
-		public FileTransferNoTransfersError ()
-		{
-		}
-
-		public override string Message {
+	    public override string Message {
 			get { return "You cannot recieve files because this node is configured not to allow incoming file transfer connections."; }
 		}
 	}
 
-	[Serializable]
 	public class DirectoryNotFoundError : MeshworkError
 	{
 		public string DirPath;
@@ -154,7 +131,7 @@ namespace Meshwork.Backend.Core
 
 		public DirectoryNotFoundError (string notFoundDirPath)
 		{
-			this.DirPath = notFoundDirPath;
+			DirPath = notFoundDirPath;
 		}
 
 		public override string Message {
@@ -162,7 +139,6 @@ namespace Meshwork.Backend.Core
 		}
 	}
 
-	[Serializable]
 	public class FileNotFoundError : FileTransferError
 	{
 		public string FilePath {
@@ -175,29 +151,23 @@ namespace Meshwork.Backend.Core
 
 		public FileNotFoundError (string filePath)
 		{
-			this.FilePath = filePath;
+			FilePath = filePath;
 		}
 
 		public FileNotFoundError (string filePath, string transferId) : base(transferId)
 		{
-			this.FilePath = filePath;
+			FilePath = filePath;
 		}
 
 		public override string Message {
-			get { return string.Format("The specified file does not exist ({0}).", FilePath); }
+			get { return $"The specified file does not exist ({FilePath})."; }
 		}
 	}
 
-	[Serializable]
 	public class NotTrustedError : MeshworkError
 	{
-
-		public NotTrustedError ()
-		{
-		}
-
-		public override string Message {
-			get { return string.Format("I ignored a message from you because you are not in my trusted nodes list."); }
+	    public override string Message {
+			get { return "I ignored a message from you because you are not in my trusted nodes list."; }
 		}
 	}
 }

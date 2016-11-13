@@ -35,12 +35,8 @@ namespace Meshwork.Backend.Core.Logging
 	{
 		EnabledLoggingLevel enabledLevel = EnabledLoggingLevel.All; // FIXME: Configurable!
 		bool useColour = true;
-		
-		public ConsoleLogger ()
-		{
-		}
 
-		public void Log (LogLevel level, string message)
+	    public void Log (LogLevel level, string message)
 		{
 			string header;
 			

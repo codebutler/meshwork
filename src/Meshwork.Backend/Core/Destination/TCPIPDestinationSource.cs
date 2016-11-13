@@ -47,7 +47,7 @@ namespace Meshwork.Backend.Core.Destination
             // XXX: Use NetworkManager to support IP changes,
             // etc. without restarting Meshwork.
 
-            var addresses = core.OS.GetInterfaceAddresses();
+            var addresses = core.Platform.GetInterfaceAddresses();
             foreach (var address in addresses) {
 
                 // Ignore loopback.
@@ -57,12 +57,12 @@ namespace Meshwork.Backend.Core.Destination
                 // Only include addresses of the correct type.
                 if (this is TCPIPv4DestinationSource && address.Address.AddressFamily != AddressFamily.InterNetwork)
                     continue;
-                else if (this is TCPIPv6DestinationSource && address.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                if (this is TCPIPv6DestinationSource && address.Address.AddressFamily != AddressFamily.InterNetworkV6)
                     continue;
 
                 // XXX: Check for firewall. For now, we assume true because 99.99% of the
                 // world is behind a NAT, the remaining 0.01% probably know what they are doing.
-                var isOpenExternally = !Common.Common.IsInternalIP(address.Address);
+                var isOpenExternally = !Common.Utils.IsInternalIP(address.Address);
 
                 IDestination destination = null;
 

@@ -9,10 +9,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using Meshwork.Backend.Core;
 using Meshwork.Backend.Core.Protocol;
 using Meshwork.Common;
+using Meshwork.Common.Serialization;
 
 namespace Meshwork.Backend.Feature.FileSearch
 {
@@ -23,7 +23,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 	    private readonly Core.Core core;
 	    string name;
 		string query;
-		bool filtersEnabled = false;
+		bool filtersEnabled;
 		List<FileSearchFilter> filters;
 		List<string> networkIds;
 		[NonSerialized] List<SearchResult> results;
@@ -62,11 +62,12 @@ namespace Meshwork.Backend.Feature.FileSearch
 			set {
 				if (value == null) {
 					throw new ArgumentNullException();
-				} else if (value.Trim() == string.Empty) {
-					throw new ArgumentException("Query may not be empty.");
 				}
+			    if (value.Trim() == string.Empty) {
+			        throw new ArgumentException("Query may not be empty.");
+			    }
 
-				query = value.ToLower();
+			    query = value.ToLower();
 			}
 		}
 
@@ -106,22 +107,22 @@ namespace Meshwork.Backend.Feature.FileSearch
 			if (ClearedResults != null)
 				ClearedResults(this, EventArgs.Empty);
 			
-			foreach (Network network in core.Networks) {
+			foreach (var network in core.Networks) {
 				if (networkIds.Count == 0 || networkIds.IndexOf(network.NetworkID) > -1) { 
 					network.FileSearch(this);
 				}
 			}
 		}
 
-		[XmlIgnore]
-		public IList<SearchResult> Results {
+	    [DontSerialize]
+	    public IList<SearchResult> Results {
 			get {
 				return results.AsReadOnly();
 			}
 		}
 
-		[XmlIgnore]
-		public ReadOnlyDictionary<string,List<SearchResult>> AllFileResults {
+	    [DontSerialize]
+	    public ReadOnlyDictionary<string,List<SearchResult>> AllFileResults {
 			get {
 				// XXX: Can we make the List<SearchResult> readonly too?
 				return new ReadOnlyDictionary<string,List<SearchResult>>(allFileResults);
@@ -130,20 +131,20 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 		public void AppendResults (Node node, SearchResultInfo resultInfo)
 		{
-			List<SearchResult> newResults = new List<SearchResult>();
+			var newResults = new List<SearchResult>();
 
 			if (resultInfo.SearchId != id) {
 				throw new ArgumentException("Results are for a different search.");
 			}
 
-			foreach (string dir in resultInfo.Directories) {
-				SearchResult directoryResult = new SearchResult(this, node, dir);
+			foreach (var dir in resultInfo.Directories) {
+				var directoryResult = new SearchResult(this, node, dir);
 				results.Add(directoryResult);
 				newResults.Add(directoryResult);
 			}
 
-			foreach (SharedFileListing file in resultInfo.Files) {
-				SearchResult result = new SearchResult(this, node, file);
+			foreach (var file in resultInfo.Files) {
+				var result = new SearchResult(this, node, file);
 				results.Add(result);
 				newResults.Add(result);
 
@@ -160,7 +161,7 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 		public bool CheckAllFilters (SearchResult result)
 		{
-			foreach (FileSearchFilter filter in filters) {
+			foreach (var filter in filters) {
 				if (!filter.Check(result)) {
 					return false;
 				}

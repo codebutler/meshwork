@@ -38,29 +38,29 @@ namespace Meshwork.Backend.Core
 		
 		static LoggingService ()
 		{
-			ConsoleLogger consoleLogger = new ConsoleLogger ();
+			var consoleLogger = new ConsoleLogger ();
 			loggers.Add (consoleLogger);
 			
-			string consoleLogLevelEnv = System.Environment.GetEnvironmentVariable ("MESHWORK_CONSOLE_LOG_LEVEL");
+			var consoleLogLevelEnv = Environment.GetEnvironmentVariable ("MESHWORK_CONSOLE_LOG_LEVEL");
 			if (!string.IsNullOrEmpty (consoleLogLevelEnv)) {
 				try {
 					consoleLogger.EnabledLevel = (EnabledLoggingLevel) Enum.Parse (typeof (EnabledLoggingLevel), consoleLogLevelEnv, true);
 				} catch {}
 			}
 			
-			string consoleLogUseColourEnv = System.Environment.GetEnvironmentVariable ("MESHWORK_CONSOLE_LOG_USE_COLOUR");
+			var consoleLogUseColourEnv = Environment.GetEnvironmentVariable ("MESHWORK_CONSOLE_LOG_USE_COLOUR");
 			if (!string.IsNullOrEmpty (consoleLogUseColourEnv) && consoleLogUseColourEnv.ToLower () == "false") {
 				consoleLogger.UseColour = false;
 			} else {
 				consoleLogger.UseColour = true;
 			}
 			
-			string logFileEnv = System.Environment.GetEnvironmentVariable ("MESHWORK_LOG_FILE");
+			var logFileEnv = Environment.GetEnvironmentVariable ("MESHWORK_LOG_FILE");
 			if (!string.IsNullOrEmpty (logFileEnv)) {
 				try {
-					FileLogger fileLogger = new FileLogger (logFileEnv);
+					var fileLogger = new FileLogger (logFileEnv);
 					loggers.Add (fileLogger);
-					string logFileLevelEnv = System.Environment.GetEnvironmentVariable ("MESHWORK_FILE_LOG_LEVEL");
+					var logFileLevelEnv = Environment.GetEnvironmentVariable ("MESHWORK_FILE_LOG_LEVEL");
 					fileLogger.EnabledLevel = (EnabledLoggingLevel) Enum.Parse (typeof (EnabledLoggingLevel), logFileLevelEnv, true);
 				} catch (Exception e) {
 					LogError (e.ToString ());
@@ -72,8 +72,8 @@ namespace Meshwork.Backend.Core
 		
 		public static bool IsLevelEnabled (LogLevel level)
 		{
-			EnabledLoggingLevel l = (EnabledLoggingLevel) level;
-			foreach (ILogger logger in loggers)
+			var l = (EnabledLoggingLevel) level;
+			foreach (var logger in loggers)
 				if ((logger.EnabledLevel & l) == l)
 					return true;
 			return false;
@@ -81,8 +81,8 @@ namespace Meshwork.Backend.Core
 		
 		public static void Log (LogLevel level, string message)
 		{
-			EnabledLoggingLevel l = (EnabledLoggingLevel) level;
-			foreach (ILogger logger in loggers)
+			var l = (EnabledLoggingLevel) level;
+			foreach (var logger in loggers)
 				if ((logger.EnabledLevel & l) == l)
 					logger.Log (level, message);
 		}
@@ -93,7 +93,7 @@ namespace Meshwork.Backend.Core
 		
 		public static ILogger GetLogger (string name)
 		{
-			foreach (ILogger logger in loggers)
+			foreach (var logger in loggers)
 				if (logger.Name == name)
 					return logger;
 			return null;
@@ -108,7 +108,7 @@ namespace Meshwork.Backend.Core
 		
 		public static void RemoveLogger (string name)
 		{
-			ILogger logger = GetLogger (name);
+			var logger = GetLogger (name);
 			if (logger == null)
 				throw new Exception ("There is no logger registered with the name '" + name + "'");
 			loggers.Remove (logger);
@@ -183,27 +183,27 @@ namespace Meshwork.Backend.Core
 		
 		public static void LogDebug (string message, Exception ex)
 		{
-			Log (LogLevel.Debug, message + System.Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
+			Log (LogLevel.Debug, message + Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
 		}
 		
 		public static void LogInfo (string message, Exception ex)
 		{
-			Log (LogLevel.Info, message + System.Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
+			Log (LogLevel.Info, message + Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
 		}
 		
 		public static void LogWarning (string message, Exception ex)
 		{
-			Log (LogLevel.Warn, message + System.Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
+			Log (LogLevel.Warn, message + Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
 		}
 		
 		public static void LogError (string message, Exception ex)
 		{
-			Log (LogLevel.Error, message + System.Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
+			Log (LogLevel.Error, message + Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
 		}
 		
 		public static void LogFatalError (string message, Exception ex)
 		{
-			Log (LogLevel.Fatal, message + System.Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
+			Log (LogLevel.Fatal, message + Environment.NewLine + (ex != null? ex.ToString () : string.Empty));
 		}
 		
 #endregion		

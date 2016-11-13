@@ -63,6 +63,6 @@ namespace Meshwork.Library.CRC {
 		CRC64_ISO,
 
 		/// <summary>The ECMA standard CRC64 algorithm.</summary>
-		CRC64_ECMA,
+		CRC64_ECMA
 	}
 }

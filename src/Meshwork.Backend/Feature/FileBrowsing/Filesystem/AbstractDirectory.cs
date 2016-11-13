@@ -13,7 +13,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 	{
 		public IFile GetFile (string name)
 		{
-			foreach (IFile file in Files) {
+			foreach (var file in Files) {
 				if (file.Name == name) {
 					return file;
 				}
@@ -23,7 +23,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		public bool HasFile (string name)
 		{
-			foreach (IFile file in Files) {
+			foreach (var file in Files) {
 				if (file.Name == name) {
 					return true;
 				}
@@ -33,7 +33,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		public IDirectory GetSubdirectory (string name)
 		{
-			foreach (IDirectory subdir in Directories) {
+			foreach (var subdir in Directories) {
 				if (subdir.Name == name) {
 					return subdir;
 				}

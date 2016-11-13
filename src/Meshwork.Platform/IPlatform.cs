@@ -7,8 +7,6 @@
 // (C) 2007 FileFind.net (http://filefind.net)
 //
 
-using System;
-
 namespace Meshwork.Platform
 {
 	public interface IPlatform

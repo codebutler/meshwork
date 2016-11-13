@@ -16,8 +16,8 @@ namespace Meshwork.Backend.Core
 		static Hashtable friendlyNames = new Hashtable ();
 		static ConnectionType ()
 		{
-			friendlyNames.Add (ConnectionType.NodeConnection, "Node Connection");
-			friendlyNames.Add (ConnectionType.TransferConnection, "Transfer Connection");
+			friendlyNames.Add (NodeConnection, "Node Connection");
+			friendlyNames.Add (TransferConnection, "Transfer Connection");
 		}
 		
 		public static readonly ulong NodeConnection = 0x01;
@@ -25,10 +25,9 @@ namespace Meshwork.Backend.Core
 		
 		public static string GetFriendlyName (ulong connectionType)
 		{
-			if (friendlyNames.ContainsKey (connectionType) == true)
+		    if (friendlyNames.ContainsKey (connectionType))
 				return friendlyNames [connectionType].ToString ();
-			else
-				return "Unknown";
+		    return "Unknown";
 		}
 	}
 }

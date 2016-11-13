@@ -10,122 +10,87 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Xml.Serialization;
 using Meshwork.Backend.Core.Destination;
+using Meshwork.Backend.Core.Protocol;
 
 namespace Meshwork.Backend.Core
 {
 	public class TrustedNodeInfo
 	{
-		/* Private Variables */
-		PublicKey m_PublicKey;
-		RSACryptoServiceProvider m_Crypto;
-		string m_NodeId;
-		string m_Identifier;
-		List<DestinationInfo> m_DestinationInfos = new List<DestinationInfo>();
+	    public TrustedNodeInfo()
+	    {
 
-		public TrustedNodeInfo ()
-		{
-			// For the serializer
-		}
+	    }
 
-		public TrustedNodeInfo (PublicKey key)
-		{
-			this.Identifier = key.Nickname;
-			this.PublicKey = key;
-		}
+	    public TrustedNodeInfo(PublicKey publicKey)
+	    {
+	        Identifier = publicKey.Nickname;
+	        NodeId = publicKey.Fingerprint;
+	        PublicKey = publicKey.Key;
+	    }
 
-		public string Identifier {
-			get { return m_Identifier; }
-			set {
-				m_Identifier = value;
-				if (m_PublicKey != null)
-					m_PublicKey.Nickname = value;
-			}
-		}
+	    public TrustedNodeInfo(
+	        string identifier,
+	        string nodeId,
+	        string publicKey)
+	    {
+	        Identifier = identifier;
+	        NodeId = nodeId;
+	        PublicKey = publicKey;
+	    }
 
-		// XXX: Replace these with properties.
-		public bool AllowProfile = true;
-		public bool AllowNetworkInfo = true;
-		public bool AllowSharedFiles = true;
-		public DateTime LastConnected = new DateTime(0);
-		public bool AllowAutoConnect = true;
-		public bool AllowConnect = true;
+	    public string Identifier { get; set; }
 
-		public string NodeID {
-			get { return m_NodeId; }
-		}
+	    public string NodeId { get; set; }
 
-		[XmlIgnore]
-		public PublicKey PublicKey {
-			get { return m_PublicKey; }
-			set {
-				if (value != null) {
-					var crypto = new RSACryptoServiceProvider(new CspParameters());
-					crypto.FromXmlString(value.Key);
-					string nodeId = Common.Common.SHA512Str(value.Key);
-					m_PublicKey = value;
-					m_PublicKey.Nickname = m_Identifier;
-					m_Crypto = crypto;
-					m_NodeId = nodeId;
-				} else {
-					m_PublicKey = null;
-					m_Crypto = null;
-					m_NodeId = null;
-				}
-			}
-		}
+	    public bool AllowProfile { get; set; } = true;
 
-		[XmlElement("PublicKey")]
-		public System.Xml.XmlCDataSection PublicKeyData {
-			get {
-				var doc = new System.Xml.XmlDocument();
-				return doc.CreateCDataSection(this.PublicKey.Key);
-			}
-			set {
-				try {
-					this.PublicKey = new PublicKey(value.Value);
-				} catch (Exception ex) {
-					LoggingService.LogError("Error loading TrustedNodeInfo", ex);
-					this.PublicKey = null;
-				}
-			}
-		}
+	    public bool AllowNetworkInfo { get; set; } = true;
 
-		[XmlIgnore]
-		public RSACryptoServiceProvider Crypto {
-			get {
-				if (m_Crypto == null)
-					throw new Exception("No Crypto object for " + Identifier + "!");
-				return m_Crypto;
-			}
-		}
+	    public bool AllowSharedFiles { get; set; } = true;
 
-		public List<DestinationInfo> DestinationInfos {
-			get { return m_DestinationInfos; }
-		}
+	    public bool AllowAutoConnect { get; set; } = true;
 
-		public IDestination[] GetDestinations(Core core) {
-            List<IDestination> result = new List<IDestination>();
-            foreach (DestinationInfo info in m_DestinationInfos) {
+	    public bool AllowConnect { get; set; } = true;
+
+	    public string PublicKey { get; set; }
+
+	    public DateTime? LastConnected { get; set; }
+
+	    public IList<DestinationInfo> DestinationInfos { get; private set; } = new List<DestinationInfo>();
+
+	    // FIXME: Cache this again...
+	    public RSACryptoServiceProvider CreateCrypto()
+	    {
+	        var crypto = new RSACryptoServiceProvider(new CspParameters());
+	        crypto.FromXmlString(PublicKey);
+	        return crypto;
+	    }
+
+	    public IDestination[] GetDestinations(Core core) {
+            var result = new List<IDestination>();
+            foreach (var info in DestinationInfos) {
                 if (info.IsSupported(core)) {
-                    info.CreateAndAddDestination(result);
+                    info.CreateAndAddDestination(core, result);
                 }
             }
             return result.ToArray();
 		}
 
 		public IDestination GetFirstConnectableDestination(Core core) {
-            IDestination[] destinations = this.GetConnectableDestinations(core);
-            if (destinations.Length == 0) {
-                return null;
-            }
-		    return destinations[0];
+            var destinations = GetConnectableDestinations(core);
+            return destinations.Length == 0 ? null : destinations[0];
 		}
 
 		/// <summary>Get a list of destinations that we can connect to.</summary>
 		public IDestination[] GetConnectableDestinations(Core core) {
             return DestinationManager.GetConnectableDestinations(GetDestinations(core));
 		}
+
+	    public void Update(NodeInfo nodeInfo)
+	    {
+	        Identifier = nodeInfo.NickName;
+	        DestinationInfos = new List<DestinationInfo>(nodeInfo.DestinationInfos).AsReadOnly();
+	    }
 	}
 }

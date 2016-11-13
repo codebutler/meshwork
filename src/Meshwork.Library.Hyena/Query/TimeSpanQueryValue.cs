@@ -53,7 +53,7 @@ namespace Meshwork.Library.Hyena.Query
         public static readonly Operator LessThan           = new Operator ("lessThan", "< {0}", "<");
         public static readonly Operator GreaterThan        = new Operator ("greaterThan", "> {0}", ">");*/
 
-        protected double offset = 0;
+        protected double offset;
         protected TimeFactor factor = TimeFactor.Second;
 
         public override string XmlElementName {
@@ -86,7 +86,7 @@ namespace Meshwork.Library.Hyena.Query
         private static Regex number_regex = new Regex ("\\d+(\\.\\d+)?", RegexOptions.Compiled);
         public override void ParseUserQuery (string input)
         {
-            Match match = number_regex.Match (input);
+            var match = number_regex.Match (input);
             if (match != Match.Empty && match.Groups.Count > 0) {
                 double val;
                 try {
@@ -133,7 +133,7 @@ namespace Meshwork.Library.Hyena.Query
 
         protected void DetermineFactor ()
         {
-            double val = Math.Abs (offset);
+            var val = Math.Abs (offset);
             foreach (TimeFactor factor in Enum.GetValues (typeof(TimeFactor))) {
                 if (val >= (double) factor) {
                     this.factor = factor;
@@ -146,7 +146,7 @@ namespace Meshwork.Library.Hyena.Query
             try {
                 LoadString (node.InnerText);
                 if (node.HasAttribute ("factor")) {
-                    this.factor = (TimeFactor) Enum.Parse (typeof(TimeFactor), node.GetAttribute ("factor"));
+                    factor = (TimeFactor) Enum.Parse (typeof(TimeFactor), node.GetAttribute ("factor"));
                 }
             } catch {
                 IsEmpty = true;
@@ -161,13 +161,13 @@ namespace Meshwork.Library.Hyena.Query
 
         public override string ToSql (Operator op)
         {
-            return Convert.ToString (offset * 1000, System.Globalization.CultureInfo.InvariantCulture);
+            return Convert.ToString (offset * 1000, CultureInfo.InvariantCulture);
         }
 
         protected virtual string FactorString (TimeFactor factor, double count, bool translate)
         {
             string result = null;
-            int plural_count = StringUtil.DoubleToPluralInt (count);
+            var plural_count = StringUtil.DoubleToPluralInt (count);
             if (translate) {
                 switch (factor) {
                     case TimeFactor.Second: result = Catalog.GetPluralString ("{0} second", "{0} seconds", plural_count); break;

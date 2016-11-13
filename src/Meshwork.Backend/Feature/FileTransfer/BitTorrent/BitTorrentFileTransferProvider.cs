@@ -34,8 +34,8 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 
 		    Logger.AddListener(new ConsoleTraceListener());
 
-			string downloadPath = core.Settings.IncompleteDownloadDir;
-			EngineSettings settings = new EngineSettings (downloadPath, 1);
+			var downloadPath = core.Settings.IncompleteDownloadDir;
+			var settings = new EngineSettings (downloadPath, 1);
 			
 			torrentDefaults = new TorrentSettings (4, 60, 0, 0);
 			
@@ -84,9 +84,9 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 
 		internal TorrentManager CreateTorrentManager(Torrent torrent, IFile file)
 		{
-			string localPath = (file is LocalFile) ? Path.GetDirectoryName(((LocalFile)file).LocalPath) : engine.Settings.SavePath;
+			var localPath = (file is LocalFile) ? Path.GetDirectoryName(((LocalFile)file).LocalPath) : engine.Settings.SavePath;
 			LoggingService.LogDebug("Local path: {0}", localPath);
-			TorrentManager manager = new TorrentManager(torrent,
+			var manager = new TorrentManager(torrent,
 			                             localPath,
 			                             torrentDefaults);
 			engine.Register(manager);
@@ -109,7 +109,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		private void Core_FileTransferRemoved (IFileTransfer transfer)
 		{
 			if (transfer is BitTorrentFileTransfer) {
-				TorrentManager manager = ((BitTorrentFileTransfer)transfer).Manager;
+				var manager = ((BitTorrentFileTransfer)transfer).Manager;
 				if (manager != null) {
 					LoggingService.LogDebug("Removing torrent from engine!");
 					engine.Unregister(manager);

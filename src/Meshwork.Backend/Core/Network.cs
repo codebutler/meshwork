@@ -9,17 +9,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading;
-using Meshwork.Common;
 using Meshwork.Backend.Core.Collections;
 using Meshwork.Backend.Core.Protocol;
 using Meshwork.Backend.Core.Transport;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
 using Meshwork.Backend.Feature.FileSearch;
 using Meshwork.Backend.Feature.FileTransfer;
-using Object = Meshwork.Common.Object;
+using Meshwork.Common;
 
 namespace Meshwork.Backend.Core
 {
@@ -40,12 +39,11 @@ namespace Meshwork.Backend.Core
 	public delegate void ReceivedSearchResultEventHandler (Network network, SearchResultInfoEventArgs args);
 	public delegate void ReceivedNonCriticalErrorEventHandler (Network network, Node from, MeshworkError error);
 	public delegate void ReceivedCriticalErrorEventHandler (INodeConnection errorFrom, MeshworkError error);
-	public delegate void DebugWriteEventHandler (DebugInfo debugInfo);
 	public delegate void AvatarEventHandler (Network network, Node node, byte[] avatarData);
 	public delegate void RemoteFileEventHandler (Network network, RemoteFile remoteFile);
 	//public delegate void FileOfferedEventHandler (Network network, FileOfferedEventArgs args);
 
-	public class Network : Object
+	public class Network
 	{
 		// Public variables
 		public static readonly string BroadcastNodeID = new string('0', 128);
@@ -90,7 +88,6 @@ namespace Meshwork.Backend.Core
 		public event NodeOnlineOfflineEventHandler UserOffline;
 		public event UpdateNodeInfoEventHandler UpdateNodeInfo;
 		public event EventHandler CleanupFinished;
-		public event DebugWriteEventHandler DebugWrite;
 		public event MemoEventHandler MemoAdded;
 		public event MemoEventHandler MemoDeleted;
 		public event MemoEventHandler MemoUpdated;
@@ -152,13 +149,13 @@ namespace Meshwork.Backend.Core
 
 		internal static Network FromNetworkInfo (Core core, NetworkInfo networkInfo)
 		{
-			Network network = new Network (core, networkInfo.NetworkName);
+			var network = new Network (core, networkInfo.NetworkName);
 
-			foreach (TrustedNodeInfo node in networkInfo.TrustedNodes.Values) {
+			foreach (var node in networkInfo.TrustedNodes.Values) {
 				network.AddTrustedNode(node);
 			}
 			
-			foreach (MemoInfo m in networkInfo.Memos) {
+			foreach (var m in networkInfo.Memos) {
 				var memoInfo = m;
 				memoInfo.FromNodeID = core.MyNodeID;
 				network.PostMemo(new Memo(network, memoInfo));
@@ -176,7 +173,7 @@ namespace Meshwork.Backend.Core
 		    Core = core;
 
 		    this.networkName = networkName;
-			this.networkId = Common.Common.SHA512Str(networkName);
+			networkId = Common.Utils.SHA512Str(networkName);
 
 			localNode = Core.CreateLocalNode(this);
 			AddNode(localNode);
@@ -188,6 +185,9 @@ namespace Meshwork.Backend.Core
 			
 			directory = new NetworkDirectory(this);
 		}
+
+	    [Obsolete]
+	    public Dictionary<string, object> Properties { get; } = new Dictionary<string, object>();
 
 	    public Core Core { get; }
 
@@ -223,7 +223,7 @@ namespace Meshwork.Backend.Core
 
 		public IDictionary<string, Node> Nodes {
 			get {
-				return new Common.ReadOnlyDictionary<string, Node>(nodes);
+				return new ReadOnlyDictionary<string, Node>(nodes);
 			}
 		}
 
@@ -244,41 +244,27 @@ namespace Meshwork.Backend.Core
 
 		public Node GetNode(string nodeId)
 		{
-			if (!nodes.ContainsKey(nodeId)) {
+		    if (!nodes.ContainsKey(nodeId)) {
 				return null;
-			} else {
-				return nodes[nodeId];
 			}
+		    return nodes[nodeId];
 		}
 
 		public IDictionary<string, TrustedNodeInfo> TrustedNodes {
 			get {
-				return new Common.ReadOnlyDictionary<string, TrustedNodeInfo>(trustedNodes);
+				return new ReadOnlyDictionary<string, TrustedNodeInfo>(trustedNodes);
 			}
-		}
-
-		public void AddPublicKey (PublicKey key)
-		{
-			TrustedNodeInfo info = new TrustedNodeInfo(key);
-			this.trustedNodes.Add(info.NodeID, info);
-			if (nodes.ContainsKey(info.NodeID)) {
-				Node node = nodes[info.NodeID];
-				if (!node.FinishedKeyExchange) {
-					node.CreateNewSessionKey();
-				}
-			}
-			Core.Settings.SyncNetworkInfo();
 		}
 
 		internal void AddTrustedNode(TrustedNodeInfo info)
 		{
-			if (info.NodeID == Core.MyNodeID)
+			if (info.NodeId == Core.MyNodeID)
 				throw new InvalidOperationException("Cannot add a TrustedNodeInfo with your own key!");
+
+		    trustedNodes.Add(info.NodeId, info);
 			
-			this.trustedNodes.Add(info.NodeID, info);
-			
-			if (nodes.ContainsKey(info.NodeID)) {
-				Node node = nodes[info.NodeID];
+			if (nodes.ContainsKey(info.NodeId)) {
+				var node = nodes[info.NodeId];
 				if (!node.FinishedKeyExchange) {
 					node.CreateNewSessionKey();
 				}
@@ -287,37 +273,30 @@ namespace Meshwork.Backend.Core
 
 		internal void UpdateTrustedNodes(IDictionary<string, TrustedNodeInfo> newNodes)
 		{
-			List<string> toRemove = new List<string>();
-			foreach (string nodeId in this.trustedNodes.Keys) {
+			var toRemove = new List<string>();
+			foreach (var nodeId in trustedNodes.Keys) {
 				if (!newNodes.ContainsKey(nodeId)) {
 					toRemove.Add(nodeId);
 				}
 			}
-			foreach (string nodeId in toRemove) {
+			foreach (var nodeId in toRemove) {
 				if (nodes.ContainsKey(nodeId)) {
-					Node node = nodes[nodeId];
+					var node = nodes[nodeId];
 					node.ClearSessionKey();
 				}
-				this.trustedNodes.Remove(nodeId);
+				trustedNodes.Remove(nodeId);
 			}
 
-			foreach (LocalNodeConnection connection in LocalConnections) {
+			foreach (var connection in LocalConnections) {
 				if (connection.NodeRemote != null && toRemove.Contains(connection.NodeRemote.NodeID)) {
 					connection.Disconnect(new Exception("Remote node is no longer trusted."));
 				}
 			}
 
-			foreach (KeyValuePair<string, TrustedNodeInfo> pair in newNodes) {
-				if (!this.trustedNodes.ContainsKey(pair.Key)) {
+			foreach (var pair in newNodes) {
+				if (!trustedNodes.ContainsKey(pair.Key)) {
 					AddTrustedNode(pair.Value);
 				}
-			}
-		}
-
-		internal void RaiseDebugWrite(DebugInfo d)
-		{
-			if (DebugWrite != null) {
-				DebugWrite(d);
 			}
 		}
 
@@ -330,7 +309,7 @@ namespace Meshwork.Backend.Core
 		{
 			autoConnect.Stop();
 
-			foreach (LocalNodeConnection connection in LocalConnections) {
+			foreach (var connection in LocalConnections) {
 				connection.Disconnect();
 			}
 		}
@@ -338,7 +317,7 @@ namespace Meshwork.Backend.Core
 		public long CountTotalSharedFiles()
 		{
 			long result = 0;
-			foreach (Node node in nodes.Values) {
+			foreach (var node in nodes.Values) {
 				result += node.Files;
 			}
 			return result;
@@ -347,7 +326,7 @@ namespace Meshwork.Backend.Core
 		public long CountTotalSharedBytes()
 		{
 			long result = 0;
-			foreach (Node node in nodes.Values) {
+			foreach (var node in nodes.Values) {
 				result += node.Bytes;
 			}
 			return result;
@@ -391,12 +370,13 @@ namespace Meshwork.Backend.Core
 		public INodeConnection FindConnection (string firstNodeID, string secondNodeID)
 		{
 			lock (connections) {
-				foreach (INodeConnection connection in connections) {
-					if (connection.NodeLocal != null & connection.NodeRemote != null) {
-						if (connection.NodeLocal.NodeID == firstNodeID & connection.NodeRemote.NodeID == secondNodeID)
+				foreach (var connection in connections) {
+					if (connection.NodeLocal != null & connection.NodeRemote != null)
+					{
+					    if (connection.NodeLocal.NodeID == firstNodeID & connection.NodeRemote.NodeID == secondNodeID)
 							return connection;
-						else if (connection.NodeRemote.NodeID == firstNodeID & connection.NodeLocal.NodeID == secondNodeID)
-							return connection;
+					    if (connection.NodeRemote.NodeID == firstNodeID & connection.NodeLocal.NodeID == secondNodeID)
+					        return connection;
 					}
 				}
 			}
@@ -459,7 +439,7 @@ namespace Meshwork.Backend.Core
 
 		public Message SendPrivateMessage(Node SendTo, string MessageText)
 		{
-			Message m = MessageBuilder.CreateMessageMessage(SendTo, MessageText);
+			var m = MessageBuilder.CreateMessageMessage(SendTo, MessageText);
 			SendRoutedMessage(m);
 			return m;
 		}
@@ -467,15 +447,15 @@ namespace Meshwork.Backend.Core
 		public void FileSearch (FileSearch search)
 		{
 			// XXX: Add support for paganation.
-			Message m = MessageBuilder.CreateSearchRequestMessage(search.Id, search.Query, 0);
+			var m = MessageBuilder.CreateSearchRequestMessage(search.Id, search.Query, 0);
 			SendBroadcast(m, null);
 		}
 
 		public void SendChatMessage(ChatRoom room, string messageText)
 		{
-			if (room.InRoom == true) {
+			if (room.InRoom) {
 				if (room.HasPassword) {
-					byte[] saltBytes = System.Text.Encoding.UTF8.GetBytes(room.Id);
+					var saltBytes = Encoding.UTF8.GetBytes(room.Id);
 					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, Encryption.PasswordEncrypt(room.Password, messageText, saltBytes)), LocalNode);
 				} else {
 					SendBroadcast(MessageBuilder.CreateChatMessageMessage(room, messageText), LocalNode);
@@ -487,7 +467,7 @@ namespace Meshwork.Backend.Core
 		
 		public void JoinOrCreateChat (string name, string password)	
 		{
-			string roomId = string.IsNullOrEmpty(password) ? Common.Common.SHA512Str(name) : Common.Common.SHA512Str(name + password);
+			var roomId = string.IsNullOrEmpty(password) ? Common.Utils.SHA512Str(name) : Common.Utils.SHA512Str(name + password);
 			lock (chatRooms) {
 				ChatRoom room = null;
 				if (chatRooms.ContainsKey(roomId)) {
@@ -517,10 +497,10 @@ namespace Meshwork.Backend.Core
 			}
 
 			lock (chatRooms) {
-				if (!room.Users.ContainsKey(this.LocalNode.NodeID)) {
-					room.AddUser(this.LocalNode);
-					SendBroadcast(MessageBuilder.CreateJoinChatMessage(room), this.LocalNode);
-					OnJoinedChat(new ChatEventArgs(this.LocalNode, room));
+				if (!room.Users.ContainsKey(LocalNode.NodeID)) {
+					room.AddUser(LocalNode);
+					SendBroadcast(MessageBuilder.CreateJoinChatMessage(room), LocalNode);
+					OnJoinedChat(new ChatEventArgs(LocalNode, room));
 				} else {
 					throw new Exception("Already in room");
 				}
@@ -574,33 +554,33 @@ namespace Meshwork.Backend.Core
 
 		public void SendPong (Node node, ulong timestamp)
 		{
-			this.SendRoutedMessage(this.MessageBuilder.CreatePongMessage(node, timestamp));
+			SendRoutedMessage(MessageBuilder.CreatePongMessage(node, timestamp));
 		}
 
 		internal void SendCriticalError (Node node, MeshworkError error)
 		{
-			this.SendRoutedMessage(this.MessageBuilder.CreateCriticalErrorMessage(node, error));
+			SendRoutedMessage(MessageBuilder.CreateCriticalErrorMessage(node, error));
 		}
 		
 		// XXX : Move this
 		internal void SendAuthReply (INodeConnection connection, Node node)
 		{
-			this.SendRoutedMessage(this.MessageBuilder.CreateAuthReplyMessage(connection, this.TrustedNodes[node.NodeID]));
+			SendRoutedMessage(MessageBuilder.CreateAuthReplyMessage(connection, TrustedNodes[node.NodeID]));
 		}
 
 		public void SendMyKey (Node sendTo)
 		{
-			this.SendRoutedMessage(this.MessageBuilder.CreateMyKeyMessage(sendTo));
+			SendRoutedMessage(MessageBuilder.CreateMyKeyMessage(sendTo));
 		}
 
 		internal void SendSearchReply(Node node, SearchResultInfo reply)
 		{
-			this.SendRoutedMessage(this.MessageBuilder.CreateSearchReplyMessage(node, reply));
+			SendRoutedMessage(MessageBuilder.CreateSearchReplyMessage(node, reply));
 		}
 
 		internal void SendNonCriticalError (Node node, MeshworkError error)
 		{
-			this.SendRoutedMessage(this.MessageBuilder.CreateNonCriticalErrorMessage(node, error));
+			SendRoutedMessage(MessageBuilder.CreateNonCriticalErrorMessage(node, error));
 
 		}
 
@@ -669,7 +649,7 @@ namespace Meshwork.Backend.Core
 				// Send LocalOnly message types regardless of ConnectionState
 				if (LocalOnlyMessageTypes.IndexOf(message.Type) > -1) {
 
-					foreach (LocalNodeConnection connection in LocalConnections) {
+					foreach (var connection in LocalConnections) {
 						if (connection.NodeRemote != null) {
 							if (connection.NodeRemote.NodeID == message.To) {
 								connection.SendMessage(message);
@@ -677,24 +657,22 @@ namespace Meshwork.Backend.Core
 							}
 						}
 					}
-					throw new Exception("No connection to " + Nodes[message.To].ToString());
+					throw new Exception("No connection to " + Nodes[message.To]);
 
-				} else {
-					// If we're connected directly to this person, send it through that connection.
-					foreach (LocalNodeConnection c in LocalConnections) {
-						if (c.ConnectionState == ConnectionState.Ready && c.NodeRemote != null) {
-							if (c.NodeRemote.NodeID == message.To) {
-								c.SendMessage(message);
-								return;
-							}
-						}
-					}
+				}
+			    // If we're connected directly to this person, send it through that connection.
+			    foreach (var c in LocalConnections) {
+			        if (c.ConnectionState == ConnectionState.Ready && c.NodeRemote != null) {
+			            if (c.NodeRemote.NodeID == message.To) {
+			                c.SendMessage(message);
+			                return;
+			            }
+			        }
+			    }
 
-					// Otherwise, broadcast it (this will go away once we have real routing).
-					routedMessages.Remove(message.MessageID);
-					SendBroadcast(message, null);
-					return;
-				} 
+			    // Otherwise, broadcast it (this will go away once we have real routing).
+			    routedMessages.Remove(message.MessageID);
+			    SendBroadcast(message, null);
 			} else {
 				throw new Exception("Node " + message.To + " does not exist on the network!");
 			}
@@ -713,9 +691,9 @@ namespace Meshwork.Backend.Core
 			if (routedMessages.ContainsKey(messageID) == false) {
 				routedMessages.Add(messageID);
 				
-				int count = 0;
+				var count = 0;
 
-				foreach (LocalNodeConnection c in LocalConnections) {
+				foreach (var c in LocalConnections) {
 					if (c.ConnectionState == ConnectionState.Ready && (nodeFrom == null || c.NodeRemote != nodeFrom)) {
 						c.SendMessage(message);
 						count ++;
@@ -723,7 +701,7 @@ namespace Meshwork.Backend.Core
 				}
 				
 				if (count == 0) {
-					if (message.To != Network.BroadcastNodeID) {
+					if (message.To != BroadcastNodeID) {
 						throw new Exception("ERROR: Message didn't end up going anywhere!" + 
 						                    " Type: " + message.Type +
 						                    " From: " + message.From +
@@ -736,11 +714,10 @@ namespace Meshwork.Backend.Core
 		private bool CheckForRoute(Node FirstNode, Node SecondNode) {
 			if (FirstNode == SecondNode) {
 				return true;
-			} else {
-				seenNodes.Clear();
-				bool bb = SearchNode(FirstNode, SecondNode);
-				return bb;
 			}
+		    seenNodes.Clear();
+		    var bb = SearchNode(FirstNode, SecondNode);
+		    return bb;
 		}
 
 		private bool SearchNode(Node NodeToSearch, Node NodeToFind)
@@ -750,7 +727,7 @@ namespace Meshwork.Backend.Core
 			}
 			if (seenNodes.IndexOf(NodeToSearch) < 0) {
 				seenNodes.Add(NodeToSearch);
-				 foreach (INodeConnection CurrentConnection in NodeToSearch.GetConnections()) {
+				 foreach (var CurrentConnection in NodeToSearch.GetConnections()) {
 					if (NodeToSearch == CurrentConnection.NodeRemote) {
 						if (CurrentConnection.NodeLocal == NodeToFind) {
 							return true;
@@ -762,13 +739,13 @@ namespace Meshwork.Backend.Core
 					}
 				}
 
-				 foreach (INodeConnection CurrentConnection in NodeToSearch.GetConnections()) {
+				 foreach (var CurrentConnection in NodeToSearch.GetConnections()) {
 					if (NodeToSearch == CurrentConnection.NodeRemote) {
-						if (SearchNode(CurrentConnection.NodeLocal, NodeToFind) == true) {
+						if (SearchNode(CurrentConnection.NodeLocal, NodeToFind)) {
 							return true;
 						}
 					} else {
-						if (SearchNode(CurrentConnection.NodeRemote, NodeToFind) == true) {
+						if (SearchNode(CurrentConnection.NodeRemote, NodeToFind)) {
 							return true;
 						}
 					}
@@ -823,7 +800,7 @@ namespace Meshwork.Backend.Core
 		{
 			lock (memos) {
 				if (memos.ContainsKey(memo.ID)) {
-					Memo existingMemo = memos[memo.ID];
+					var existingMemo = memos[memo.ID];
 					//existingMemo.FileLinks = memo.FileLinks;
 					existingMemo.Subject = memo.Subject;
 					existingMemo.Text = memo.Text;
@@ -864,12 +841,12 @@ namespace Meshwork.Backend.Core
 		
 		public ChatRoom GetChatRoom (string id)
 		{
-			lock (chatRooms) {
-				if (!chatRooms.ContainsKey(id)) {
+			lock (chatRooms)
+			{
+			    if (!chatRooms.ContainsKey(id)) {
 					return null;
-				} else {
-					return chatRooms[id];
 				}
+			    return chatRooms[id];
 			}
 		}
 
@@ -884,7 +861,7 @@ namespace Meshwork.Backend.Core
 			}
 			SendBroadcast(MessageBuilder.CreateAddMemoMessage(memo), LocalNode);
 			
-			Core.Settings.SyncNetworkInfoAndSave();
+			Core.Settings.SyncNetworkInfoAndSave(Core);
 		}
 
 		public void DeleteMemo(Memo m)
@@ -896,18 +873,18 @@ namespace Meshwork.Backend.Core
 				throw new InvalidOperationException();
 			}
 			
-			Core.Settings.SyncNetworkInfoAndSave();
+			Core.Settings.SyncNetworkInfoAndSave(Core);
 		}
 
 		public void SendInfoToTrustedNode(Node node)
 		{
-			this.SendRoutedMessage(MessageBuilder.CreateMyInfoMessage(node));
+			SendRoutedMessage(MessageBuilder.CreateMyInfoMessage(node));
 		}
 
 		public void SendInfoToTrustedNodes()
 		{
-			foreach (Node n in nodes.Values) {
-				if (n.FinishedKeyExchange == true) {
+			foreach (var n in nodes.Values) {
+				if (n.FinishedKeyExchange) {
 					SendInfoToTrustedNode(n);
 				}
 			}
@@ -915,21 +892,21 @@ namespace Meshwork.Backend.Core
 
 		internal void SendFileDetails (Node to, LocalFile file)
 		{
-			Message m = MessageBuilder.CreateFileDetailsMessage(to, file);
-			this.SendRoutedMessage(m);
+			var m = MessageBuilder.CreateFileDetailsMessage(to, file);
+			SendRoutedMessage(m);
 		}
 
 		public void RequestAvatar (Node node)
 		{
-			Message m = MessageBuilder.CreateRequestAvatarMessage(node);
+			var m = MessageBuilder.CreateRequestAvatarMessage(node);
 			SendRoutedMessage(m);
 		}
 
 		public void SendAvatar (Node node)
 		{
 			if (localNode.AvatarSize > 0) {
-				byte[] data = Core.AvatarManager.GetAvatarBytes(localNode.NodeID);
-				Message m = MessageBuilder.CreateAvatarMessage(node, data);
+				var data = Core.AvatarManager.GetAvatarBytes(localNode.NodeID);
+				var m = MessageBuilder.CreateAvatarMessage(node, data);
 				SendRoutedMessage(m);
 			} else {
 				throw new Exception("You do not have an avatar.");
@@ -938,14 +915,14 @@ namespace Meshwork.Backend.Core
 		
 		public void SendChatInvitation (Node node, ChatRoom room, string message, string password)
 		{
-			Message m = MessageBuilder.CreateChatInviteMessage(node, room, message, password);
+			var m = MessageBuilder.CreateChatInviteMessage(node, room, message, password);
 			SendRoutedMessage (m);
 		}
 
 		public void RequestPublicKey(Node node)
 		{
 			LoggingService.LogInfo("Requesting public key from {0}.", node);
-			Message m = MessageBuilder.CreateRequestKeyMessage(node);
+			var m = MessageBuilder.CreateRequestKeyMessage(node);
 			SendRoutedMessage(m);
 		}
 		
@@ -979,7 +956,7 @@ namespace Meshwork.Backend.Core
 		internal string CreateMessageID()
 		{
 			while (true) {
-				string id = Guid.NewGuid().ToString();
+				var id = Guid.NewGuid().ToString();
 				if ((!routedMessages.ContainsKey(id)) && (!processedMessages.ContainsKey(id))) {
 					return id;
 				}
@@ -989,13 +966,13 @@ namespace Meshwork.Backend.Core
 		internal void NewSessionKeyReady(DateTime timeReceived, object[] args)
 		{
 			try {
-				Node n = (Node)args[0];
+				var n = (Node)args[0];
 				if (n.FinishedKeyExchange == false & n.RemoteHasKey == false) {
 					n.RemoteHasKey = true;
 
 					LoggingService.LogDebug("{0} received our session key request!", n);
 
-					if (n.LocalHasKey == true) {
+					if (n.LocalHasKey) {
 						LoggingService.LogInfo("Secure communication channel to {0} is now available", n);
 						SendInfoToTrustedNode(n);
 					}
@@ -1008,30 +985,30 @@ namespace Meshwork.Backend.Core
 		internal void AppendNetworkState (NetworkState stateObject)
 		{
 			if (stateObject.KnownConnections != null) {
-				foreach (ConnectionInfo connection in stateObject.KnownConnections) {
-					this.ProcessNewConnection (connection);
+				foreach (var connection in stateObject.KnownConnections) {
+					ProcessNewConnection (connection);
 				}
 			}
 
 			if (stateObject.KnownChatRooms != null) {
-				foreach (ChatRoomInfo roomInfo in stateObject.KnownChatRooms) {
+				foreach (var roomInfo in stateObject.KnownChatRooms) {
 					lock (chatRooms) {
 						if (!chatRooms.ContainsKey(roomInfo.Id)) {
-							ChatRoom newRoom = new ChatRoom(this, roomInfo);
+							var newRoom = new ChatRoom(this, roomInfo);
 							AddChatRoom(newRoom);
 						}
 					}
 
-					ChatRoom realRoom = chatRooms[roomInfo.Id];
+					var realRoom = chatRooms[roomInfo.Id];
 
-					foreach (string nodeId in roomInfo.Users) {
-						Node currentNode = GetNode(nodeId);
+					foreach (var nodeId in roomInfo.Users) {
+						var currentNode = GetNode(nodeId);
 						if (currentNode != null) {
 							if (!realRoom.Users.ContainsKey(currentNode.NodeID)) {
 								if (currentNode.NodeID == Core.MyNodeID) {
 									// err.. but.. i'm not in here!!
 									LoggingService.LogWarning("Someone thought I was in {0} but I'm not!!", realRoom.Name);
-									this.LeaveChat(realRoom);
+									LeaveChat(realRoom);
 
 								} else {
 									realRoom.AddUser(currentNode);
@@ -1046,15 +1023,15 @@ namespace Meshwork.Backend.Core
 			}
 
 			if (stateObject.KnownMemos != null) {
-				foreach (MemoInfo memoInfo in stateObject.KnownMemos) {
+				foreach (var memoInfo in stateObject.KnownMemos) {
 					lock (memos) {
 						if (memos.ContainsKey(memoInfo.ID)) {
-							Memo existingMemo = memos[memoInfo.ID];
+							var existingMemo = memos[memoInfo.ID];
 							existingMemo.Subject = memoInfo.Subject;
 							existingMemo.Text = memoInfo.Text;
 							OnMemoUpdated (existingMemo);
 						} else {
-							Memo memo = new Memo (this, memoInfo);
+							var memo = new Memo (this, memoInfo);
 							AddMemo(memo);
 						}	
 					}
@@ -1064,11 +1041,10 @@ namespace Meshwork.Backend.Core
 
 		internal void ForwardMessage(Message m, LocalNodeConnection connection) {
 			if (m.To != LocalNode.NodeID) {
-				if (m.To == Network.BroadcastNodeID) {
-					this.SendBroadcast(m, connection.NodeRemote);
+				if (m.To == BroadcastNodeID) {
+					SendBroadcast(m, connection.NodeRemote);
 				} else {
-					this.SendRoutedMessage(m);
-					return;
+					SendRoutedMessage(m);
 				}
 			} else {
 				throw new InvalidOperationException();
@@ -1081,7 +1057,7 @@ namespace Meshwork.Backend.Core
 			Message message = null;
 			LocalNodeConnection connection;
 			try {
-				MessageInfo info = (MessageInfo)state;
+				var info = (MessageInfo)state;
 
 				connection = info.Connection;
 				message = info.Message;
@@ -1091,15 +1067,15 @@ namespace Meshwork.Backend.Core
 					return;
 				}
 
-				if (this.processedMessages.ContainsKey(message.MessageID)) {
+				if (processedMessages.ContainsKey(message.MessageID)) {
 					return;
 				}
 
-				this.processedMessages.Add(message.MessageID);
+				processedMessages.Add(message.MessageID);
 
-				if (message.To == Network.BroadcastNodeID || message.To != this.LocalNode.NodeID) {
-					this.SendBroadcast(message, connection.NodeRemote);
-					if (message.To != Network.BroadcastNodeID)
+				if (message.To == BroadcastNodeID || message.To != LocalNode.NodeID) {
+					SendBroadcast(message, connection.NodeRemote);
+					if (message.To != BroadcastNodeID)
 						return;
 				}
 
@@ -1108,16 +1084,15 @@ namespace Meshwork.Backend.Core
 					trustedNode = trustedNodes[message.From];
 				}
 
-				object content = message.Content;
+				var content = message.Content;
 
-				if (message.From == this.LocalNode.NodeID) {
-					if (message.To != Network.BroadcastNodeID) {
+				if (message.From == LocalNode.NodeID) {
+					if (message.To != BroadcastNodeID) {
 						// This shouldnt have happened, ever.
-						throw new Exception ("Attempt to process our own message. Type: " + message.Type.ToString()); 
-					} else {
-						// It's normal to receive our own messages again. Routing ain't so smart.
-						return;
+						throw new Exception ("Attempt to process our own message. Type: " + message.Type); 
 					}
+				    // It's normal to receive our own messages again. Routing ain't so smart.
+				    return;
 				}
 
 				Node messageFrom = null;
@@ -1131,7 +1106,7 @@ namespace Meshwork.Backend.Core
 						if (trustedNode != null) {
 							// If its a trusted node that means we verified the message's signature,
 							// so we know its valid (and thus know this node actually exists).
-							Node node = new Node (this, message.From);
+							var node = new Node (this, message.From);
 							node.NickName = trustedNode.Identifier;
 							node.Verified = true;
 							AddNode(node);
@@ -1146,7 +1121,7 @@ namespace Meshwork.Backend.Core
 							// The node will be marked Verified = false by default, so the GUI can ignore it.
 							// (This is added so things like ChatMessages work properly)
 
-							Node node = new Node (this, message.From);
+							var node = new Node (this, message.From);
 							node.NickName = "[" + message.From + "]";
 							AddNode(node);
 							messageFrom = node;
@@ -1156,7 +1131,7 @@ namespace Meshwork.Backend.Core
 
 				if (trustedNode == null) {
 					if (InsecureMessageTypes.IndexOf(message.Type) == -1) {
-						this.SendNonCriticalError (messageFrom, new NotTrustedError());
+						SendNonCriticalError (messageFrom, new NotTrustedError());
 						return;
 					}
 				}
@@ -1164,20 +1139,20 @@ namespace Meshwork.Backend.Core
 				// Make sure nobody is trying to screw with us
 				if (LocalOnlyMessageTypes.IndexOf (message.Type) > -1) {
 					if (messageFrom != connection.NodeRemote) {
-						this.SendCriticalError (messageFrom, new MeshworkError ("That message type is only valid for local connections."));
+						SendCriticalError (messageFrom, new MeshworkError ("That message type is only valid for local connections."));
 					}
 				}
 
 				// Well, if they sent us something we can assume they trust us 
-				if (message.To != Network.BroadcastNodeID) {
+				if (message.To != BroadcastNodeID) {
 					messageFrom.RemotelyUntrusted = false;
 				}
 				
-				if (connection != null && (message.From == connection.RemoteNodeInfo.NodeID & message.To == this.LocalNode.NodeID & message.Type == MessageType.CriticalError)) {
-					MeshworkError error = ((MeshworkError)(content));
+				if (connection != null && (message.From == connection.RemoteNodeInfo.NodeId & message.To == LocalNode.NodeID & message.Type == MessageType.CriticalError)) {
+					var error = ((MeshworkError)(content));
 					LoggingService.LogError("RECIEVED CRITICAL ERROR", error.Message);
 					if (ReceivedCriticalError != null) {
-						ReceivedCriticalError((INodeConnection)connection, error);
+						ReceivedCriticalError(connection, error);
 					}
 					connection.Disconnect (error.ToException ());
 					return;
@@ -1300,39 +1275,39 @@ namespace Meshwork.Backend.Core
 	//			//TODO: Why are we checking mesage types
 	//			if (message.Type != MessageType.Ack & message.Type != MessageType.Ping & message.Type != MessageType.Pong & message.Type != MessageType.Auth & message.Type != MessageType.AuthReply) {
 				if (nodes.ContainsKey(message.From)) {
-					if (this.TrustedNodes.ContainsKey(message.From) && MessageTypesToAck.IndexOf(message.Type) > -1) {
-						this.SendRoutedMessage((this.MessageBuilder.CreateAckMessage(message.MessageID, messageFrom)));
+					if (TrustedNodes.ContainsKey(message.From) && MessageTypesToAck.IndexOf(message.Type) > -1) {
+						SendRoutedMessage((MessageBuilder.CreateAckMessage(message.MessageID, messageFrom)));
 					}
 				}
 	//			}
 			} catch (Exception ex) {
 				// XXX: Better error handling!
-				string messageType = (message != null) ? message.Type.ToString() : "(Unknown)";
-				string messageFrom = (message != null) ? message.From : "(Unknown)";
+				var messageType = (message != null) ? message.Type.ToString() : "(Unknown)";
+				var messageFrom = (message != null) ? message.From : "(Unknown)";
 				LoggingService.LogError("Network.ProcessMessage: Error processing message of type {0} from {1}: {2}", messageType, messageFrom, ex.ToString());
 			}
 		}
 
 		internal void Cleanup()
 		{
-			List<Node> usersToDelete = new List<Node>();
-			List<ChatRoom> chatRoomsToDelete = new List<ChatRoom>();
+			var usersToDelete = new List<Node>();
+			var chatRoomsToDelete = new List<ChatRoom>();
 
 			lock (nodes) {
-				foreach (Node n in nodes.Values) {
-					if (this.CheckForRoute(this.LocalNode, n) == false & !(n == this.LocalNode)) {
+				foreach (var n in nodes.Values) {
+					if (CheckForRoute(LocalNode, n) == false & !(n == LocalNode)) {
 						lock (chatRooms) {
-							foreach (ChatRoom r in chatRooms.Values) {
-								List<Node> usersInRoomToDelete = new List<Node>();
+							foreach (var r in chatRooms.Values) {
+								var usersInRoomToDelete = new List<Node>();
 								lock (r.Users) {
-									foreach (Node n1 in r.Users.Values) {
+									foreach (var n1 in r.Users.Values) {
 										if (n1 == n) {
 											usersInRoomToDelete.Add(n1);
 										}
 									}
 								}
 
-								foreach (Node r2 in usersInRoomToDelete) {
+								foreach (var r2 in usersInRoomToDelete) {
 									r.RemoveUser(r2);
 									OnLeftChat (new ChatEventArgs (r2, r));
 								}
@@ -1347,23 +1322,23 @@ namespace Meshwork.Backend.Core
 				}
 			}
 
-			foreach (ChatRoom room in chatRoomsToDelete) {
-				this.RemoveChatRoom(room);
+			foreach (var room in chatRoomsToDelete) {
+				RemoveChatRoom(room);
 			}
 
-			foreach (Node n in usersToDelete) {
+			foreach (var n in usersToDelete) {
 				// XXX: Refactor all this into a DeleteNode() method.
-				foreach (INodeConnection c in n.GetConnections ()) {
-					if (c != null && this.Connections.Contains(c)) {
+				foreach (var c in n.GetConnections ()) {
+					if (c != null && Connections.Contains(c)) {
 						RemoveConnection(c);
 					}
 				}
-				if (this.Nodes.ContainsKey(n.NodeID)) {
+				if (Nodes.ContainsKey(n.NodeID)) {
 					RemoveNode(n);
 
 					lock (memos) {
-						List<Memo> memosToRemove = new List<Memo>();
-						foreach (Memo m in memos.Values) {
+						var memosToRemove = new List<Memo>();
+						foreach (var m in memos.Values) {
 							if (m.Node == n) {
 								memosToRemove.Add(m);
 							}
@@ -1389,19 +1364,19 @@ namespace Meshwork.Backend.Core
 		private void ProcessNewConnection(ConnectionInfo connection)
 		{
 			lock (nodes) {
-				Node DestNode = GetNode(connection.DestNodeID);
-				Node SourceNode = GetNode(connection.SourceNodeID);
+				var DestNode = GetNode(connection.DestNodeID);
+				var SourceNode = GetNode(connection.SourceNodeID);
 
-				if (DestNode != this.LocalNode & SourceNode != this.LocalNode) {
+				if (DestNode != LocalNode & SourceNode != LocalNode) {
 					if (DestNode != SourceNode) {
 
-						if (this.FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
+						if (FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
 
 							if (SourceNode == null) {
 								SourceNode = new Node(this, connection.SourceNodeID);
 								SourceNode.NickName = connection.SourceNodeNickname;
 								AddNode(SourceNode);
-								if (this.TrustedNodes.ContainsKey(SourceNode.NodeID)) {
+								if (TrustedNodes.ContainsKey(SourceNode.NodeID)) {
 									SourceNode.CreateNewSessionKey();
 								}
 							} else {
@@ -1412,14 +1387,14 @@ namespace Meshwork.Backend.Core
 								DestNode = new Node(this, connection.DestNodeID);
 								DestNode.NickName = connection.DestNodeNickname;
 								AddNode(DestNode);
-								if (this.TrustedNodes.ContainsKey(DestNode.NodeID)) {
+								if (TrustedNodes.ContainsKey(DestNode.NodeID)) {
 									DestNode.CreateNewSessionKey();
 								}
 							} else {
 								DestNode.NickName = connection.DestNodeNickname;
 							}
 
-							RemoteNodeConnection c = new RemoteNodeConnection(this);
+							var c = new RemoteNodeConnection(this);
 							c.NodeLocal = SourceNode;
 							c.NodeRemote = DestNode;
 							c.ConnectionState = ConnectionState.Remote;
@@ -1433,9 +1408,9 @@ namespace Meshwork.Backend.Core
 						LoggingService.LogWarning("Someone told me about an invalid connection - both sides are the same?! Thats no good!! " + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
 					}
 				} else {
-					if (this.FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
+					if (FindConnection(connection.SourceNodeID, connection.DestNodeID) == null) {
 						LoggingService.LogWarning("THAT CONNECTION DOESNT EXIST!!!" + connection.SourceNodeNickname + " <-> " + connection.DestNodeNickname);
-						this.SendBroadcast(this.MessageBuilder.CreateConnectionDownMessage(connection.SourceNodeID, connection.DestNodeID), this.LocalNode);
+						SendBroadcast(MessageBuilder.CreateConnectionDownMessage(connection.SourceNodeID, connection.DestNodeID), LocalNode);
 					}
 				}
 			}
@@ -1557,7 +1532,7 @@ namespace Meshwork.Backend.Core
 		{
 			if (ReceivedChatInvite != null) {
 				if (chatRooms.ContainsKey(invitation.RoomId)) {
-					ChatRoom room = chatRooms[invitation.RoomId];
+					var room = chatRooms[invitation.RoomId];
 					ReceivedChatInvite(this, from, room, invitation);
 				} else {
 					LoggingService.LogWarning("Ignored invitation for non-existent chatroom: {0}", invitation.RoomName);
@@ -1577,11 +1552,10 @@ namespace Meshwork.Backend.Core
 
 		protected virtual bool OnReceivedKey (ReceivedKeyEventArgs args)
 		{
-			if (ReceivedKey != null) {
+		    if (ReceivedKey != null) {
 				return ReceivedKey (this, args);
-			} else {
-				return false;
 			}
+		    return false;
 		}
 
 		internal void RaiseReceivedSearchResult (Node node, SearchResultInfo result)

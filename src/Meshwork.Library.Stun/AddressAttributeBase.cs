@@ -17,21 +17,20 @@ namespace Meshwork.Library.Stun
 		
 		public AddressAttributeBase (MessageAttributeType type, byte[] data) : base (type)
 		{
-			byte[] familyBytes = new byte[1];
+			var familyBytes = new byte[1];
 			Array.Copy (data, 1, familyBytes, 0, 1);
 
 			if (familyBytes[0] != 0x01)
 				throw new Exception ("Invalid network family!");
-			else
-				this.addressFamily = AddressFamily.InterNetwork;
+		    addressFamily = AddressFamily.InterNetwork;
 
-			byte[] portBytes = new byte [2];
+		    var portBytes = new byte [2];
 			Array.Copy (data, 2, portBytes, 0, 2);
-			this.port = Utility.TwoBytesToInteger (portBytes);
+			port = Utility.TwoBytesToInteger (portBytes);
 
-			byte[] addressBytes = new byte [4];
+			var addressBytes = new byte [4];
 			Array.Copy (data, 4, addressBytes, 0, 4);
-			this.address = new IPAddress (BitConverter.ToInt32 (addressBytes, 0));
+			address = new IPAddress (BitConverter.ToInt32 (addressBytes, 0));
 		}
 
 		public IPAddress Address {

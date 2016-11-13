@@ -25,7 +25,7 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreateCriticalErrorMessage(Node MessageTo, MeshworkError error) {
-			Message m = new Message(network, MessageType.CriticalError);
+			var m = new Message(network, MessageType.CriticalError);
 			m.To = MessageTo.NodeID;
 			m.Content = error;
 			return m;
@@ -33,18 +33,18 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateHelloMessage ()
 		{
-			Message message = new Message (network, MessageType.Hello);
-			HelloInfo hello = new HelloInfo ();
+			var message = new Message (network, MessageType.Hello);
+			var hello = new HelloInfo ();
 			
-			List<ConnectionInfo> connections = new List<ConnectionInfo>();
-			List<ChatRoomInfo> rooms = new List<ChatRoomInfo>();
-			List<MemoInfo> memos = new List<MemoInfo>();
+			var connections = new List<ConnectionInfo>();
+			var rooms = new List<ChatRoomInfo>();
+			var memos = new List<MemoInfo>();
 
-			foreach (INodeConnection con in network.Connections) {
+			foreach (var con in network.Connections) {
 				if (con.ConnectionState == ConnectionState.Ready | con.ConnectionState == ConnectionState.Remote) {
-					ConnectionInfo n = new ConnectionInfo();
-					Node ConnectionSourceNode = con.NodeLocal;
-					Node ConnectionDestNode = con.NodeRemote;
+					var n = new ConnectionInfo();
+					var ConnectionSourceNode = con.NodeLocal;
+					var ConnectionDestNode = con.NodeRemote;
 					n.SourceNodeID = ConnectionSourceNode.NodeID;
 					n.SourceNodeNickname = ConnectionSourceNode.NickName;
 					n.DestNodeID = ConnectionDestNode.NodeID;
@@ -53,21 +53,21 @@ namespace Meshwork.Backend.Core
 				}
 			}
 
-			foreach (ChatRoom currentRoom in network.ChatRooms) {
-				ChatRoomInfo tmpRoom = new ChatRoomInfo();
+			foreach (var currentRoom in network.ChatRooms) {
+				var tmpRoom = new ChatRoomInfo();
 				tmpRoom.Id = currentRoom.Id;
 				tmpRoom.Name = currentRoom.Name;
 				tmpRoom.Users = new string[currentRoom.Users.Count];
-				int x = 0;
-				foreach (Node node in currentRoom.Users.Values) {
+				var x = 0;
+				foreach (var node in currentRoom.Users.Values) {
 					tmpRoom.Users[x] = node.NodeID;
 					x ++;
 				}
 				rooms.Add(tmpRoom);
 			}
 
-			foreach (Memo currentMemo in network.Memos) {
-				MemoInfo info = new MemoInfo(currentMemo);
+			foreach (var currentMemo in network.Memos) {
+				var info = new MemoInfo(currentMemo);
 				memos.Add(info);
 			}
 
@@ -82,9 +82,9 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateAuthMessage(INodeConnection connection, TrustedNodeInfo messageTo)
 		{
-			Message p = new Message(network, MessageType.Auth);
-			p.To = messageTo.NodeID;
-			AuthInfo c = new AuthInfo();
+			var p = new Message(network, MessageType.Auth);
+			p.To = messageTo.NodeId;
+			var c = new AuthInfo();
 			c.ProtocolVersion = Core.ProtocolVersion;
 			c.NetworkName = network.NetworkName;
 			c.NickName = network.LocalNode.NickName;
@@ -94,9 +94,9 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateAuthReplyMessage(INodeConnection connection, TrustedNodeInfo messageTo)
 		{
-			Message p = new Message(network, MessageType.AuthReply);
-			p.To = messageTo.NodeID;
-			AuthInfo c = new AuthInfo();
+			var p = new Message(network, MessageType.AuthReply);
+			p.To = messageTo.NodeId;
+			var c = new AuthInfo();
 			c.ProtocolVersion = Core.ProtocolVersion;
 			c.NetworkName = network.NetworkName;
 			c.NickName = network.LocalNode.NickName;
@@ -107,7 +107,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateReadyMessage(Node MessageTo)
 		{
-			Message p = new Message(network, MessageType.Ready);
+			var p = new Message(network, MessageType.Ready);
 			p.To = MessageTo.NodeID;
 	
 			// TODO: Put anything here?
@@ -116,14 +116,14 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreatePingMessage(Node MessageTo, ulong timestamp) {
-			Message p = new Message(network, MessageType.Ping);
+			var p = new Message(network, MessageType.Ping);
 			p.To = MessageTo.NodeID;
 			p.Content = timestamp;
 			return p;
 		}
 
 		public Message CreatePongMessage(Node messageTo, ulong timestamp) {
-			Message p = new Message(network, MessageType.Pong);
+			var p = new Message(network, MessageType.Pong);
 			p.To = messageTo.NodeID;
 			p.Content = timestamp;
 			return p;
@@ -131,7 +131,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateRequestAvatarMessage (Node messageTo)
 		{
-			Message message = new Message(network, MessageType.RequestAvatar);
+			var message = new Message(network, MessageType.RequestAvatar);
 			message.To = messageTo.NodeID;
 			message.Content = "plzkthx";
 			return message;
@@ -139,7 +139,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateAvatarMessage (Node messageTo, byte[] avatarData)
 		{
-			Message message = new Message(network, MessageType.Avatar);
+			var message = new Message(network, MessageType.Avatar);
 			message.To = messageTo.NodeID;
 			message.Content = avatarData;
 			return message;
@@ -147,23 +147,23 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateAddMemoMessage (Memo memo)
 		{
-			MemoInfo memoInfo = new MemoInfo (memo);
+			var memoInfo = new MemoInfo (memo);
 
-			Message message = new Message (network, MessageType.AddMemo);
+			var message = new Message (network, MessageType.AddMemo);
 			message.Content = memoInfo;
 			return message;
 		}
 
 		public Message CreateDelMemoMessage(Memo theMemo) {
-			Message theMessage = new Message(network, MessageType.DeleteMemo);
+			var theMessage = new Message(network, MessageType.DeleteMemo);
 			theMessage.Content = theMemo.ID;
 			return theMessage;
 		}
 
 		public Message CreateJoinChatMessage (ChatRoom room)
 		{
-			Message p = new Message(network, MessageType.JoinChat);
-			ChatAction c = new ChatAction();
+			var p = new Message(network, MessageType.JoinChat);
+			var c = new ChatAction();
 			c.RoomId = room.Id;
 			c.RoomName = room.Name;
 			p.Content = c;
@@ -172,8 +172,8 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateLeaveChatMessage (ChatRoom room) 
 		{
-			Message p = new Message(network, MessageType.LeaveChat);
-			ChatAction c = new ChatAction();
+			var p = new Message(network, MessageType.LeaveChat);
+			var c = new ChatAction();
 			c.RoomId = room.Id;
 			c.RoomName = room.Name;
 			p.Content = c;
@@ -181,8 +181,8 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreateConnectionDownMessage(string ConnectionSourceNodeID, string ConnectionDestNodeID) {
-			Message p = new Message(network, MessageType.ConnectionDown);
-			ConnectionInfo c = new ConnectionInfo();
+			var p = new Message(network, MessageType.ConnectionDown);
+			var c = new ConnectionInfo();
 			c.SourceNodeID = ConnectionSourceNodeID;
 			c.DestNodeID = ConnectionDestNodeID;
 			p.Content = c;
@@ -194,7 +194,7 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreateNewSessionKeyMessage(Node sessionWith, byte[] keyExchangeBytes) {
-			Message p = new Message(network, MessageType.NewSessionKey);
+			var p = new Message(network, MessageType.NewSessionKey);
 			p.To = sessionWith.NodeID;
 			p.Content = keyExchangeBytes;
 			return p;
@@ -205,21 +205,21 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreateNonCriticalErrorMessage(string To, MeshworkError error) {
-			Message p = new Message(network, MessageType.NonCriticalError);
+			var p = new Message(network, MessageType.NonCriticalError);
 			p.To = To;
 			p.Content = error;
 			return p;
 		}
 
 		public Message CreateRequestKeyMessage(Node messageto) {
-			Message m = new Message(network, MessageType.RequestKey);
+			var m = new Message(network, MessageType.RequestKey);
 			m.To = messageto.NodeID;
 			m.Content = "MUST...GET...KEY!!!";
 			return m;
 		}
 
 		public Message CreateRequestInfoMessage(Node MessageTo) {
-			Message m = new Message(network, MessageType.RequestInfo);
+			var m = new Message(network, MessageType.RequestInfo);
 			m.To = MessageTo.NodeID;
 			m.Content = "GIMME GIMME GIMME!";
 			return m;
@@ -227,7 +227,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateMyKeyMessage (Node messageTo)
 		{
-			Message m = new Message(network, MessageType.MyKey);
+			var m = new Message(network, MessageType.MyKey);
 
 			if (messageTo != null) {
 				m.To = messageTo.NodeID;
@@ -244,11 +244,11 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateMyInfoMessage(Node MessageTo)
 		{
-			Message p = new Message(network, MessageType.MyInfo);
+			var p = new Message(network, MessageType.MyInfo);
 			p.To = MessageTo.NodeID;
-			TrustedNodeInfo t = network.TrustedNodes[MessageTo.NodeID];
+			var t = network.TrustedNodes[MessageTo.NodeID];
 
-			NodeInfo nodeInfo = new NodeInfo();
+			var nodeInfo = new NodeInfo();
 			
 			nodeInfo.NodeID = network.LocalNode.NodeID;
 			nodeInfo.NickName = network.LocalNode.NickName;
@@ -269,16 +269,16 @@ namespace Meshwork.Backend.Core
 				nodeInfo.Files = network.LocalNode.Files;
 			}
 	
-			List<ConnectionInfo> connections = new List<ConnectionInfo>();
-			List<ChatRoomInfo> rooms = new List<ChatRoomInfo>();
-			List<MemoInfo> memos = new List<MemoInfo>();
+			var connections = new List<ConnectionInfo>();
+			var rooms = new List<ChatRoomInfo>();
+			var memos = new List<MemoInfo>();
 
-			foreach (INodeConnection con in network.Connections) {
+			foreach (var con in network.Connections) {
 				if (con.NodeLocal != MessageTo & con.NodeRemote != MessageTo) {
 					if (con.ConnectionState == ConnectionState.Ready | con.ConnectionState == ConnectionState.Remote) {
-						ConnectionInfo n = new ConnectionInfo();
-						Node ConnectionSourceNode = con.NodeLocal;
-						Node ConnectionDestNode = con.NodeRemote;
+						var n = new ConnectionInfo();
+						var ConnectionSourceNode = con.NodeLocal;
+						var ConnectionDestNode = con.NodeRemote;
 						n.SourceNodeID = ConnectionSourceNode.NodeID;
 						n.SourceNodeNickname = ConnectionSourceNode.NickName;
 						n.DestNodeID = ConnectionDestNode.NodeID;
@@ -288,22 +288,22 @@ namespace Meshwork.Backend.Core
 				}
 			}
 
-			foreach (ChatRoom currentRoom in network.ChatRooms) {
-				ChatRoomInfo roomInfo = new ChatRoomInfo();
+			foreach (var currentRoom in network.ChatRooms) {
+				var roomInfo = new ChatRoomInfo();
 				roomInfo.Id = currentRoom.Id;
 				roomInfo.Name = currentRoom.Name;
 				roomInfo.Users = new string[currentRoom.Users.Count];
-				int x = 0;
-				foreach (Node node in currentRoom.Users.Values) {
+				var x = 0;
+				foreach (var node in currentRoom.Users.Values) {
 					roomInfo.Users[x] = node.NodeID;
 					x ++;
 				}
 				rooms.Add(roomInfo);
 			}
 
-			foreach (Memo currentMemo in network.Memos) {
+			foreach (var currentMemo in network.Memos) {
 				if (network.Core.IsLocalNode(currentMemo.Node)) {
-					MemoInfo info = new MemoInfo(currentMemo);
+					var info = new MemoInfo(currentMemo);
 					memos.Add(info);
 				}
 			}
@@ -317,8 +317,8 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreateChatMessageMessage(ChatRoom room, string messageText) {
-			Message p = new Message(network, MessageType.ChatroomMessage);
-			ChatMessage c = new ChatMessage();
+			var p = new Message(network, MessageType.ChatroomMessage);
+			var c = new ChatMessage();
 			c.RoomId = room.Id;
 			c.RoomName = room.Name;
 			c.Message = messageText;
@@ -328,7 +328,7 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreateMessageMessage(Node MessageTo, string MessageText) {
-			Message p = new Message(network, MessageType.PrivateMessage);
+			var p = new Message(network, MessageType.PrivateMessage);
 			p.To = MessageTo.NodeID;
 			p.Content = MessageText;
 			return p;
@@ -336,7 +336,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateRequestDirectoryMessage (Node messageTo, string requestedDirPath)
 		{
-			Message p = new Message(network, MessageType.RequestDirListing);
+			var p = new Message(network, MessageType.RequestDirListing);
 			p.To = messageTo.NodeID;
 			p.Content = requestedDirPath;
 			return p;
@@ -344,12 +344,12 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateRespondDirListingMessage (Node messageTo, LocalDirectory directory)
 		{			
-			SharedDirectoryInfo info = new SharedDirectoryInfo(directory);
+			var info = new SharedDirectoryInfo(directory);
 			
 			info.Files = directory.Files.Select(f => new SharedFileListing((LocalFile)f, false)).ToArray();
 			info.Directories = directory.Directories.Select(d => d.Name).ToArray();
 
-			Message message = new Message (network, MessageType.RespondDirListing);
+			var message = new Message (network, MessageType.RespondDirListing);
 			message.To = messageTo.NodeID;
 			message.Content = info;
 			return message;
@@ -358,7 +358,7 @@ namespace Meshwork.Backend.Core
 		public Message CreateRequestFileMessage(Node node, IFileTransfer transfer)
 		{
 			var remoteFile = (RemoteFile)transfer.File;
- 			Message p = new Message(network, MessageType.RequestFile);
+ 			var p = new Message(network, MessageType.RequestFile);
  			p.To = node.NodeID;
 			p.Content = new RequestFileInfo(remoteFile.RemoteFullPath, transfer.Id);
  			return p;
@@ -366,9 +366,9 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateChatInviteMessage (Node messageTo, ChatRoom room, string message, string password)
 		{
-			Message p = new Message(network, MessageType.ChatInvite);
+			var p = new Message(network, MessageType.ChatInvite);
 			p.To = messageTo.NodeID;
-			ChatInviteInfo c = new ChatInviteInfo();
+			var c = new ChatInviteInfo();
 			c.RoomId = room.Id;
 			c.RoomName = room.Name;
 			c.Message = message;
@@ -378,7 +378,7 @@ namespace Meshwork.Backend.Core
 		}
 
 		public Message CreateAckMessage(string MessageID, Node MessageTo) {
-			Message p = new Message(network, MessageType.Ack);
+			var p = new Message(network, MessageType.Ack);
 			p.To = MessageTo.NodeID;
 			p.Content = MessageID;
 			return p;
@@ -386,15 +386,15 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateSearchRequestMessage(int searchRequestId, string searchString, int page)
 		{
-			Message p = new Message(network, MessageType.SearchRequest);
-			SearchRequestInfo c = new SearchRequestInfo(searchRequestId, searchString, page);
+			var p = new Message(network, MessageType.SearchRequest);
+			var c = new SearchRequestInfo(searchRequestId, searchString, page);
 			p.Content = c;
 			return p;
 		}
 
 		public Message CreateFileDetailsMessage (Node sendTo, LocalFile file)
 		{
-			Message message = new Message(network, MessageType.FileDetails);
+			var message = new Message(network, MessageType.FileDetails);
 			message.To = sendTo.NodeID;
 			message.Content = new SharedFileListing(file, true);
 			return message;
@@ -422,7 +422,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateSearchReplyMessage(Node To, SearchResultInfo result)
 		{
-			Message p = new Message(network, MessageType.SearchResult);
+			var p = new Message(network, MessageType.SearchResult);
 			p.To = To.NodeID;
 			p.Content = result;
 			return p;
@@ -430,7 +430,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateTransportConnectMessage (Node to, string connectionId)
 		{
-			Message msg = new Message (network, MessageType.TransportConnect);
+			var msg = new Message (network, MessageType.TransportConnect);
 			msg.To = to.NodeID;
 			msg.Content = connectionId;
 			return msg;
@@ -438,7 +438,7 @@ namespace Meshwork.Backend.Core
 
 		public Message CreateTransportDataMessage (Node to, string connectionId, byte[] data)
 		{
-			Message msg = new Message (network, MessageType.TransportConnect);
+			var msg = new Message (network, MessageType.TransportConnect);
 			msg.To = to.NodeID;
 			msg.Content = new TransportDataInfo(connectionId, data);
 			return msg;

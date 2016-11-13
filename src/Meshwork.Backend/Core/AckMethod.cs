@@ -23,8 +23,8 @@ namespace Meshwork.Backend.Core
 
 		public AckMethod (string messageID, MethodEventHandler method, object[] args)
 		{
-			this.MessageID = messageID;
-			this.Method = method;
+			MessageID = messageID;
+			Method = method;
 			this.args = args;
 		}
 

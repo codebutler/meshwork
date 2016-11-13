@@ -15,7 +15,7 @@ namespace Meshwork.Common
 	{
 		public static byte[] GetBytes (bool value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -24,7 +24,7 @@ namespace Meshwork.Common
 
 		public static byte[] GetBytes (char value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -33,7 +33,7 @@ namespace Meshwork.Common
 
 		public static byte[] GetBytes (double value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -42,7 +42,7 @@ namespace Meshwork.Common
 
 		public static byte[] GetBytes (short value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -51,7 +51,7 @@ namespace Meshwork.Common
 
 		public static byte[] GetBytes (int value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -60,7 +60,7 @@ namespace Meshwork.Common
 
 		public static byte[] GetBytes (long value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -69,7 +69,7 @@ namespace Meshwork.Common
 
 		public static byte[] GetBytes (float value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -79,7 +79,7 @@ namespace Meshwork.Common
 
 		public static byte[] GetBytes (ushort value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -88,7 +88,7 @@ namespace Meshwork.Common
 		
 		public static byte[] GetBytes (uint value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}
@@ -97,7 +97,7 @@ namespace Meshwork.Common
 		
 		public static byte[] GetBytes (ulong value)
 		{
-			byte[] result = BitConverter.GetBytes(value);
+			var result = BitConverter.GetBytes(value);
 			if (!BitConverter.IsLittleEndian) {
 				Array.Reverse(result);
 			}

@@ -4,8 +4,8 @@ namespace Meshwork.Library.Stun
 	{
 		public ChangeRequestAttribute (bool changeIP, bool changePort) : base (MessageAttributeType.ChangeRequest)
 		{
-			byte[] valueBuffer = new byte [4];
-			base.Value = valueBuffer;
+			var valueBuffer = new byte [4];
+			Value = valueBuffer;
 		}
 	}
 }

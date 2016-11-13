@@ -105,7 +105,7 @@ namespace Meshwork.Backend.Core.Destination
 			foreach (var info in core.Settings.SavedDestinationInfos) {
 				if (!destinationsFromSettings.ContainsKey(info)) {
 					info.Local = true;
-					var destination = info.CreateDestination();
+					var destination = info.CreateDestination(core);
 					destinationsFromSettings[info] = destination;
 				}
 			}

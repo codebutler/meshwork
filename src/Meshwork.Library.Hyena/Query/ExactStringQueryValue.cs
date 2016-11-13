@@ -24,8 +24,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-
 namespace Meshwork.Library.Hyena.Query
 {
     // A query value that requires the string match exactly

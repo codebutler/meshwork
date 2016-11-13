@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using Meshwork.Backend.Core;
@@ -44,7 +45,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 
 		internal ShareHasher ()
 		{
-			threadCount = System.Environment.ProcessorCount;
+			threadCount = Environment.ProcessorCount;
 		}
 
 		internal void HashFile (LocalFile file)
@@ -57,12 +58,12 @@ namespace Meshwork.Backend.Feature.FileIndexing
 			if (file.LocalPath == null)
 				throw new ArgumentNullException("file");
 
-			if (!System.IO.File.Exists(file.LocalPath))
+			if (!File.Exists(file.LocalPath))
 				throw new ArgumentException("File does not exist");
 
 			lock (queue) {
 				// Check to see if this file is already queued.
-				foreach (ShareHasherTask existingTask in queue) {
+				foreach (var existingTask in queue) {
 					if (existingTask.File.LocalPath == file.LocalPath)
 						return;
 				}
@@ -81,7 +82,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		{
 			lock (threads) {
 				while (threads.Count < threadCount) {
-					Thread thread = new Thread(DoHashing);
+					var thread = new Thread(DoHashing);
 					thread.Start();
 					threads.Add(thread, null);
 				}
@@ -91,7 +92,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 		internal void Stop ()
 		{
 			lock (threads) {
-				foreach (Thread thread in threads.Keys) {
+				foreach (var thread in threads.Keys) {
 					thread.Abort();
 				}
 				threads.Clear();
@@ -157,10 +158,10 @@ namespace Meshwork.Backend.Feature.FileIndexing
 
 		public int CurrentFileCount {
 			get {
-				int r = 0;
+				var r = 0;
 				lock (threads) {
-					foreach (Thread thread in threads.Keys) {
-						ShareHasherTask task = threads[thread];
+					foreach (var thread in threads.Keys) {
+						var task = threads[thread];
 						if (task != null)
 							r++;
 					}
@@ -173,8 +174,8 @@ namespace Meshwork.Backend.Feature.FileIndexing
 			get {
 				var builder = new StringBuilder();
 				lock (threads) {
-					foreach (Thread thread in threads.Keys) {
-						ShareHasherTask task = threads[thread];
+					foreach (var thread in threads.Keys) {
+						var task = threads[thread];
 						if (task != null) {
 							builder.AppendLine(task.File.LocalPath);
 						}
@@ -190,7 +191,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 				StartedHashingFile(task);
 
 			/* Create the torrent */
-			TorrentCreator creator = new TorrentCreator();
+			var creator = new TorrentCreator();
 			// Have to put something bogus here, otherwise MonoTorrent crashes!
 			creator.Announces.Add(new MonoTorrentCollection<string>());
 			creator.Announces[0].Add(string.Empty);
@@ -200,14 +201,14 @@ namespace Meshwork.Backend.Feature.FileIndexing
 			Torrent torrent =  null; // FIXME
 
 			/* Update the database */
-			string[] pieces = new string[torrent.Pieces.Count];
-			for (int x = 0; x < torrent.Pieces.Count; x++) {
-				byte[] hash = torrent.Pieces.ReadHash(x);
-				pieces[x] = Common.Common.BytesToString(hash);
+			var pieces = new string[torrent.Pieces.Count];
+			for (var x = 0; x < torrent.Pieces.Count; x++) {
+				var hash = torrent.Pieces.ReadHash(x);
+				pieces[x] = Common.Utils.BytesToString(hash);
 			}
 
-			task.File.Update(Common.Common.BytesToString(torrent.InfoHash.ToArray()),
-			                 Common.Common.BytesToString(torrent.Files[0].SHA1),
+			task.File.Update(Common.Utils.BytesToString(torrent.InfoHash.ToArray()),
+			                 Common.Utils.BytesToString(torrent.Files[0].SHA1),
 			                 torrent.PieceLength, pieces);
 
 			if (FinishedHashingFile != null)
@@ -219,7 +220,7 @@ namespace Meshwork.Backend.Feature.FileIndexing
 
 		private void WaitUntilAvaliable ()
 		{
-			bool shouldWait = false;
+			var shouldWait = false;
 			lock (queue) {
 				if (queue.Count == 0) {
 					shouldWait = true;

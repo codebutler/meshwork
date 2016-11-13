@@ -29,7 +29,7 @@ namespace Meshwork.Backend.Core.Destination
 
         public IList<IDestination> ParentList { get; protected internal set; }
 
-        public string FriendlyTypeName => DestinationTypeFriendlyNames.GetFriendlyName(this.GetType().ToString());
+        public string FriendlyTypeName => DestinationTypeFriendlyNames.GetFriendlyName(GetType().ToString());
 
         public abstract int CompareTo (IDestination other);
     }

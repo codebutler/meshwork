@@ -59,20 +59,20 @@ namespace Meshwork.Backend.Feature.FileSearch
 
 		public bool FilterValid {
 			get {
-				switch (this.Field) {
+				switch (Field) {
 					case FileSearchFilterField.Size:
-						return Common.Common.ValidateSizeStr(this.text);
+						return Common.Utils.ValidateSizeStr(text);
 					case FileSearchFilterField.FileName:
 						if (comparison == FileSearchFilterComparison.Regexp) {
 							try {
-								new Regex(this.text);
+								new Regex(text);
 								return true;
 							} catch (ArgumentException) {
 								return false;
 							}
-						} else
-							return (this.Text.Trim().Length > 0);
-					default:
+						}
+				        return (Text.Trim().Length > 0);
+				    default:
 						return true;
 				}
 			}
@@ -84,25 +84,25 @@ namespace Meshwork.Backend.Feature.FileSearch
 				return true;
 			}
 			
-			FilterType resultFilterType = (result.Type == SearchResultType.Directory) ? FilterType.Folder : FileTypeToFilterType(result.FileListing.Type);
+			var resultFilterType = (result.Type == SearchResultType.Directory) ? FilterType.Folder : FileTypeToFilterType(result.FileListing.Type);
 
-			if (fileTypeFilterFields[resultFilterType].Contains(this.Field) ||
-			    fileTypeFilterFields[FilterType.Other].Contains(this.Field))
+			if (fileTypeFilterFields[resultFilterType].Contains(Field) ||
+			    fileTypeFilterFields[FilterType.Other].Contains(Field))
 			{
-				switch (this.Field) {
+				switch (Field) {
 					case FileSearchFilterField.FileName:
-						switch (this.Comparison) {
+						switch (Comparison) {
 							case FileSearchFilterComparison.Contains:
-								return (result.Name.ToLower().IndexOf(this.Text.ToLower()) > -1);
+								return (result.Name.ToLower().IndexOf(Text.ToLower()) > -1);
 							case FileSearchFilterComparison.DoesntContain:
-								return (result.Name.ToLower().IndexOf(this.Text.ToLower()) == -1);
+								return (result.Name.ToLower().IndexOf(Text.ToLower()) == -1);
 							case FileSearchFilterComparison.Regexp:
-								return Regex.IsMatch(result.Name, this.text);
+								return Regex.IsMatch(result.Name, text);
 						}
 						break;
 					case FileSearchFilterField.Size:
-						ulong filterSize = Common.Common.SizeStringToBytes(this.Text);
-						switch (this.Comparison) {
+						var filterSize = Common.Utils.SizeStringToBytes(Text);
+						switch (Comparison) {
 							case FileSearchFilterComparison.Equals:
 								return ((ulong)result.Size == filterSize);
 							case FileSearchFilterComparison.LessThanOrEqualTo:

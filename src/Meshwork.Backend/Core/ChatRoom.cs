@@ -14,24 +14,27 @@ using Meshwork.Common;
 
 namespace Meshwork.Backend.Core
 {
-	public class ChatRoom : Common.Object
+	public class ChatRoom
 	{
 	    private string password;
 	    private readonly Dictionary<string, Node> users = new Dictionary<string, Node>();
 
 	    public ChatRoom (Network network, string id, string name)
 		{
-			this.Network = network;
-			this.Id = id;
-			this.Name = name;
+			Network = network;
+			Id = id;
+			Name = name;
 		}
 
 		internal ChatRoom (Network network, ChatRoomInfo info)
 		{
-			this.Network = network;
-			this.Id = info.Id;
-			this.Name = info.Name;
+			Network = network;
+			Id = info.Id;
+			Name = info.Name;
 		}
+
+	    [Obsolete]
+	    public Dictionary<string, object> Properties { get; } = new Dictionary<string, object>();
 
 		public Network Network { get; }
 
@@ -65,7 +68,7 @@ namespace Meshwork.Backend.Core
 			}
 		}
 
-		public bool HasPassword => this.Id != Common.Common.SHA512Str(this.Name);
+		public bool HasPassword => Id != Common.Utils.SHA512Str(Name);
 
 	    public bool InRoom => users.ContainsKey(Network.Core.MyNodeID);
 
@@ -74,7 +77,7 @@ namespace Meshwork.Backend.Core
 			if (!HasPassword)
 				return true;
 
-			return (Id == Common.Common.SHA512Str(Name + password));
+			return (Id == Common.Utils.SHA512Str(Name + password));
 		}
 	}
 }

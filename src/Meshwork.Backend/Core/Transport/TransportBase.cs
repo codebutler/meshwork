@@ -68,12 +68,12 @@ namespace Meshwork.Backend.Core.Transport
 		}
 
 		public TransportState State {
-			get {
-				if (transportState == TransportState.Connected && encryptor != null && encryptor.Ready == false) {
+			get
+			{
+			    if (transportState == TransportState.Connected && encryptor != null && encryptor.Ready == false) {
 					return TransportState.Securing;
-				} else {
-					return transportState;
 				}
+			    return transportState;
 			}
 		}
 		
@@ -95,7 +95,7 @@ namespace Meshwork.Backend.Core.Transport
 		protected void RaiseDisconnected (Exception ex)
 		{
 			if (Disconnected != null) {
-				Disconnected ((ITransport)this, ex);
+				Disconnected (this, ex);
 			}
 		}
 
@@ -121,15 +121,15 @@ namespace Meshwork.Backend.Core.Transport
 		public void SendMessage (byte[] buffer)
 		{
 			if (buffer == null) {
-				throw new ArgumentNullException("buffer");
+				throw new ArgumentNullException(nameof(buffer));
 			}
 
 			if (encryptor != null) {
 				buffer = encryptor.Encrypt(buffer);
 			}
 
-			byte[] dataSizeBytes = EndianBitConverter.GetBytes(buffer.Length);
-			byte[] realBuffer = new byte[buffer.Length + dataSizeBytes.Length];
+			var dataSizeBytes = EndianBitConverter.GetBytes(buffer.Length);
+			var realBuffer = new byte[buffer.Length + dataSizeBytes.Length];
 			Array.Copy (dataSizeBytes, 0, realBuffer, 0, dataSizeBytes.Length);
 			Array.Copy (buffer, 0, realBuffer, dataSizeBytes.Length, buffer.Length);
 
@@ -139,12 +139,13 @@ namespace Meshwork.Backend.Core.Transport
 		public IAsyncResult BeginSendMessage (byte[] buffer, AsyncCallback callback, object state)
 		{
 			if (buffer == null) {
-				throw new ArgumentNullException("buffer");
-			} else if (callback == null) {
-				throw new ArgumentNullException("callback");
+				throw new ArgumentNullException(nameof(buffer));
 			}
-			
-			MessageSendCaller caller = new MessageSendCaller(SendMessage);
+		    if (callback == null) {
+		        throw new ArgumentNullException(nameof(callback));
+		    }
+
+		    MessageSendCaller caller = SendMessage;
 			return caller.BeginInvoke(buffer, callback, state);
 		}
 		
@@ -155,24 +156,24 @@ namespace Meshwork.Backend.Core.Transport
 			try {
 				lock (foo) {
 					// get the message size 
-					byte[] messageSizeBytes = new byte[4];
+					var messageSizeBytes = new byte[4];
 					int    dataLength;
 	
-					int count = Receive(messageSizeBytes, 0, 4);
+					var count = Receive(messageSizeBytes, 0, 4);
 	
 					if (count != 4) {
-						throw new Exception(string.Format("Received wrong amount in message size! Got: {0}, Expected: {1}", count, 4));
+						throw new Exception($"Received wrong amount in message size! Got: {count}, Expected: {4}");
 					}
 	
 					dataLength = EndianBitConverter.ToInt32(messageSizeBytes, 0);
 	
 					// get the message
-					byte[] messageBytes = new byte[dataLength];
+					var messageBytes = new byte[dataLength];
 					
 					count = Receive(messageBytes, 0, dataLength);
 	
 					if (count != dataLength) {
-						throw new Exception(string.Format("Received wrong amount! Got: {0}, Expected: {1}", count, dataLength));
+						throw new Exception($"Received wrong amount! Got: {count}, Expected: {dataLength}");
 					}
 					
 					if (encryptor != null) {
@@ -189,7 +190,7 @@ namespace Meshwork.Backend.Core.Transport
 
 		public IAsyncResult BeginReceive (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
-			SendReceiveCaller caller = new SendReceiveCaller(Receive);
+			SendReceiveCaller caller = Receive;
 			return caller.BeginInvoke(buffer, offset, size, callback, state);
 		}
 
@@ -200,7 +201,7 @@ namespace Meshwork.Backend.Core.Transport
 		
 		public IAsyncResult BeginSend (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
-			SendReceiveCaller caller = new SendReceiveCaller(Send);
+			SendReceiveCaller caller = Send;
 			return caller.BeginInvoke(buffer, offset, size, callback, state);
 		}
 		
@@ -211,7 +212,7 @@ namespace Meshwork.Backend.Core.Transport
 
 		public IAsyncResult BeginReceiveMessage(AsyncCallback callback, object state)
 		{
-			MessageReceiveCaller caller = new MessageReceiveCaller(ReceiveMessage);
+			MessageReceiveCaller caller = ReceiveMessage;
 			return caller.BeginInvoke(callback, state);
 		}
 		

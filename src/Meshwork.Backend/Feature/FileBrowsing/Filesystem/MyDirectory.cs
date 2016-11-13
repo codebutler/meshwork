@@ -23,7 +23,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		public override int DirectoryCount {
 			get {
-				return (int)LocalDirectory.CountByParentId(fileSystem, 0);
+				return (int)CountByParentId(fileSystem, 0);
 			}
 		
 		}

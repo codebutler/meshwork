@@ -7,20 +7,19 @@
 // (C) 2009 FileFind.net (http://filefind.net)
 //
 
-using System;
-
 namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 {
 	public class RootDirectory : AbstractDirectory
 	{
-	    private readonly Core.Core core;
+	    private readonly Core.Core core; // FIXME: Remove this
+	    private readonly FileSystemProvider fileSystem;
 
-		MyDirectory m_MyDirectory;
+		private readonly MyDirectory m_MyDirectory;
 
-	    internal RootDirectory (Core.Core core)
+	    internal RootDirectory (Core.Core core, FileSystemProvider fileSystem)
 		{
 		    this.core = core;
-			m_MyDirectory = new MyDirectory(core.FileSystem);
+			m_MyDirectory = new MyDirectory(fileSystem);
 		}
 
 		public MyDirectory MyDirectory {
@@ -37,9 +36,9 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		public override IDirectory[] Directories {
 			get {
-				IDirectory[] directories = new IDirectory[DirectoryCount];
+				var directories = new IDirectory[DirectoryCount];
 				directories[0] = MyDirectory;
-				for (int x = 1; x < directories.Length; x++) {
+				for (var x = 1; x < directories.Length; x++) {
 					directories[x] = core.Networks[x - 1].Directory;
 				}
 				return directories;

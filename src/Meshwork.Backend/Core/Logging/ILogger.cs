@@ -28,7 +28,6 @@
 
 namespace Meshwork.Backend.Core.Logging
 {
-	
 	public interface ILogger
 	{
 		EnabledLoggingLevel EnabledLevel { get; }

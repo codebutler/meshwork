@@ -24,6 +24,6 @@ namespace Meshwork.Backend.Core.Destination
 
 	    public uint Port { get; }
 
-	    public override bool IsExternal => !Common.Common.IsInternalIP(IPAddress);
+	    public override bool IsExternal => !Common.Utils.IsInternalIP(IPAddress);
 	}
 }

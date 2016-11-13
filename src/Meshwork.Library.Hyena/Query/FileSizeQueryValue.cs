@@ -60,7 +60,7 @@ namespace Meshwork.Library.Hyena.Query
         }
 
         public double FactoredValue {
-            get { return (double)value / (double)factor; }
+            get { return value / (double)factor; }
         }
 
         public override void ParseUserQuery (string input)
@@ -93,7 +93,7 @@ namespace Meshwork.Library.Hyena.Query
         {
             base.ParseUserQuery (node.InnerText);
             if (node.HasAttribute ("factor")) {
-                this.factor = (FileSizeFactor) Enum.Parse (typeof(FileSizeFactor), node.GetAttribute ("factor"));
+                factor = (FileSizeFactor) Enum.Parse (typeof(FileSizeFactor), node.GetAttribute ("factor"));
             } else {
                 DetermineFactor ();
             }
@@ -134,12 +134,11 @@ namespace Meshwork.Library.Hyena.Query
                 return string.Format ("{0} {1}",
                     IntValue == 0 
                         ? "0" 
-                        : StringUtil.DoubleToTenthsPrecision (((double)IntValue / (double)factor), always_decimal),
-                    factor.ToString ()
+                        : StringUtil.DoubleToTenthsPrecision ((IntValue / (double)factor), always_decimal),
+                    factor
                 );
-            } else {
-                return base.ToUserQuery ();
             }
+            return base.ToUserQuery ();
         }
     }
 }

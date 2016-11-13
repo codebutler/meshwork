@@ -10,15 +10,14 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Xml.Serialization;
 using Meshwork.Backend.Core.Destination;
 using Meshwork.Backend.Feature.FileBrowsing.Filesystem;
-using Mono.Security.Cryptography;
-using Object = Meshwork.Common.Object;
+using Meshwork.Common.Serialization;
+using Org.Mentalis.Security.Cryptography;
 
 namespace Meshwork.Backend.Core
 {
-	public class Node : Object
+	public class Node
 	{
 		const int keySize = 32;
 		const int ivSize = 16;
@@ -26,33 +25,36 @@ namespace Meshwork.Backend.Core
 		byte[] ivBytes;
 
 		string nickName = string.Empty;
-	    bool verified = false;
-	    long sharedFiles = 0;
-		long sharedBytes = 0;
+	    bool verified;
+	    long sharedFiles;
+		long sharedBytes;
 	    SymmetricAlgorithm alg;
 
-	    public Node (Network network, string nodeID)
+	    public Node (Network network, string nodeId)
 		{
 			if (network == null) {
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			}
 
-			if (nodeID.Length != 128) {
+			if (nodeId.Length != 128) {
 				throw new ArgumentException("Invalid NodeID specified.");
 			}
 
-			this.NodeID = nodeID;
-			this.Network = network;
+			NodeID = nodeId;
+			Network = network;
 
 			alg = new RijndaelManaged();
 			DiffieHellman = new DiffieHellmanManaged();
 
-			if (nodeID != Network.Core.MyNodeID) {
+			if (nodeId != Network.Core.MyNodeID) {
 				Directory = new NodeDirectory(Network.Core, this);
 			}
 		}
 
-		public string NickName {
+	    [Obsolete]
+	    public Dictionary<string, object> Properties { get; } = new Dictionary<string, object>();
+
+	    public string NickName {
 			get {
 				return nickName;
 			}
@@ -76,12 +78,12 @@ namespace Meshwork.Backend.Core
 	    public string RealName { get; internal set; } = string.Empty;
 
 	    public long Files {
-			get {
-				if (NodeID == Network.Core.MyNodeID) {
+			get
+			{
+			    if (NodeID == Network.Core.MyNodeID) {
 					return Network.Core.FileSystem.YourTotalFiles;
-				} else {
-					return sharedFiles;
 				}
+			    return sharedFiles;
 			}
 			internal set {
 				if (NodeID == Network.Core.MyNodeID) {
@@ -92,12 +94,12 @@ namespace Meshwork.Backend.Core
 		}
 
 		public long Bytes {
-			get {
-				if (NodeID == Network.Core.MyNodeID) {
+			get
+			{
+			    if (NodeID == Network.Core.MyNodeID) {
 					return Network.Core.FileSystem.YourTotalBytes;
-				} else {
-					return sharedBytes;
 				}
+			    return sharedBytes;
 			}
 			internal set {
 				if (NodeID == Network.Core.MyNodeID) {
@@ -117,18 +119,18 @@ namespace Meshwork.Backend.Core
 
 	    public bool RemotelyUntrusted { get; internal set; } = false;
 
-	    public bool SentKeyExchange { get; internal set; } = false;
+	    public bool SentKeyExchange { get; internal set; }
 
-	    public bool RemoteHasKey { get; internal set; } = false;
+	    public bool RemoteHasKey { get; internal set; }
 
-	    public bool LocalHasKey { get; private set; } = false;
+	    public bool LocalHasKey { get; private set; }
 
 	    public bool Verified {
-			get {
-				if (Network.Core.IsLocalNode(this))
+			get
+			{
+			    if (Network.Core.IsLocalNode(this))
 					return true;
-				else
-					return verified;
+			    return verified;
 			}
 			internal set {
 				verified = value;
@@ -139,33 +141,31 @@ namespace Meshwork.Backend.Core
 
 	    public bool FinishedKeyExchange	{
 			get {
-				return (RemoteHasKey == true & LocalHasKey == true);
+				return (RemoteHasKey & LocalHasKey);
 			}
 		}
 
 		public string NodeID { get; }
 
 	    public TrustedNodeInfo GetTrustedNode ()
-		{
-			if (Network.TrustedNodes.ContainsKey(this.NodeID)) {
-				return Network.TrustedNodes[this.NodeID];
-			} else {
-				return null;
+	    {
+	        if (Network.TrustedNodes.ContainsKey(NodeID)) {
+				return Network.TrustedNodes[NodeID];
 			}
-		}
+	        return null;
+	    }
 
 		public string GetAmountSharedString()
 		{
-			return $"{Common.Common.FormatNumber(this.Files)} Files ({Common.Common.FormatBytes(this.Bytes)})";
+			return $"{Common.Utils.FormatNumber(Files)} Files ({Common.Utils.FormatBytes(Bytes)})";
 		}
 
 		public override string ToString()
 		{
-			if (NickName != "") {
+		    if (NickName != "") {
 				return NickName;
-			} else {
-				return NodeID;
 			}
+		    return NodeID;
 		}
 
 		public Network Network { get; }
@@ -174,25 +174,25 @@ namespace Meshwork.Backend.Core
 
 	    public void CreateNewSessionKey()
 		{
-			if (this.FinishedKeyExchange == false) {
+			if (FinishedKeyExchange == false) {
 
 				// The logic elsewhere is to call this method unless RemoteHasKey == true.
 				// That needs to be cleaned up, because this is pointless.
-				if (SentKeyExchange == true) {
+				if (SentKeyExchange) {
 					//LogManager.Current.WriteToLog("CreateNewSessionKey() AGAIN for " + this.ToString() + "\n" + Environment.StackTrace);
 					return;
 				}
 
 				try {
-					LoggingService.LogInfo("Creating secure communication channel to {0}...", this.ToString());
+					LoggingService.LogInfo("Creating secure communication channel to {0}...", ToString());
 
 					SentKeyExchange = true;
 
-					byte[] keyExchange = DiffieHellman.CreateKeyExchange();
-					Message m = Network.MessageBuilder.CreateNewSessionKeyMessage(this, keyExchange);
-					AckMethod c = new AckMethod();
+					var keyExchange = DiffieHellman.CreateKeyExchange();
+					var m = Network.MessageBuilder.CreateNewSessionKeyMessage(this, keyExchange);
+					var c = new AckMethod();
 					c.args = new object[]{ this };
-					c.Method += new AckMethod.MethodEventHandler(Network.NewSessionKeyReady);
+					c.Method += Network.NewSessionKeyReady;
 					Network.AckMethods.Add(m.MessageID, c);
 					Network.SendRoutedMessage(m);
 				} catch (Exception ex) {
@@ -201,7 +201,7 @@ namespace Meshwork.Backend.Core
 					throw ex;
 				}
 			} else {
-				LoggingService.LogWarning("Why are we trying to CreateNewSessionKey for {0} when FinishedKeyExchange=True?", this.ToString());
+				LoggingService.LogWarning("Why are we trying to CreateNewSessionKey for {0} when FinishedKeyExchange=True?", ToString());
 			}
 		}
 
@@ -224,14 +224,14 @@ namespace Meshwork.Backend.Core
 		public ICryptoTransform CreateDecryptor()
 		{
 			if (keyBytes == null | ivBytes == null)
-				throw new Exception("No key for " + this.ToString());
+				throw new Exception("No key for " + ToString());
 			return alg.CreateDecryptor(keyBytes, ivBytes);
 		}
 
 		public ICryptoTransform CreateEncryptor()
 		{
 			if (keyBytes == null | ivBytes == null)
-				throw new Exception("No key for " + this.ToString());
+				throw new Exception("No key for " + ToString());
 			return alg.CreateEncryptor(keyBytes, ivBytes);
 		}
 
@@ -249,12 +249,13 @@ namespace Meshwork.Backend.Core
 
 		public bool IsConnectedLocally {
 			get {
-				foreach (INodeConnection connection in Network.Connections) {
-					if (connection is LocalNodeConnection) {
-						if (connection.NodeLocal == Network.LocalNode & connection.NodeRemote == this)
+				foreach (var connection in Network.Connections) {
+					if (connection is LocalNodeConnection)
+					{
+					    if (connection.NodeLocal == Network.LocalNode & connection.NodeRemote == this)
 							return true;
-						else if (connection.NodeRemote == Network.LocalNode & connection.NodeLocal == this)
-							return true;
+					    if (connection.NodeRemote == Network.LocalNode & connection.NodeLocal == this)
+					        return true;
 					}
 				}
 				return false;
@@ -265,7 +266,7 @@ namespace Meshwork.Backend.Core
 	/*	public ulong SendPing()
 		{
 			if (timeOfLastPing == 0) {
-				ulong timestamp = FileFind.Common.GetUnixTimestamp();
+				ulong timestamp = FileFind.Utils.GetUnixTimestamp();
 				network.SendRoutedMessage(network.MessageBuilder.CreatePingMessage(this, timestamp));
 				timeOfLastPing = timestamp;
 				return timestamp;
@@ -288,8 +289,8 @@ namespace Meshwork.Backend.Core
 
 		internal INodeConnection[] GetConnections ()
 		{
-			List<INodeConnection> result = new List<INodeConnection>();
-			foreach (INodeConnection connection in Network.Connections) {
+			var result = new List<INodeConnection>();
+			foreach (var connection in Network.Connections) {
 				if (connection.NodeLocal == this || connection.NodeRemote == this) {
 					result.Add(connection);
 				}
@@ -297,54 +298,43 @@ namespace Meshwork.Backend.Core
 			return result.ToArray();
 		}
 
-		public DestinationInfo[] DestinationInfos {
+		public IList<DestinationInfo> DestinationInfos {
 			get {
 				if (IsMe) {
 					return Network.Core.DestinationManager.DestinationInfos;
-				} else {
-					TrustedNodeInfo tnode = GetTrustedNode();
-					if (tnode != null) {
-						return tnode.DestinationInfos.ToArray();
-					} else {
-						return null;
-					}
 				}
+			    var tnode = GetTrustedNode();
+			    return tnode?.DestinationInfos;
 			}
 		}
 
-		[XmlIgnore]
+	    [DontSerialize]
 		public IDestination[] Destinations {
 			get {
 				if (IsMe) {
 					return Network.Core.DestinationManager.Destinations;
-				} else {
-					TrustedNodeInfo tnode = GetTrustedNode();
-					if (tnode != null) {
-						return tnode.GetDestinations(Network.Core);
-					} else {
-						return null;
-					}
 				}
+			    var tnode = GetTrustedNode();
+			    return tnode?.GetDestinations(Network.Core);
 			}
 		}
 
-		[XmlIgnore]
-		public IDestination FirstConnectableDestination {
+	    [DontSerialize]
+	    public IDestination FirstConnectableDestination {
 			get {
-				IDestination[] destinations = this.ConnectableDestinations;
+				var destinations = ConnectableDestinations;
 				if (destinations.Length == 0) {
 					return null;
-				} else {
-					return destinations[0];
 				}
+			    return destinations[0];
 			}
 		}
 
 		/// <summary>Get a list of destinations that we can connect to.</summary>
-		[XmlIgnore]
+		[DontSerialize]
 		public IDestination[] ConnectableDestinations {
 			get {
-				return DestinationManager.GetConnectableDestinations(this.Destinations);
+				return DestinationManager.GetConnectableDestinations(Destinations);
 			}
 		}
 	}

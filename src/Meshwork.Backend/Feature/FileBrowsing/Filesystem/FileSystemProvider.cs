@@ -88,7 +88,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		public FileSystemProvider (Core.Core core)
 		{
 		    this.core = core;
-            this.rootDirectory = new RootDirectory(core);
+            rootDirectory = new RootDirectory(core, this);
 
 		    var path = Path.Combine(core.Settings.DataPath, "shares.db");
 
@@ -479,7 +479,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 					string[] tablesToDrop = { "properties", "directoryitems", "filepieces" };
 					foreach (var tableName in tablesToDrop) {
 						var dropCommand = connection.CreateCommand();
-						dropCommand.CommandText = string.Format("DROP TABLE IF EXISTS {0}", tableName);
+						dropCommand.CommandText = $"DROP TABLE IF EXISTS {tableName}";
 						ExecuteNonQuery(dropCommand);
 					}
 
@@ -653,7 +653,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 				if (idsToDelete.Count > 0) {
 					command = connection.CreateCommand();
-					command.CommandText = string.Format("DELETE FROM directoryitems WHERE id IN ({0})", string.Join(",", idsToDelete.ToArray()));
+					command.CommandText = $"DELETE FROM directoryitems WHERE id IN ({string.Join(",", idsToDelete.ToArray())})";
 					ExecuteNonQuery(command);
 				}
 			});

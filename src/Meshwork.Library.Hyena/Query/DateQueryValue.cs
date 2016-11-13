@@ -27,6 +27,7 @@
 //
 
 using System;
+using System.Globalization;
 using System.Xml;
 
 namespace Meshwork.Library.Hyena.Query
@@ -70,9 +71,8 @@ namespace Meshwork.Library.Hyena.Query
         {
             if (value.Hour == 0 && value.Minute == 0 && value.Second == 0) {
                 return value.ToString ("yyyy-MM-dd");
-            } else {
-                return value.ToString ();
             }
+            return value.ToString ();
         }
 
         public void SetValue (DateTime date)
@@ -102,10 +102,9 @@ namespace Meshwork.Library.Hyena.Query
         public override string ToSql (Operator op)
         {
             if (op == GreaterThan) {
-                return DateTimeUtil.FromDateTime (value.AddDays (1.0)).ToString (System.Globalization.CultureInfo.InvariantCulture);
-            } else {
-                return DateTimeUtil.FromDateTime (value).ToString (System.Globalization.CultureInfo.InvariantCulture);
+                return DateTimeUtil.FromDateTime (value.AddDays (1.0)).ToString (CultureInfo.InvariantCulture);
             }
+            return DateTimeUtil.FromDateTime (value).ToString (CultureInfo.InvariantCulture);
         }
 
         public DateTime DateTime {

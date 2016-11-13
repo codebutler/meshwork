@@ -10,7 +10,7 @@
 using System;
 using System.Collections.Generic;
 using Meshwork.Common;
-using Mono.Security.Cryptography;
+using Org.Mentalis.Security.Cryptography;
 
 namespace Meshwork.Backend.Core.Transport
 {
@@ -68,21 +68,21 @@ namespace Meshwork.Backend.Core.Transport
 				if (NewTransportAdded != null)
 					NewTransportAdded (transport);
 
-				LoggingService.LogInfo(string.Format ("Transport {0} added", transport.ToString()));
+				LoggingService.LogInfo($"Transport {transport} added");
 
-				if (transport.Incoming == true) {
+				if (transport.Incoming) {
 					if (connectCallback != null)
 						throw new ArgumentException ("You can only specify a ConnectCallback for outoging connections!");
 
 					if (transport.Encryptor != null) {
-						DiffieHellmanManaged dh = new DiffieHellmanManaged ();
+						var dh = new DiffieHellmanManaged ();
 
-						byte[] keyxBytes = new byte[transport.Encryptor.KeyExchangeLength];
+						var keyxBytes = new byte[transport.Encryptor.KeyExchangeLength];
 						transport.Receive (keyxBytes, 0, keyxBytes.Length);
 						keyxBytes = dh.DecryptKeyExchange (keyxBytes);
 
-						byte[] keyBytes = new byte[transport.Encryptor.KeySize];
-						byte[] ivBytes = new byte[transport.Encryptor.IvSize];
+						var keyBytes = new byte[transport.Encryptor.KeySize];
+						var ivBytes = new byte[transport.Encryptor.IvSize];
 						Array.Copy (keyxBytes, 0, keyBytes, 0, keyBytes.Length);
 						Array.Copy (keyxBytes, keyBytes.Length, ivBytes, 0, ivBytes.Length);
 
@@ -93,30 +93,30 @@ namespace Meshwork.Backend.Core.Transport
 					}
 
 					//Receive connection type, which is a ulong (8 bytes)
-					byte[] responseBuffer = new byte[8];
+					var responseBuffer = new byte[8];
 				    	transport.Receive (responseBuffer, 0, 8);
-					ulong connectionType = EndianBitConverter.ToUInt64 (responseBuffer, 0);
+					var connectionType = EndianBitConverter.ToUInt64 (responseBuffer, 0);
 
 					// Recieve network ID (64 bytes)
 					responseBuffer = new byte[64];
 					transport.Receive (responseBuffer, 0, 64);
-					string networkId = EndianBitConverter.ToString (responseBuffer).Replace ("-", "");
+					var networkId = EndianBitConverter.ToString (responseBuffer).Replace ("-", "");
 
 					// Match to one of our known networks!
-					foreach (Network network in core.Networks) {
+					foreach (var network in core.Networks) {
 						if (network.NetworkID == networkId) {
 							transport.Network = network;
 						}
 					}
 
 					if (transport.Network == null) {
-						throw new Exception (string.Format ("Unknown network: {0}.", networkId));
+						throw new Exception ($"Unknown network: {networkId}.");
 					}
 
 					transport.ConnectionType = connectionType;
 
 					if (connectionType == ConnectionType.NodeConnection) {
-						LocalNodeConnection connection = new LocalNodeConnection(transport);
+						var connection = new LocalNodeConnection(transport);
 						transport.Operation = connection;
 						transport.Network.AddConnection(connection);
 						connection.Start();
@@ -125,8 +125,7 @@ namespace Meshwork.Backend.Core.Transport
 						core.FileTransferManager.NewIncomingConnection(transport);
 
 					} else {
-						throw new Exception(string.Format("Unknown connection type: {0}.",
-						                                  connectionType.ToString()));
+						throw new Exception($"Unknown connection type: {connectionType}.");
 					}
 
 				} else {
@@ -138,7 +137,7 @@ namespace Meshwork.Backend.Core.Transport
 
 					LoggingService.LogInfo("Transport {0} connecting...", transport);
 
-					TransportCallback callback = new TransportCallback (OnConnected);
+					TransportCallback callback = OnConnected;
 					transport.Connect (callback);
 				}
 			} catch (Exception ex) {
@@ -166,9 +165,9 @@ namespace Meshwork.Backend.Core.Transport
 				LoggingService.LogInfo("Transport {0} connected.", transport);
 
 				if (transport.Encryptor != null) {
-					DiffieHellmanManaged dh = new DiffieHellmanManaged ();
+					var dh = new DiffieHellmanManaged ();
 
-					byte[] keyxBytes = dh.CreateKeyExchange ();
+					var keyxBytes = dh.CreateKeyExchange ();
 					transport.Send (dh.CreateKeyExchange (), 0, keyxBytes.Length);
 
 					keyxBytes = new byte [transport.Encryptor.KeyExchangeLength];
@@ -176,23 +175,23 @@ namespace Meshwork.Backend.Core.Transport
 
 					keyxBytes = dh.DecryptKeyExchange (keyxBytes);
 
-					byte[] keyBytes = new byte[transport.Encryptor.KeySize];
-					byte[] ivBytes = new byte[transport.Encryptor.IvSize];
+					var keyBytes = new byte[transport.Encryptor.KeySize];
+					var ivBytes = new byte[transport.Encryptor.IvSize];
 					Array.Copy (keyxBytes, 0, keyBytes, 0, keyBytes.Length);
 					Array.Copy (keyxBytes, keyBytes.Length, ivBytes, 0, ivBytes.Length);
 
 					transport.Encryptor.SetKey(keyBytes, ivBytes);
 				}
 
-				byte[] connectionType = EndianBitConverter.GetBytes (transport.ConnectionType);
+				var connectionType = EndianBitConverter.GetBytes (transport.ConnectionType);
 				transport.Send (connectionType, 0, connectionType.Length);
 
-				byte[] networkId = Common.Common.SHA512 (transport.Network.NetworkName);
+				var networkId = Common.Utils.SHA512 (transport.Network.NetworkName);
 				transport.Send (networkId, 0, networkId.Length);
 
 				// Ready, Steady, GO!
 
-				TransportCallback callback = (TransportCallback) connectCallbacks [transport];
+				var callback = connectCallbacks [transport];
 				connectCallbacks.Remove (transport);
 				callback (transport);
 

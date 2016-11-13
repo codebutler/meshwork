@@ -1,6 +1,6 @@
 namespace Meshwork.Library.Stun
 {
-	public enum MessageType : int
+	public enum MessageType
 	{
 		BindingRequest = 0x0001,
 		BindingResponse = 0x0101,

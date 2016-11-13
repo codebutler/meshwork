@@ -1,4 +1,6 @@
 using System;
+using System.Net;
+using System.Text;
 using Meshwork.Backend.Core;
 using Meshwork.Backend.Core.Transport;
 using MonoTorrent.Client;
@@ -11,7 +13,7 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 	    private readonly Core.Core core;
 
 	    public MeshworkPeerConnectionListener (Core.Core core)
-			: base (new System.Net.IPEndPoint (System.Net.IPAddress.Loopback, 0))
+			: base (new IPEndPoint (IPAddress.Loopback, 0))
 	    {
 	        this.core = core;
 	        // Nothing
@@ -29,33 +31,33 @@ namespace Meshwork.Backend.Feature.FileTransfer.BitTorrent
 		
 		public void AddConnection (TorrentConnection connection, TorrentManager manager)
 		{
-			string remoteId = string.Empty;
+			var remoteId = string.Empty;
 
 			LoggingService.LogDebug("AddConnection(): Start");
 
 			if (!connection.IsIncoming) {
 				// Send my identity.
 				// XXX: This absolutely needs to be signed.
-				connection.Transport.SendMessage(System.Text.Encoding.ASCII.GetBytes(core.MyNodeID));
+				connection.Transport.SendMessage(Encoding.ASCII.GetBytes(core.MyNodeID));
 
 				// Get other end's identity.
-				byte[] message = connection.Transport.ReceiveMessage();
-				remoteId = System.Text.Encoding.ASCII.GetString(message);
+				var message = connection.Transport.ReceiveMessage();
+				remoteId = Encoding.ASCII.GetString(message);
 
 			} else {
 				// Get other end's identity.
-				byte[] message = connection.Transport.ReceiveMessage();
-				remoteId = System.Text.Encoding.ASCII.GetString(message);
+				var message = connection.Transport.ReceiveMessage();
+				remoteId = Encoding.ASCII.GetString(message);
 
 				// Send my identity.
 				// XXX: This absolutely needs to be signed.
-				connection.Transport.SendMessage(System.Text.Encoding.ASCII.GetBytes(core.MyNodeID));
+				connection.Transport.SendMessage(Encoding.ASCII.GetBytes(core.MyNodeID));
 			}
 
 			LoggingService.LogDebug("Pushing connection to engine: {0} - {1}", connection.IsIncoming ? "Incoming" : "Outgoing",
 			                  ((TcpTransport)connection.Transport).RemoteEndPoint.ToString());
 
-			Peer p = new Peer("", new Uri(string.Format("meshwork:{0}", remoteId)), EncryptionTypes.PlainText);
+			var p = new Peer("", new Uri($"meshwork:{remoteId}"), EncryptionTypes.PlainText);
 			RaiseConnectionReceived(p, connection, manager);
 
 			LoggingService.LogDebug("AddConnection(): End");

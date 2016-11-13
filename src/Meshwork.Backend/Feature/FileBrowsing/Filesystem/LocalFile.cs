@@ -10,13 +10,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 
 namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 {
 	public class LocalFile : AbstractFile, ILocalDirectoryItem
 	{
-	    private readonly FileSystemProvider fs;
-	    
+	    private readonly FileSystemProvider fileSystem;
+
 	    private string fileName;
 	    private string infoHash;
 		private string sha1;
@@ -26,7 +27,6 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 	    private Dictionary<string, string> _metadata;
 	    private string _fullPath;
 
-	    private readonly FileSystemProvider fileSystem;
 
 	    private LocalFile (FileSystemProvider fileSystem, DataRow row)
 	    {
@@ -44,13 +44,14 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			fileName = name;
 			LocalPath = localPath;
 			_size = length;
-			this._fullPath = fullPath;
+			_fullPath = fullPath;
 		}
 
 		public override IDirectory Parent {
 			get {
 				LocalDirectory parent = null;
-				fs.UseConnection(delegate(IDbConnection connection) {
+			    fileSystem.UseConnection(delegate
+				{
 					parent = LocalDirectory.ById(fileSystem, ParentId);
 					if (parent == null)
 						throw new Exception($"Parent not found! Name: {Name} Id: {Id} ParentId: {ParentId}");
@@ -72,11 +73,11 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 	    public override string[] Pieces {
 			get {
 				if (pieces == null) {
-					fs.UseConnection(delegate(IDbConnection connection) {
+					fileSystem.UseConnection(delegate(IDbConnection connection) {
 						var cmd = connection.CreateCommand();
 						cmd.CommandText = "SELECT hash FROM filepieces WHERE file_id = @id ORDER BY piece_num";
-						fs.AddParameter(cmd, "@id", Id);
-						var ds = fs.ExecuteDataSet(cmd);
+					    fileSystem.AddParameter(cmd, "@id", Id);
+						var ds = fileSystem.ExecuteDataSet(cmd);
 						pieces = new string[ds.Tables[0].Rows.Count];
 						for (var x = 0; x < ds.Tables[0].Rows.Count; x++) {
 							pieces[x] = ds.Tables[0].Rows[x]["hash"].ToString();
@@ -103,11 +104,11 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 		{
 			DataRow row = null;
 			
-			fs.UseConnection(delegate(IDbConnection connection) {
+		    fileSystem.UseConnection(delegate(IDbConnection connection) {
 				var cmd = connection.CreateCommand();
 				cmd.CommandText = "SELECT * FROM directoryitems WHERE id=@id AND type = 'F' LIMIT 1";
-				fs.AddParameter(cmd, "@id", Id);
-				var ds = fs.ExecuteDataSet(cmd);
+		        fileSystem.AddParameter(cmd, "@id", Id);
+				var ds = fileSystem.ExecuteDataSet(cmd);
 				row = ds.Tables[0].Rows[0];
 			});
 			
@@ -134,7 +135,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		internal static long CountByParentId (FileSystemProvider fs, int? parentId)
 		{
-			return fs.UseConnection<long>(delegate(IDbConnection connection) {
+			return fs.UseConnection(delegate(IDbConnection connection) {
 				var command = connection.CreateCommand();
 				string query = null;
 				if (parentId.Equals(null)) {
@@ -150,7 +151,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		internal static LocalFile[] ListByParentId (FileSystemProvider fs, int? parentId)
 		{
-			return fs.UseConnection<LocalFile[]>(delegate(IDbConnection connection) {
+			return fs.UseConnection(delegate(IDbConnection connection) {
 				var command = connection.CreateCommand();
 				string query = null;
 				if (parentId.Equals(null)) {
@@ -186,7 +187,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 
 		internal void Save ()
 		{
-			fs.UseConnection(delegate(IDbConnection connection) {
+		    fileSystem.UseConnection(delegate(IDbConnection connection) {
 				var transaction = connection.BeginTransaction();
 				try {
 					var cmd = connection.CreateCommand();
@@ -197,20 +198,20 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 							info_hash    = @info_hash,
 							piece_length = @piece_length
 						WHERE id = @id";
-					fs.AddParameter(cmd, "@sha1", sha1);
-					fs.AddParameter(cmd, "@info_hash", infoHash);
-					fs.AddParameter(cmd, "@piece_length", pieceLength);
-					fs.AddParameter(cmd, "@id", Id);
-					fs.ExecuteNonQuery(cmd);
+					fileSystem.AddParameter(cmd, "@sha1", sha1);
+					fileSystem.AddParameter(cmd, "@info_hash", infoHash);
+					fileSystem.AddParameter(cmd, "@piece_length", pieceLength);
+					fileSystem.AddParameter(cmd, "@id", Id);
+					fileSystem.ExecuteNonQuery(cmd);
 					
 					cmd = connection.CreateCommand();
 					cmd.CommandText = "DELETE FROM filepieces WHERE file_id = @file_id";
-					fs.AddParameter(cmd, "@file_id", Id);
-					fs.ExecuteNonQuery(cmd);
+					fileSystem.AddParameter(cmd, "@file_id", Id);
+					fileSystem.ExecuteNonQuery(cmd);
 					
 					cmd = connection.CreateCommand();
 					cmd.CommandText = "INSERT INTO filepieces (file_id, piece_num, hash) VALUES (@file_id, @piece_num, @hash)";
-					fs.AddParameter(cmd, "@file_id", Id);
+				    fileSystem.AddParameter(cmd, "@file_id", Id);
 					
 					var pieceNumParam = cmd.CreateParameter();
 					pieceNumParam.ParameterName = "@piece_num";
@@ -223,7 +224,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 					for (var x = 0; x < pieces.Length; x++) {
 						pieceNumParam.Value = x;
 						hashParam.Value = pieces[x];
-						fs.ExecuteNonQuery(cmd);
+					    fileSystem.ExecuteNonQuery(cmd);
 					}
 					
 					transaction.Commit();
@@ -239,7 +240,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			}, true);
 		}
 
-		internal static LocalFile CreateFile (FileSystemProvider fs, LocalDirectory parentDirectory, System.IO.FileInfo info)
+		internal static LocalFile CreateFile (FileSystemProvider fs, LocalDirectory parentDirectory, FileInfo info)
 		{
 			return CreateFile(fs, parentDirectory, info.Name, info.FullName, info.Length);
 		}

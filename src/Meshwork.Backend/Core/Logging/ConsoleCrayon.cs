@@ -27,6 +27,7 @@
 //
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Meshwork.Backend.Core.Logging
 {
@@ -150,8 +151,8 @@ namespace Meshwork.Backend.Core.Logging
 			bool light;
 			// lighter fg colours are 90 -> 97 rather than 30 -> 37
 			// lighter bg colours are 100 -> 107 rather than 40 -> 47
-			int code = TranslateColor (colour, out light) + (isForeground? 30 : 40) + (light? 60 : 0);
-			return string.Format ("\x001b[{0}m", code);
+			var code = TranslateColor (colour, out light) + (isForeground? 30 : 40) + (light? 60 : 0);
+			return $"\x001b[{code}m";
 		}
 		
 		private static string GetAnsiResetControlCode ()
@@ -163,7 +164,7 @@ namespace Meshwork.Backend.Core.Logging
 
 		#region xterm Detection
 
-		private static bool? xterm_colors = null;
+		private static bool? xterm_colors;
 		public static bool XtermColors { 
 			get {
 				if (xterm_colors == null) {
@@ -174,7 +175,7 @@ namespace Meshwork.Backend.Core.Logging
 			}
 		}
 		
-		[System.Runtime.InteropServices.DllImport ("libc", EntryPoint="isatty")]
+		[DllImport ("libc", EntryPoint="isatty")]
 		private extern static int _isatty (int fd);
 		
 		private static bool isatty (int fd)
@@ -188,7 +189,7 @@ namespace Meshwork.Backend.Core.Logging
 		
 		private static void DetectXtermColors ()
 		{
-			bool _xterm_colors = false;
+			var _xterm_colors = false;
 			
 			switch (Environment.GetEnvironmentVariable ("TERM")) {
 			case "xterm":

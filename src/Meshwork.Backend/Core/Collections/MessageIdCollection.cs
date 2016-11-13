@@ -25,12 +25,12 @@ namespace Meshwork.Backend.Core.Collections
 
 		public void Purge()
 		{
-			List<string> deleteList = new List<string>();
+			var deleteList = new List<string>();
 
 			lock (this) {
-				foreach (KeyValuePair<string,DateTime> pair in this) {
-					string key = pair.Key;
-					DateTime dt = pair.Value;
+				foreach (var pair in this) {
+					var key = pair.Key;
+					var dt = pair.Value;
 
 					if (DateTime.Now.Subtract(dt).Milliseconds >= 6000) {
 						deleteList.Add(key);
@@ -38,8 +38,8 @@ namespace Meshwork.Backend.Core.Collections
 				}
 			}
 
-			foreach (string key in deleteList) {
-				this.Remove(key);
+			foreach (var key in deleteList) {
+				Remove(key);
 			}
 		}
 	}

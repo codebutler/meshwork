@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -10,11 +10,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Meshwork.Backend</RootNamespace>
     <AssemblyName>Meshwork.Backend</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProductVersion>8.0.30703</ProductVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>anycpu</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,13 +32,17 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Data.Sqlite, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\4.6.0\lib\mono\4.5-api\Mono.Data.Sqlite.dll</HintPath>
+    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\contrib\DiffieHellman.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\4.6.0\lib\mono\4.5-api\Mono.Security.dll</HintPath>
+    <Reference Include="Mono.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\..\contrib\dotnet\Mono.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\..\contrib\dotnet\Mono.Data.Sqlite.dll</HintPath>
     </Reference>
     <Reference Include="MonoTorrent, Version=0.80.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
@@ -50,13 +55,12 @@
   <ItemGroup>
     <Compile Include="Core\AckMethod.cs" />
     <Compile Include="Core\AutoconnectManager.cs" />
-    <Compile Include="Core\Backend.cs" />
+    <Compile Include="Core\Core.cs" />
     <Compile Include="Core\ChatRoom.cs" />
     <Compile Include="Core\Collections\MessageIdCollection.cs" />
     <Compile Include="Core\Collections\NodeConnectionCollection.cs" />
     <Compile Include="Core\ConnectionState.cs" />
     <Compile Include="Core\ConnectionType.cs" />
-    <Compile Include="Core\DebugInfo.cs" />
     <Compile Include="Core\Destination\DestinationBase.cs" />
     <Compile Include="Core\Destination\DestinationInfo.cs" />
     <Compile Include="Core\Destination\DestinationManager.cs" />
@@ -79,6 +83,7 @@
     <Compile Include="Core\IMeshworkPlugin.cs" />
     <Compile Include="Core\INodeConnection.cs" />
     <Compile Include="Core\ISettings.cs" />
+    <Compile Include="Core\KeyManager.cs" />
     <Compile Include="Core\LocalNodeConnection.cs" />
     <Compile Include="Core\LoggingService.cs" />
     <Compile Include="Core\Logging\ConsoleCrayon.cs" />

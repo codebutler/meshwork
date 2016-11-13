@@ -33,7 +33,7 @@ namespace Meshwork.Backend.Core.Transport
 			if (listener != null || listenThread != null)
 				throw new InvalidOperationException("Already started");
 			
-			if (Common.Common.SupportsIPv6) {
+			if (Common.Utils.SupportsIPv6) {
 				listener = new TcpListener(IPAddress.IPv6Any, port);
 			} else {
 				listener = new TcpListener(IPAddress.Any, port);
@@ -41,7 +41,7 @@ namespace Meshwork.Backend.Core.Transport
 
 			listener.Start ();
 
-			listenThread = new Thread(new ThreadStart(Listen));
+			listenThread = new Thread(Listen);
 			listenThread.Start();
 		}
 
@@ -63,7 +63,7 @@ namespace Meshwork.Backend.Core.Transport
 			}
 			set {
 				port = value;				
-				if (this.Listening) {
+				if (Listening) {
 					StopListening();
 					StartListening();
 				}
@@ -80,7 +80,7 @@ namespace Meshwork.Backend.Core.Transport
 		{
 			try {
 				while (true) {
-					Socket socket = listener.AcceptSocket();
+					var socket = listener.AcceptSocket();
 					try {
 						ITransport transport = new TcpTransport(core, socket);
 						LoggingService.LogInfo("New incoming transport: {0}.", transport.ToString());
@@ -100,7 +100,7 @@ namespace Meshwork.Backend.Core.Transport
 
 		public override string ToString ()
 		{
-			return string.Format("TCP listener on port {0}", port);
+			return $"TCP listener on port {port}";
 		}
 	}
 }

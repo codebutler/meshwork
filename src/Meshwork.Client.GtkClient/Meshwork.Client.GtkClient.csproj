@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}</ProjectGuid>
+    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Meshwork.Client.GtkClient</RootNamespace>
+    <AssemblyName>Meshwork.Client.GtkClient</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProductVersion>8.0.30703</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <HintPath>..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\4.8.0\lib\mono\gtk-sharp-2.0\atk-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Mono.Posix" />
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="Mono.GetOptions">
+      <HintPath>..\..\contrib\dotnet\Mono.GetOptions.dll</HintPath>
+    </Reference>
+    <Reference Include="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gtkspell-sharp">
+      <HintPath>..\..\contrib\gtkspell-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="Mono.Cairo" />
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="ige-mac-integration-sharp">
+      <HintPath>..\..\contrib\ige-mac-integration-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AvatarManager.cs" />
+    <Compile Include="BuiltinActionGroup.cs" />
+    <Compile Include="DispatchService.cs" />
+    <Compile Include="DndUtils.cs" />
+    <Compile Include="DrawingUtilities.cs" />
+    <Compile Include="GtkHelper.cs" />
+    <Compile Include="GtkMeshworkOptions.cs" />
+    <Compile Include="Gui.cs" />
+    <Compile Include="GuiSyncContext.cs" />
+    <Compile Include="Menus\ChatMenu.cs" />
+    <Compile Include="Menus\ChatPageMenu.cs" />
+    <Compile Include="Menus\ConnectionMenu.cs" />
+    <Compile Include="Menus\MemoMenu.cs" />
+    <Compile Include="Menus\TransfersMenu.cs" />
+    <Compile Include="Menus\UserMenu.cs" />
+    <Compile Include="Pages\ChatRoomSubpage.cs" />
+    <Compile Include="Pages\ChatsPage.cs" />
+    <Compile Include="Pages\ChatSubpageBase.cs" />
+    <Compile Include="Pages\ConnectionsPage.cs" />
+    <Compile Include="Pages\IPage.cs" />
+    <Compile Include="Pages\MemosPage.cs" />
+    <Compile Include="Pages\NetworkOverviewPage.cs" />
+    <Compile Include="Pages\NetworkOverviewPage.UserList.cs" />
+    <Compile Include="Pages\NewSearchPage.cs" />
+    <Compile Include="Pages\PrivateChatSubpage.cs" />
+    <Compile Include="Pages\SearchResultsPage.cs" />
+    <Compile Include="Pages\StatusLogPage.cs" />
+    <Compile Include="Pages\TransfersPage.cs" />
+    <Compile Include="Pages\UserBrowserPage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RunOnMainThread.cs" />
+    <Compile Include="Runtime.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="SidebarItems\ChatsItem.cs" />
+    <Compile Include="SidebarItems\ConnectionsItem.cs" />
+    <Compile Include="SidebarItems\FileSearchItem.cs" />
+    <Compile Include="SidebarItems\ISidebarItem.cs" />
+    <Compile Include="SidebarItems\MemosItem.cs" />
+    <Compile Include="SidebarItems\NetworkOverviewItem.cs" />
+    <Compile Include="SidebarItems\NewSearchItem.cs" />
+    <Compile Include="SidebarItems\SeparatorItem.cs" />
+    <Compile Include="SidebarItems\StatusItem.cs" />
+    <Compile Include="SidebarItems\TransfersItem.cs" />
+    <Compile Include="SidebarItems\UserBrowserItem.cs" />
+    <Compile Include="SidebarItems\WhatsNewSearchItem.cs" />
+    <Compile Include="SidebarItems\WhatsPopularSearchItem.cs" />
+    <Compile Include="SyncContext.cs" />
+    <Compile Include="TrayIcon.cs" />
+    <Compile Include="Widgets\Actor.cs" />
+    <Compile Include="Widgets\AnimatedImage.cs" />
+    <Compile Include="Widgets\FadingAlignment.cs" />
+    <Compile Include="Widgets\FileSearchEntry.cs" />
+    <Compile Include="Widgets\FileSelector.cs" />
+    <Compile Include="Widgets\FilterWidget.cs" />
+    <Compile Include="Widgets\FolderDialog.cs" />
+    <Compile Include="Widgets\GladeWidgetExtract.cs" />
+    <Compile Include="Widgets\Header.cs" />
+    <Compile Include="Widgets\HoverImageButton.cs" />
+    <Compile Include="Widgets\MainSidebar.cs" />
+    <Compile Include="Widgets\NavigationBar.cs" />
+    <Compile Include="Widgets\NetworkGroupedTreeStore.cs" />
+    <Compile Include="Widgets\SearchEntry.cs" />
+    <Compile Include="Widgets\SingleActorStage.cs" />
+    <Compile Include="Widgets\Stage.cs" />
+    <Compile Include="Widgets\ZoomableCairoArea.cs" />
+    <Compile Include="Widgets\ZoomableNetworkMap.cs" />
+    <Compile Include="Windows\AboutDialog.cs" />
+    <Compile Include="Windows\AcceptKeyDialog.cs" />
+    <Compile Include="Windows\AddNetworkDialog.cs" />
+    <Compile Include="Windows\AddTrustedNodeDialog.cs" />
+    <Compile Include="Windows\BadOptionsDialog.cs" />
+    <Compile Include="Windows\ChatRoomInvitationDialog.cs" />
+    <Compile Include="Windows\ChatRoomPasswordDialog.cs" />
+    <Compile Include="Windows\ConnectDialog.cs" />
+    <Compile Include="Windows\DownloadPublicKeyDialog.cs" />
+    <Compile Include="Windows\EditMemoDialog.cs" />
+    <Compile Include="Windows\EditNetworkDialog.cs" />
+    <Compile Include="Windows\FilePropertiesWindow.cs" />
+    <Compile Include="Windows\FileTransferWindow.cs" />
+    <Compile Include="Windows\GenerateKeyDialog.cs" />
+    <Compile Include="Windows\GladeDialog.cs" />
+    <Compile Include="Windows\GladeWindow.cs" />
+    <Compile Include="Windows\IndexingStatusWindow.cs" />
+    <Compile Include="Windows\InviteToChatDialog.cs" />
+    <Compile Include="Windows\JoinChatroomDialog.cs" />
+    <Compile Include="Windows\MainWindow.cs" />
+    <Compile Include="Windows\MemoWindow.cs" />
+    <Compile Include="Windows\PreferencesDialog.cs" />
+    <Compile Include="Windows\SplashWindow.cs" />
+    <Compile Include="Windows\StartupProblemsDialog.cs" />
+    <Compile Include="Windows\UserInfoDialog.cs" />
+    <Compile Include="Windows\winEditTrustedNode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Embedded_resource Include="..\..\resources\images\install_header.bmp" />
+    <Embedded_resource Include="..\..\resources\images\install_side.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\contrib\osx\libigemacintegration.dylib">
+      <Link>libigemacintegration.dylib</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Meshwork.Backend\Meshwork.Backend.csproj">
+      <Project>{14D462D1-0164-486E-823B-DC25F1F38EDA}</Project>
+      <Name>Meshwork.Backend</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Common\Meshwork.Common.csproj">
+      <Project>{592E20C9-16CB-431C-8BAC-879FDAE9EF14}</Project>
+      <Name>Meshwork.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Library.Stun\Meshwork.Library.Stun.csproj">
+      <Project>{01539583-6736-4E2C-933B-09F7F9CCD2C5}</Project>
+      <Name>Meshwork.Library.Stun</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform.MacOS\Meshwork.Platform.MacOS.csproj">
+      <Project>{920ABE15-340F-4BF4-80D7-F49CB940E5F2}</Project>
+      <Name>Meshwork.Platform.MacOS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform\Meshwork.Platform.csproj">
+      <Project>{D981A690-6340-404C-96F5-B32E18C6AF8D}</Project>
+      <Name>Meshwork.Platform</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Windows" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\resources\glade\meshwork.glade">
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\resources\images\meshwork.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\resources\images\tray_icon.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\application-exit_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\application-exit_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\application-exit_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\application-exit_32.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\application-x-executable_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\arrow_down.png" />
+    <EmbeddedResource Include="..\..\resources\images\arrow_up.png" />
+    <EmbeddedResource Include="..\..\resources\images\attachment-col-small.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\audio-x-generic_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\avatar-generic-large.png" />
+    <EmbeddedResource Include="..\..\resources\images\avatar-generic-medium.png" />
+    <EmbeddedResource Include="..\..\resources\images\avatar-generic-small.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\computer_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\connect_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\connect_established_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\dialog-information_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\dialog-password_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\dialog-password_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\dialog-password_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\dialog-password_32.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\dialog-warning_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\down_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\down_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\find_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\find_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\firewall-small.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\folder_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\folder_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-down_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-down_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-home_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-home_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-next_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-next_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-previous_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-previous_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-up_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\network1.png" />
+    <EmbeddedResource Include="..\..\resources\images\zoom.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\x-office-document_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\view-refresh_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\video-x-generic_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\user-home_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\up_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\up_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\unknown_16.png" />
+    <EmbeddedResource Include="..\..\resources\ui\TrayPopupMenu.xml" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\text-x-generic_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\system-search_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\system-search_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_refresh_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_refresh_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_person_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_person_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_new-text_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_internet_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\stock_channel_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\star1_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\smallclose.png" />
+    <EmbeddedResource Include="..\..\resources\ui\SearchPopupMenu.xml" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\process-working_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\network-transmit-receive_16.png" />
+    <EmbeddedResource Include="..\..\resources\ui\MapPopupMenu.xml" />
+    <EmbeddedResource Include="..\..\resources\ui\MainWindow.xml" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\mail-message-new_32.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\mail-message-new_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\mail-message-new_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\mail-message-new_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\go-up_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-new_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-new_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-preferences_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-preferences_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\gtk-preferences_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\image-x-generic_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\info_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\internet-group-chat_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\list-add_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\list-add_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\list-add_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\list-remove_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\list-remove_22.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\list-remove_24.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\locked_16.png" />
+    <EmbeddedResource Include="..\..\resources\images\stock_icons\mail_generic_16.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

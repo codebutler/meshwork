@@ -40,21 +40,21 @@ namespace Meshwork.Library.Hyena.Query
 
         public static QueryTermNode ParseUserQuery (QueryFieldSet field_set, string token)
         {
-            QueryTermNode term = new QueryTermNode ();
+            var term = new QueryTermNode ();
 
             // See if the query specifies a field, and if so, pull out the operator as well
-            string field_alias = field_set.FindAlias (token);
+            var field_alias = field_set.FindAlias (token);
             if (field_alias != null) {
                 term.Field = field_set [field_alias];
 
-                foreach (QueryValue val in term.Field.CreateQueryValues ()) {
+                foreach (var val in term.Field.CreateQueryValues ()) {
                     term.Value = val;
 
-                    string op_alias = term.Value.OperatorSet.FindAlias (token);
+                    var op_alias = term.Value.OperatorSet.FindAlias (token);
                     if (op_alias != null) {
                         term.Operator = term.Value.OperatorSet [op_alias];
-                        int field_separator = token.IndexOf (op_alias);
-                        string temp = token.Substring (field_separator + op_alias.Length);
+                        var field_separator = token.IndexOf (op_alias);
+                        var temp = token.Substring (field_separator + op_alias.Length);
 
                         term.Value.ParseUserQuery (temp);
 
@@ -77,10 +77,6 @@ namespace Meshwork.Library.Hyena.Query
             return term;
         }
 
-        public QueryTermNode () : base ()
-        {
-        }
-
         public override QueryNode Trim ()
         {
             if (Parent != null && (qvalue == null || qvalue.IsEmpty || (field != null && op == null))) {
@@ -96,17 +92,17 @@ namespace Meshwork.Library.Hyena.Query
 
         public override void AppendXml (XmlDocument doc, XmlNode parent, QueryFieldSet fieldSet)
         {
-            XmlElement op_node = doc.CreateElement (op == null ? "contains" : op.Name);
+            var op_node = doc.CreateElement (op == null ? "contains" : op.Name);
             parent.AppendChild (op_node);
 
-            QueryField field = Field;
+            var field = Field;
             if (field != null) {
-                XmlElement field_node = doc.CreateElement ("field");
+                var field_node = doc.CreateElement ("field");
                 field_node.SetAttribute ("name", field.Name);
                 op_node.AppendChild (field_node);
             }
 
-            XmlElement val_node = doc.CreateElement (Value.XmlElementName);
+            var val_node = doc.CreateElement (Value.XmlElementName);
             Value.AppendXml (val_node);
             op_node.AppendChild (val_node);
         }
@@ -115,9 +111,9 @@ namespace Meshwork.Library.Hyena.Query
         {
             if (Field == null) {
                 sb.Append ("(");
-                int emitted = 0;
+                var emitted = 0;
                 
-                foreach (QueryField field in fieldSet.Fields) {
+                foreach (var field in fieldSet.Fields) {
                     if (field.IsDefault)
                         if (EmitTermMatch (sb, field, emitted > 0))
                             emitted++;

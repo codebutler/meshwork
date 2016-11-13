@@ -26,12 +26,11 @@ namespace Meshwork.Backend.Core
 
 		public static PublicKey Parse (string armoredText)
 		{
-			PublicKey result = new PublicKey();
 			var headers = new Dictionary<string, string>();
 			string line = null;
 			string crc = null;
-			StringBuilder data = new StringBuilder();
-			ParseState state = ParseState.Start;
+			var data = new StringBuilder();
+			var state = ParseState.Start;
 			using (var reader = new StringReader(armoredText)) {
 				while ((line = reader.ReadLine()) != null) {
 					line = line.Trim();
@@ -45,11 +44,11 @@ namespace Meshwork.Backend.Core
 						if (line == string.Empty)
 							state = ParseState.Body;
 						else {
-							int i = line.IndexOf(": ");
+							var i = line.IndexOf(": ");
 							if (i <= 0)
 								goto done;
-							string name = line.Substring(0, i).Trim();
-							string val = line.Substring(i + 2).Trim();
+							var name = line.Substring(0, i).Trim();
+							var val = line.Substring(i + 2).Trim();
 							headers.Add(name, val);
 						}
 						break;
@@ -73,7 +72,7 @@ namespace Meshwork.Backend.Core
 			
 			
 			if (state != ParseState.End)
-				throw new Exception(string.Format("Malformed/missing {0}", Enum.GetName(typeof(ParseState), state).ToLower()));
+				throw new Exception($"Malformed/missing {Enum.GetName(typeof(ParseState), state).ToLower()}");
 			
 			if (string.IsNullOrEmpty(crc))
 				throw new Exception("Missing checksum");
@@ -96,55 +95,42 @@ namespace Meshwork.Backend.Core
 			} catch (Exception) {
 				throw new Exception("Invalid checksum");
 			}
-			
-			if (!expectedHash.SequenceEqual(actualHash))
+
+		    if (!expectedHash.SequenceEqual(actualHash))
+		    {
 				throw new Exception("Checksum does not match");
-			
-			if (headers.ContainsKey("Nickname"))
-				result.Nickname = headers["Nickname"];
-			
-			result.Key = dataString;
-			
-			return result;
-		}
+		    }
 
-		public PublicKey ()
-		{
-			this.Nickname = "Unknown";
-			this.Key = "Unknown";
-		}
-
-		public PublicKey (string key)
-		{
-			this.Nickname = "Unknown";
-			this.Key = key;
+		    return new PublicKey(headers["Nickname"], dataString);
 		}
 
 		public PublicKey (string nickName, string key)
 		{
-			this.Nickname = nickName;
-			this.Key = key;
+			Nickname = nickName;
+			Key = key;
 		}
 
 		public string Nickname { get; set; }
 
 		public string Key { get; set; }
 
-		public string ToArmoredString ()
+	    public string Fingerprint => Common.Utils.SHA512Str(Key);
+
+	    public string ToArmoredString ()
 		{
-			byte[] keyBytes = Encoding.UTF8.GetBytes(this.Key);
+			var keyBytes = Encoding.UTF8.GetBytes(Key);
 			var builder = new StringBuilder();
 			builder.AppendLine(BEGIN_LINE);
-			builder.AppendLine(string.Format("Nickname: {0}", this.Nickname));
+			builder.AppendLine($"Nickname: {Nickname}");
 			builder.AppendLine();
-			builder.AppendLine(Common.Common.AddLineBreaks(Convert.ToBase64String(keyBytes)));
+			builder.AppendLine(Common.Utils.AddLineBreaks(Convert.ToBase64String(keyBytes)));
 			builder.Append("=");
 			builder.AppendLine(Convert.ToBase64String(s_CRC24.ComputeHash(keyBytes)));
 			builder.AppendLine(END_LINE);
 			return builder.ToString();
 		}
 
-		enum ParseState
+	    private enum ParseState
 		{
 			Start,
 			Header,

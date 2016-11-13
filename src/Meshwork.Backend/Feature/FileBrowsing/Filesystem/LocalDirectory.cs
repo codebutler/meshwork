@@ -61,7 +61,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 						parent = ById(fileSystem, parentId);
 					});						
 					if (parent == null)
-						throw new Exception(string.Format("Parent not found! Name: {0} Id: {1} ParentId: {2}", Name, Id, parentId));
+						throw new Exception($"Parent not found! Name: {Name} Id: {Id} ParentId: {parentId}");
 					return parent;
 				}
 			    return fileSystem.RootDirectory.MyDirectory;
@@ -197,7 +197,7 @@ namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem
 			}
 
 			if (!Directory.Exists(local_path)) {
-				throw new ArgumentException("local_path", string.Format("Directory does not exist: '{0}'", local_path));
+				throw new ArgumentException("local_path", $"Directory does not exist: '{local_path}'");
 			}
 
 			if (parent != null) {

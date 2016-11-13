@@ -28,10 +28,11 @@
 
 using System;
 using System.Collections;
+using System.Security.Cryptography;
 
 namespace Meshwork.Library.CRC {
 	/// <summary>Computes the CRC hash for the input data using the managed library.</summary>
-	public class CRC : System.Security.Cryptography.HashAlgorithm {
+	public class CRC : HashAlgorithm {
 		static private Hashtable lookupTables;
 
 		private CRCParameters parameters;
@@ -42,13 +43,14 @@ namespace Meshwork.Library.CRC {
 
 		/// <summary>Initializes a new instance of the CRC class.</summary>
 		/// <param name="param">The parameters to utilize in the CRC calculation.</param>
-		public CRC(CRCParameters param) : base() {
+		public CRC(CRCParameters param)
+		{
 			lock (this) {
 				if (param == null) { throw new ArgumentNullException("param", "The CRCParameters cannot be null."); }
 				parameters = param;
 				HashSizeValue = param.Order;
 
-				CRC.BuildLookup(param);
+				BuildLookup(param);
 				lookup = (long[])lookupTables[param];
 				if (param.Order == 64) {
 					registerMask = 0x00FFFFFFFFFFFFFF;
@@ -83,7 +85,7 @@ namespace Meshwork.Library.CRC {
 			for (var i = 0; i < table.Length; i++) {
 				table[i] = i;
 
-				if (param.ReflectInput) { table[i] = Reflect((long)i, 8); }
+				if (param.ReflectInput) { table[i] = Reflect(i, 8); }
 				
 				table[i] = table[i] << (param.Order - 8);
 
@@ -143,8 +145,8 @@ namespace Meshwork.Library.CRC {
 
 				checksum ^= parameters.FinalXORValue;
 
-				numBytes = (int)parameters.Order / 8;
-				if (((int)parameters.Order - (numBytes * 8)) > 0) { numBytes++; }
+				numBytes = parameters.Order / 8;
+				if ((parameters.Order - (numBytes * 8)) > 0) { numBytes++; }
 				temp = new byte[numBytes];
 				for (i = (numBytes - 1), shift = 0; i >= 0; i--, shift += 8) {
 					temp[i] = (byte)((checksum >> shift) & 0xFF);
@@ -165,7 +167,7 @@ namespace Meshwork.Library.CRC {
 			for (var i = 0; i < numBits; i++) {
 				var bitMask = (long)1 << ((numBits - 1) - i);
 
-				if ((temp & (long)1) != 0) {
+				if ((temp & 1) != 0) {
 					data |= bitMask;
 				} else {
 					data &= ~bitMask;
