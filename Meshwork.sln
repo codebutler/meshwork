@@ -1,5 +1,5 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 15.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meshwork.Library.Stun", "src\Meshwork.Library.Stun\Meshwork.Library.Stun.csproj", "{01539583-6736-4E2C-933B-09F7F9CCD2C5}"
 EndProject
@@ -193,18 +193,15 @@ Global
 		StartupItem = src\FileFind.Meshwork.GtkClient\FileFind.Meshwork.GtkClient.csproj
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
-		$1.DirectoryNamespaceAssociation = None
-		$1.ResourceNamePolicy = FileFormatDefault
 		$0.TextStylePolicy = $2
 		$2.inheritsSet = null
 		$2.scope = application/xml
 		$0.XmlFormattingPolicy = $3
-		$3.inheritsSet = Mono
-		$3.inheritsScope = application/xml
 		$3.scope = application/xml
 		$0.StandardHeader = $4
-		$4.Text = 
-		$4.IncludeInNewFiles = True
+		$0.TextStylePolicy = $5
+		$5.EolMarker = Unix
+		$5.scope = text/plain
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
