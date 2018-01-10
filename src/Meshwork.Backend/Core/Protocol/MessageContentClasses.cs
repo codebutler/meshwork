@@ -15,143 +15,119 @@ using Meshwork.Common;
 
 namespace Meshwork.Backend.Core.Protocol
 {
-	public struct NodeInfo
+	public class NodeInfo
 	{
-		public string NodeID;
-		public string NickName;
-		public string RealName;
-		public string Email;
-		public string ClientName;
-		public string ClientVersion;
-		public long Bytes;
-		public long Files;
-		public long AvatarSize;
-		public ConnectionInfo[] KnownConnections;
-		public ChatRoomInfo[] KnownChatRooms;
-		public MemoInfo[] KnownMemos;
-		public DestinationInfo[] DestinationInfos;
+		public string NodeID { get; set; }
+		public string NickName { get; set; }
+		public string RealName { get; set; }
+		public string Email { get; set; }
+		public string ClientName { get; set; }
+		public string ClientVersion { get; set; }
+		public long Bytes { get; set; }
+		public long Files { get; set; }
+		public long AvatarSize { get; set; }
+		public ConnectionInfo[] KnownConnections { get; set; }
+		public ChatRoomInfo[] KnownChatRooms { get; set; }
+		public MemoInfo[] KnownMemos { get; set; }
+		public DestinationInfo[] DestinationInfos { get; set; }
 	}
 
-	public struct HelloInfo
+	public class HelloInfo
 	{
-		public string MyNickName;
-		public ConnectionInfo[] KnownConnections;
-		public ChatRoomInfo[] KnownChatRooms;
-		public MemoInfo[] KnownMemos;
-	}
-	
-	public struct ChatAction
-	{
-		public string RoomId;
-		public string RoomName;
+		public string MyNickName { get; set; }
+		public ConnectionInfo[] KnownConnections { get; set; }
+		public ChatRoomInfo[] KnownChatRooms { get; set; }
+		public MemoInfo[] KnownMemos { get; set; }
 	}
 
-	public struct KeyInfo
+	public class ChatAction
 	{
-		public string Info; // FIXME: Is this needed?
-		public string Key;
+		public string RoomId { get; set; }
+		public string RoomName { get; set; }
 	}
 
-	public struct ChatMessage
+	public class KeyInfo
 	{
-		public string RoomId;
-		public string RoomName;
-		public string Message;
+		public string Info { get; set; } // FIXME: Is this needed?
+		public string Key { get; set; }
 	}
 
-	public struct AuthInfo
+	public class ChatMessage
 	{
-		public int    ProtocolVersion;
-		public string NetworkName;
-		public string NickName;
+		public string RoomId { get; set; }
+		public string RoomName { get; set; }
+		public string Message { get; set; }
+	}
+
+	public class AuthInfo
+	{
+		public int ProtocolVersion { get; set; }
+		public string NetworkName { get; set; }
+		public string NickName { get; set; }
 	}
 
 	public class SharedDirectoryInfo : ISharedListing
 	{
-	    public string Name { get; }
+		public SharedDirectoryInfo() { }
 
-	    public string FullPath { get; }
-
-	    public string[] Directories { get;
-	        // FIXME: Remove this setter.
-	        set; }
-
-	    public SharedFileListing[] Files { get;
-	        // FIXME: Remove this setter.
-	        set; }
-
-	    public long Size {
-			get {
-				return Files == null ? 0 : Files.Length;
-			}
-		}
-
-		public SharedDirectoryInfo (LocalDirectory dir)
+		public SharedDirectoryInfo(LocalDirectory dir)
 		{
 			Name = dir.Name;
 
 			// FIXME: Ugly: Remove '/local' from begining of path
 			FullPath = "/" + string.Join("/", dir.FullPath.Split('/').Slice(2));
 		}
-	}
 
-	public struct SearchRequestInfo
-	{
-		public int Id;
-		public string Query;
-		public int Page;
+		public string Name { get; set; }
+		public string FullPath { get; set; }
+		public string[] Directories { get; set; }
+		public SharedFileListing[] Files { get; set; }
 
-		public SearchRequestInfo (int id, string query, int page)
+		public long Size
 		{
-			Id    = id;
-			Query = query;
-			Page  = page;
+			get
+			{
+				return Files == null ? 0 : Files.Length;
+			}
 		}
 	}
 
-    public interface ISharedListing
+	public class SearchRequestInfo
 	{
-		string Name {
-			get;
+		public SearchRequestInfo() { }
+
+		public SearchRequestInfo(int id, string query, int page)
+		{
+			Id = id;
+			Query = query;
+			Page = page;
 		}
 
-		string FullPath {
-			get;
-		}
+		public int Id { get; set; }
+		public string Query { get; set; }
+		public int Page { get; set; }
+	}
 
-		long Size {
-			get;
-		}
+	public interface ISharedListing
+	{
+		string Name { get; }
+		string FullPath { get; }
+		long Size { get; }
 	}
 
 	public class SharedFileListing : ISharedListing
 	{
-	    public string Name { get; }
+		public SharedFileListing() { }
 
-	    public string FullPath { get; }
-
-	    public long Size { get; }
-
-	    public string InfoHash { get; }
-
-	    public string SHA1 { get; }
-
-	    public FileType Type { get; }
-
-	    public int PieceLength { get; }
-
-	    public string[] Pieces { get; }
-
-	    public Dictionary<string, string> Metadata { get; }
-
-	    public SharedFileListing (LocalFile file, bool includePieces)
+		public SharedFileListing(LocalFile file, bool includePieces)
 		{
-			if (file.InfoHash == null) {
+			if (file.InfoHash == null)
+			{
 				throw new ArgumentException("File must have InfoHash");
 			}
 
 			Name = file.Name;
-			FullPath =  "/" + string.Join("/", file.FullPath.Split('/').Slice(2));
+			FullPath = "/" + string.Join("/", file.FullPath.Split('/').Slice(2));
 			Size = file.Size;
 			InfoHash = file.InfoHash;
 			SHA1 = file.SHA1;
@@ -159,61 +135,114 @@ namespace Meshwork.Backend.Core.Protocol
 			PieceLength = file.PieceLength;
 
 			if (includePieces)
+			{
 				Pieces = file.Pieces;
+			}
 		}
+
+		public string Name { get; set; }
+		public string FullPath { get; set; }
+		public long Size { get; set; }
+		public string InfoHash { get; set; }
+		public string SHA1 { get; set; }
+		public FileType Type { get; set; }
+		public int PieceLength { get; set; }
+		public string[] Pieces { get; set; }
+		public Dictionary<string, string> Metadata { get; set; }
 	}
 
-	public struct ConnectionInfo
+	public class ConnectionInfo
 	{
-		public ConnectionInfo(string SourceNodeID, string SourceNodeNickname, string DestNodeID, string DestNodeNickname) {
-			this.SourceNodeID = SourceNodeID;
-			this.SourceNodeNickname = SourceNodeNickname;
-			this.DestNodeID = DestNodeID;
-			this.DestNodeNickname = DestNodeNickname;
+		public ConnectionInfo() { }
+
+		public ConnectionInfo(
+			string sourceNodeID,
+			string sourceNodeNickname,
+			string destNodeID,
+			string destNodeNickname)
+		{
+			SourceNodeID = sourceNodeID;
+			SourceNodeNickname = sourceNodeNickname;
+			DestNodeID = destNodeID;
+			DestNodeNickname = destNodeNickname;
 		}
-		public string SourceNodeID;
-		public string SourceNodeNickname;
-		public string DestNodeID;
-		public string DestNodeNickname;
-	}
-	
-	public struct ChatInviteInfo
-	{
-		public string RoomId;
-		public string RoomName;
-		public string Message;
-		public string Password;
+
+		public string SourceNodeID { get; set; }
+		public string SourceNodeNickname { get; set; }
+		public string DestNodeID { get; set; }
+		public string DestNodeNickname { get; set; }
 	}
 
-	public struct ChatRoomInfo
+	public class ChatInviteInfo
 	{
-		public string Id;
-		public string Name;
-		//public string Topic;
-		public string[] Users; /* List of NodeIDs */
+		public string RoomId { get; set; }
+		public string RoomName { get; set; }
+		public string Message { get; set; }
+		public string Password { get; set; }
 	}
 
-	public struct TransportDataInfo
+	public class ChatRoomInfo
 	{
-		public string ConnectionID;
-		public byte[] Data;
+		public string Id { get; set; }
+		public string Name { get; set; }
+		//public string Topic { get; set; }
+		public string[] Users { get; set; } /* List of NodeIDs */
+	}
 
-		public TransportDataInfo (string connectionId, byte[] data)
+	public class TransportDataInfo
+	{
+		public TransportDataInfo() { }
+
+		public TransportDataInfo(string connectionId, byte[] data)
 		{
 			ConnectionID = connectionId;
 			Data = data;
 		}
+
+		public string ConnectionID { get; set; }
+		public byte[] Data { get; set; }
 	}
 
-	public struct RequestFileInfo
+	public class RequestFileInfo
 	{
-		public string FullPath;
-		public string TransferId;
+		public RequestFileInfo() { }
 
-		public RequestFileInfo (string fullPath, string transferId)
+		public RequestFileInfo(string fullPath, string transferId)
 		{
 			FullPath = fullPath;
 			TransferId = transferId;
 		}
+
+		public string FullPath { get; set; }
+		public string TransferId { get; set; }
+	}
+
+	public class MemoInfo
+	{
+		public MemoInfo() { }
+
+		public MemoInfo(Memo memo)
+		{
+			ID = memo.ID;
+			FromNodeID = memo.Node.NodeID;
+			CreatedOn = memo.CreatedOn;
+			Signature = memo.Signature;
+			Subject = memo.Subject;
+			Text = memo.Text;
+		}
+
+		public string ID { get; set; }
+		public string FromNodeID { get; set; }
+		public DateTime CreatedOn { get; set; }
+		public byte[] Signature { get; set; }
+		public string Subject { get; set; }
+		public string Text { get; set; }
+	}
+
+	public class SearchResultInfo
+	{
+		public int SearchId { get; set; }
+		public string[] Directories { get; set; }
+		public SharedFileListing[] Files { get; set; }
 	}
 }

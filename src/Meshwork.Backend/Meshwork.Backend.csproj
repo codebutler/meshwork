@@ -101,9 +101,7 @@
     <Compile Include="Core\NetworkState.cs" />
     <Compile Include="Core\Node.cs" />
     <Compile Include="Core\PluginInfo.cs" />
-    <Compile Include="Core\Protocol\MemoInfo.cs" />
     <Compile Include="Core\Protocol\MessageContentClasses.cs" />
-    <Compile Include="Core\Protocol\SearchResultInfo.cs" />
     <Compile Include="Core\PublicKey.cs" />
     <Compile Include="Core\RemoteNodeConnection.cs" />
     <Compile Include="Core\SettingsBase.cs" />
