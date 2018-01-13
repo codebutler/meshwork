@@ -1,9 +1,0 @@
-prefix=@prefix@
-exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
-plugindir=${exec_prefix}/lib/meshwork/plugins
-                                                                                
-Name: Meshwork
-Description: A distributed, secure, peer-to-peer networking application.
-Version: @VERSION@
-Libs: -r:${libdir}/meshwork/FileFind.Meshwork.dll
