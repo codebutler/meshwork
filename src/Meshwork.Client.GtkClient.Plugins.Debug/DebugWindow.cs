@@ -1,9 +1,13 @@
 using System;
 using System.Reflection;
 using System.Threading;
-using FileFind.Meshwork.GtkClient.Windows;
+using Meshwork.Client.GtkClient.Windows;
 using Glade;
 using Gtk;
+using Meshwork.Backend.Core;
+using Meshwork.Client.GtkClient;
+using Meshwork.Common;
+using Newtonsoft.Json;
 
 namespace Debug
 {
@@ -57,12 +61,12 @@ namespace Debug
 			networkComboBox.Model = networkStore;
 			networkComboBox.Active = 0;
 
-			foreach (Network network in Core.Networks) {
+			foreach (Network network in plugin.Core.Networks) {
 				Core_NetworkAdded(network);
 			}
 
-			Core.NetworkAdded += Core_NetworkAdded;
-			Core.NetworkRemoved += Core_NetworkRemoved;
+			plugin.Core.NetworkAdded += Core_NetworkAdded;
+			plugin.Core.NetworkRemoved += Core_NetworkRemoved;
 
 			ReloadMessages();
 
@@ -194,12 +198,12 @@ namespace Debug
 					toLabel.Text        = info.Message.To;
 					typeLabel.Text      = info.Message.Type.ToString();
 					idLabel.Text        = info.Message.MessageID.ToString();
-					timestampLabel.Text = Common.ParseUnixTimestamp(info.Message.Timestamp).ToString();
+					timestampLabel.Text = Utils.ParseUnixTimestamp(info.Message.Timestamp).ToString();
 
 					var content = info.Message.Content;
 					var typeName = (content != null) ? content.GetType().ToString() : "null";
-					var json = JSON.Serialize(content);
-					json = FileFind.JSONFormatter.FormatJSON(json);
+					var json = JsonConvert.SerializeObject(content);
+					json = JSONFormatter.FormatJSON(json);
 					json = json.Replace("\t", "  ");
 					messageTextView.Buffer.Text = "// " + typeName + Environment.NewLine + json;
 				} catch (Exception ex) {
@@ -256,7 +260,7 @@ namespace Debug
 				}
 			}
 
-			if (info.Message.Type == MessageType.Ping || info.Message.Type == MessageType.Pong) {
+			if (info.Message.Type == Meshwork.Backend.Core.MessageType.Ping || info.Message.Type == Meshwork.Backend.Core.MessageType.Pong) {
 				return (showPingPongToolButton.Active);
 			}
 
@@ -289,7 +293,7 @@ namespace Debug
 								var kilobytes = messageSenderSizeSpinButton.Value;
 								var data = new string('X', (int)kilobytes * 1024);
 
-								var message = new Message(network, MessageType.Test);
+								var message = new Message(network, Meshwork.Backend.Core.MessageType.Test);
 								message.To = node.NodeID;
 								message.Content = data;
 

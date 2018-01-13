@@ -13,7 +13,7 @@ namespace Meshwork.Backend.Core
 {
 	public interface IPlugin
 	{
-		void Load ();
+		void Load (Core core);
 		void Unload ();
 	}
 

@@ -89,7 +89,7 @@ namespace Meshwork.Backend.Core
 			return (IPluginConfigDialog)asm.CreateInstance(configDialogType.ToString());
 		}
 
-		internal void CreateInstance ()
+		internal void CreateInstance (Core core)
 		{
 			if (instance != null) {
 				throw new InvalidOperationException ("An instance already exists!");
@@ -98,7 +98,7 @@ namespace Meshwork.Backend.Core
 			// XXX: Load plugins into their own AppDomain so they can be properly unloaded?
 			var asm = Assembly.LoadFile (fileName);
 			var plugin = (IPlugin)asm.CreateInstance(type.ToString());
-			plugin.Load ();
+			plugin.Load (core);
 
 		}
 

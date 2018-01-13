@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Debug;
-using FileFind.Meshwork.GtkClient;
 using Gtk;
+using Meshwork.Backend.Core;
+using Meshwork.Client.GtkClient;
+using System;
 
 [assembly: PluginName("Debug Console")]
 [assembly: PluginAuthor("Eric Butler <eric@extremeboredom.net>")]
@@ -18,17 +20,22 @@ namespace Debug
 		DebugWindow debug_window;
 		List<MessageInfo> messages = new List<MessageInfo>();
 		bool trafficLogEnabled;
+		Core core;
 
-		public DebugPlugin ()
+		public void Load (Core core)
+		{
+			this.core = core;
+			core.Started += (EventHandler)DispatchService.GuiDispatch(new EventHandler(Core_Started));
+	    }
+
+		private void Core_Started(object sender, EventArgs args)
 		{
 			debug_actions = new DebugPluginActionGroup(this);
 			debug_window = new DebugWindow(this);
-		}
 
-		public void Load ()
-		{
 			ui_manager = Runtime.UIManager;
 			ui_manager.InsertActionGroup(debug_actions, 0);
+
 			merge_id = ui_manager.AddUiFromResource("DebugPluginMenus.xml");
 		}
 
@@ -36,8 +43,9 @@ namespace Debug
 		{
 			ui_manager.RemoveUi(merge_id);
 
-			Core.MessageReceived -= AddMessage;
-			Core.MessageSent -= AddMessage;
+			core.MessageReceived -= AddMessage;
+			core.MessageSent -= AddMessage;
+			core = null;
 		}
 
 		public bool EnableTrafficLog {
@@ -47,13 +55,13 @@ namespace Debug
 			set {
 				if (value) {
 					if (!trafficLogEnabled) {
-						Core.MessageReceived += AddMessage;
-						Core.MessageSent += AddMessage;
+						core.MessageReceived += AddMessage;
+						core.MessageSent += AddMessage;
 					}
 				} else {
 					if (trafficLogEnabled) {
-						Core.MessageReceived -= AddMessage;
-						Core.MessageSent -= AddMessage;
+						core.MessageReceived -= AddMessage;
+						core.MessageSent -= AddMessage;
 					}
 				}
 				trafficLogEnabled = value;
@@ -69,6 +77,12 @@ namespace Debug
 		internal DebugWindow DebugWindow {
 			get {
 				return debug_window;
+			}
+		}
+
+		internal Core Core {
+			get {
+				return core;
 			}
 		}
 

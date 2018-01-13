@@ -220,7 +220,7 @@ namespace Meshwork.Backend.Core
 					}
 				}
 
-				info.CreateInstance();
+				info.CreateInstance(this);
 				loadedPlugins.Add(info);
 			} catch (Exception ex) {
 				LoggingService.LogError("Failed to load plugin", ex);
