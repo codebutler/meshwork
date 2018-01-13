@@ -39,7 +39,7 @@ namespace Meshwork.Client.GtkClient.Widgets
 			arrowDown  = Gui.LoadIcon(22, "go-down");
 			arrowLeft  = Gui.LoadIcon(22, "go-previous");
 			arrowRight = Gui.LoadIcon(22, "go-next");
-			zoomGlass  = new Pixbuf (null, "Meshwork.Client.GtkClient.zoom.png");
+			zoomGlass  = new Pixbuf (null, "Meshwork.Client.GtkClient.Resources.Images.zoom.png");
 		}
 		
 		private double mousePressedX, mousePressedY;

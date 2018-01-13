@@ -18,7 +18,7 @@ namespace Meshwork.Client.GtkClient.Windows
 		
 		public SplashWindow() : base ("SplashWindow")
 		{
-			splashImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.meshwork.png");
+			splashImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.meshwork.png");
 		}
 		
 		public new void Show()

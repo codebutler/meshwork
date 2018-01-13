@@ -20,7 +20,7 @@ namespace Meshwork.Client.GtkClient
 
 		public TrayIcon ()
 		{
-			Pixbuf pixbuf = new Pixbuf(null, "Meshwork.Client.GtkClient.tray_icon.png");
+			Pixbuf pixbuf = new Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.tray_icon.png");
 			statusIcon = new StatusIcon(pixbuf);
 			statusIcon.Visible = true;
 			

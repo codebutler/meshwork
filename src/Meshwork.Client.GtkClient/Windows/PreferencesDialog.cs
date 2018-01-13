@@ -164,8 +164,8 @@ namespace Meshwork.Client.GtkClient.Windows
 
 			/* Configure gui */
 
-			firewallImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.firewall-small.png");
-			internetConnectionImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.network1.png");
+			firewallImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.firewall-small.png");
+			internetConnectionImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.network1.png");
 			folderImage = Gui.LoadIcon(24, "folder");
 
 			sharedFoldersListStore = new Gtk.ListStore(typeof(string));
@@ -232,7 +232,7 @@ namespace Meshwork.Client.GtkClient.Windows
 			}
 			else
 			{
-				avatarImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.avatar-generic-large.png");
+				avatarImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.avatar-generic-large.png");
 				avatarImage.Sensitive = false;
 			}
 
@@ -923,7 +923,7 @@ namespace Meshwork.Client.GtkClient.Windows
 		private void clearItem_Activated(object o, EventArgs args)
 		{
 			//avatarImage.Pixbuf = null;
-			avatarImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.avatar-generic-large.png");
+			avatarImage.Pixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.avatar-generic-large.png");
 			avatarImage.Sensitive = false;
 		}
 

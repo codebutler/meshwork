@@ -27,7 +27,7 @@ namespace Meshwork.Client.GtkClient.Menus
 
 		public ChatMenu ()
 		{
-			Glade.XML xmlMnuChat = new Glade.XML(null, "Meshwork.Client.GtkClient.meshwork.glade","mnuChat",null);
+			Glade.XML xmlMnuChat = new Glade.XML(null, "Meshwork.Client.GtkClient.Resources.Glade.meshwork.glade","mnuChat",null);
 			mnuChat = (xmlMnuChat.GetWidget("mnuChat") as Gtk.Menu);
 			xmlMnuChat.Autoconnect(this);
 		}

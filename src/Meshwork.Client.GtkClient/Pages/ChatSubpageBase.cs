@@ -1,4 +1,4 @@
-//
+﻿//
 // ChatSubPage.cs:
 //
 // Authors:
@@ -32,7 +32,7 @@ namespace Meshwork.Client.GtkClient.Pages
 
         protected event EventHandler SendMessage;
 
-        public ChatSubpageBase () : base ("Meshwork.Client.GtkClient.meshwork.glade", "ChatRoomWindow")
+        public ChatSubpageBase () : base ("Meshwork.Client.GtkClient.Resources.Glade.meshwork.glade", "ChatRoomWindow")
         {
             base.FocusGrabbed += base_FocusGrabbed;
 

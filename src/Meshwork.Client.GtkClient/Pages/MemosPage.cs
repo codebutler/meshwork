@@ -55,7 +55,7 @@ namespace Meshwork.Client.GtkClient.Pages
 			column = memoList.AppendColumn(string.Empty,
 			                               new CellRendererPixbuf(),
 						       new TreeCellDataFunc(MemoAttachmentFunc));
-			column.Widget = new Gtk.Image(new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.attachment-col-small.png"));
+			column.Widget = new Gtk.Image(new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.attachment-col-small.png"));
 			column.Widget.Show();
 
 			column = memoList.AppendColumn("Posted By",

@@ -1,4 +1,4 @@
-//
+﻿//
 // GladeWindow.cs:
 //
 // Authors:
@@ -22,7 +22,7 @@ namespace Meshwork.Client.GtkClient.Windows
 		XML    xml;
 		Window window;
 
-		public GladeWindow (string windowName) : this (null, "Meshwork.Client.GtkClient.meshwork.glade", windowName)
+		public GladeWindow (string windowName) : this (null, "Meshwork.Client.GtkClient.Resources.Glade.meshwork.glade", windowName)
 		{
 		}
 

@@ -198,7 +198,7 @@ namespace Meshwork.Client.GtkClient
 		{
 			try {
 				Assembly asm = System.Reflection.Assembly.GetCallingAssembly();
-				string resourceName = string.Format("Meshwork.Client.GtkClient.{0}_{1}.png", name, size.ToString());
+				string resourceName = string.Format("Meshwork.Client.GtkClient.Resources.Images.stock_icons.{0}_{1}.png", name, size.ToString());
 				if (asm.GetManifestResourceInfo(resourceName) != null) {
 					Gdk.Pixbuf pixbuf = new Gdk.Pixbuf(null, resourceName);
 					if (pixbuf != null) {

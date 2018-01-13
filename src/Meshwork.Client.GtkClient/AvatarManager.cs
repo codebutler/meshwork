@@ -35,9 +35,9 @@ namespace Meshwork.Client.GtkClient
 		{
 		    this.core = core;
 
-			genericAvatar = new Pixbuf(null, "Meshwork.Client.GtkClient.avatar-generic-large.png");
-			smallGenericAvatar = new Pixbuf(null, "Meshwork.Client.GtkClient.avatar-generic-medium.png");
-			miniGenericAvatar = new Pixbuf(null, "Meshwork.Client.GtkClient.avatar-generic-small.png");
+			genericAvatar = new Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.avatar-generic-large.png");
+			smallGenericAvatar = new Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.avatar-generic-medium.png");
+			miniGenericAvatar = new Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.avatar-generic-small.png");
 
 			avatarsPath = Path.Combine (Settings.ConfigurationDirectory, "avatars");
 

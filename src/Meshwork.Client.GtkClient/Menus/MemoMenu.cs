@@ -1,4 +1,4 @@
-//
+﻿//
 // MemoMenu.cs: Memo context menu
 //
 // Author:
@@ -26,7 +26,7 @@ namespace Meshwork.Client.GtkClient.Menus
 
 		public MemoMenu ()
 		{
-			Glade.XML xmlMnuMemos = new Glade.XML(null, "Meshwork.Client.GtkClient.meshwork.glade","mnuMemos",null);
+			Glade.XML xmlMnuMemos = new Glade.XML(null, "Meshwork.Client.GtkClient.Resources.Glade.meshwork.glade","mnuMemos",null);
 			mnuMemos = (xmlMnuMemos.GetWidget("mnuMemos") as Gtk.Menu);
 			xmlMnuMemos.Autoconnect(this);
 		}

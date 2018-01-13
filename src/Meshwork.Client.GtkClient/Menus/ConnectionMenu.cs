@@ -1,4 +1,4 @@
-//
+﻿//
 // ConnectionMenu.cs:
 //
 // Authors:
@@ -29,7 +29,7 @@ namespace Meshwork.Client.GtkClient.Menus
 		public ConnectionMenu (TreeView connectionList)
 		{
 			this.connectionList = connectionList;
-			Glade.XML xmlMnuConnections = new Glade.XML(null, "Meshwork.Client.GtkClient.meshwork.glade", "mnuConnections", null);
+			Glade.XML xmlMnuConnections = new Glade.XML(null, "Meshwork.Client.GtkClient.Resources.Glade.meshwork.glade", "mnuConnections", null);
 			mnuConnections = (xmlMnuConnections.GetWidget("mnuConnections") as Gtk.Menu);
 			xmlMnuConnections.Autoconnect (this);
 		}

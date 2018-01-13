@@ -1,4 +1,4 @@
-//
+﻿//
 // TransfersMenu.cs:
 //
 // Authors:
@@ -43,7 +43,7 @@ namespace Meshwork.Client.GtkClient.Menus
 		
 		public TransfersMenu(TreeView transfersList, IFileTransfer transfer)
 		{
-			Glade.XML glade = new Glade.XML(null, "Meshwork.Client.GtkClient.meshwork.glade", "TransfersMenu", null);
+			Glade.XML glade = new Glade.XML(null, "Meshwork.Client.GtkClient.Resources.Glade.meshwork.glade", "TransfersMenu", null);
 			glade.Autoconnect(this);
 			this.menu = (Gtk.Menu) glade.GetWidget("TransfersMenu");
 			

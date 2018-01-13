@@ -95,7 +95,7 @@ namespace Meshwork.Client.GtkClient
 		
 			/* Load Icons */
 			Gtk.Window.DefaultIconList = new Gdk.Pixbuf[] {
-				new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.tray_icon.png")
+				new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.tray_icon.png")
 			};
 		
 			// Windows specific. Override stock icons to use embeded files.
@@ -192,10 +192,10 @@ namespace Meshwork.Client.GtkClient
 			builtin_actions = new BuiltinActionGroup();
 			ui_manager = new UIManager();
 			ui_manager.InsertActionGroup(builtin_actions, 0);
-			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.MainWindow.xml");
-			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.TrayPopupMenu.xml");
-			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.SearchPopupMenu.xml");
-			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.MapPopupMenu.xml");
+			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.Resources.Menus.MainWindow.xml");
+			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.Resources.Menus.TrayPopupMenu.xml");
+			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.Resources.Menus.SearchPopupMenu.xml");
+			ui_manager.AddUiFromResource("Meshwork.Client.GtkClient.Resources.Menus.MapPopupMenu.xml");
 
 			/* Create the Tray Icon */
 			trayIcon = new TrayIcon();

@@ -41,7 +41,7 @@ namespace Meshwork.Client.GtkClient.Pages
 		{
 			base.FocusGrabbed += base_FocusGrabbed;
 
-			closePixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.smallclose.png");
+			closePixbuf = new Gdk.Pixbuf(null, "Meshwork.Client.GtkClient.Resources.Images.smallclose.png");
 			
 			tabLabelPages = new Dictionary<Widget, ChatSubpageBase>();
 			
