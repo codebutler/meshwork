@@ -106,7 +106,6 @@
     <Compile Include="Core\PublicKey.cs" />
     <Compile Include="Core\RemoteNodeConnection.cs" />
     <Compile Include="Core\SettingsBase.cs" />
-    <Compile Include="Core\TextCatalog.cs" />
     <Compile Include="Core\Transport\AESTransportEncryptor.cs" />
     <Compile Include="Core\Transport\IMeshworkOperation.cs" />
     <Compile Include="Core\Transport\ITransport.cs" />

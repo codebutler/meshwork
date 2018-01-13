@@ -94,9 +94,10 @@ namespace Meshwork.Backend.Core.Destination
 		public void SyncFromSettings ()
 		{
 			// Remove old destinations
-		    var toRemove = destinationsFromSettings
-		        .Where(pair => !core.Settings.SavedDestinationInfos.Contains(pair.Key))
-		        .Select(pair => pair.Key);
+			var toRemove = destinationsFromSettings
+				.Where(pair => !core.Settings.SavedDestinationInfos.Contains(pair.Key))
+				.Select(pair => pair.Key)
+				.ToList();
 		    foreach (var info in toRemove) {
 				destinationsFromSettings.Remove(info);
 			}
