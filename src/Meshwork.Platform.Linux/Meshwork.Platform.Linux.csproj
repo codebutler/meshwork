@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="LinuxPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="LibC.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Meshwork.Common\Meshwork.Common.csproj">

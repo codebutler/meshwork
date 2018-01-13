@@ -22,59 +22,8 @@ namespace Meshwork.Platform.Linux
 {
 	public class LinuxPlatform : IPlatform
 	{
-		const int AF_INET6 = 10;
-		const int AF_INET = 2;
-
-		[DllImport("libc")]
-		static extern int if_nametoindex(string ifname);
-
-		[DllImport ("libc")]
-		static extern int getifaddrs (out IntPtr ifap);
-
-		[DllImport ("libc")]
-		static extern void freeifaddrs (IntPtr ifap);
-
-		[StructLayout(LayoutKind.Explicit)]
-		struct ifa_ifu
-		{ 		
-			[FieldOffset (0)]
-			public IntPtr ifu_broadaddr; 
-
-			[FieldOffset (0)]
-			public IntPtr ifu_dstaddr; 
-		}
-       
-		struct ifaddrs
-		{
-			public IntPtr  ifa_next; 
-			public string  ifa_name; 
-			public uint    ifa_flags; 
-			public IntPtr  ifa_addr; 
-			public IntPtr  ifa_netmask; 
-			public ifa_ifu ifa_ifu; 
-			public IntPtr  ifa_data; 
-		}
-		
-		struct sockaddr_in
-		{
-			public ushort sin_family;
-			public ushort sin_port;
-			public uint   sin_addr;
-		}
-
-		struct sockaddr_in6
-		{
-			public ushort   sin6_family;   /* AF_INET6 */
-			public ushort   sin6_port;     /* Transport layer port # */
-			public uint     sin6_flowinfo; /* IPv6 flow information */
-			public in6_addr sin6_addr;     /* IPv6 address */
-			public uint     sin6_scope_id; /* scope id (new in RFC2553) */
-		}
-
-		struct in6_addr
-		{
-			[MarshalAs (UnmanagedType.ByValArray, SizeConst=16)]
-			public byte[] u6_addr8;
+		public LinuxPlatform(string uname) {
+			OSName = uname;
 		}
 
 	    public string GetOSName()
@@ -107,7 +56,7 @@ namespace Meshwork.Platform.Linux
 		{
 			IntPtr ifap;
 
-			if (getifaddrs(out ifap) != 0) {
+			if (LibC.getifaddrs(out ifap) != 0) {
 				throw new SystemException("getifaddrs() failed");
 			}
 
@@ -124,14 +73,14 @@ namespace Meshwork.Platform.Linux
 					if (addr.ifa_addr != IntPtr.Zero) {
 						var sockaddr = (sockaddr_in) Marshal.PtrToStructure(addr.ifa_addr, typeof(sockaddr_in));
 						
-						var index = if_nametoindex(name);
+						var index = LibC.if_nametoindex(name);
 
-						if (sockaddr.sin_family == AF_INET6) {
+						if (sockaddr.sin_family == LibC.AF_INET6) {
 							var sockaddr6 = (sockaddr_in6) Marshal.PtrToStructure(addr.ifa_addr, typeof(sockaddr_in6));
 							var address = new IPAddress(sockaddr6.sin6_addr.u6_addr8, sockaddr6.sin6_scope_id);
 							var info = new InterfaceAddress(index, name, address, GetPrefixLength(name, address));
 							result.Add(info);
-						} else if (sockaddr.sin_family == AF_INET) {
+						} else if (sockaddr.sin_family == LibC.AF_INET) {
 							var netmaskaddr = (sockaddr_in)Marshal.PtrToStructure(addr.ifa_netmask, typeof(sockaddr_in));
 							var netmask = new IPAddress(netmaskaddr.sin_addr);
 							var address = new IPAddress(sockaddr.sin_addr);
@@ -142,45 +91,28 @@ namespace Meshwork.Platform.Linux
 					next = addr.ifa_next;
 				}
 			} finally {
-				freeifaddrs(ifap);
+				LibC.freeifaddrs(ifap);
 			}
 
 			return result.ToArray();
 		}
 
-	    static string uname;
 	    public string OSName {
-	        get {
-	            if (uname == null) {
-	                var info = new ProcessStartInfo("uname");
-	                info.UseShellExecute = false;
-	                info.RedirectStandardOutput = true;
-	                var process = Process.Start(info);
-	                process.WaitForExit();
-	                uname = process.StandardOutput.ReadToEnd().Trim();
-	            }
-	            return uname;
-	        }
+			get;
+			private set;
 	    }
-
-	    [DllImport ("libc")] // Linux
-	    private static extern int prctl (int option, byte [] arg2, IntPtr arg3,
-	        IntPtr arg4, IntPtr arg5);
-
-	    [DllImport ("libc")] // BSD
-	    private static extern void setproctitle (byte [] fmt, byte [] str_arg);
 
 	    public void SetProcessName (string name)
 	    {
 	        if (OSName == "Linux") {
 
-	            if (prctl (15 /* PR_SET_NAME */, Encoding.ASCII.GetBytes (name + "\0"),
+	            if (LibC.prctl (15 /* PR_SET_NAME */, Encoding.ASCII.GetBytes (name + "\0"),
 	                    IntPtr.Zero, IntPtr.Zero, IntPtr.Zero) != 0) {
 	                throw new ApplicationException ("Error setting process name: " +
 	                                                Stdlib.GetLastError ());
 	            }
 	        } else if (OSName == "FreeBSD") { // XXX: I'm not sure this is right
-	            setproctitle (Encoding.ASCII.GetBytes ("%s\0"),
+	            LibC.setproctitle (Encoding.ASCII.GetBytes ("%s\0"),
 	                Encoding.ASCII.GetBytes (name + "\0"));
 	        }
 	    }

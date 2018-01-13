@@ -178,6 +178,14 @@
       <Project>{D981A690-6340-404C-96F5-B32E18C6AF8D}</Project>
       <Name>Meshwork.Platform</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform.Linux\Meshwork.Platform.Linux.csproj">
+      <Project>{699E3784-28E7-490D-96F1-FFEBCAF930B9}</Project>
+      <Name>Meshwork.Platform.Linux</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform.Windows\Meshwork.Platform.Windows.csproj">
+      <Project>{84CB86DC-05A8-427E-8C49-13258361DA55}</Project>
+      <Name>Meshwork.Platform.Windows</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Windows" />

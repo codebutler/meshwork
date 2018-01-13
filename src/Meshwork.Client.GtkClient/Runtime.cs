@@ -34,6 +34,9 @@ using Meshwork.Client.GtkClient.Windows;
 using Meshwork.Backend.Core;
 using Meshwork.Platform;
 using Meshwork.Platform.MacOS;
+using Meshwork.Platform.Linux;
+using Meshwork.Platform.Windows;
+using System.Runtime.InteropServices;
 
 namespace Meshwork.Client.GtkClient
 {
@@ -285,10 +288,25 @@ namespace Meshwork.Client.GtkClient
 
 		}
 
-	    // FIXME
-	    private static IPlatform getPlatform()
-	    {
-	        return new OSXPlatform();
+		[DllImport("libc")]
+		static extern int uname(IntPtr buf);
+
+		private static IPlatform getPlatform()
+		{
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				return new WindowsPlatform();
+			}
+			IntPtr buf = Marshal.AllocHGlobal(8192);
+			if (uname(buf) == 0) {
+				string os = Marshal.PtrToStringAnsi(buf);
+				Marshal.FreeHGlobal(buf);
+				if (os == "Darwin") {
+					return new OSXPlatform();
+				} else {
+					return new LinuxPlatform(os);
+				}
+			}
+			throw new ArgumentException("Unknown platform");
 	    }
 	}
 }
