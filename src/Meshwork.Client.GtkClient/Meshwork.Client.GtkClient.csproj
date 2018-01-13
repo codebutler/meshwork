@@ -158,11 +158,6 @@
     <Compile Include="Windows\winEditTrustedNode.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\contrib\osx\libigemacintegration.dylib">
-      <Link>libigemacintegration.dylib</Link>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Meshwork.Backend\Meshwork.Backend.csproj">
       <Project>{14D462D1-0164-486E-823B-DC25F1F38EDA}</Project>
       <Name>Meshwork.Backend</Name>

@@ -39,12 +39,6 @@
     <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\contrib\DiffieHellman.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <HintPath>..\..\contrib\dotnet\Mono.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <HintPath>..\..\contrib\dotnet\Mono.Data.Sqlite.dll</HintPath>
-    </Reference>
     <Reference Include="MonoTorrent, Version=0.80.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
     </Reference>
@@ -52,6 +46,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="Mono.Security" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\AckMethod.cs" />
