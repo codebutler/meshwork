@@ -5,4 +5,10 @@
 			<menuitem action="ShowDebugWindow" />
 		</menu>
 	</menubar>
+    <menubar name="OSXMainWindowMenuBar">
+        <menu name="HelpMenu" action="HelpMenu">
+            <separator />
+            <menuitem action="ShowDebugWindow" />
+        </menu>
+    </menubar>
 </ui>

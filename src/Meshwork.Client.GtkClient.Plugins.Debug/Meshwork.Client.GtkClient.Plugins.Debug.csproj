@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -48,6 +48,7 @@
     <Reference Include="Mono.Posix" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -55,14 +56,17 @@
     <ProjectReference Include="..\Meshwork.Client.GtkClient\Meshwork.Client.GtkClient.csproj">
       <Project>{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}</Project>
       <Name>Meshwork.Client.GtkClient</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Meshwork.Backend\Meshwork.Backend.csproj">
       <Project>{14D462D1-0164-486E-823B-DC25F1F38EDA}</Project>
       <Name>Meshwork.Backend</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Meshwork.Common\Meshwork.Common.csproj">
       <Project>{592E20C9-16CB-431C-8BAC-879FDAE9EF14}</Project>
       <Name>Meshwork.Common</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
