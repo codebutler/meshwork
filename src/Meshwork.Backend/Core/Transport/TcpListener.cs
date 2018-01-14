@@ -47,6 +47,7 @@ namespace Meshwork.Backend.Core.Transport
 
 		public void StopListening ()
 		{
+			listener.Stop();
 			if (listenThread != null) {
 				listenThread.Abort ();
 				listenThread = null;

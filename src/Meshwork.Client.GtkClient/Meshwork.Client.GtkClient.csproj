@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4577A0A2-5A95-4E1F-96A9-829B1829FAE9}</ProjectGuid>
     <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Meshwork.Client.GtkClient</RootNamespace>
     <AssemblyName>Meshwork.Client.GtkClient</AssemblyName>
@@ -292,6 +292,10 @@
   <ItemGroup>
     <None Include="..\..\contrib\osx\libgtkmacintegration-gtk2.2.dylib">
       <Link>libgtkmacintegration-gtk2.2.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\contrib\win32\sqlite3.dll">
+      <Link>sqlite3.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
