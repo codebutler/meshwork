@@ -223,12 +223,5 @@ Global
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$0.TextStylePolicy = $5
-		$2.inheritsSet = null
-		$2.scope = application/xml
-		$0.XmlFormattingPolicy = $3
-		$3.scope = application/xml
-		$0.StandardHeader = $4
-		$5.EolMarker = Unix
-		$5.scope = text/plain
 	EndGlobalSection
 EndGlobal
