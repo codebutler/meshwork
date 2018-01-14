@@ -1,8 +1,11 @@
 using System;
+using System.Runtime.InteropServices;
 using Meshwork.Backend.Core;
 using Meshwork.Backend.Core.Logging;
 using Meshwork.Platform;
+using Meshwork.Platform.Linux;
 using Meshwork.Platform.MacOS;
+using Meshwork.Platform.Windows;
 using IO = System.IO;
 
 namespace Meshwork.Client.Console
@@ -48,6 +51,7 @@ namespace Meshwork.Client.Console
 			core.AvatarManager = new AvatarManager(core);
 
 		    core.NetworkAdded += AddNetworkEvents;
+
 			LoggingService.AddLogger(this);
 
 		    core.Start();
@@ -211,11 +215,17 @@ namespace Meshwork.Client.Console
 									if (IO.File.Exists(keyFile)) {
 										var key = PublicKey.Parse(IO.File.ReadAllText(keyFile));
 										var nodeInfo = new TrustedNodeInfo(key);
-										
+
+										if (networkInfo.TrustedNodes.ContainsKey(nodeInfo.NodeId)) {
+											result += "Key already exists, removing\n";
+											networkInfo.TrustedNodes.Remove(nodeInfo.NodeId);
+										}
+
 										networkInfo.TrustedNodes.Add(nodeInfo.NodeId, nodeInfo);
-										
-										settings.SaveSettings();
-										core.Settings = settings;
+
+										settings.SyncNetworkInfoAndSave(core);
+										core.ReloadSettings();
+
 										IO.File.Delete (keyFile);
 										result += "Key added!";
 									} else {
@@ -317,7 +327,8 @@ namespace Meshwork.Client.Console
 		#region ILogger implementation
 		public void Log (LogLevel level, string message)
 		{
-			LogItem(level.ToString() + ": " + message);
+			// Already written to console by ConsoleLogger
+			// LogItem(level.ToString() + ": " + message);
 		}
 
 		public EnabledLoggingLevel EnabledLevel {
@@ -333,20 +344,24 @@ namespace Meshwork.Client.Console
 		}
 		#endregion
 
-	    static IPlatform getPlatform()
-	    {
-	        // FIXME
-//            if (Environment.OSVersion.Platform == PlatformID.Unix) {
-//				if (Utils.OSName Utils.OSName == "Linux") {
-//					return new LinuxPlatform();
-//				} else if (Utils.OSName == "Darwin") {
+		[DllImport("libc")]
+		static extern int uname(IntPtr buf);
+
+		private static IPlatform getPlatform() {
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				return new WindowsPlatform();
+			}
+			IntPtr buf = Marshal.AllocHGlobal(8192);
+			if (uname(buf) == 0) {
+				string os = Marshal.PtrToStringAnsi(buf);
+				Marshal.FreeHGlobal(buf);
+				if (os == "Darwin") {
 					return new OSXPlatform();
-//				} else {
-//					throw new Exception(string.Format("Unsupported operating system: {0}", Utils.OSName));
-//				}
-//			} else {
-//				Core.OS = new WindowsPlatform();
-//			}
-	    }
+				} else {
+					return new LinuxPlatform(os);
+				}
+			}
+			throw new ArgumentException("Unknown platform");
+		}
 	}
 }
