@@ -1,10 +1,10 @@
-//
+﻿//
 // FileSystemProvider.cs: The root of the virtual filesystem
 // 
 // Author:
-//   Eric Butler <eric@filefind.net>
+//   Eric Butler <eric@codebutler.com>
 //
-//   (C) 2005-2006 FileFind.net (http://filefind.net/)
+//   (C) 2005-2006 Meshwork Authors
 //
 
 using System;

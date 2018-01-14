@@ -1,10 +1,10 @@
-//
+﻿//
 // Node.cs: A node on the network.
 //
 // Author:
-//   Eric Butler <eric@filefind.net>
+//   Eric Butler <eric@codebutler.com>
 //
-//   (C) 2005-2008 FileFind.net (http://filefind.net/)
+//   (C) 2005-2008 Meshwork Authors
 //
 
 using System;
@@ -266,7 +266,7 @@ namespace Meshwork.Backend.Core
 	/*	public ulong SendPing()
 		{
 			if (timeOfLastPing == 0) {
-				ulong timestamp = FileFind.Utils.GetUnixTimestamp();
+				ulong timestamp = Utils.GetUnixTimestamp();
 				network.SendRoutedMessage(network.MessageBuilder.CreatePingMessage(this, timestamp));
 				timeOfLastPing = timestamp;
 				return timestamp;

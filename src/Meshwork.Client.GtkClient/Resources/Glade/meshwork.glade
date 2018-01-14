@@ -5834,9 +5834,9 @@ Generating Encryption Key... Please wait...</property>
     <property name="program_name">Meshwork</property>
     <property name="copyright" translatable="yes">Copyright (C) 2003-2009 Eric Butler</property>
     <property name="comments" translatable="yes">A distributed, secure, private peer-to-peer network.</property>
-    <property name="website">http://www.FileFind.net/</property>
-    <property name="website_label" translatable="yes">FileFind.net</property>
-    <property name="authors">Eric Butler &lt;eric@extremeboredom.net&gt;
+    <property name="website">https://codebutler.github.io/meshwork/</property>
+    <property name="website_label" translatable="yes">Website</property>
+    <property name="authors">Eric Butler &lt;eric@codebutler.com&gt;
 
 Christian Hergert &lt;christian.hergert@gmail.com&gt;
 Idan Gazit &lt;idan@fastmail.fm&gt;</property>

@@ -1,7 +1,0 @@
-{
-    "projects":[
-        "FileFind.Meshwork",
-        "FileFind.Meshwork.DaemonClient",
-	"FileFind.Meshwork.GtkClient"
-    ]
-}

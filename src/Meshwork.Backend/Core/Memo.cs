@@ -1,10 +1,10 @@
-//
+﻿//
 // Memo.cs: A memo
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2005-2006 FileFind.net (http://filefind.net)
+// (C) 2005-2006 Meshwork Authors
 //
 
 using System;

@@ -1,10 +1,10 @@
-//
+﻿//
 // ConnectionsPage.cs:
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2005-2007 FileFind.net
+// (C) 2005-2007 Meshwork Authors
 // 
 
 using System;

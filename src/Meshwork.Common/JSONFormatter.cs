@@ -1,10 +1,10 @@
-//
+﻿//
 // JSONFormatter.cs
 // 
 // Copyright (C) 2009 Eric Butler
 //
 // Authors:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

@@ -1,10 +1,10 @@
-//
+﻿//
 // Runtime.cs:
 //
 // Authors:
-//   Eric Butler <eric@filefind.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2008 FileFind.net (http://filefind.net)
+// (C) 2008 Meshwork Authors
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the

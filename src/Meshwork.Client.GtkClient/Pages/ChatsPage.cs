@@ -1,10 +1,10 @@
-//
+﻿//
 // ChatsPage.cs:
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2006-2008 FileFind.net
+// (C) 2006-2008 Meshwork Authors
 // 
 
 using System;

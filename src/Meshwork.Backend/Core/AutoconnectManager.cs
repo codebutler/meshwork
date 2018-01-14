@@ -1,10 +1,10 @@
-//
+﻿//
 // AutoconnectManager.cs: Automatically keep a specified number of connections open
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2005-2008 FileFind.net (http://filefind.net)
+// (C) 2005-2008 Meshwork Authors
 //
 
 using System;

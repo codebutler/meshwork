@@ -1,11 +1,11 @@
-//
+﻿//
 // EditMemoDialog.cs: Post/edit memos
 // 
 // Authors:
 // 	Eric Butler <eric@extermeboredom.net>
 //
 // This file is part of the Meshwork project
-// Copyright (C) 2005-2006 FileFind.net
+// Copyright (C) 2005-2006 Meshwork Authors
 //
 
 using System;

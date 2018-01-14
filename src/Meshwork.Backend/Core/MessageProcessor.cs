@@ -1,12 +1,12 @@
-// TODO: Check to see if we arent SendReady-ing in too many places...
+﻿// TODO: Check to see if we arent SendReady-ing in too many places...
 
 //
 // MessageProcessor.cs: Processes incoming messages
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2005 FileFind.net (http://filefind.net)
+// (C) 2005 Meshwork Authors
 //
 
 using System;

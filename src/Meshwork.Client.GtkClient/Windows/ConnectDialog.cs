@@ -1,10 +1,10 @@
-//
+﻿//
 // ConnectDialog.cs: The "Connect to a Friend" dialog
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2005-2008 FileFind.net
+// (C) 2005-2008 Meshwork Authors
 // 
 
 using System;

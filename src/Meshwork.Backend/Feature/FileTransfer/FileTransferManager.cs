@@ -1,10 +1,10 @@
-//
+﻿//
 // FileTransferManager.cs: Keeps track of ongoing file transfers
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2007 FileFind.net (http://filefind.net)
+// (C) 2007 Meshwork Authors
 //
 
 using System;

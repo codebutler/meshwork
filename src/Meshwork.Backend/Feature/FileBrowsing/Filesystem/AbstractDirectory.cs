@@ -1,10 +1,10 @@
-//
+﻿//
 // AbstractDirectory.cs
 //
 // Authors:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2009 FileFind.net (http://filefind.net)
+// (C) 2009 Meshwork Authors
 //
 
 namespace Meshwork.Backend.Feature.FileBrowsing.Filesystem

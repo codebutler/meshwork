@@ -20,7 +20,6 @@ missing
 po/Makefile.in.in
 po/POTFILES
 po/stamp-it
-src/FileFind.Meshwork.GtkClient/Defines.cs
 *.userprefs
 *.usertasks
 *.pidb

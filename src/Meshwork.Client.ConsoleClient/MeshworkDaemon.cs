@@ -38,7 +38,7 @@ namespace Meshwork.Client.Console
 		{
 			LogItem("MESHWORK DAEMON CLIENT 0.1");
 
-			// FIXME FileFind.Utils.SetProcessName("meshwork-daemon");
+			// FIXME Utils.SetProcessName("meshwork-daemon");
             // Stdlib.signal(Signum.SIGINT, handle_signal);
             // Stdlib.signal(Signum.SIGKILL, handle_signal);
 

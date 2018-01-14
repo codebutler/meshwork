@@ -1,10 +1,10 @@
-//
+﻿//
 // TransfersPage:
 //
 // Authors:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2006-2007 FileFind.net (http://filefind.net)
+// (C) 2006-2007 Meshwork Authors
 //
 
 using System;

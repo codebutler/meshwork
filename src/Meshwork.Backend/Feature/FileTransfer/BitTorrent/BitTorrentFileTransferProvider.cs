@@ -1,10 +1,10 @@
-//
+﻿//
 // BitTorrentFileTransferProvider.cs:
 //
 // Authors:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2007-2008 FileFind.net (http://filefind.net)
+// (C) 2007-2008 Meshwork Authors
 //
 
 //#define RIDICULOUS_DEBUG_OUTPUT

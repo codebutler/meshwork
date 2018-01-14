@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Debug;
 using Gtk;
 using Meshwork.Backend.Core;
@@ -6,7 +6,7 @@ using Meshwork.Client.GtkClient;
 using System;
 
 [assembly: PluginName("Debug Console")]
-[assembly: PluginAuthor("Eric Butler <eric@extremeboredom.net>")]
+[assembly: PluginAuthor("Eric Butler <eric@codebutler.com>")]
 [assembly: PluginVersion("0.0.0.1")]
 [assembly: PluginType(typeof(DebugPlugin))]
 

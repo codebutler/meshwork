@@ -1,10 +1,10 @@
-//
+﻿//
 // MemoWindow.cs: View memo window
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2005-2006 FileFind.net
+// (C) 2005-2006 Meshwork Authors
 // 
 
 using System;
@@ -68,7 +68,7 @@ namespace Meshwork.Client.GtkClient.Windows
 			/*
 			if (memo.FileLinks.Count > 0) {
 				foreach (FileLink thisFile in memo.FileLinks) {
-					fileListStore.AppendValues ( new object[] { thisFile.FileName + " (" + FileFind.Utils.FormatBytes(thisFile.FileSize) + ")", thisFile.FilePath });
+					fileListStore.AppendValues ( new object[] { thisFile.FileName + " (" + Utils.FormatBytes(thisFile.FileSize) + ")", thisFile.FilePath });
 				}
 				hboxFilesList.Visible = true;
 			}

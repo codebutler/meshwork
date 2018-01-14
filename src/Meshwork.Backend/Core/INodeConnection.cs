@@ -1,10 +1,10 @@
-//
+﻿//
 // INodeConnection.cs:
 //
 // Authors:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2006 FileFind.net (http://filefind.net)
+// (C) 2006 Meshwork Authors
 //
 
 namespace Meshwork.Backend.Core {

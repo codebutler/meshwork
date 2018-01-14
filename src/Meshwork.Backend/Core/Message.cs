@@ -1,10 +1,10 @@
-//
+﻿//
 // Message.cs: Reperesents a Meshwork message
 //
 // Author:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2005 FileFind.net (http://filefind.net)
+// (C) 2005 Meshwork Authors
 // 
 
 using System;

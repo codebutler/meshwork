@@ -1,11 +1,11 @@
-//
+﻿//
 // ZoomableNetworkMap.cs: Bringin' sexy back...
 //
 // Author:
 //   Idan Gazit <idan@fastmail.fm>
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2006 FileFind.net (http://filefind.net/)
+// (C) 2006 Meshwork Authors
 // 
 
 using System;
@@ -909,7 +909,7 @@ namespace Meshwork.Client.GtkClient.Widgets
 		{
 			if (node.DestinationInfos != null) {
 				foreach (DestinationInfo info in node.DestinationInfos) {
-					if (info.TypeName == "FileFind.Meshwork.Destination.TCPIPv4Destination") {
+					if (info.TypeName == "Meshwork.Destination.TCPIPv4Destination") {
 						IPAddress address = IPAddress.Parse(info.Data[0]);
 						if (!Common.Utils.IsInternalIP(address)) {
 							return address;

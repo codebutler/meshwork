@@ -1,10 +1,10 @@
-//
+﻿//
 // GtkHelper.cs: Some random code converted from C (Part of GTK+)
 // 
 // Authors:
 // 	Eric Butler <eric@extermeboredom.net>
 //
-// Copyright (C) 2005 FileFind.net
+// Copyright (C) 2005 Meshwork Authors
 // 
 
 using System;

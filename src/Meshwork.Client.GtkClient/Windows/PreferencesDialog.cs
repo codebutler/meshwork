@@ -1,10 +1,10 @@
-//
+﻿//
 // PreferencesDialog.cs:
 //
 // Authors:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// (C) 2006 FileFind.net (http://filefind.net)
+// (C) 2006 Meshwork Authors
 //
 
 using System;
@@ -856,7 +856,7 @@ namespace Meshwork.Client.GtkClient.Windows
 
 		private void on_emailEntry_changed(object o, EventArgs args)
 		{
-			//Gui.SetError ((Gtk.Widget)o, ! FileFind.Utils.IsValidEmail (((Gtk.Entry)o).Text));
+			//Gui.SetError ((Gtk.Widget)o, ! Utils.IsValidEmail (((Gtk.Entry)o).Text));
 		}
 
 		private void externalIPv4AddressEntry_Changed(object o, EventArgs args)

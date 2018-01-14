@@ -219,7 +219,7 @@ Global
 		SolutionGuid = {F180FA04-1767-4E0B-93D1-5EA7829B54D5}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = src\FileFind.Meshwork.GtkClient\FileFind.Meshwork.GtkClient.csproj
+		StartupItem = src\Meshwork.Client.GtkClient\Meshwork.Client.GtkClient.csproj
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$0.TextStylePolicy = $5

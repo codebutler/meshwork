@@ -1,10 +1,10 @@
-//
+﻿//
 // TrayIcon.cs:
 //
 // Authors:
-//   Eric Butler <eric@extremeboredom.net>
+//   Eric Butler <eric@codebutler.com>
 //
-// Copyright (C) 2006 FileFind.net
+// Copyright (C) 2006 Meshwork Authors
 //
 
 using System;
