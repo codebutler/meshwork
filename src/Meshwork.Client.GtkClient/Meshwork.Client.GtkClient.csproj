@@ -186,14 +186,7 @@
       <Name>Meshwork.Platform.Windows</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Windows" />
-    <Folder Include="Resources\" />
-    <Folder Include="Resources\Images\" />
-    <Folder Include="Resources\Menus\" />
-    <Folder Include="Platform\" />
-    <Folder Include="Platform\Mac\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Resources\Images\arrow_up.png" />
     <EmbeddedResource Include="Resources\Images\attachment-col-small.png" />
@@ -298,6 +291,7 @@
       <Link>sqlite3.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
