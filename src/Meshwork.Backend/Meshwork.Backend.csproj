@@ -37,10 +37,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\contrib\DiffieHellman.dll</HintPath>
+      <HintPath>..\..\contrib\dotnet\DiffieHellman.dll</HintPath>
     </Reference>
     <Reference Include="MonoTorrent, Version=0.80.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\contrib\MonoTorrent.dll</HintPath>
+      <HintPath>..\..\contrib\dotnet\MonoTorrent.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
