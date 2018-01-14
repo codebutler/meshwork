@@ -6,17 +6,7 @@ namespace Meshwork.Library.Stun
 {
 	public class StunClient
 	{
-		static string stunServer = "stun.ekiga.net";
-		public static string StunServer {
-			get {
-				return stunServer;
-			}
-			set {
-				stunServer = value;
-			}
-		}
-		
-		public static IPAddress GetExternalAddress ()
+        public static IPAddress GetExternalAddress (String stunServer)
 		{
 			var entry = Dns.GetHostEntry (stunServer);
 			var endPoint = new IPEndPoint (entry.AddressList [0], 3478);

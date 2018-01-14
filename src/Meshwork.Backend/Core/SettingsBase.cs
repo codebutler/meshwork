@@ -21,7 +21,7 @@ namespace Meshwork.Backend.Core
 	{
 	    string[] sharedDirectories = new string [0];
 
-	    public static readonly string DefaultStunServer = "stun.ekiga.net";
+        public static readonly string DefaultStunServer = "stun.stunprotocol.org";
 
 	    public abstract bool FirstRun {
 			get; set; }

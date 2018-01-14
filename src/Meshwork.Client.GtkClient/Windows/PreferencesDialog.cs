@@ -672,7 +672,7 @@ namespace Meshwork.Client.GtkClient.Windows
 		{
 			try
 			{
-				return StunClient.GetExternalAddress().ToString();
+                return StunClient.GetExternalAddress(stunServerEntry.Text).ToString();
 			}
 			catch (Exception)
 			{
@@ -682,20 +682,6 @@ namespace Meshwork.Client.GtkClient.Windows
 
 		private bool TestTCPPort()
 		{
-			try
-			{
-				WebResponse resp = HttpWebRequest.Create("http://filefind.net/test_port.php?port=" + nodePortSpinButton.Value.ToString()).GetResponse();
-				using (resp)
-				{
-					using (StreamReader reader = new StreamReader(resp.GetResponseStream()))
-					{
-						string response = reader.ReadToEnd();
-						if (response == "1")
-							return true;
-					}
-				}
-			}
-			catch (Exception) { /* ignore */ }
 			return false;
 		}
 
