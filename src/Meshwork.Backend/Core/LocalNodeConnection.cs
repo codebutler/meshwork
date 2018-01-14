@@ -385,7 +385,7 @@ namespace Meshwork.Backend.Core
 					}
 
 				} else {
-					ThreadPool.QueueUserWorkItem(transport.Network.ProcessMessage, info);
+					transport.Network.ProcessMessage(info);
 				}
 			} catch (Exception ex) {
 				Disconnect(ex);
