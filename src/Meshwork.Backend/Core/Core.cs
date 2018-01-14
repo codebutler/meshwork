@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using Meshwork.Backend.Core.Destination;
@@ -21,6 +22,7 @@ using Meshwork.Backend.Feature.FileSearch;
 using Meshwork.Backend.Feature.FileTransfer;
 using Meshwork.Backend.Feature.FileTransfer.BitTorrent;
 using Meshwork.Platform;
+using Meshwork.Platform.Windows;
 using MonoTorrent.Client.Tracker;
 
 namespace Meshwork.Backend.Core
@@ -93,13 +95,17 @@ namespace Meshwork.Backend.Core
 
 			TrackerFactory.Register("meshwork", typeof(MeshworkTracker));
 
-			ITransportListener tcpListener = new TcpTransportListener(this, Settings.TcpListenPort);
-			transportListeners.Add(tcpListener);
-			
-			if (FinishedLoading != null) {
-				FinishedLoading(null, EventArgs.Empty);
-			}
-		}
+            if (Common.Utils.SupportsIPv6) {
+                transportListeners.Add(new TcpTransportListener(this, IPAddress.IPv6Any, Settings.TcpListenPort));
+                if (platform is WindowsPlatform) {
+                    transportListeners.Add(new TcpTransportListener(this, IPAddress.Any, Settings.TcpListenPort));
+                }
+            } else {
+                transportListeners.Add(new TcpTransportListener(this, IPAddress.Any, Settings.TcpListenPort));
+            }
+
+            FinishedLoading?.Invoke(null, EventArgs.Empty);
+        }
 
 		public void Start () {
 			if (started) {

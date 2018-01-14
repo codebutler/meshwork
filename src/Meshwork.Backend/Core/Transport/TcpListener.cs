@@ -16,29 +16,27 @@ namespace Meshwork.Backend.Core.Transport
 {
 	public class TcpTransportListener : ITransportListener
 	{
+        IPAddress localaddr;
 		int port;
 		TcpListener listener;
 		Thread listenThread;
 
 	    private readonly Core core;
 
-		public TcpTransportListener (Core core, int port)
+		public TcpTransportListener (Core core, IPAddress localaddr, int port)
 		{
+            this.localaddr = localaddr;
 		    this.core = core;
 			this.port = port;
 		}
 
 		public void StartListening ()
 		{
-			if (listener != null || listenThread != null)
-				throw new InvalidOperationException("Already started");
-			
-			if (Common.Utils.SupportsIPv6) {
-				listener = new TcpListener(IPAddress.IPv6Any, port);
-			} else {
-				listener = new TcpListener(IPAddress.Any, port);
-			}
+            if (listener != null || listenThread != null) {
+                throw new InvalidOperationException("Already started");
+            }
 
+            listener = new TcpListener(localaddr, port);
 			listener.Start ();
 
 			listenThread = new Thread(Listen);

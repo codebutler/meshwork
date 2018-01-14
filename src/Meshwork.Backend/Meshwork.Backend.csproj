@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -180,6 +180,18 @@
     <ProjectReference Include="..\Meshwork.Platform\Meshwork.Platform.csproj">
       <Project>{D981A690-6340-404C-96F5-B32E18C6AF8D}</Project>
       <Name>Meshwork.Platform</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform.Linux\Meshwork.Platform.Linux.csproj">
+      <Project>{699E3784-28E7-490D-96F1-FFEBCAF930B9}</Project>
+      <Name>Meshwork.Platform.Linux</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform.MacOS\Meshwork.Platform.MacOS.csproj">
+      <Project>{920ABE15-340F-4BF4-80D7-F49CB940E5F2}</Project>
+      <Name>Meshwork.Platform.MacOS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Meshwork.Platform.Windows\Meshwork.Platform.Windows.csproj">
+      <Project>{84CB86DC-05A8-427E-8C49-13258361DA55}</Project>
+      <Name>Meshwork.Platform.Windows</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
