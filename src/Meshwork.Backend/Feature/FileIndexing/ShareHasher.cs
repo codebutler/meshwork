@@ -196,9 +196,8 @@ namespace Meshwork.Backend.Feature.FileIndexing
 			creator.Announces.Add(new MonoTorrentCollection<string>());
 			creator.Announces[0].Add(string.Empty);
 
-			//creator.Path = task.File.LocalPath;
-			//Torrent torrent = Torrent.Load(creator.Create());
-			Torrent torrent =  null; // FIXME
+			creator.Path = task.File.LocalPath;
+			Torrent torrent = Torrent.Load(creator.Create());
 
 			/* Update the database */
 			var pieces = new string[torrent.Pieces.Count];
