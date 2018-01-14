@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,7 +15,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>anycpu</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -58,9 +58,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="Mono.Cairo" />
     <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="ige-mac-integration-sharp">
-      <HintPath>..\..\contrib\ige-mac-integration-sharp.dll</HintPath>
-    </Reference>
     <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +153,8 @@
     <Compile Include="Windows\StartupProblemsDialog.cs" />
     <Compile Include="Windows\UserInfoDialog.cs" />
     <Compile Include="Windows\winEditTrustedNode.cs" />
+    <Compile Include="Platform\Mac\Carbon.cs" />
+    <Compile Include="Platform\Mac\GtkOSXApplication.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Meshwork.Backend\Meshwork.Backend.csproj">
@@ -192,6 +191,8 @@
     <Folder Include="Resources\" />
     <Folder Include="Resources\Images\" />
     <Folder Include="Resources\Menus\" />
+    <Folder Include="Platform\" />
+    <Folder Include="Platform\Mac\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Images\arrow_up.png" />
@@ -287,6 +288,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Glade\meshwork.glade" />
     <EmbeddedResource Include="Resources\Images\arrow_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\contrib\osx\libgtkmacintegration-gtk2.2.dylib">
+      <Link>libgtkmacintegration-gtk2.2.dylib</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

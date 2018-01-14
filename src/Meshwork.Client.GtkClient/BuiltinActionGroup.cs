@@ -99,6 +99,8 @@ namespace Meshwork.Client.GtkClient
 			new ActionEntry ("HelpMenu", null, string_help_menu,
 				null, null, null),
 
+			new ActionEntry("Help", null, string_help_menu, null, null, null),
+
 			new ActionEntry ("About", Stock.About),
 
 			new ActionEntry ("SidebarRemoveSearch", null, string_remove_search,

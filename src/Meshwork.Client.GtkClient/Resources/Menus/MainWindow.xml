@@ -1,15 +1,11 @@
 <ui>
-	<menubar name="OSXAppMenu">
+	<menubar name="OSXMainWindowMenuBar" action="OSXMainWindowMenuBar">
 		<menu action="NetworkMenu" name="NetworkMenu">
-			<menuitem action="About" />
-			<separator />
-			<menuitem action="Preferences" />
-		
 			<menuitem action="Connect" /> 
+			<menuitem action="Preferences" />
 			<separator />
 			<menuitem action="PostMemo" />
 			<menuitem action="JoinChat" />
-			<menuitem action="Quit" />
 		</menu>
 		<menu name="ViewMenu" action="ViewMenu">
 			<menuitem action="ToggleMainToolbar" />
@@ -17,6 +13,8 @@
 			<menuitem action="ToggleMainStatusbar" />
 		</menu>
 		<menu name="HelpMenu" action="HelpMenu">
+			<menuitem action="About" />
+			<menuitem action="Help"/>
 		</menu>
 	</menubar>
 
@@ -38,6 +36,7 @@
 			<menuitem action="ToggleMainStatusbar" />
 		</menu>
 		<menu name="HelpMenu" action="HelpMenu">
+			<menuitem action="Help"/>
 			<menuitem action="About" />
 		</menu>
 	</menubar>

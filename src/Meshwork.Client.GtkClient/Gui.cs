@@ -14,6 +14,8 @@ using Gtk;
 using Meshwork.Client.GtkClient.Windows;
 using Meshwork.Client.GtkClient.Pages;
 using Meshwork.Backend.Core;
+using Meshwork.Client.GtkClient.Platform.Mac;
+using Meshwork.Platform.MacOS;
 
 namespace Meshwork.Client.GtkClient
 {
@@ -156,28 +158,28 @@ namespace Meshwork.Client.GtkClient
 		{
 			return ShowErrorDialog (text, null);
 		}
-		
-		static Imendio.MacIntegration.AttentionRequest lastDockAttentionRequest = null;
+
+		private static int? attentionRequestId = null;
+
 		public static void SetWindowUrgencyHint (Gtk.Window window, bool setting)
 		{
 			window.UrgencyHint = setting;
 
-			if (Runtime.Core.Platform.OSName == "macOS") {
+			if (Runtime.Core.Platform is OSXPlatform) {
 				/* GTK doesn't currenly do anything with the
 				 * urgency hint under OSX, so we'll have to
 				 * do it ourself for now...
 				 */
-				
-				Imendio.MacIntegration.Dock dock = Imendio.MacIntegration.Dock.Default;
+				var osxApp = new GtkOSXApplication();
 				if (setting == true) {
-					if (lastDockAttentionRequest != null) {
-						dock.AttentionCancel(lastDockAttentionRequest);
+					if (attentionRequestId.HasValue) {
+						osxApp.CancelAttentionRequest(attentionRequestId.Value);
 					}
-					lastDockAttentionRequest = dock.AttentionRequest(Imendio.MacIntegration.AttentionType.Critical);
+					attentionRequestId = osxApp.AttentionRequest(GtkOSXApplicationAttentionType.CriticalRequest);
 				} else {
-					if (lastDockAttentionRequest != null) {
-						dock.AttentionCancel(lastDockAttentionRequest);
-						lastDockAttentionRequest = null;
+					if (attentionRequestId.HasValue) {
+						osxApp.CancelAttentionRequest(attentionRequestId.Value);
+						attentionRequestId = null;
 					}
 				}
 			}

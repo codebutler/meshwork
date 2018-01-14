@@ -19,6 +19,8 @@ using Meshwork.Backend.Core;
 using Meshwork.Backend.Feature.FileIndexing;
 using Meshwork.Backend.Feature.FileSearch;
 using ErrorEventHandler = System.IO.ErrorEventHandler;
+using Meshwork.Platform.MacOS;
+using Meshwork.Client.GtkClient.Platform.Mac;
 
 namespace Meshwork.Client.GtkClient.Windows
 {
@@ -67,24 +69,23 @@ namespace Meshwork.Client.GtkClient.Windows
 			window.Add (mainVBox);
 			mainVBox.Show ();
 
-			if (Runtime.Core.Platform.OSName == "macOS") {
-				MenuBar menubar = (MenuBar) Runtime.UIManager.GetWidget ("/OSXAppMenu");
+			if (Runtime.Core.Platform is OSXPlatform) {
+				var osxApp = new GtkOSXApplication();
 
-				Imendio.MacIntegration.Menu.SetMenuBar(menubar);
+				var menubar = (MenuShell)Runtime.UIManager.GetWidget("/OSXMainWindowMenuBar");
+				menubar.Hide();
+				osxApp.SetMenuBar(menubar);
 
-				MenuItem preferencesItem = (MenuItem) Runtime.UIManager.GetWidget ("/OSXAppMenu/NetworkMenu/Preferences");
-				MenuItem aboutItem = (MenuItem) Runtime.UIManager.GetWidget ("/OSXAppMenu/NetworkMenu/About");
+				var aboutItem = (MenuItem)Runtime.UIManager.GetWidget("/OSXMainWindowMenuBar/HelpMenu/About");
+				osxApp.InsertAppMenuItem(aboutItem, 0);
 
-				IntPtr group = Imendio.MacIntegration.Menu.AddAppMenuGroup();
+				var separator = new SeparatorMenuItem();
+				osxApp.InsertAppMenuItem(separator, 1);
 
-				Imendio.MacIntegration.Menu.AddAppMenuItem(group, aboutItem, "About Meshwork");
+				var preferencesItem = (MenuItem)Runtime.UIManager.GetWidget("/OSXMainWindowMenuBar/NetworkMenu/Preferences");
+				osxApp.InsertAppMenuItem(preferencesItem, 2);
 
-				group = Imendio.MacIntegration.Menu.AddAppMenuGroup();
-
-				Imendio.MacIntegration.Menu.AddAppMenuItem(group, preferencesItem, "Preferences");
-
-				MenuItem quitItem = (MenuItem) Runtime.UIManager.GetWidget ("/OSXAppMenu/NetworkMenu/Quit");
-				Imendio.MacIntegration.Menu.SetQuitMenuItem(quitItem);
+				osxApp.SyncMenubar();
 			} else {
 				MenuBar menubar = (MenuBar) Runtime.UIManager.GetWidget ("/MainWindowMenuBar");
 				mainVBox.PackStart (menubar, false, false, 0);

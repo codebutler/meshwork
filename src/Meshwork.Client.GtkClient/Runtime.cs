@@ -37,6 +37,7 @@ using Meshwork.Platform.MacOS;
 using Meshwork.Platform.Linux;
 using Meshwork.Platform.Windows;
 using System.Runtime.InteropServices;
+using Meshwork.Client.GtkClient.Platform.Mac;
 
 namespace Meshwork.Client.GtkClient
 {
@@ -49,6 +50,7 @@ namespace Meshwork.Client.GtkClient
 		static TrayIcon trayIcon;
 
 		private static Settings tmpSettings;
+		private static IPlatform platform = getPlatform();
 	    private static Core core;
 
 		public static void Main (string[] args)
@@ -60,7 +62,7 @@ namespace Meshwork.Client.GtkClient
 			options = new GtkMeshworkOptions ();
 			options.ProcessArgs (args);
 
-			getPlatform().SetProcessName("meshwork-gtk");
+			platform.SetProcessName("meshwork-gtk");
 
 			/* Initialize the GTK application */
 			Gtk.Application.Init();
@@ -70,7 +72,17 @@ namespace Meshwork.Client.GtkClient
 				GLib.ExceptionManager.UnhandledException += UnhandledGLibExceptionHandler;
 				AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 			}
-			
+
+			if (platform is OSXPlatform) {
+				Carbon.SetProcessName("Meshwork");
+
+				var app = new GtkOSXApplication();
+				var menubar = new MenuBar();
+				menubar.Hide();
+				app.SetMenuBar(menubar);
+				app.Ready();
+			}
+
 			//XXX: Implement Gunique code here!
 
 			splashWindow = new SplashWindow();
@@ -166,7 +178,7 @@ namespace Meshwork.Client.GtkClient
 				}
 				
 				/* Init the core */
-			    core = new Core(tmpSettings, getPlatform());
+			    core = new Core(tmpSettings, platform);
 				
 				/* Show change password dialog */
 //				var dialog = new ChangeKeyPasswordDialog(splashWindow.Window);
@@ -184,7 +196,7 @@ namespace Meshwork.Client.GtkClient
 				core.ReloadSettings();
 			} else {
 				/* Init the core */
-			    core = new Core(tmpSettings, getPlatform());
+			    core = new Core(tmpSettings, platform);
 			}
 
 			tmpSettings = null;
